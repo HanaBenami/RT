@@ -11,7 +11,3 @@ log:
 
 settings:
   bigScreenInterval: 60000
-
-vaadin:
-  servlet:
-    productionMode: true
