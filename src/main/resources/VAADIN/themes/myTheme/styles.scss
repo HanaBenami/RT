@@ -1,0 +1,268 @@
+@import "../valo/valo.scss";
+@mixin myTheme {
+  @include valo;
+}
+
+.myTheme {
+  @include myTheme;
+
+    @media print {
+      body, page {
+          width: 29.7cm !important;
+          height: 21cm !important;
+          margin: 0 !important;
+      }
+    }
+
+    .v-panel {
+        background-color: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .custom-margins{
+        &.v-margin-left   {padding-left:   10px;}
+        &.v-margin-right  {padding-right:  10px;}
+        &.v-margin-top    {padding-top:    10px;}
+        &.v-margin-bottom {padding-bottom: 10px;}
+    }
+
+    .LABEL {
+        color: black;
+        float: center;
+        font-size: 30px;
+        font-weight: bold;
+        line-height: 150%;
+    }
+    .LABEL-RIGHT {
+        color: black;
+        float: right;
+        text-align: right !important;
+        font-size: 30px;
+        font-weight: bold;
+        line-height: 150%;
+    }
+    .LABEL-BIGSCREEN {
+        color: black;
+        float: right;
+        text-align: right !important;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 100%;
+    }
+    .LABEL-RIGHT-PRINT {
+        color: black;
+        float: right;
+        text-align: right !important;
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 100%;
+    }
+    .LABEL-WARNING {
+        color: black;
+        float: center;
+        text-align: center !important;
+        font-size: 20px !important;
+        line-height: 150% !important;
+        word-wrap: break-word !important;
+    }
+    .LABEL-SMALL {
+        color: black;
+        float: right;
+        text-align: right !important;
+        font-size: 14px;
+        line-height: 120%;
+        word-wrap: break-word !important;
+    }
+
+    .bigscreen tr .v-grid-cell {
+        height: 80px !important;
+        padding-left: 2px !important;
+        padding-right: 3px !important;
+    }
+
+    .noBorder {
+        border: 0 !important;
+    }
+
+    .noBorderButton {
+        background-color: transparent !important;
+        border: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        transition: 0s !important;
+        box-shadow: none !important;
+        background-image: none !important;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+    }
+    .noBorderButton:after {
+        background-color: transparent !important;
+        border: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        transition: 0s !important;
+        box-shadow: none !important;
+        background-image: none !important;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+    }
+
+    .menu {
+        text-align: right;
+    }
+
+    th {
+        background: #F0F0F0;
+        text-align: center !important;
+    }
+    .v-grid-cell {
+        padding-left: 5px !important;
+    }
+    .sort-asc, .sort-desc {
+        padding-right: 15px !important;
+    }
+    .sort-asc:after, .sort-desc:after {
+        right: 10px !important;
+    }
+    .v-grid-column-header-content {
+        font-weight: bold !important;;
+        font-size: 11px !important;;
+        color: black;
+    }
+    .v-grid-row {
+        text-align: right	 !important;
+    }
+    tr.red td.v-grid-cell {
+        background: #ffe6e6		 !important;
+        color: black;
+        border-color: lightgray;
+    }
+
+    .v-gridlayout-slot {
+        align: left;
+        text-align: left;
+    }
+
+    .component-wrap {
+        align: left;
+        text-align: left;
+    }
+
+    .v-grid-tablewrapper {
+        text-align: right;
+        align: right;
+    }
+
+    .v-link {
+        text-decoration: none;
+    }
+
+    tr.darkred td.v-grid-cell {
+        background: #ffb3b3		 !important;
+        color: black;
+        border-color: lightgray;
+    }
+
+    tr.green td.v-grid-cell {
+        background: #e6ffe6		 !important;
+        color: black;
+        border-color: lightgray;
+    }
+
+    tr.yellow td.v-grid-cell {
+        background: #ffffe6		 !important;
+        color: black;
+        border-color: lightgray;
+    }
+
+    .print th {
+        background: transparent !important;
+        border-color: black !important;
+        text-align: center !important;
+    }
+
+    .print .v-grid-column-header-content {
+        font-weight: bold !important;
+        font-size: 15px !important;
+        color: black;
+    }
+
+    .print .v-grid-tablewrapper {
+            table-layout: fixed !important;
+            border-color: black !important;
+            white-space: normal !important;
+    }
+
+    .print .v-grid-row  {
+        line-height: 100% !important;
+    }
+
+    .print tr td.v-grid-cell  {
+        background: transparent !important;
+        color: black !important;
+        border-color: black !important;
+        font-size: 22px  !important;
+        word-wrap: break-word !important;
+    }
+
+    .print .v-contextmenu {
+        border: 0px !important;
+        top: 5px !important;
+        right: 5px !important;
+    }
+    .print .v-grid-sidebar-button {
+        height: 15px !important;
+    }
+    .print .v-grid-sidebar-button:after {
+        height: 20px !important;
+    }
+    .print .v-contextmenu.closed {
+        background-image: none !important;
+    }
+
+    .null {
+        color: lightgray	 !important;
+    }
+
+    .bold {
+        color: black;
+        font-weight: bold;
+    }
+
+    .v-textfield {
+        text-align: right !important;
+    }
+
+    .v-textarea {
+        text-align: right !important;
+        border: 0 !important;
+
+    }
+    .v-caption {
+       font-weidht: bold !important;;
+    }
+    .v-caption-v-textarea {
+       text-align: right !important;
+    }
+    .v-captiontext {
+       text-align: right !important;
+    }
+
+    .v-filterselect-input {
+        text-align-last: right !important;
+    }
+    .v-filterselect-suggestpopup {
+        text-align-last: right !important;
+    }
+    .v-filterselect-button {
+        border-left: 0 !important;
+    }
+}
+
+

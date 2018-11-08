@@ -1,0 +1,186 @@
+package il.co.rtcohen.rt.views;
+
+import com.vaadin.data.ValueProvider;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.ErrorHandler;
+import com.vaadin.server.Setter;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.*;
+import il.co.rtcohen.rt.UIcomponents;
+import il.co.rtcohen.rt.dao.Area;
+import il.co.rtcohen.rt.dao.GeneralType;
+import il.co.rtcohen.rt.repositories.AreaRepository;
+import il.co.rtcohen.rt.repositories.GeneralRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.addons.filteringgrid.FilterGrid;
+import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
+import org.vaadin.ui.NumberField;
+
+import java.util.List;
+
+@SpringView(name = AreaView.VIEW_NAME)
+public class AreaView extends AbstractDataView {
+    static final String VIEW_NAME = "area";
+    private AreaRepository areaRepository;
+
+    @Autowired
+    private AreaView(ErrorHandler errorHandler, AreaRepository areaRepository, GeneralRepository generalRepository) {
+        super(errorHandler,generalRepository);
+        this.areaRepository=areaRepository;
+        this.generalRepository=generalRepository;
+    }
+
+    @Override
+    public void createView(ViewChangeListener.ViewChangeEvent event) {
+        title="רשימת אזורים";
+        addHeader();
+        addForm();
+        addGrid(areaRepository);
+    }
+
+    private void addGrid(AreaRepository repository) {
+
+        FilterGrid<Area> grid = UIcomponents.myGrid("v-align-right");
+
+        //data
+        List<Area> list = repository.getAreas();
+        grid.setItems(list);
+        TextField displayOrder = new NumberField();
+        TextField name = new TextField();
+        CheckBox active = new CheckBox();
+        CheckBox here = new CheckBox();
+
+        //columns
+
+        //here
+        FilterGrid.Column hereColumn =
+                grid.addComponentColumn((ValueProvider<Area, Component>) area ->
+                        UIcomponents.checkBox(area.getHere(),true));
+        hereColumn.setId("hereColumn").setExpandRatio(1).setResizable(false).setWidth(70);
+        hereColumn.setEditorBinding(grid.getEditor().getBinder().forField(here).bind(
+                (ValueProvider<Area, Boolean>) Area::getHere,
+                (Setter<Area, Boolean>) (area, Boolean) -> {
+                    area.setHere(Boolean);
+                    repository.updateArea(area);
+                }));
+        grid.getDefaultHeaderRow().getCell("hereColumn").setText("כאן");
+        CheckBox filterHere = UIcomponents.checkBox(false);
+        hereColumn.setFilter(UIcomponents.BooleanValueProvider(),
+                filterHere,  UIcomponents.BooleanPredicateWithShowAll());
+
+        //active
+        FilterGrid.Column activeColumn =
+        grid.addComponentColumn((ValueProvider<Area, Component>) area ->
+                UIcomponents.checkBox(area.getActive(),true));
+        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
+        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(active).bind(
+                (ValueProvider<Area, Boolean>) GeneralType::getActive,
+                (Setter<Area, Boolean>) (area, Boolean) -> {
+                    area.setActive(Boolean);
+                    generalRepository.update(area);
+                }));
+        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
+        CheckBox filterActive = UIcomponents.checkBox(true);
+        activeColumn.setFilter(UIcomponents.BooleanValueProvider(),
+                filterActive, UIcomponents.BooleanPredicate());
+
+        //displayOrder
+        FilterGrid.Column<Area, Integer> displayOrderColumn =
+                grid.addColumn(Area::getDisplayOrder).setId("displayOrderColumn")
+                        .setEditorBinding(grid.getEditor().getBinder().forField(displayOrder).bind(
+                                (ValueProvider<Area, String>) area -> {
+                                    return String.valueOf(area.getDisplayOrder());},
+                                (Setter<Area, String>) (area, String) -> {
+                                    if (String.matches("\\d+")) {
+                                        area.setDisplayOrder(Integer.parseInt(String));
+                                        areaRepository.updateArea(area);
+                                    }
+                                    else
+                                        displayOrder.setValue(
+                                                String.valueOf(area.getDisplayOrder()));
+                                }
+                        ))
+                        .setExpandRatio(1).setResizable(false).setWidth(60);
+        displayOrderColumn.setStyleGenerator(area -> { if(area.getDisplayOrder()==0) return "null"; else return "bold" ;});
+        grid.getDefaultHeaderRow().getCell("displayOrderColumn").setText("סדר");
+        NumberField filterDisplay = UIcomponents.numberField("95%","30");
+        displayOrderColumn.setFilter(filterDisplay, InMemoryFilter.StringComparator.containsIgnoreCase());
+        filterDisplay.setWidth("95%");
+
+        //name
+        FilterGrid.Column<Area, String> nameColumn =
+                grid.addColumn(Area::getName).setId("nameColumn")
+                .setEditorComponent(name, (area, String) -> {
+                    if((area.getName().equals("מוסך"))&&(!name.getValue().equals("מוסך"))) {
+                        Notification.show("לא ניתן לעדכן את שם המוסך",
+                                "",Notification.Type.ERROR_MESSAGE);
+                    } else {
+                        area.setName(String);
+                        generalRepository.update(area);
+                    }
+                })
+                .setExpandRatio(1).setResizable(false).setMinimumWidth(230);
+        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+        TextField filterName = UIcomponents.textField(30);
+        nameColumn.setFilter(filterName, InMemoryFilter.StringComparator.containsIgnoreCase());
+        filterName.setWidth("95%");
+
+        //id
+        FilterGrid.Column<Area, Integer> idColumn = grid.addColumn(Area::getId).setId("idColumn")
+                .setWidth(70).setResizable(false);
+        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+        TextField filterId = UIcomponents.textField(30);
+        idColumn.setFilter(filterId, InMemoryFilter.StringComparator.containsIgnoreCase());
+        filterId.setWidth("95%");
+        idColumn.setHidden(true);
+
+        grid.getEditor().setEnabled(true);
+        grid.sort("nameColumn");
+        dataGrid=grid;
+        dataGrid.setWidth("440");
+        addComponentsAndExpand(dataGrid);
+    }
+
+    private void addForm() {
+        HorizontalLayout formLayout = new HorizontalLayout();
+        formLayout.setWidth("440");
+
+        Button addButton = UIcomponents.addButton();
+        addButton.setEnabled(false);
+        formLayout.addComponent(addButton);
+
+        TextField newName = new TextField();
+        newName.focus();
+        newName.addFocusListener(focusEvent -> {
+            addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+        });
+        newName.addBlurListener(event -> {
+            addButton.removeClickShortcut();
+        });
+        newName.addValueChangeListener(valueChangeEvent -> {
+            if (newName.getValue().isEmpty())
+                addButton.setEnabled(false);
+            else
+                addButton.setEnabled(true);
+        });
+        formLayout.addComponentsAndExpand(newName);
+
+        addComponent(formLayout);
+
+        addButton.addClickListener(click -> {
+            if (!newName.getValue().isEmpty()) {
+                areaRepository.insertArea(newName.getValue());
+                newName.setValue("");
+                newName.focus();
+                removeComponent(dataGrid);
+                addGrid(areaRepository);
+            }
+        });
+
+        newName.setTabIndex(1);
+        addButton.setTabIndex(2);
+
+    }
+
+}

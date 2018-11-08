@@ -1,0 +1,17 @@
+spring:
+  profiles: dev
+
+server:
+  port: 8083
+
+sqlserver:
+  url: jdbc:sqlserver://zeev-asus:1433;databaseName=RT;integratedSecurity=true
+log:
+  path: c:\\rt\\logs\\dev
+
+settings:
+  bigScreenInterval: 60000
+
+vaadin:
+  servlet:
+    productionMode: false
