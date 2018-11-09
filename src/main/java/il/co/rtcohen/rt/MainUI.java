@@ -2,7 +2,7 @@
 //H2 hebrew issue (JAR)         V   JAVA_TOOL_OPTIONS = -Dfile.encoding=UTF8    test using another computer ?
 //prepared statement            V
 //TEST                                      ???
-//maven profile without h2      VX          ???
+//maven profile without h2      VX          ??? 
 //debug mode warning            V
 //shorter code in ui/views      V
 //ui+views abstract classes     VX
@@ -34,34 +34,42 @@ import java.time.LocalDate;
 public class MainUI extends UI implements ViewDisplay {
 
     private Panel springViewDisplay;
-    MenuBar menu;
+    private MenuBar menu;
+    private HorizontalLayout topLayout;
 
     @Override
     protected void init(VaadinRequest request) {
         final VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
         setContent(mainLayout);
-
-        final HorizontalLayout topLayout = new HorizontalLayout();
-
-        Image logo = new Image(null, new ThemeResource("rtlogo.png"));
-        logo.setHeight("40");
-        topLayout.addComponent(logo);
-
-        Button print = UIcomponents.printButton();
-        print.addClickListener(clickEvent ->
-                JavaScript.getCurrent().execute("print();"));
-        topLayout.addComponent(print);
-
-        Component navigationBar = createNavigationBar();
-        navigationBar.addStyleName("menu");
-        topLayout.addComponentsAndExpand(navigationBar);
-
+        topLayout = new HorizontalLayout();
+        logo();
+        printButton();
+        navigationBar();
         mainLayout.addComponent(topLayout);
         springViewDisplay = new Panel();
         springViewDisplay.setSizeFull();
         mainLayout.addComponent(springViewDisplay);
         mainLayout.setExpandRatio(springViewDisplay, 1.0f);
+    }
+
+    private void logo() {
+        Image logo = new Image(null, new ThemeResource("rtlogo.png"));
+        logo.setHeight("40");
+        topLayout.addComponent(logo);
+    }
+
+    private void printButton() {
+        Button print = UIcomponents.printButton();
+        print.addClickListener(clickEvent ->
+                JavaScript.getCurrent().execute("print();"));
+        topLayout.addComponent(print);
+    }
+
+    private void navigationBar() {
+        Component navigationBar = createNavigationBar();
+        navigationBar.addStyleName("menu");
+        topLayout.addComponentsAndExpand(navigationBar);
     }
 
     @Override
