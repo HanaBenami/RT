@@ -137,7 +137,7 @@ public class CustomerView extends AbstractDataView {
         FilterGrid.Column<Customer, Integer> idColumn = grid.addColumn(Customer::getId).setId("idColumn")
                 .setWidth(80).setResizable(false);
         TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, UIcomponents.stringFilter());
+        idColumn.setFilter(filterId, UIcomponents.textFilter());
         filterId.setWidth("95%");
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
     }

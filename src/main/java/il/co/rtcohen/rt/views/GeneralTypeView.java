@@ -84,7 +84,7 @@ public class GeneralTypeView extends AbstractDataView {
         grid.getEditor().setEnabled(true);
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
         TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, UIcomponents.stringFilter());
+        idColumn.setFilter(filterId, UIcomponents.textFilter());
         filterId.setWidth("95%");
     }
 

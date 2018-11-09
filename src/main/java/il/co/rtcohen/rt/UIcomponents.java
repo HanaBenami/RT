@@ -321,7 +321,12 @@ public class UIcomponents {
         return ((v, fv) -> fv == null || v.isEqual(fv));
     }
 
-    public static SerializableBiPredicate stringFilter() {
+    public static SerializableBiPredicate<String,String> stringFilter() {
+        return (InMemoryFilter.StringComparator.containsIgnoreCase());
+    }
+
+
+    public static SerializableBiPredicate textFilter() {
         return (InMemoryFilter.StringComparator.containsIgnoreCase());
     }
 

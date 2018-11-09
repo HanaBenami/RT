@@ -313,7 +313,7 @@ public class CallView extends AbstractDataView {
         orderColumn.setHidable(true);
         orderColumn.setHidden(false);
         TextField filterOrder = UIcomponents.textField(30);
-        orderColumn.setFilter(filterOrder, UIcomponents.stringFilter());
+        orderColumn.setFilter(filterOrder, UIcomponents.textFilter());
         filterOrder.setWidth("95%");
         grid.getDefaultHeaderRow().getCell("orderColumn").setText("סדר");
     }
@@ -599,7 +599,7 @@ public class CallView extends AbstractDataView {
         idColumn.setHidden(true);
         filterId = UIcomponents.textField(30);
         filterId.addFocusListener(focusEvent -> filterId.setValue(""));
-        idColumn.setFilter(filterId, UIcomponents.stringFilter());
+        idColumn.setFilter(filterId, UIcomponents.textFilter());
         filterId.setWidth("95%");
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
     }
@@ -630,7 +630,6 @@ public class CallView extends AbstractDataView {
     }
 
     private void sortGrid() {
-        //sorting
         FilterGrid.Column<Call, String> sortColumn = grid.addColumn(call-> {
             String sort="";
             sort+=call.getDate2();

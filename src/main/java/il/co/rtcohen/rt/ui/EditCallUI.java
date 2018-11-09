@@ -101,8 +101,8 @@ public class EditCallUI extends AbstractEditUI {
         layout.addComponent(area,0,3);
 
         //site
-        Label sitetLabel = new Label("אתר");
-        layout.addComponent(sitetLabel,3,3);
+        Label siteLabel = new Label("אתר");
+        layout.addComponent(siteLabel,3,3);
         ComboBox<Integer> siteCombo = new UIcomponents().siteComboBox(generalRepository,130,30);
         if(call.getCustomerId()>0)
             siteCombo.setItems(siteRepository.getActiveIdByCustomer(call.getCustomerId()));

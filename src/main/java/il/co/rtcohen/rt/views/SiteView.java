@@ -176,7 +176,7 @@ public class SiteView extends AbstractDataView {
                 .setWidth(80).setResizable(false);
         grid.getEditor().setEnabled(true);
         TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, UIcomponents.stringFilter());
+        idColumn.setFilter(filterId, UIcomponents.textFilter());
         filterId.setWidth("95%");
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
     }

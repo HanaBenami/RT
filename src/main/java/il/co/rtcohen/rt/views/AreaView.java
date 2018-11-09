@@ -95,7 +95,7 @@ public class AreaView extends AbstractDataView {
             if(area.getDisplayOrder()==0) return "null"; else return "bold" ;});
         grid.getDefaultHeaderRow().getCell("displayOrderColumn").setText("סדר");
         NumberField filterDisplay = UIcomponents.numberField("95%","30");
-        displayOrderColumn.setFilter(filterDisplay, UIcomponents.stringFilter());
+        displayOrderColumn.setFilter(filterDisplay, UIcomponents.textFilter());
         filterDisplay.setWidth("95%");
     }
 
@@ -124,7 +124,7 @@ public class AreaView extends AbstractDataView {
                 .setWidth(70).setResizable(false);
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
         TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, UIcomponents.stringFilter());
+        idColumn.setFilter(filterId, UIcomponents.textFilter());
         filterId.setWidth("95%");
         idColumn.setHidden(true);
     }
