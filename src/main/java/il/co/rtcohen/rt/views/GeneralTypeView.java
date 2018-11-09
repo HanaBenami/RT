@@ -22,9 +22,11 @@ import java.util.Map;
 
 @SpringView(name = GeneralTypeView.VIEW_NAME)
 public class GeneralTypeView extends AbstractDataView {
-    public static final String VIEW_NAME = "update";
+    static final String VIEW_NAME = "update";
     private static Logger logger = LoggerFactory.getLogger(GeneralTypeView.class);
     private static String table;
+    private TextField newName;
+    private FilterGrid<GeneralType> grid;
 
     @Autowired
     private GeneralTypeView(ErrorHandler errorHandler, GeneralRepository generalRepository) {
@@ -45,24 +47,12 @@ public class GeneralTypeView extends AbstractDataView {
         }
     }
 
-    private void addGrid(GeneralRepository repository) {
-
-        FilterGrid<GeneralType> grid = UIcomponents.myGrid("v-align-right");
-
-        //data
-        List<GeneralType> list = repository.getNames(table);
-        grid.setItems(list);
-        TextField name = new TextField();
-        CheckBox active = new CheckBox();
-
-        //columns
-
-        //active
+    private void activeColumn() {
         FilterGrid.Column activeColumn =
-        grid.addComponentColumn((ValueProvider<GeneralType, Component>) generalType ->
-                UIcomponents.checkBox(generalType.getActive(),true));
+                grid.addComponentColumn((ValueProvider<GeneralType, Component>) generalType ->
+                        UIcomponents.checkBox(generalType.getActive(), true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
-        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(active).bind(
+        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<GeneralType, Boolean>) GeneralType::getActive,
                 (Setter<GeneralType, Boolean>) (generalType, Boolean) -> {
                     generalType.setActive(Boolean);
@@ -72,29 +62,42 @@ public class GeneralTypeView extends AbstractDataView {
         CheckBox filterActive = UIcomponents.checkBox(true);
         activeColumn.setFilter(UIcomponents.BooleanValueProvider(),
                 filterActive, UIcomponents.BooleanPredicate());
+    }
 
-        //name
+    private void nameColumn() {
         FilterGrid.Column<GeneralType, String> nameColumn =
                 grid.addColumn(GeneralType::getName).setId("nameColumn")
-                .setEditorComponent(name,(generalType,String) -> {
-                    generalType.setName(String);
-                    generalRepository.update(generalType);
-                })
-                .setExpandRatio(1).setResizable(false).setWidth(230);
+                        .setEditorComponent(new TextField(), (generalType, String) -> {
+                            generalType.setName(String);
+                            generalRepository.update(generalType);
+                        })
+                        .setExpandRatio(1).setResizable(false).setWidth(230);
         grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
         TextField filterName = UIcomponents.textField(30);
-        nameColumn.setFilter(filterName, InMemoryFilter.StringComparator.containsIgnoreCase());
+        nameColumn.setFilter(filterName, UIcomponents.stringFilter());
         filterName.setWidth("95%");
+    }
 
-        //id
+    private void idColumn() {
         FilterGrid.Column<GeneralType, Integer> idColumn = grid.addColumn(GeneralType::getId).setId("idColumn")
                 .setWidth(70).setResizable(false);
         grid.getEditor().setEnabled(true);
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
         TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, InMemoryFilter.StringComparator.containsIgnoreCase());
+        idColumn.setFilter(filterId, UIcomponents.stringFilter());
         filterId.setWidth("95%");
+    }
 
+    private void addColumns() {
+        activeColumn();
+        nameColumn();
+        idColumn();
+    }
+
+    private void addGrid(GeneralRepository repository) {
+        grid = UIcomponents.myGrid("v-align-right");
+        grid.setItems(repository.getNames(table));
+        addColumns();
         grid.sort("nameColumn");
         dataGrid=grid;
         dataGrid.setWidth("370");
@@ -114,42 +117,22 @@ public class GeneralTypeView extends AbstractDataView {
     private void addForm() {
         HorizontalLayout formLayout = new HorizontalLayout();
         formLayout.setWidth("370");
-
-        Button addButton = UIcomponents.addButton();
-        addButton.setEnabled(false);
         formLayout.addComponent(addButton);
-
-        TextField newName = new TextField();
-        newName.focus();
-        newName.addFocusListener(focusEvent -> {
-            addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        });
-        newName.addBlurListener(event -> {
-            addButton.removeClickShortcut();
-        });
-        newName.addValueChangeListener(valueChangeEvent -> {
-            if (newName.getValue().isEmpty())
-                addButton.setEnabled(false);
-            else
-                addButton.setEnabled(true);
-        });
+        newName = super.newName();
         formLayout.addComponentsAndExpand(newName);
-
         addComponent(formLayout);
-
-        addButton.addClickListener(click -> {
-            if (!newName.getValue().isEmpty()) {
-                generalRepository.insertName(newName.getValue(), table);
-                newName.setValue("");
-                newName.focus();
-                removeComponent(dataGrid);
-                addGrid(generalRepository);
-            }
-        });
-
+        addButton.addClickListener(click -> addClick());
         newName.setTabIndex(1);
         addButton.setTabIndex(2);
-
     }
 
+    private void addClick() {
+        if (!newName.getValue().isEmpty()) {
+            generalRepository.insertName(newName.getValue(), table);
+            newName.setValue("");
+            newName.focus();
+            removeComponent(dataGrid);
+            addGrid(generalRepository);
+        }
+    }
 }

@@ -22,25 +22,17 @@ import java.time.LocalDate;
 @SpringComponent
 @SpringUI(path="/editcall")
 @Theme("myTheme")
-public class EditCallUI extends AbstractUI {
+public class EditCallUI extends AbstractEditUI {
 
-    private GridLayout layout;
     private Call call;
     private ComboBox<Integer> driverCombo;
     private NumberField order;
     private CheckBox done;
-    private TextField siteNotes;
-    private TextField phone;
-    private TextField contact;
-    private TextField address;
     private TextField area;
-
-    private SiteRepository siteRepository;
 
     @Autowired
     private EditCallUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository) {
-        super(errorHandler,callRepository,generalRepository);
-        this.siteRepository=siteRepository;
+        super(siteRepository,errorHandler,callRepository,generalRepository);
     }
 
     @Override
@@ -62,7 +54,6 @@ public class EditCallUI extends AbstractUI {
             mainLayout.addComponentsAndExpand(layout);
             setContent(mainLayout);
             refresh_call();
-            setErrorHandler(new MyErrorHandler());
         }
     }
 
@@ -360,14 +351,6 @@ public class EditCallUI extends AbstractUI {
         driverCombo.setValue(call.getDriverId());
         order.setValue(String.valueOf(call.getOrder()));
         done.setValue(call.isDone());
-    }
-
-    private void printButton() {
-        Button print = UIcomponents.printButton();
-        print.addClickListener(clickEvent ->
-                JavaScript.getCurrent().execute("print();"));
-        layout.addComponent(print,0,0,0,0);
-        layout.setComponentAlignment(print,Alignment.TOP_LEFT);
     }
 
     private void deleteButton() {

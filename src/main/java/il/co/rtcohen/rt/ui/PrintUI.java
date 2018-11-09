@@ -17,7 +17,6 @@ import il.co.rtcohen.rt.repositories.GeneralRepository;
 import il.co.rtcohen.rt.repositories.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 import org.vaadin.ui.NumberField;
 
 import java.time.LocalDate;
@@ -37,7 +36,7 @@ public class PrintUI extends AbstractUI {
     private String condition;
     private Integer printDriver = 0;
     private NumberField filterDays = new NumberField();
-
+    private FilterGrid<Call> grid;
     private SiteRepository siteRepository;
 
     @Autowired
@@ -110,7 +109,7 @@ public class PrintUI extends AbstractUI {
 
     private FilterGrid<Call> dataGrid(Integer driver) {
         //data
-        FilterGrid<Call> grid = new FilterGrid();
+        grid = new FilterGrid();
         grid.setItems(callList(driver));
 
         //enddate
@@ -330,10 +329,10 @@ public class PrintUI extends AbstractUI {
         //filters
         filterId = UIcomponents.textField("95%","30");
         filterId.addFocusListener(focusEvent -> filterId.setValue(""));
-        idColumn.setFilter(filterId, InMemoryFilter.StringComparator.containsIgnoreCase());
+        idColumn.setFilter(filterId, UIcomponents.stringFilter());
 
         TextField filterOrd = UIcomponents.textField("95%","30");
-        ordColumn.setFilter(filterOrd, InMemoryFilter.StringComparator.containsIgnoreCase());
+        ordColumn.setFilter(filterOrd, UIcomponents.stringFilter());
 
         ComboBox filterCustomer = new UIcomponents().customerComboBox(generalRepository,120,30);
         filterCustomer.setWidth("95%");
@@ -357,7 +356,7 @@ public class PrintUI extends AbstractUI {
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById((Integer)fValue,"calltype").equals(cValue));
 
         TextField filterSite = UIcomponents.textField("95%","30");
-        siteColumn.setFilter(filterSite, InMemoryFilter.StringComparator.containsIgnoreCase());
+        siteColumn.setFilter(filterSite, UIcomponents.stringFilter());
 
         ComboBox filterArea = new UIcomponents().areaComboBox(generalRepository,120,30);
         filterArea.setWidth("95%");
@@ -365,15 +364,39 @@ public class PrintUI extends AbstractUI {
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById((Integer)fValue,"area").equals(cValue));
 
         TextField filterAddress = UIcomponents.textField("95%","30");
-        addressColumn.setFilter(filterAddress, InMemoryFilter.StringComparator.containsIgnoreCase());
+        addressColumn.setFilter(filterAddress, UIcomponents.stringFilter());
         TextField filterContact = UIcomponents.textField("95%","30");
-        contactColumn.setFilter(filterContact, InMemoryFilter.StringComparator.containsIgnoreCase());
+        contactColumn.setFilter(filterContact, UIcomponents.stringFilter());
         TextField filterPhone = UIcomponents.textField("95%","30");
-        phoneColumn.setFilter(filterPhone, InMemoryFilter.StringComparator.containsIgnoreCase());
+        phoneColumn.setFilter(filterPhone, UIcomponents.stringFilter());
         TextField filterDescr = UIcomponents.textField("95%","30");
-        descrColumn.setFilter(filterDescr, InMemoryFilter.StringComparator.containsIgnoreCase());
+        descrColumn.setFilter(filterDescr, UIcomponents.stringFilter());
 
-        //forSorting
+        sortGrid();
+
+        DateField filterDate1 = UIcomponents.dateField("95%","30");
+        date1Column.setFilter(filterDate1, UIcomponents.dateFilter());
+        DateField filterDate2 = UIcomponents.dateField("95%","30");
+        date2Column.setFilter(filterDate2, UIcomponents.dateFilter());
+        DateField filterStartDate = UIcomponents.dateField("95%","30");
+        startDateColumn.setFilter(filterStartDate, UIcomponents.dateFilter());
+        DateField filterEndDate = UIcomponents.dateField("95%","30");
+        endDateColumn.setFilter(filterEndDate, UIcomponents.dateFilter());
+
+        hereColumn.setFilter(UIcomponents.BooleanValueProvider(),
+                new CheckBox(), UIcomponents.BooleanPredicateWithShowAll());
+
+        meetingColumn.setFilter(UIcomponents.BooleanValueProvider(),
+                new CheckBox(), UIcomponents.BooleanPredicateWithShowAll());
+
+        grid.addStyleName("print");
+        grid.setWidth("100%");
+        grid.setHeightByRows(callList(driver).size());
+        grid.setHeightMode(HeightMode.ROW);
+        return grid;
+    }
+
+    private void sortGrid() {
         FilterGrid.Column<Call, String> sortColumn = grid.addColumn(call-> {
             String sort="";
             sort+=call.getDate2();
@@ -391,32 +414,6 @@ public class PrintUI extends AbstractUI {
         sortColumn.setHidden(true);
         if (!(condition.equals("open")))
             grid.sort(sortColumn,SortDirection.ASCENDING);
-
-        DateField filterDate1 = UIcomponents.dateField("95%","30");
-        date1Column.setFilter(filterDate1, (v, fv) -> fv == null || v.isEqual(fv));
-        DateField filterDate2 = UIcomponents.dateField("95%","30");
-        date2Column.setFilter(filterDate2, (v, fv) -> fv == null || v.isEqual(fv));
-        DateField filterStartDate = UIcomponents.dateField("95%","30");
-        startDateColumn.setFilter(filterStartDate, (v, fv) -> fv == null || v.isEqual(fv));
-        DateField filterEndDate = UIcomponents.dateField("95%","30");
-        endDateColumn.setFilter(filterEndDate, (v, fv) -> fv == null || v.isEqual(fv));
-
-        CheckBox filterHere = new CheckBox();
-        hereColumn.setFilter(UIcomponents.BooleanValueProvider(),
-                filterHere, UIcomponents.BooleanPredicateWithShowAll());
-
-        CheckBox filterMeeting = new CheckBox();
-        meetingColumn.setFilter(UIcomponents.BooleanValueProvider(),
-                filterMeeting, UIcomponents.BooleanPredicateWithShowAll());
-
-        grid.addStyleName("print");
-
-        grid.setWidth("100%");
-
-        grid.setHeightByRows(callList(driver).size());
-        grid.setHeightMode(HeightMode.ROW);
-
-        return grid;
     }
 
     private void addGrid (Integer driver) {

@@ -23,6 +23,8 @@ import java.util.List;
 public class AreaView extends AbstractDataView {
     static final String VIEW_NAME = "area";
     private AreaRepository areaRepository;
+    FilterGrid<Area> grid;
+    TextField newName;
 
     @Autowired
     private AreaView(ErrorHandler errorHandler, AreaRepository areaRepository, GeneralRepository generalRepository) {
@@ -36,45 +38,30 @@ public class AreaView extends AbstractDataView {
         title="רשימת אזורים";
         addHeader();
         addForm();
-        addGrid(areaRepository);
+        addGrid();
     }
 
-    private void addGrid(AreaRepository repository) {
-
-        FilterGrid<Area> grid = UIcomponents.myGrid("v-align-right");
-
-        //data
-        List<Area> list = repository.getAreas();
-        grid.setItems(list);
-        TextField displayOrder = new NumberField();
-        TextField name = new TextField();
-        CheckBox active = new CheckBox();
-        CheckBox here = new CheckBox();
-
-        //columns
-
-        //here
-        FilterGrid.Column hereColumn =
-                grid.addComponentColumn((ValueProvider<Area, Component>) area ->
-                        UIcomponents.checkBox(area.getHere(),true));
+    private void hereColumn() {
+        FilterGrid.Column hereColumn = grid.addComponentColumn((ValueProvider<Area, Component>) area ->
+                UIcomponents.checkBox(area.getHere(), true));
         hereColumn.setId("hereColumn").setExpandRatio(1).setResizable(false).setWidth(70);
-        hereColumn.setEditorBinding(grid.getEditor().getBinder().forField(here).bind(
+        hereColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<Area, Boolean>) Area::getHere,
                 (Setter<Area, Boolean>) (area, Boolean) -> {
                     area.setHere(Boolean);
-                    repository.updateArea(area);
+                    areaRepository.updateArea(area);
                 }));
-        grid.getDefaultHeaderRow().getCell("hereColumn").setText("כאן");
-        CheckBox filterHere = UIcomponents.checkBox(false);
         hereColumn.setFilter(UIcomponents.BooleanValueProvider(),
-                filterHere,  UIcomponents.BooleanPredicateWithShowAll());
+                UIcomponents.checkBox(false), UIcomponents.BooleanPredicateWithShowAll());
+        grid.getDefaultHeaderRow().getCell("hereColumn").setText("כאן");
+    }
 
-        //active
+    private void activeColumn() {
         FilterGrid.Column activeColumn =
-        grid.addComponentColumn((ValueProvider<Area, Component>) area ->
-                UIcomponents.checkBox(area.getActive(),true));
+                grid.addComponentColumn((ValueProvider<Area, Component>) area ->
+                        UIcomponents.checkBox(area.getActive(),true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
-        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(active).bind(
+        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<Area, Boolean>) GeneralType::getActive,
                 (Setter<Area, Boolean>) (area, Boolean) -> {
                     area.setActive(Boolean);
@@ -84,8 +71,10 @@ public class AreaView extends AbstractDataView {
         CheckBox filterActive = UIcomponents.checkBox(true);
         activeColumn.setFilter(UIcomponents.BooleanValueProvider(),
                 filterActive, UIcomponents.BooleanPredicate());
+    }
 
-        //displayOrder
+    private void displayOrderColumn() {
+        TextField displayOrder = new NumberField();
         FilterGrid.Column<Area, Integer> displayOrderColumn =
                 grid.addColumn(Area::getDisplayOrder).setId("displayOrderColumn")
                         .setEditorBinding(grid.getEditor().getBinder().forField(displayOrder).bind(
@@ -102,38 +91,54 @@ public class AreaView extends AbstractDataView {
                                 }
                         ))
                         .setExpandRatio(1).setResizable(false).setWidth(60);
-        displayOrderColumn.setStyleGenerator(area -> { if(area.getDisplayOrder()==0) return "null"; else return "bold" ;});
+        displayOrderColumn.setStyleGenerator(area -> {
+            if(area.getDisplayOrder()==0) return "null"; else return "bold" ;});
         grid.getDefaultHeaderRow().getCell("displayOrderColumn").setText("סדר");
         NumberField filterDisplay = UIcomponents.numberField("95%","30");
-        displayOrderColumn.setFilter(filterDisplay, InMemoryFilter.StringComparator.containsIgnoreCase());
+        displayOrderColumn.setFilter(filterDisplay, UIcomponents.stringFilter());
         filterDisplay.setWidth("95%");
+    }
 
-        //name
+    private void nameColumn() {
+        TextField name = new TextField();
         FilterGrid.Column<Area, String> nameColumn =
                 grid.addColumn(Area::getName).setId("nameColumn")
-                .setEditorComponent(name, (area, String) -> {
-                    if((area.getName().equals("מוסך"))&&(!name.getValue().equals("מוסך"))) {
-                        Notification.show("לא ניתן לעדכן את שם המוסך",
-                                "",Notification.Type.ERROR_MESSAGE);
-                    } else {
-                        area.setName(String);
-                        generalRepository.update(area);
-                    }
-                })
-                .setExpandRatio(1).setResizable(false).setMinimumWidth(230);
+                        .setEditorComponent(name, (area, String) -> {
+                            if((area.getName().equals("מוסך"))&&(!name.getValue().equals("מוסך"))) {
+                                Notification.show("לא ניתן לעדכן את שם המוסך",
+                                        "",Notification.Type.ERROR_MESSAGE);
+                            } else {
+                                area.setName(String);
+                                generalRepository.update(area);
+                            }
+                        })
+                        .setExpandRatio(1).setResizable(false).setMinimumWidth(230);
         grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
         TextField filterName = UIcomponents.textField(30);
-        nameColumn.setFilter(filterName, InMemoryFilter.StringComparator.containsIgnoreCase());
+        nameColumn.setFilter(filterName, UIcomponents.stringFilter());
         filterName.setWidth("95%");
+    }
 
-        //id
+    private void idColumn() {
         FilterGrid.Column<Area, Integer> idColumn = grid.addColumn(Area::getId).setId("idColumn")
                 .setWidth(70).setResizable(false);
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
         TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, InMemoryFilter.StringComparator.containsIgnoreCase());
+        idColumn.setFilter(filterId, UIcomponents.stringFilter());
         filterId.setWidth("95%");
         idColumn.setHidden(true);
+    }
+
+    private void addGrid() {
+        grid = UIcomponents.myGrid("v-align-right");
+        List<Area> list = areaRepository.getAreas();
+        grid.setItems(list);
+
+        hereColumn();
+        activeColumn();
+        displayOrderColumn();
+        nameColumn();
+        idColumn();
 
         grid.getEditor().setEnabled(true);
         grid.sort("nameColumn");
@@ -145,42 +150,22 @@ public class AreaView extends AbstractDataView {
     private void addForm() {
         HorizontalLayout formLayout = new HorizontalLayout();
         formLayout.setWidth("440");
-
-        Button addButton = UIcomponents.addButton();
-        addButton.setEnabled(false);
         formLayout.addComponent(addButton);
-
-        TextField newName = new TextField();
-        newName.focus();
-        newName.addFocusListener(focusEvent -> {
-            addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        });
-        newName.addBlurListener(event -> {
-            addButton.removeClickShortcut();
-        });
-        newName.addValueChangeListener(valueChangeEvent -> {
-            if (newName.getValue().isEmpty())
-                addButton.setEnabled(false);
-            else
-                addButton.setEnabled(true);
-        });
+        newName = super.newName();
         formLayout.addComponentsAndExpand(newName);
-
         addComponent(formLayout);
-
-        addButton.addClickListener(click -> {
-            if (!newName.getValue().isEmpty()) {
-                areaRepository.insertArea(newName.getValue());
-                newName.setValue("");
-                newName.focus();
-                removeComponent(dataGrid);
-                addGrid(areaRepository);
-            }
-        });
-
+        addButton.addClickListener(click -> addClick());
         newName.setTabIndex(1);
         addButton.setTabIndex(2);
-
     }
 
+    private void addClick() {
+        if (!newName.getValue().isEmpty()) {
+            areaRepository.insertArea(newName.getValue());
+            newName.setValue("");
+            newName.focus();
+            removeComponent(dataGrid);
+            addGrid();
+        }
+    }
 }

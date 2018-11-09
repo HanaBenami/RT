@@ -39,10 +39,9 @@ public class CallRepository {
     }
 
     private List<Call> getCallsList(String where) {
-        String sql="";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql="select * from call"+where;
-            ResultSet rs = stmt.executeQuery(sql);
+        String sql="select * from call"+where;
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             return getListFromRS(rs);
         }
         catch (SQLException e) {
@@ -219,10 +218,11 @@ public class CallRepository {
         else if ((call.getDate2().format(Call.dateFormatter)).equals(Call.nullDateString))
             return 0;
         else {
-            sql = "select max(workorder) workorder from call where driverid=" + call.getDriverId() + " and date2='" + (call.getDate2().format(call.dateFormatter)) + "'";
-            try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-                ResultSet rs = stmt.executeQuery(sql);
-                log.info("SQL statement: "+sql);
+            try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                    ("select max(workorder) workorder from call where driverid=? and date2=?")) {
+                stmt.setInt(1,call.getDriverId());
+                stmt.setString(2,call.getDate2().format(call.dateFormatter));
+                ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     newOrder = (rs.getInt("workorder")) + 1;
                 }
@@ -235,8 +235,8 @@ public class CallRepository {
     }
 
     private int updatequery(String sql) {
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            int n = stmt.executeUpdate(sql);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            int n = stmt.executeUpdate();
             log.info("SQL statement: "+sql);
             return n;
         } catch (SQLException e) {

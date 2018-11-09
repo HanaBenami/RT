@@ -22,25 +22,16 @@ import java.time.LocalDate;
 @SpringComponent
 @SpringUI(path="/editsite")
 @Theme("myTheme")
-public class EditSiteUI extends AbstractUI {
+public class EditSiteUI extends AbstractEditUI {
 
-    private GridLayout layout;
-    private long siteId;
     private Site site;
     private ComboBox<Integer> areaCombo;
     private TextField name;
-    private TextField siteNotes;
-    private TextField phone;
-    private TextField contact;
-    private TextField address;
     private Button addButton;
-
-    private SiteRepository siteRepository;
 
     @Autowired
     private EditSiteUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository) {
-        super(errorHandler,callRepository,generalRepository);
-        this.siteRepository=siteRepository;
+        super(siteRepository,errorHandler,callRepository,generalRepository);
     }
 
     @Override
@@ -62,11 +53,11 @@ public class EditSiteUI extends AbstractUI {
             mainLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
             mainLayout.addComponentsAndExpand(layout);
             setContent(mainLayout);
-            setErrorHandler(new MyErrorHandler());
         }
     }
 
     private void getSelectedSite() {
+        long siteId;
         if ((getPage().getUriFragment()==null)||(getPage().getUriFragment().isEmpty())||getPage().getUriFragment().equals("0"))
             siteId = siteRepository.insertSite("",0,"",
                     0,"","","");
@@ -200,18 +191,9 @@ public class EditSiteUI extends AbstractUI {
         phone.setTabIndex(6);
         siteNotes.setTabIndex(7);
 
-
         layout.setSpacing(true);
         layout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 
-    }
-
-    private void printButton () {
-        Button print = UIcomponents.printButton();
-        print.addClickListener(clickEvent ->
-                JavaScript.getCurrent().execute("print();"));
-        layout.addComponent(print,0,0,0,0);
-        layout.setComponentAlignment(print,Alignment.TOP_LEFT);
     }
 
     private void deleteButton() {

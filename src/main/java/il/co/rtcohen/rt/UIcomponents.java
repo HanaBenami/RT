@@ -9,6 +9,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import il.co.rtcohen.rt.dao.Call;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.FilterGrid;
+import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 import org.vaadin.ui.NumberField;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -81,11 +82,11 @@ public class UIcomponents {
     }
 
     public ComboBox<Integer> customerComboBox(GeneralRepository generalRepository, int w, int h) {
-        List<Integer> custList = generalRepository.getActiveId("cust");
+        List<Integer> customers = generalRepository.getActiveId("cust");
         ItemCaptionGenerator<Integer> custCaption = (ItemCaptionGenerator<Integer>) item -> {
             if (item==0) return "";
             return generalRepository.getNameById(item,"cust"); };
-        return comboBox(custList,custCaption,w,h);
+        return comboBox(customers,custCaption,w,h);
     }
 
     public ComboBox<Integer> custTypeComboBox(GeneralRepository generalRepository, int w, int h) {
@@ -315,4 +316,14 @@ public class UIcomponents {
                     aBoolean.equals(aBoolean2);
         };
     }
+
+    public static SerializableBiPredicate<LocalDate,LocalDate> dateFilter() {
+        return ((v, fv) -> fv == null || v.isEqual(fv));
+    }
+
+    public static SerializableBiPredicate stringFilter() {
+        return (InMemoryFilter.StringComparator.containsIgnoreCase());
+    }
+
+
 }

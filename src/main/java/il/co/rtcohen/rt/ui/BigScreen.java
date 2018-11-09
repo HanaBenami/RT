@@ -49,7 +49,6 @@ public class BigScreen extends AbstractUI {
         addData();
         setContent(layout);
         layout.addStyleName("custom-margins");
-
         //auto refresh
         UI.getCurrent().setPollInterval(intervalTime);
         addPollListener((UIEvents.PollListener) event -> Page.getCurrent().reload());
@@ -115,17 +114,18 @@ public class BigScreen extends AbstractUI {
         grid.setHeaderVisible(false);
         grid.setHeightByRows(dateList.size());
         grid.addStyleName("bigscreen");
-        Grid.Column<Call, Label> dataColumn = grid.addComponentColumn(call -> {
-            Label data = new Label(callData(call), ContentMode.HTML);
-            data.setStyleName("LABEL-SMALL");
-            data.setWidth("100%");
-            return data;
-            });
-
+        Grid.Column<Call, Label> dataColumn = grid.addComponentColumn(this::callLabel);
         //style
         grid.addStyleName("custom-margins");
         grid.setStyleGenerator((StyleGenerator<Call>) UIcomponents::callStyle);
         return grid;
+    }
+
+    private Label callLabel(Call call) {
+        Label data = new Label(callData(call), ContentMode.HTML);
+        data.setStyleName("LABEL-SMALL");
+        data.setWidth("100%");
+        return data;
     }
 
     private String callData (Call call){

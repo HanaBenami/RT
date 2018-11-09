@@ -28,8 +28,8 @@ public class CustomerRepository {
     public List<Customer> getCustomers() {
         List<Customer> list = new ArrayList<>();
         String sql = "SELECT * FROM CUST";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            ResultSet rs = stmt.executeQuery(sql);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 list.add(new Customer(rs.getInt("id"),rs.getString("name"),rs.getInt("custtype"),rs.getBoolean("active")));
             }
@@ -73,11 +73,12 @@ public class CustomerRepository {
     }
 
     public int updateCustomerType(Customer customer) {
-        String sql = "";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql = "update cust set custtype="+customer.getCustomerTypeID()+" where id= "+customer.getId();
-            int n=stmt.executeUpdate(sql);
-            log.info("SQL statement: "+sql+" > "+n+" records has been updated");
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("update cust set custtype=? where id=?")) {
+            stmt.setInt(1,customer.getCustomerTypeID());
+            stmt.setInt(2,customer.getId());
+            int n=stmt.executeUpdate();
+            log.info("Updating customer where id="+customer.getId()+" > "+n+" records has been updated");
             return n;
         }
         catch (SQLException e) {

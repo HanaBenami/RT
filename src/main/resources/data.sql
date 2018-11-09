@@ -1,4 +1,3 @@
-
 INSERT INTO area (NAME, active, here, displayOrder) VALUES ('צפון', 1, 0, 0)
 
 INSERT INTO area (NAME, active, here, displayOrder) VALUES (N'מרכז', 1, 0, 0)

@@ -27,10 +27,9 @@ public class AreaRepository {
     }
 
     public List<Area> getAreas() {
-        String sql="";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql = "SELECT * FROM area";
-            ResultSet rs = stmt.executeQuery(sql);
+        String sql="SELECT * FROM area";
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             if (rs.next())
                 return getListFromRS(rs);
             else return new ArrayList<>();
@@ -57,18 +56,17 @@ public class AreaRepository {
     }
 
     public Area getAreaById(int id) {
-        String sql = "";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql = "SELECT * FROM area where id=" + id;
-            ResultSet rs = stmt.executeQuery(sql);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("SELECT * FROM area where id=?")) {
+            stmt.setInt(1,id);
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return areaFromRS(rs);
             }
             return new Area(0,"",false,true,0);
         } catch (SQLException e) {
-            log.error(sql);
-            log.error("error in getAreaById: ", e);
-            throw new DataRetrievalFailureException("error in getAreaById: ", e);
+            log.error("error in getAreaById where id="+id+": ", e);
+            throw new DataRetrievalFailureException("error in getAreaById where id="+id+": ", e);
         }
     }
 
@@ -84,9 +82,9 @@ public class AreaRepository {
         List<Integer> idList = new ArrayList<>();
         List<Area> list = new ArrayList<>();
         String sql="";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql = "SELECT * FROM area where active=1"+where;
-            ResultSet rs = stmt.executeQuery(sql);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("SELECT * FROM area where active=1"+where)) {
+            ResultSet rs = stmt.executeQuery();
             if (rs.next())
                 list = getListFromRS(rs);
             list.sort((o1, o2) -> o2.getName().compareTo(o1.getName()));
@@ -95,7 +93,7 @@ public class AreaRepository {
             return idList;
         }
         catch (SQLException e) {
-            log.error(sql);
+            log.error("SQL statement: SELECT * FROM area where active=1"+where);
             log.error("error in getActiveId: ",e);
             throw new DataRetrievalFailureException("error in getActiveId: ",e);
         }
@@ -131,11 +129,13 @@ public class AreaRepository {
     }
 
     public int updateArea(Area area) {
-        String sql="";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql = "update area set here='"+area.getHere()+"', displayOrder="+area.getDisplayOrder()+" where id= "+area.getId();
-            int n=stmt.executeUpdate(sql);
-            log.info("SQL statement: "+sql+" > "+n+" records has been updated");
+        try (Connection con = dataSource.getConnection();  PreparedStatement stmt = con.prepareStatement
+                ("update area set here=?, displayOrder=? where id=?")) {
+            stmt.setBoolean(1,area.getHere());
+            stmt.setInt( 2,area.getDisplayOrder());
+            stmt.setInt( 3,area.getId());
+            int n=stmt.executeUpdate();
+            log.info("Updating area #"+area.getId()+" > "+n+" records has been updated");
             return n;
         }
         catch (SQLException e) {

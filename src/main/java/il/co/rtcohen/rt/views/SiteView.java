@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,11 +30,13 @@ public class SiteView extends AbstractDataView {
     private static Logger logger = LoggerFactory.getLogger(CustomerView.class);
     private ComboBox<Integer> selectCustomer;
     private ComboBox<Integer> newArea;
-    private Button addButton;
     private TextField newName;
     private Map<String,String> parametersMap;
-
     private SiteRepository siteRepository;
+    private FilterGrid<Site> grid;
+    private VerticalLayout topLayout;
+    private HorizontalLayout selectLayout;
+    private HorizontalLayout addLayout;
 
     @Autowired
     private SiteView(ErrorHandler errorHandler, SiteRepository siteRepository, GeneralRepository generalRepository) {
@@ -48,7 +49,7 @@ public class SiteView extends AbstractDataView {
         parametersMap = event.getParameterMap();
         logger.info("Parameters map  " + Arrays.toString(parametersMap.entrySet().toArray()));
         customerSelection();
-        firstLayout();
+        topLayout();
         showSelectedCustomer();
     }
 
@@ -59,27 +60,12 @@ public class SiteView extends AbstractDataView {
         addComponentsAndExpand(dataGrid);
     }
 
-    private void addGrid(SiteRepository repository) {
-        FilterGrid<Site> grid = UIcomponents.myGrid("v-align-right");
-
-        //data
-        grid.setItems(repository.getSitesByCustomer((Integer) selectCustomer.getValue()));
-        UI.getCurrent().setPollInterval(3000);
-        UI.getCurrent().addPollListener((UIEvents.PollListener) event -> {
-            grid.setItems(repository.getSitesByCustomer((Integer) selectCustomer.getValue()));;
-        });
-
-        ComboBox<Integer> areaCombo = new UIcomponents().areaComboBox(generalRepository,95,30);
-        areaCombo.setEmptySelectionAllowed(false);
-
-        //columns
-
-        //edit
+    private void editColumn() {
         FilterGrid.Column editColumn =
                 grid.addComponentColumn((ValueProvider<Site, Component>) site -> {
                     Button editButton = UIcomponents.editButton();
                     final BrowserWindowOpener opener = new BrowserWindowOpener
-                            (new ExternalResource("/editsite#"+site.getId()));
+                            (new ExternalResource("/editsite#" + site.getId()));
                     opener.setFeatures("height=400,width=750,resizable");
                     opener.extend(editButton);
                     return editButton;
@@ -87,136 +73,149 @@ public class SiteView extends AbstractDataView {
         editColumn.setWidth(60);
         editColumn.setHidable(false).setHidden(false);
         grid.getDefaultHeaderRow().getCell("editColumn").setText("עריכה");
-
-        CheckBox active = new CheckBox();
+    }
+    private void activeColumn() {
         FilterGrid.Column activeColumn =
                 grid.addComponentColumn((ValueProvider<Site, Component>) site -> {
-                    return UIcomponents.checkBox(site.getActive(),true);
+                    return UIcomponents.checkBox(site.getActive(), true);
                 });
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
-        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(active).bind(
+        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<Site, Boolean>) Site::getActive,
                 (Setter<Site, Boolean>) (site, Boolean) -> {
                     site.setActive(Boolean);
                     generalRepository.update(site);
                 }));
-
-        TextField notes = new TextField();
+        CheckBox filterActive = UIcomponents.checkBox(true);
+        activeColumn.setFilter(UIcomponents.BooleanValueProvider(),
+                filterActive, UIcomponents.BooleanPredicate());
+        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
+    }
+    private void notesColumn() {
         FilterGrid.Column<Site, String> notesColumn =
                 grid.addColumn(Site::getNotes).setId("notesColumn")
-                .setEditorComponent(notes, (site,String) -> {
-                    site.setNotes(String);
-                    siteRepository.updateSite(site);
-                })
-                .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
-
-        TextField phone = new TextField();
+                        .setEditorComponent(new TextField(), (site, String) -> {
+                            site.setNotes(String);
+                            siteRepository.updateSite(site);
+                        })
+                        .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
+        TextField filterNotes = UIcomponents.textField(30);
+        notesColumn.setFilter(filterNotes, UIcomponents.stringFilter());
+        filterNotes.setWidth("95%");
+        grid.getDefaultHeaderRow().getCell("notesColumn").setText("הערות");
+    }
+    private void phoneColumn() {
         FilterGrid.Column<Site, String> phoneColumn = grid.addColumn(Site::getPhone).setId("phoneColumn")
-                .setEditorComponent(phone,(site,String) -> {
+                .setEditorComponent(new TextField(), (site, String) -> {
                     site.setPhone(String);
                     siteRepository.updateSite(site);
                 })
                 .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
-
-        TextField contact = new TextField();
+        TextField filterPhone = UIcomponents.textField(30);
+        phoneColumn.setFilter(filterPhone, UIcomponents.stringFilter());
+        filterPhone.setWidth("95%");
+        grid.getDefaultHeaderRow().getCell("phoneColumn").setText("טלפון");
+    }
+    private void contactColumn() {
         FilterGrid.Column<Site, String> contactColumn = grid.addColumn(Site::getContact).setId("contactColumn")
-                .setEditorComponent(contact,(site,String) -> {
+                .setEditorComponent(new TextField(), (site, String) -> {
                     site.setContact(String);
                     siteRepository.updateSite(site);
                 })
                 .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
-
+        TextField filterContact = UIcomponents.textField(30);
+        contactColumn.setFilter(filterContact, UIcomponents.stringFilter());
+        filterContact.setWidth("95%");
+        grid.getDefaultHeaderRow().getCell("contactColumn").setText("א. קשר");
+    }
+    private void areaColumn() {
+        ComboBox<Integer> areaCombo = new UIcomponents().areaComboBox(generalRepository,95,30);
+        areaCombo.setEmptySelectionAllowed(false);
         FilterGrid.Column<Site, String> areaColumn = grid.addColumn(site ->
-                generalRepository.getNameById(site.getAreaId(),"area"))
+                generalRepository.getNameById(site.getAreaId(), "area"))
                 .setId("areaColumn")
-            .setWidth(120).setEditorBinding(grid.getEditor().getBinder().forField(areaCombo).bind(
+                .setWidth(120).setEditorBinding(grid.getEditor().getBinder().forField(areaCombo).bind(
                         (ValueProvider<Site, Integer>) Site::getAreaId,
                         (Setter<Site, Integer>) (site, integer) -> {
                             site.setAreaId(integer);
                             siteRepository.updateSite(site);
                         }))
                 .setExpandRatio(1).setResizable(false);
-        TextField address = new TextField();
+        ComboBox<Integer> filterArea = new UIcomponents().areaComboBox(generalRepository, 95, 30);
+        areaColumn.setFilter((filterArea),
+                (cValue, fValue) -> fValue == null || generalRepository.getNameById((Integer) fValue, "area").equals(cValue));
+        filterArea.setWidth("95%");
+        grid.getDefaultHeaderRow().getCell("areaColumn").setText("אזור");
+    }
+    private void addressColumn() {
         FilterGrid.Column<Site, String> addressColumn = grid.addColumn(Site::getAddress).setId("addressColumn")
-                .setEditorComponent(address,(site,String) -> {
+                .setEditorComponent(new TextField(), (site, String) -> {
                     site.setAddress(String);
                     siteRepository.updateSite(site);
                 })
                 .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
-
-        TextField name = new TextField();
+        TextField filterAddress = UIcomponents.textField(30);
+        addressColumn.setFilter(filterAddress, UIcomponents.stringFilter());
+        filterAddress.setWidth("95%");
+        grid.getDefaultHeaderRow().getCell("addressColumn").setText("כתובת");
+    }
+    private void nameColumn() {
         FilterGrid.Column<Site, String> nameColumn = grid.addColumn(Site::getName).setId("nameColumn")
-                .setEditorComponent(name,(site,String) -> {
+                .setEditorComponent(new TextField(), (site, String) -> {
                     site.setName(String);
                     generalRepository.update(site);
                 })
                 .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
-
+        TextField filterName = UIcomponents.textField(30);
+        nameColumn.setFilter(filterName, UIcomponents.stringFilter());
+        filterName.setWidth("95%");
+        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+    }
+    private void idColumn() {
         FilterGrid.Column<Site, Integer> idColumn = grid.addColumn(Site::getId).setId("idColumn")
                 .setWidth(80).setResizable(false);
         grid.getEditor().setEnabled(true);
-
-        //headers
-        grid.sort("nameColumn");
-        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
-        grid.getDefaultHeaderRow().getCell("notesColumn").setText("הערות");
-        grid.getDefaultHeaderRow().getCell("phoneColumn").setText("טלפון");
-        grid.getDefaultHeaderRow().getCell("contactColumn").setText("א. קשר");
-        grid.getDefaultHeaderRow().getCell("areaColumn").setText("אזור");
-        grid.getDefaultHeaderRow().getCell("addressColumn").setText("כתובת");
-        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
-        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
-
-        //filters
         TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, InMemoryFilter.StringComparator.containsIgnoreCase());
+        idColumn.setFilter(filterId, UIcomponents.stringFilter());
         filterId.setWidth("95%");
+        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+    }
+    private void addColumns() {
+        editColumn();
+        activeColumn();
+        notesColumn();
+        phoneColumn();
+        contactColumn();
+        areaColumn();
+        addressColumn();
+        nameColumn();
+        idColumn();
+    }
 
-        TextField filterName = UIcomponents.textField(30);
-        nameColumn.setFilter(filterName, InMemoryFilter.StringComparator.containsIgnoreCase());
-        filterName.setWidth("95%");
-
-        TextField filterAddress = UIcomponents.textField(30);
-        addressColumn.setFilter(filterAddress, InMemoryFilter.StringComparator.containsIgnoreCase());
-        filterAddress.setWidth("95%");
-
-        TextField filterContact = UIcomponents.textField(30);
-        contactColumn.setFilter(filterContact, InMemoryFilter.StringComparator.containsIgnoreCase());
-        filterContact.setWidth("95%");
-
-        TextField filterPhone = UIcomponents.textField(30);
-        phoneColumn.setFilter(filterPhone, InMemoryFilter.StringComparator.containsIgnoreCase());
-        filterPhone.setWidth("95%");
-
-        TextField filterNotes = UIcomponents.textField(30);
-        notesColumn.setFilter(filterNotes, InMemoryFilter.StringComparator.containsIgnoreCase());
-        filterNotes.setWidth("95%");
-
-        ComboBox<Integer> filterArea = new UIcomponents().areaComboBox(generalRepository,95,30);
-        areaColumn.setFilter((filterArea),
-                (cValue, fValue) -> fValue == null || generalRepository.getNameById((Integer)fValue,"area").equals(cValue));
-        filterArea.setWidth("95%");
-
-        CheckBox filterActive = UIcomponents.checkBox(true);
-        activeColumn.setFilter(UIcomponents.BooleanValueProvider(),
-            filterActive, UIcomponents.BooleanPredicate());
-
+    private void addGrid(SiteRepository repository) {
+        grid = UIcomponents.myGrid("v-align-right");
+        grid.setItems(repository.getSitesByCustomer(selectCustomer.getValue()));
+        UI.getCurrent().setPollInterval(3000);
+        UI.getCurrent().addPollListener((UIEvents.PollListener) event -> {
+            if((selectCustomer.getValue()!=null)&&!(selectCustomer.getValue().toString().equals("0")))
+             grid.setItems(repository.getSitesByCustomer(selectCustomer.getValue()));});
+        addColumns();
+        grid.sort("nameColumn");
         dataGrid=grid;
         dataGrid.setWidth("100%");
         addComponentsAndExpand(dataGrid);
     }
 
     private void customerSelection () {
-        List<Integer> custList = generalRepository.getActiveId("cust");
+        List<Integer> customers = generalRepository.getActiveId("cust");
         selectCustomer = new UIcomponents().customerComboBox(generalRepository,250,30);
         String selectedCustomer = parametersMap.get("customer");
         if(((selectedCustomer!=null)&&(selectedCustomer.matches("\\d+"))))
-            if (custList.contains(Integer.parseInt(selectedCustomer))) {
+            if (customers.contains(Integer.parseInt(selectedCustomer))) {
                 selectCustomer.setValue(Integer.parseInt(selectedCustomer));
                 selectCustomer.setEnabled(false);
-            } else {
+            } else
                 selectCustomer.setValue(0);
-            }
     }
 
     private void showSelectedCustomer() {
@@ -224,102 +223,78 @@ public class SiteView extends AbstractDataView {
             addGrid(siteRepository);
             newName.setValue("");
             newName.setEnabled(true);
+            newArea.setEnabled(true);
         }
         else {
             addEmptyGrid();
             addButton.setEnabled(false);
             newName.setEnabled(false);
+            newArea.setEnabled(false);
         }
     }
 
-    private void firstLayout() {
-        VerticalLayout firstLayout = new VerticalLayout();
-        firstLayout.setWidth("610");
-        firstLayout.addComponent(selectCustomerForm());
-        firstLayout.addComponent(addForm());
-        addComponent(firstLayout);
+    private void topLayout() {
+        topLayout = new VerticalLayout();
+        topLayout.setWidth("610");
+        selectLayout();
+        addLayout();
+        addComponent(topLayout);
     }
 
-    private HorizontalLayout selectCustomerForm() {
-        HorizontalLayout formLayout = new HorizontalLayout();
-        formLayout.setWidth("610");
+    private void selectLayout() {
+        selectLayout = new HorizontalLayout();
+        selectLayout.setWidth("610");
+        selectCustomer();
+        selectCustomer.setTabIndex(4);
+        Label header = new Label("אתרים");
+        header.setStyleName("LABEL-RIGHT");
+        selectLayout.addComponentsAndExpand(header);
+        topLayout.addComponent(selectLayout);
+    }
 
+    private void selectCustomer() {
         Button selectButton = UIcomponents.searchButton();
-        formLayout.addComponent(selectButton);
-
+        selectLayout.addComponent(selectButton);
         selectCustomer.setHeight(selectButton.getHeight(),selectButton.getHeightUnits());
         selectCustomer.setWidth("340");
         selectCustomer.addValueChangeListener(ValueChangeEvent -> {
             removeComponent(dataGrid);
             showSelectedCustomer();
         });
-        formLayout.addComponent(selectCustomer);
-
-        selectCustomer.setTabIndex(4);
-        //selectButton.setTabIndex(5);
-
-        Label header = new Label("אתרים");
-        header.setStyleName("LABEL-RIGHT");
-
-        formLayout.addComponentsAndExpand(header);
-
-        return formLayout;
+        selectLayout.addComponent(selectCustomer);
     }
 
-    private HorizontalLayout addForm() {
-        HorizontalLayout formLayout = new HorizontalLayout();
-        formLayout.setWidth("610");
-
-        addButton = UIcomponents.addButton();
-        formLayout.addComponent(addButton);
-
-        newArea = new UIcomponents().areaComboBox(generalRepository,95,30);
-        newArea.setValue(0);
-        newArea.setHeight(addButton.getHeight(),addButton.getHeightUnits());
-        newArea.addFocusListener(focusEvent -> {
-            addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        });
-        newArea.addBlurListener(event -> {
-            addButton.removeClickShortcut();
-        });
+    private void addLayout() {
+        addLayout = new HorizontalLayout();
+        addLayout.setWidth("610");
+        addLayout.addComponent(addButton);
         addButton.setEnabled(false);
-        formLayout.addComponent(newArea);
-
-        newName = new TextField();
-        newName.focus();
-        newName.addFocusListener(focusEvent -> {
-            addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        });
-        newName.addBlurListener(event -> {
-            addButton.removeClickShortcut();
-        });
-        newName.addValueChangeListener(valueChangeEvent -> {
-                    if (newName.getValue().isEmpty())
-                        addButton.setEnabled(false);
-                    else
-                        addButton.setEnabled(true);
-                });
-        formLayout.addComponentsAndExpand(newName);
-
-        addComponent(formLayout);
-
+        newArea();
+        addLayout.addComponent(newArea);
+        newName = super.newName();
+        addLayout.addComponentsAndExpand(newName);
         addButton.addClickListener(click -> addSite());
-
         newName.setTabIndex(1);
         newArea.setTabIndex(2);
         addButton.setTabIndex(3);
+        topLayout.addComponent(addLayout);
+    }
 
-        return formLayout;
-
+    private void newArea() {
+        newArea = new UIcomponents().areaComboBox(generalRepository,95,30);
+        newArea.setValue(0);
+        newArea.setHeight(addButton.getHeight(),addButton.getHeightUnits());
+        newArea.addFocusListener(focusEvent -> addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
+        newArea.addBlurListener(event -> addButton.removeClickShortcut());
     }
 
     private void addSite() {
         if ((!newName.getValue().isEmpty())&&(selectCustomer.getValue()!=null)) {
             int newSiteArea = 0;
-            if (((Integer)newArea.getValue())!=null)
-                newSiteArea = ((Integer)newArea.getValue());
+            if (newArea.getValue() !=null)
+                newSiteArea = newArea.getValue();
             long n = siteRepository.insertSite(newName.getValue(),newSiteArea,"",
-                    (Integer) selectCustomer.getValue(),"","","");
+                    selectCustomer.getValue(),"","","");
             getUI().getPage().open("/editsite#"+String.valueOf(n),"_new2",
                     700,400,BorderStyle.NONE);
             newArea.setValue(0);

@@ -27,44 +27,44 @@ public class GeneralRepository {
 
     public List<GeneralType> getNames (String table) {
         List<GeneralType> list = new ArrayList<>();
-        String SQL = "SELECT * FROM "+table+"";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            ResultSet rs = stmt.executeQuery(SQL);
+        String sql = "SELECT * FROM "+table+"";
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 list.add(new GeneralType(rs.getInt("id"),rs.getString("name"),rs.getBoolean("active"),table));
             }
             return list;
         }
         catch (SQLException e) {
-            log.error(SQL);
+            log.error(sql);
             log.error("error in getNames: ",e);
             throw new DataRetrievalFailureException("error in getNames: ",e);
         }
     }
 
     public List<Integer> getActiveId(String table) {
-        List<Integer> l = new ArrayList<>();
-        String SQL = "SELECT * FROM "+table+" where active=1";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            ResultSet rs = stmt.executeQuery(SQL);
+        List<Integer> list = new ArrayList<>();
+        String sql = "SELECT * FROM "+table+" where active=1";
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                l.add(rs.getInt("id"));
+                list.add(rs.getInt("id"));
             }
-            return l;
+            return list;
         }
         catch (SQLException e) {
-            log.error(SQL);
+            log.error(sql);
             log.error("error in getActiveId: ",e);
             throw new DataRetrievalFailureException("error in getActiveId: ",e);
         }
     }
 
     public String getNameById (int id,String table) {
-        String SQL = "SELECT * FROM "+table+" WHERE id= "+id;
+        String sql = "SELECT * FROM "+table+" WHERE id= "+id;
         if (id==0)
             return "";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            ResultSet rs = stmt.executeQuery(SQL);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 return rs.getString("name");
             }
@@ -72,7 +72,7 @@ public class GeneralRepository {
             return "";
         }
         catch (SQLException e) {
-            log.error(SQL);
+            log.error(sql);
             log.error("error in getNameById: ",e);
             throw new DataRetrievalFailureException("error in getNameById: ",e);
         }
@@ -108,14 +108,13 @@ public class GeneralRepository {
     }
 
     public int update(GeneralType x) {
-        String sql = "";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            int a=0;
-            if(x.getActive())
-                a=1;
-            sql = "update "+x.getTable()+" set name='"+x.getName()+"', active="+a+" where id= "+x.getId();
-            int n=stmt.executeUpdate(sql);
-            log.info("SQL statement: "+sql+" > "+n+" records has been updated");
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("update "+x.getTable()+" set name=?, active=? where id=?")) {
+            stmt.setString(1,x.getName());
+            stmt.setBoolean(2,x.getActive());
+            stmt.setInt(3,x.getId());
+            int n=stmt.executeUpdate();
+            log.info("Update "+x.getTable()+" where id="+x.getId()+" > "+n+" records has been updated");
             return n;
         }
         catch (SQLException e) {

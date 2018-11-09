@@ -40,31 +40,36 @@ public class SiteRepository {
     private List<Integer> getAllIdByCustomer(Integer customerId, boolean active) {
         List<Integer> l = new ArrayList<>();
         String sql="";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql = "SELECT id FROM site";
-            if (customerId>0)
-                sql+=" where custid="+customerId;
-            if ((active)&&(customerId>0))
-                sql+=" and active=1";
-            if ((active)&&(customerId==0))
-                sql+=" where active=1";
-            ResultSet rs = stmt.executeQuery(sql);
+        sql = "SELECT id FROM site";
+        if (customerId>0)
+            sql+=" where custid="+customerId;
+        if ((active)&&(customerId>0))
+            sql+=" and active=1";
+        if ((active)&&(customerId==0))
+            sql+=" where active=1";
+        return getByCustomer(sql);
+    }
+
+    private List<Integer> getByCustomer(String sql) {
+        List<Integer> list = new ArrayList<>();
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next())
-                l.add(rs.getInt("id"));
-            return l;
+                list.add(rs.getInt("id"));
+            return list;
         }
         catch (SQLException e) {
-            log.info(sql);
-            log.error("error in getAllIdByCustomer: ",e);
-            throw new DataRetrievalFailureException("error in getAllIdByCustomer: ",e);
+            log.error("SQL statement: "+sql);
+            log.error("error in getByCustomer: ",e);
+            throw new DataRetrievalFailureException("error in getByCustomer: ",e);
         }
     }
 
     public Site getSiteById (int id) {
-        String sql="";
-        try (Connection con = dataSource.getConnection(); Statement stmt = con.createStatement()) {
-            sql = "SELECT * FROM site WHERE id= "+id;
-            ResultSet rs = stmt.executeQuery(sql);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("SELECT * FROM site WHERE id=?")) {
+            stmt.setInt(1,id);
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return getSiteFromRS(rs);
             }
@@ -72,9 +77,8 @@ public class SiteRepository {
             return (new Site());
         }
         catch (SQLException e) {
-            log.error(sql);
-            log.error("error in getSiteById: ",e);
-            throw new DataRetrievalFailureException("error in getSiteById",e);
+            log.error("error in getSiteById where id="+id+": ",e);
+            throw new DataRetrievalFailureException("error in getSiteById where id="+id+": ",e);
         }
     }
 
@@ -120,8 +124,8 @@ public class SiteRepository {
             }
         }
         catch (SQLException e) {
-            log.error("error in insertSite (\"+name+\"): ",e);
-            throw new InsertException("error in insertSite (\"+name+\"): ",e);
+            log.error("error in insertSite (\""+name+"\"): ",e);
+            throw new InsertException("error in insertSite (\""+name+"\"): ",e);
         }
     }
 

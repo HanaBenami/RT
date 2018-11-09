@@ -8,7 +8,7 @@ import il.co.rtcohen.rt.repositories.CallRepository;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
 
 public abstract class AbstractUI<T extends Layout> extends UI {
-    protected T layout;
+
     CallRepository callRepository;
     protected GeneralRepository generalRepository;
 

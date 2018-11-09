@@ -1,9 +1,11 @@
 //TODO:
-//H2 hebrew issue (JAR)
-//prepared statement
-//TEST
-//maven profile without h2
-//debug mode warning         V
+//H2 hebrew issue (JAR)         V   JAVA_TOOL_OPTIONS = -Dfile.encoding=UTF8    test using another computer ?
+//prepared statement            V
+//TEST                                      ?
+//maven profile without h2      VX          ?
+//debug mode warning            V
+//shorter code in ui/views              -----
+//ui+views abstract classes     VX
 
 package il.co.rtcohen.rt;
 

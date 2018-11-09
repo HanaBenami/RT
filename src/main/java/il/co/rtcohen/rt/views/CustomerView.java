@@ -20,9 +20,6 @@ import il.co.rtcohen.rt.repositories.GeneralRepository;
 import il.co.rtcohen.rt.repositories.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
-
-import java.util.List;
 
 @SpringView(name = CustomerView.VIEW_NAME)
 public class CustomerView extends AbstractDataView {
@@ -33,6 +30,9 @@ public class CustomerView extends AbstractDataView {
     private CallRepository callRepository;
     private SiteRepository siteRepository;
     private CustomerRepository customerRepository;
+    FilterGrid<Customer> grid;
+    Button refresh;
+    HorizontalLayout formLayout;
 
     @Autowired
     private CustomerView(ErrorHandler errorHandler, CallRepository callRepository, SiteRepository siteRepository, GeneralRepository generalRepository, CustomerRepository customerRepository) {
@@ -50,25 +50,7 @@ public class CustomerView extends AbstractDataView {
         addGrid(customerRepository);
     }
 
-    private void addGrid(CustomerRepository repository) {
-        FilterGrid<Customer> grid = UIcomponents.myGrid("");
-
-        //data
-        List<Customer> list = repository.getCustomers();
-        grid.setItems(list);
-        UI.getCurrent().setPollInterval(3000);
-        UI.getCurrent().addPollListener((UIEvents.PollListener) event -> {
-            grid.setItems(repository.getCustomers());;
-        });
-
-        TextField id = new TextField();
-        ComboBox<Integer> custTypeCombo = new UIcomponents().custTypeComboBox(generalRepository,130,30);
-        custTypeCombo.setEmptySelectionAllowed(false);
-        TextField name = new TextField();
-        CheckBox active = new CheckBox();
-
-        //columns
-
+    private void callsColumn() {
         FilterGrid.Column callsColumn =
                 grid.addComponentColumn((ValueProvider<Customer, Component>) Customer -> {
                     int n=callRepository.countActiveCallsByCustomer(Customer.getId());
@@ -83,7 +65,9 @@ public class CustomerView extends AbstractDataView {
                     return callsButton;
                 });
         callsColumn.setId("callsColumn").setExpandRatio(1).setResizable(false).setWidth(85);
-
+        grid.getDefaultHeaderRow().getCell("callsColumn").setText("קריאות");
+    }
+    private void sitesColumn() {
         FilterGrid.Column sitesColumn =
                 grid.addComponentColumn((ValueProvider<Customer, Component>) Customer -> {
                     int n=siteRepository.getActiveIdByCustomer(Customer.getId()).size();
@@ -102,93 +86,115 @@ public class CustomerView extends AbstractDataView {
                     return sitesButton;
                 });
         sitesColumn.setId("sitesColumn").setExpandRatio(1).setResizable(false).setWidth(85);
-
+        grid.getDefaultHeaderRow().getCell("sitesColumn").setText("אתרים");
+    }
+    private void activeColumn() {
         FilterGrid.Column activeColumn =
                 grid.addComponentColumn((ValueProvider<Customer, Component>) Customer ->
                         UIcomponents.checkBox(Customer.getActive(),true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
-        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(active).bind(
+        activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<Customer, Boolean>) GeneralType::getActive,
                 (Setter<Customer, Boolean>) (Customer, Boolean) -> {
                     Customer.setActive(Boolean);
                     generalRepository.update(Customer);
                 }));
-
-        FilterGrid.Column<Customer, String> custTypeColumn = grid.addColumn(Customer -> generalRepository.getNameById(Customer.getCustomerTypeID(),"custType")).setId("custTypeColumn")
-            .setWidth(200).setEditorBinding(grid.getEditor().getBinder().forField(custTypeCombo).bind(
+        CheckBox filterActive = new CheckBox();
+        filterActive.setValue(true);
+        activeColumn.setFilter(UIcomponents.BooleanValueProvider(),
+                filterActive, UIcomponents.BooleanPredicate());
+        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
+    }
+    private void customerTypeColumn() {
+        ComboBox<Integer> customerTypeCombo = new UIcomponents().custTypeComboBox(generalRepository,130,30);
+        customerTypeCombo.setEmptySelectionAllowed(false);
+        FilterGrid.Column<Customer, String> customerTypeColumn = grid.addColumn(Customer -> generalRepository.getNameById(Customer.getCustomerTypeID(),"custType")).setId("custTypeColumn")
+                .setWidth(200).setEditorBinding(grid.getEditor().getBinder().forField(customerTypeCombo).bind(
                         (ValueProvider<Customer, Integer>) Customer::getCustomerTypeID,
                         (Setter<Customer, Integer>) (Customer, integer) -> {
                             Customer.setCustomerTypeID(integer);
                             customerRepository.updateCustomerType(Customer);
                         }
                 )).setExpandRatio(1).setResizable(false);
-
+        ComboBox filterCustomerType = new UIcomponents().custTypeComboBox(generalRepository,130,30);
+        filterCustomerType.setWidth("95%");
+        customerTypeColumn.setFilter((filterCustomerType),
+                (cValue, fValue) -> fValue == null || generalRepository.getNameById((Integer)fValue,"custType").equals(cValue));
+        grid.getDefaultHeaderRow().getCell("custTypeColumn").setText("סוג");
+    }
+    private void nameColumn() {
         FilterGrid.Column<Customer, String> nameColumn = grid.addColumn(Customer::getName).setId("nameColumn")
-                .setEditorComponent(name, (Customer, String) -> {
+                .setEditorComponent(new TextField(), (Customer, String) -> {
                     Customer.setName(String);
                     generalRepository.update(Customer);
                 }).setExpandRatio(1).setResizable(false).setMinimumWidth(230);
-
+        filterName = UIcomponents.textField(30);
+        nameColumn.setFilter(filterName, UIcomponents.stringFilter());
+        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+        filterName.setWidth("95%");
+    }
+    private void idColumn() {
         FilterGrid.Column<Customer, Integer> idColumn = grid.addColumn(Customer::getId).setId("idColumn")
                 .setWidth(80).setResizable(false);
-        grid.getEditor().setEnabled(true);
-
-        //headers
-        grid.sort("nameColumn", SortDirection.ASCENDING);
-        grid.getDefaultHeaderRow().getCell("callsColumn").setText("קריאות");
-        grid.getDefaultHeaderRow().getCell("sitesColumn").setText("אתרים");
-        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
-        grid.getDefaultHeaderRow().getCell("custTypeColumn").setText("סוג");
+        TextField filterId = UIcomponents.textField(30);
+        idColumn.setFilter(filterId, UIcomponents.stringFilter());
+        filterId.setWidth("95%");
         grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
-        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+    }
+    private void addColumns() {
+        callsColumn();
+        sitesColumn();
+        activeColumn();
+        customerTypeColumn();
+        nameColumn();
+        idColumn();
+    }
 
-        //style
+    private void addGrid(CustomerRepository repository) {
+        grid = UIcomponents.myGrid("");
+        grid.setItems(repository.getCustomers());
+        UI.getCurrent().setPollInterval(3000);
+        UI.getCurrent().addPollListener((UIEvents.PollListener) event ->
+            grid.setItems(repository.getCustomers()));
+        addColumns();
+        grid.getEditor().setEnabled(true);
+        grid.sort("nameColumn", SortDirection.ASCENDING);
         grid.setStyleGenerator((StyleGenerator<Customer>) Customer -> {
             if (generalRepository.getNameById(Customer.getCustomerTypeID(), "custType").equals("פרטי"))
                 return "yellow";
             return null;
         });
-
-
-        //filters
-        TextField filterId = UIcomponents.textField(30);
-        idColumn.setFilter(filterId, InMemoryFilter.StringComparator.containsIgnoreCase());
-        filterId.setWidth("95%");
-        filterName = UIcomponents.textField(30);
-        nameColumn.setFilter(filterName, InMemoryFilter.StringComparator.containsIgnoreCase());
-        filterName.setWidth("95%");
-        ComboBox filtercustType = new UIcomponents().custTypeComboBox(generalRepository,130,30);
-        filtercustType.setWidth("95%");
-        custTypeColumn.setFilter((filtercustType),
-                (cValue, fValue) -> fValue == null || generalRepository.getNameById((Integer)fValue,"custType").equals(cValue));
-        CheckBox filterActive = new CheckBox();
-        filterActive.setValue(true);
-        activeColumn.setFilter(UIcomponents.BooleanValueProvider(),
-            filterActive, UIcomponents.BooleanPredicate());
-
         dataGrid=grid;
         dataGrid.setWidth("70%");
         addComponentsAndExpand(dataGrid);
     }
 
     private void addForm() {
-        HorizontalLayout formLayout = new HorizontalLayout();
+        formLayout = new HorizontalLayout();
         formLayout.setWidth("70%");
-
-        Button refresh = UIcomponents.refreshButton();
-        refresh.addClickListener(clickEvent -> refresh());
-        formLayout.addComponent(refresh);
-        formLayout.setComponentAlignment(refresh,Alignment.MIDDLE_LEFT);
-
+        refreshButton();
         Label space = new Label("");
         space.setWidth("150");
         formLayout.addComponent(space);
         formLayout.setComponentAlignment(space,Alignment.MIDDLE_LEFT);
-
-        Button addButton = UIcomponents.addButton();
         formLayout.addComponent(addButton);
-        addButton.setEnabled(false);
+        newCustomerType();
+        setNewName();
+        addComponent(formLayout);
+        addButton.addClickListener(click -> addSite());
+        newName.setTabIndex(1);
+        newCustomerType.setTabIndex(2);
+        addButton.setTabIndex(3);
+    }
 
+    private void refreshButton() {
+        refresh = UIcomponents.refreshButton();
+        refresh.addClickListener(clickEvent -> refresh());
+        formLayout.addComponent(refresh);
+        formLayout.setComponentAlignment(refresh,Alignment.MIDDLE_LEFT);
+    }
+
+    private void newCustomerType() {
         newCustomerType = new UIcomponents().custTypeComboBox(generalRepository,130,30);
         newCustomerType.setValue(0);
         newCustomerType.setHeight(addButton.getHeight(),addButton.getHeightUnits());
@@ -199,34 +205,14 @@ public class CustomerView extends AbstractDataView {
             addButton.removeClickShortcut();
         });
         formLayout.addComponent(newCustomerType);
+    }
 
-        newName = new TextField();
-        newName.focus();
-        newName.addFocusListener(focusEvent -> {
-            addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        });
-        newName.addBlurListener(event -> {
-            addButton.removeClickShortcut();
-        });
-        newName.addValueChangeListener(valueChangeEvent -> {
-            if (newName.getValue().isEmpty())
-                addButton.setEnabled(false);
-            else
-                addButton.setEnabled(true);
-        });
+    private void setNewName() {
+        newName = super.newName();
         newName.setWidth("450");
         newName.addValueChangeListener(valueChangeEvent ->
                 filterName.setValue(newName.getValue()));
         formLayout.addComponentsAndExpand(newName);
-
-        addComponent(formLayout);
-
-        addButton.addClickListener(click -> addSite());
-
-        newName.setTabIndex(1);
-        newCustomerType.setTabIndex(2);
-        addButton.setTabIndex(3);
-
     }
 
     private void addSite() {
