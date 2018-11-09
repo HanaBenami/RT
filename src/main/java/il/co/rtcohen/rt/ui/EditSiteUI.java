@@ -14,7 +14,6 @@ import il.co.rtcohen.rt.repositories.CallRepository;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
 import il.co.rtcohen.rt.repositories.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.LocalDate;
 
 @UIScope
@@ -35,49 +34,48 @@ public class EditSiteUI extends AbstractEditUI {
 
     @Override
     protected void setupLayout() {
-        getSelectedSite();
+        getSelected();
         if (site.getId()==0) {
             Notification.show("שגיאה",
                     "אתר #" + getPage().getUriFragment() + " לא קיים",
                     Notification.Type.WARNING_MESSAGE);
-            JavaScript.getCurrent().execute(
-                    "setTimeout(function() {self.close();},1000);");
+            closeWindow();
         } else {
-            layout = new GridLayout(4, 11);
+            startLayout("פרטי אתר");
             addButton();
-            addData();
-            printButton();
-            deleteButton();
-            VerticalLayout mainLayout = new VerticalLayout();
-            mainLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-            mainLayout.addComponentsAndExpand(layout);
-            setContent(mainLayout);
+            continueLayout();
+            setContent(mainLayout());
         }
     }
 
-    private void getSelectedSite() {
-        long siteId;
-        if ((getPage().getUriFragment()==null)||(getPage().getUriFragment().isEmpty())||getPage().getUriFragment().equals("0"))
-            siteId = siteRepository.insertSite("",0,"",
+    @Override
+    void getSelected() {
+        int siteId;
+        if (noParameter())
+            siteId = (int) siteRepository.insertSite("",0,"",
                     0,"","","");
-        else if (getPage().getUriFragment().matches("\\d+"))
-            siteId = (Integer.parseInt(getPage().getUriFragment()));
+        else if (selectedId().isPresent())
+            siteId = Integer.parseInt(selectedId().get().toString());
         else
             siteId = 0;
-        site = siteRepository.getSiteById(((int) siteId));
+        site = siteRepository.getSiteById(siteId);
     }
-
-    private void addData() {
-
-        Label header = UIcomponents.smallHeader("פרטי אתר");
-        layout.addComponent(header,3,0);
-
-        //data
+    private void id() {
         TextField id = UIcomponents.textField(Integer.toString(site.getId()),
                 false,130,40);
         layout.addComponent(id,2,0);
-
-        //siteNotes
+    }
+    private void phone() {
+        Label phoneLabel = new Label("טלפון");
+        layout.addComponent(phoneLabel, 1, 4);
+        phone = UIcomponents.textField(site.getPhone(), true, 130, 30);
+        phone.addValueChangeListener(valueChangeEvent -> {
+            site.setPhone(phone.getValue());
+            siteRepository.updateSite(site);
+        });
+        layout.addComponent(phone, 0, 4);
+    }
+    private void siteNotes() {
         Label notesLabel = new Label("הערות");
         layout.addComponent(notesLabel,3,5);
         siteNotes = UIcomponents.textField(site.getNotes(),true,410,30);
@@ -86,18 +84,8 @@ public class EditSiteUI extends AbstractEditUI {
             siteRepository.updateSite(site);
         });
         layout.addComponent(siteNotes,0,5,2,5);
-
-        //phone
-        Label phoneLabel = new Label("טלפון");
-        layout.addComponent(phoneLabel,1,4);
-        phone = UIcomponents.textField(site.getPhone(),true,130,30);
-        phone.addValueChangeListener(valueChangeEvent -> {
-            site.setPhone(phone.getValue());
-            siteRepository.updateSite(site);
-        });
-        layout.addComponent(phone,0,4);
-
-        //contact
+    }
+    private void contact() {
         Label contactLabel = new Label("איש קשר");
         layout.addComponent(contactLabel,3,4);
         contact = UIcomponents.textField(site.getContact(),true,130,30);
@@ -106,8 +94,8 @@ public class EditSiteUI extends AbstractEditUI {
             siteRepository.updateSite(site);
         });
         layout.addComponent(contact,2,4);
-
-        //address
+    }
+    private void address() {
         Label addressLabel = new Label("כתובת");
         layout.addComponent(addressLabel,3,3);
         address = UIcomponents.textField(site.getAddress(),true,410,30);
@@ -116,29 +104,15 @@ public class EditSiteUI extends AbstractEditUI {
             siteRepository.updateSite(site);
         });
         layout.addComponent(address,0,3,2,3);
-
-        //area
+    }
+    private void area() {
         areaCombo = new UIcomponents().areaComboBox(generalRepository,120,40);
         areaCombo.setEmptySelectionAllowed(false);
         areaCombo.setValue(site.getAreaId());
-        areaCombo.addValueChangeListener( valueChangeEvent -> {
-            if(areaCombo.getValue()==null) {
-                site.setAreaId(0);
-            }
-            else {
-                try {
-                    site.setAreaId(areaCombo.getValue());
-                    areaCombo.setComponentError(null);
-                }
-                catch (RuntimeException e) {
-                    areaCombo.setComponentError(new UserError("יש לבחור אזור"));
-                }
-            }
-            siteRepository.updateSite(site);
-        });
+        areaCombo.addValueChangeListener(valueChangeEvent -> areaChange());
         layout.addComponent(areaCombo,1,0);
-
-        //site
+    }
+    private void site() {
         Label siteLabel = new Label("שם האתר");
         layout.addComponent(siteLabel,3,2);
         name = UIcomponents.textField(site.getName(),true,270,30);
@@ -147,10 +121,9 @@ public class EditSiteUI extends AbstractEditUI {
             siteRepository.updateSite(site);
         });
         layout.addComponent(name,1,2,2,2);
-
-        //customer
-        ComboBox<Integer> customerCombo = new UIcomponents()
-                .customerComboBox(generalRepository,400,30);
+    }
+    private void customer() {
+        customerCombo = new UIcomponents().customerComboBox(generalRepository,400,30);
         customerCombo.setEmptySelectionAllowed(false);
         customerCombo.setValue(site.getCustomerId());
         if(customerCombo.getValue()>0) {
@@ -161,26 +134,12 @@ public class EditSiteUI extends AbstractEditUI {
             customerCombo.setEnabled(true);
             addButton.setEnabled(false);
         }
-        customerCombo.addValueChangeListener( valueChangeEvent -> {
-            if(customerCombo.getValue()==null) {
-                site.setCustomerId(0);
-                addButton.setEnabled(false);
-            }
-            else {
-                try {
-                    site.setCustomerId(customerCombo.getValue());
-                    customerCombo.setEnabled(false);
-                    customerCombo.setComponentError(null);
-                    addButton.setEnabled(true);
-                }
-                catch (RuntimeException e) {
-                    customerCombo.setComponentError(new UserError("יש לבחור לקוח"));
-                }
-            }
-            siteRepository.updateSite(site);
-        });
+        customerCombo.addValueChangeListener( valueChangeEvent -> customerChange());
         layout.addComponent(customerCombo,1,1,3,1);
+    }
 
+    @Override
+    void tabIndexes() {
         areaCombo.focus();
         areaCombo.setTabIndex(1);
         customerCombo.setTabIndex(2);
@@ -189,20 +148,22 @@ public class EditSiteUI extends AbstractEditUI {
         contact.setTabIndex(5);
         phone.setTabIndex(6);
         siteNotes.setTabIndex(7);
-
-        layout.setSpacing(true);
-        layout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
-
     }
 
-    private void deleteButton() {
-        Button delete = UIcomponents.trashButton();
-        delete.addClickListener(clickEvent -> deleteSite());
-        layout.addComponent(delete,0,1,0,1);
-        layout.setComponentAlignment(delete,Alignment.TOP_LEFT);
+    @Override
+    void addData() {
+        id();
+        siteNotes();
+        phone();
+        contact();
+        address();
+        area();
+        site();
+        customer();
     }
 
-    private void deleteSite() {
+    @Override
+    void deleteId() {
         if (callRepository.getCallsBySite(site.getId()).size()>0) {
             Notification.show("לא ניתן למחוק אתר אליו משויכות קריאות",
                     "", Notification.Type.ERROR_MESSAGE);
@@ -211,8 +172,7 @@ public class EditSiteUI extends AbstractEditUI {
             if (n == 1) {
                 Notification.show("האתר נמחק",
                         "", Notification.Type.WARNING_MESSAGE);
-                JavaScript.getCurrent().execute(
-                        "setTimeout(function() {self.close();},500);");
+                closeWindow();
             }
         }
     }
@@ -236,4 +196,36 @@ public class EditSiteUI extends AbstractEditUI {
                 "setTimeout(function() {self.close();},0);");
     }
 
+    private void areaChange() {
+        if (areaCombo.getValue() == null) {
+            site.setAreaId(0);
+        } else {
+            try {
+                site.setAreaId(areaCombo.getValue());
+                areaCombo.setComponentError(null);
+            } catch (RuntimeException e) {
+                areaCombo.setComponentError(new UserError("יש לבחור אזור"));
+            }
+        }
+        siteRepository.updateSite(site);
+    }
+
+    private void customerChange() {
+        if(customerCombo.getValue()==null) {
+            site.setCustomerId(0);
+            addButton.setEnabled(false);
+        }
+        else {
+            try {
+                site.setCustomerId(customerCombo.getValue());
+                customerCombo.setEnabled(false);
+                customerCombo.setComponentError(null);
+                addButton.setEnabled(true);
+            }
+            catch (RuntimeException e) {
+                customerCombo.setComponentError(new UserError("יש לבחור לקוח"));
+            }
+        }
+        siteRepository.updateSite(site);
+    }
 }
