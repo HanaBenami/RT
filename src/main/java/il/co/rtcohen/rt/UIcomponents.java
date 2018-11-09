@@ -313,7 +313,7 @@ public class UIcomponents {
             if(!aBoolean2)
                 return true;
             else return
-                    aBoolean.equals(aBoolean2);
+                    aBoolean.equals(true);
         };
     }
 

@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 import org.vaadin.ui.NumberField;
 
 import java.time.LocalDate;
@@ -44,11 +43,11 @@ public class CallView extends AbstractDataView {
     private Options open;
     private CallRepository callRepository;
     private SiteRepository siteRepository;
-    FilterGrid<Call> grid;
-    GridLayout formLayout;
-    Button selectButton;
-    Button refresh;
-    Button print;
+    private FilterGrid<Call> grid;
+    private GridLayout formLayout;
+    private Button selectButton;
+    private Button refresh;
+    private Button print;
 
     @Autowired
     private CallView(ErrorHandler errorHandler, CallRepository callRepository, SiteRepository siteRepository, GeneralRepository generalRepository) {

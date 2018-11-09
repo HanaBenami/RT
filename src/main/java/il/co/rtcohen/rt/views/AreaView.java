@@ -1,7 +1,6 @@
 package il.co.rtcohen.rt.views;
 
 import com.vaadin.data.ValueProvider;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Setter;
@@ -14,7 +13,6 @@ import il.co.rtcohen.rt.repositories.AreaRepository;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 import org.vaadin.ui.NumberField;
 
 import java.util.List;
@@ -23,8 +21,8 @@ import java.util.List;
 public class AreaView extends AbstractDataView {
     static final String VIEW_NAME = "area";
     private AreaRepository areaRepository;
-    FilterGrid<Area> grid;
-    TextField newName;
+    private FilterGrid<Area> grid;
+    private TextField newName;
 
     @Autowired
     private AreaView(ErrorHandler errorHandler, AreaRepository areaRepository, GeneralRepository generalRepository) {

@@ -27,5 +27,4 @@ public class Area extends GeneralType {
         this.displayOrder=displayOrder;
     }
 
-
 }

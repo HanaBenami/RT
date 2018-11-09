@@ -115,7 +115,6 @@ public class BigScreen extends AbstractUI {
         grid.setHeightByRows(dateList.size());
         grid.addStyleName("bigscreen");
         Grid.Column<Call, Label> dataColumn = grid.addComponentColumn(this::callLabel);
-        //style
         grid.addStyleName("custom-margins");
         grid.setStyleGenerator((StyleGenerator<Call>) UIcomponents::callStyle);
         return grid;

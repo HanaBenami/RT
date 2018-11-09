@@ -37,7 +37,7 @@ public abstract class AbstractDataView extends AbstractView implements View {
 
     abstract void createView(ViewChangeListener.ViewChangeEvent event);
 
-    void addButton() {
+    private void addButton() {
         addButton = UIcomponents.addButton();
         addButton.setEnabled(false);
     }

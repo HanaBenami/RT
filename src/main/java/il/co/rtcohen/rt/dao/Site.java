@@ -2,12 +2,12 @@ package il.co.rtcohen.rt.dao;
 
 public class Site extends GeneralType {
 
-    Integer customerId;
-    Integer areaId;
-    String address;
-    String contact;
-    String phone;
-    String notes;
+    private Integer customerId;
+    private Integer areaId;
+    private String address;
+    private String contact;
+    private String phone;
+    private String notes;
 
     public Site() {
         this(0,0,"",0,"",true,"","","");

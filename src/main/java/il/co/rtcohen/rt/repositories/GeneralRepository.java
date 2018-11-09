@@ -65,7 +65,7 @@ public class GeneralRepository {
             return "";
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 return rs.getString("name");
             }
             log.info("no record with id="+id);
@@ -118,8 +118,8 @@ public class GeneralRepository {
             return n;
         }
         catch (SQLException e) {
-            log.error("error in update genetalType (\"id=\"+x.getId()+\", table=\"+x.getTable())",e);
-            throw new UpdateException("error in update genetalType (\"id=\"+x.getId()+\", table=\"+x.getTable())",e);
+            log.error("error in update generalType (\"id=\"+x.getId()+\", table=\"+x.getTable())",e);
+            throw new UpdateException("error in update generalType (\"id=\"+x.getId()+\", table=\"+x.getTable())",e);
         }
     }
 

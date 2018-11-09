@@ -23,16 +23,15 @@ import org.vaadin.addons.filteringgrid.FilterGrid;
 
 @SpringView(name = CustomerView.VIEW_NAME)
 public class CustomerView extends AbstractDataView {
-    public static final String VIEW_NAME = "customer";
+    static final String VIEW_NAME = "customer";
     private TextField filterName;
     private ComboBox<Integer> newCustomerType;
     private TextField newName;
     private CallRepository callRepository;
     private SiteRepository siteRepository;
     private CustomerRepository customerRepository;
-    FilterGrid<Customer> grid;
-    Button refresh;
-    HorizontalLayout formLayout;
+    private FilterGrid<Customer> grid;
+    private HorizontalLayout formLayout;
 
     @Autowired
     private CustomerView(ErrorHandler errorHandler, CallRepository callRepository, SiteRepository siteRepository, GeneralRepository generalRepository, CustomerRepository customerRepository) {
@@ -188,7 +187,7 @@ public class CustomerView extends AbstractDataView {
     }
 
     private void refreshButton() {
-        refresh = UIcomponents.refreshButton();
+        Button refresh = UIcomponents.refreshButton();
         refresh.addClickListener(clickEvent -> refresh());
         formLayout.addComponent(refresh);
         formLayout.setComponentAlignment(refresh,Alignment.MIDDLE_LEFT);

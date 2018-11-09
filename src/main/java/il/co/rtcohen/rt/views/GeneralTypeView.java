@@ -1,12 +1,14 @@
 package il.co.rtcohen.rt.views;
 
 import com.vaadin.data.ValueProvider;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Setter;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.*;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.UIcomponents;
 import il.co.rtcohen.rt.dao.GeneralType;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
@@ -14,10 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 @SpringView(name = GeneralTypeView.VIEW_NAME)

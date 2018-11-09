@@ -36,7 +36,6 @@ public class SiteView extends AbstractDataView {
     private FilterGrid<Site> grid;
     private VerticalLayout topLayout;
     private HorizontalLayout selectLayout;
-    private HorizontalLayout addLayout;
 
     @Autowired
     private SiteView(ErrorHandler errorHandler, SiteRepository siteRepository, GeneralRepository generalRepository) {
@@ -265,7 +264,7 @@ public class SiteView extends AbstractDataView {
     }
 
     private void addLayout() {
-        addLayout = new HorizontalLayout();
+        HorizontalLayout addLayout = new HorizontalLayout();
         addLayout.setWidth("610");
         addLayout.addComponent(addButton);
         addButton.setEnabled(false);

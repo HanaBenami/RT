@@ -20,7 +20,7 @@ public class MyErrorHandler implements ErrorHandler {
         doDefault(event);
     }
 
-    public static void doDefault(ErrorEvent event) {
+    private static void doDefault(ErrorEvent event) {
         Throwable t = event.getThrowable();
         if (t instanceof SocketException) {
             getLogger().info("SocketException in CommunicationManager. Most likely client (browser) closed socket.");
@@ -36,7 +36,7 @@ public class MyErrorHandler implements ErrorHandler {
         }
     }
 
-    public static Throwable findRelevantThrowable(Throwable t) {
+    private static Throwable findRelevantThrowable(Throwable t) {
         try {
             if (t instanceof ServerRpcManager.RpcInvocationException && t.getCause() instanceof InvocationTargetException) {
                 return findRelevantThrowable(t.getCause().getCause());
@@ -46,7 +46,7 @@ public class MyErrorHandler implements ErrorHandler {
                 return t.getCause();
             }
         } catch (Exception var2) {
-            ;
+
         }
 
         return t;
@@ -56,7 +56,7 @@ public class MyErrorHandler implements ErrorHandler {
         return Logger.getLogger(com.vaadin.server.DefaultErrorHandler.class.getName());
     }
 
-    public static AbstractComponent findAbstractComponent(ErrorEvent event) {
+    private static AbstractComponent findAbstractComponent(ErrorEvent event) {
         if (event instanceof ClientConnector.ConnectorErrorEvent) {
             Component c = findComponent(((ClientConnector.ConnectorErrorEvent)event).getConnector());
             if (c instanceof AbstractComponent) {
@@ -67,7 +67,7 @@ public class MyErrorHandler implements ErrorHandler {
         return null;
     }
 
-    public static Component findComponent(Connector connector) {
+    private static Component findComponent(Connector connector) {
         if (connector instanceof Component) {
             return (Component)connector;
         } else {

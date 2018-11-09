@@ -29,9 +29,8 @@ public class GeneralType {
     }
 
     public void setName(String name) {
-        if (!name.isEmpty()) {
-            this.name=name;
-        }
+        if (!name.isEmpty())
+            this.name = name;
     }
 
     public void setActive(boolean active) {

@@ -23,7 +23,7 @@ public abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         this.siteRepository=siteRepository;
     }
 
-    void setPrintButton() {
+    private void setPrintButton() {
         Button print = UIcomponents.printButton();
         print.addClickListener(clickEvent ->
                 JavaScript.getCurrent().execute("print();"));
@@ -31,7 +31,7 @@ public abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         layout.setComponentAlignment(print, Alignment.TOP_LEFT);
     }
 
-    void setDeleteButton() {
+    private void setDeleteButton() {
         Button delete = UIcomponents.trashButton();
         delete.addClickListener(clickEvent -> deleteId());
         layout.addComponent(delete,0,1,0,1);

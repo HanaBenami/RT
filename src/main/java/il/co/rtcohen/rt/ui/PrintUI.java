@@ -39,8 +39,8 @@ public class PrintUI extends AbstractUI {
     private NumberField filterDays = new NumberField();
     private FilterGrid<Call> grid;
     private SiteRepository siteRepository;
-    Label title;
-    HorizontalLayout titleLayout;
+    private Label title;
+    private HorizontalLayout titleLayout;
 
     @Autowired
     private PrintUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository) {

@@ -2,7 +2,6 @@ package il.co.rtcohen.rt.dao;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 public class Call {
 
@@ -79,10 +78,7 @@ public class Call {
 
     public void setEndDate(LocalDate date) {
         this.endDate = dateCheck(date);
-        if (nullDateString.equals(this.endDate))
-            this.done = false;
-        else
-            this.done = true;
+        this.done = !nullDateString.equals(this.endDate);
     }
 
     public void setDescription(String newDescr) {

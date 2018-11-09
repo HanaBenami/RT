@@ -353,7 +353,7 @@ public class EditCallUI extends AbstractEditUI {
         }
     }
 
-    void customerChange() {
+    private void customerChange() {
         if(customerCombo.getValue()==null) {
             call.setCustomerId(0);
         }

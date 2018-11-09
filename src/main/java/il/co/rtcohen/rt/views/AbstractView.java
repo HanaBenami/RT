@@ -6,7 +6,7 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.VerticalLayout;
 
 @Theme("myTheme")
-public class AbstractView extends VerticalLayout implements View {
+class AbstractView extends VerticalLayout implements View {
 
     AbstractView(ErrorHandler errorHandler) {
         setErrorHandler(errorHandler);

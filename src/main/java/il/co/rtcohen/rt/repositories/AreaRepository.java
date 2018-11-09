@@ -80,11 +80,10 @@ public class AreaRepository {
 
     private List<Integer> getActiveId(String where) {
         List<Integer> idList = new ArrayList<>();
-        List<Area> list = new ArrayList<>();
-        String sql="";
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
                 ("SELECT * FROM area where active=1"+where)) {
             ResultSet rs = stmt.executeQuery();
+            List<Area> list = new ArrayList<>();
             if (rs.next())
                 list = getListFromRS(rs);
             list.sort((o1, o2) -> o2.getName().compareTo(o1.getName()));
