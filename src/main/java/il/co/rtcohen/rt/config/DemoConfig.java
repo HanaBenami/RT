@@ -14,20 +14,12 @@ import javax.sql.DataSource;
 @ComponentScan(value = {"il.co.rtcohen.rt"})
 public class DemoConfig {
 
-    @Value("${spring.datasource.driverClassName}")
-    String driverClassName;
-
-    @Value("${spring.datasource.url}")
-    String connectionUrl;
-
-    @Value("${spring.datasource.username}")
-    String username;
-
-    @Value("${spring.datasource.password}")
-    String password;
-
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource(
+            @Value("${spring.datasource.driverClassName}") String driverClassName,
+            @Value("${spring.datasource.url}") String connectionUrl,
+            @Value("${spring.datasource.username}") String username,
+            @Value("${spring.datasource.password}") String password) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(driverClassName);
         dataSource.setUrl(connectionUrl);

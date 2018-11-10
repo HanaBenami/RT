@@ -6,22 +6,22 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.TextField;
-import il.co.rtcohen.rt.UIcomponents;
+import il.co.rtcohen.rt.UIComponents;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
+import org.vaadin.addons.filteringgrid.FilterGrid;
 
-public abstract class AbstractDataView extends AbstractView implements View {
+public abstract class AbstractDataView<T> extends AbstractView implements View {
 
     String title;
-    Component dataGrid;
-    public GeneralRepository generalRepository;
+    FilterGrid<T> grid;
+    GeneralRepository generalRepository;
     Button addButton;
 
     AbstractDataView(ErrorHandler errorHandler,GeneralRepository generalRepository) {
         super(errorHandler);
         this.generalRepository=generalRepository;
-        addButton();
+        setAddButton();
     }
 
     @Override
@@ -32,24 +32,22 @@ public abstract class AbstractDataView extends AbstractView implements View {
     }
 
     void addHeader() {
-        addComponent(UIcomponents.header(title));
+        addComponent(UIComponents.header(title));
     }
 
     abstract void createView(ViewChangeListener.ViewChangeEvent event);
 
-    private void addButton() {
-        addButton = UIcomponents.addButton();
+    private void setAddButton() {
+        addButton = UIComponents.addButton();
         addButton.setEnabled(false);
     }
 
-    TextField newName() {
+    TextField addNewNameField() {
         TextField newName = new TextField();
         newName.focus();
         newName.addFocusListener(focusEvent ->
                 addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
-        newName.addBlurListener(event -> {
-            addButton.removeClickShortcut();
-        });
+        newName.addBlurListener(event -> addButton.removeClickShortcut());
         newName.addValueChangeListener(valueChangeEvent -> {
             if (newName.getValue().isEmpty())
                 addButton.setEnabled(false);
@@ -58,4 +56,13 @@ public abstract class AbstractDataView extends AbstractView implements View {
         });
         return newName;
     }
+
+    void initGrid(String style) {
+        grid = new FilterGrid<>();
+        grid.getEditor().setSaveCaption("שמור");
+        grid.getEditor().setCancelCaption("בטל");
+        if (!style.equals(""))
+            grid.setStyleGenerator(item -> style);
+    }
+
 }

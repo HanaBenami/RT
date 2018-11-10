@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 public class MSSqlConfig {
 
     @Value("${sqlserver.url}")
-    String connectionUrl;
+    private String connectionUrl;
 
     @Autowired
     private PoolableConnectionFactory poolableConnectionFactory;
@@ -27,7 +27,6 @@ public class MSSqlConfig {
     @Autowired
     public PoolableConnectionFactory poolableConnectionFactory(ConnectionFactory connectionFactory) {
         return new PoolableConnectionFactory(connectionFactory, null);
-
     }
 
     @Bean
@@ -41,9 +40,7 @@ public class MSSqlConfig {
         ObjectPool<PoolableConnection> connectionPool =
                 new GenericObjectPool<>(poolableConnectionFactory);
         poolableConnectionFactory.setPool(connectionPool);
-        PoolingDataSource<PoolableConnection> dataSource =
-                new PoolingDataSource<>(connectionPool);
-        return dataSource;
+        return new PoolingDataSource<>(connectionPool);
     }
 }
 

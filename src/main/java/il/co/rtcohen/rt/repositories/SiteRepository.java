@@ -27,27 +27,74 @@ public class SiteRepository {
 
     public List<Site> getSitesByCustomer(Integer customerId) {
         List<Site> list = new ArrayList<>();
-        List<Integer> id = getAllIdByCustomer(customerId,false);
+        List<Integer> id = getIdByCustomer(customerId,false);
         for (Integer i : id)
             list.add(getSiteById(i));
         return list;
     }
 
     public List<Integer> getActiveIdByCustomer(Integer customerId) {
-        return getAllIdByCustomer(customerId,true);
+        return getIdByCustomer(customerId,true);
     }
 
-    private List<Integer> getAllIdByCustomer(Integer customerId, boolean active) {
-        List<Integer> l = new ArrayList<>();
-        String sql="";
-        sql = "SELECT id FROM site";
-        if (customerId>0)
-            sql+=" where custid="+customerId;
-        if ((active)&&(customerId>0))
-            sql+=" and active=1";
-        if ((active)&&(customerId==0))
-            sql+=" where active=1";
-        return getByCustomer(sql);
+    private List<Integer> getIdByCustomer(Integer customerId, boolean active) {
+        if (customerId>0) {
+            if (active)
+                return getActiveByCustomer(customerId);
+            else
+                return getByCustomer(customerId);
+        }
+        else
+            return getActive();
+    }
+
+    private List<Integer> getByCustomer(Integer customerId) {
+        List<Integer> list = new ArrayList<>();
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("SELECT id FROM site  where custid=?")) {
+            stmt.setInt(1,customerId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next())
+                list.add(rs.getInt("id"));
+            return list;
+        }
+        catch (SQLException e) {
+            log.error("error in getByCustomer for customer="+customerId+": ",e);
+            throw new DataRetrievalFailureException("error in getByCustomer for customer="+customerId+": ",e);
+        }
+    }
+
+    private List<Integer> getActiveByCustomer(Integer customerId) {
+        List<Integer> list = new ArrayList<>();
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("SELECT id FROM site  where custid=? and active=?")) {
+            stmt.setInt(1,customerId);
+            stmt.setBoolean(2,true);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next())
+                list.add(rs.getInt("id"));
+            return list;
+        }
+        catch (SQLException e) {
+            log.error("error in getActiveByCustomer for customer="+customerId+": ",e);
+            throw new DataRetrievalFailureException("error in getActiveByCustomer for customer="+customerId+": ",e);
+        }
+    }
+
+    private List<Integer> getActive() {
+        List<Integer> list = new ArrayList<>();
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
+                ("SELECT id FROM site  where active=?")) {
+            stmt.setBoolean(1,true);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next())
+                list.add(rs.getInt("id"));
+            return list;
+        }
+        catch (SQLException e) {
+            log.error("error in getActive: ",e);
+            throw new DataRetrievalFailureException("error in getActive: ",e);
+        }
     }
 
     private List<Integer> getByCustomer(String sql) {

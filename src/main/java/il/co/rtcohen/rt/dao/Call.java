@@ -81,8 +81,8 @@ public class Call {
         this.done = !nullDateString.equals(this.endDate);
     }
 
-    public void setDescription(String newDescr) {
-        this.description = newDescr;
+    public void setDescription(String newDescription) {
+        this.description = newDescription;
     }
 
     public void setSiteId(int newSite) {

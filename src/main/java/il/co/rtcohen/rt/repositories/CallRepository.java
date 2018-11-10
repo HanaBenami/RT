@@ -31,23 +31,27 @@ public class CallRepository {
     }
 
     public List<Call> getCalls() {
-        return getCallsList("");
-    }
-
-    public List<Call> getCallsBySite(Integer siteId) {
-        return getCallsList(" where siteid="+siteId);
-    }
-
-    private List<Call> getCallsList(String where) {
-        String sql="select * from call"+where;
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call")) {
             ResultSet rs = stmt.executeQuery();
             return getListFromRS(rs);
         }
         catch (SQLException e) {
-            log.info(sql);
-            log.error("error in getCallsList: ",e);
-            throw new DataRetrievalFailureException("error in getCallsList: ",e);
+            log.error("error in getCalls: ",e);
+            throw new DataRetrievalFailureException("error in getCalls: ",e);
+        }
+    }
+
+    public List<Call> getCallsBySite(Integer siteId) {
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where siteid=?")) {
+            stmt.setInt(1,siteId);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
+        }
+        catch (SQLException e) {
+            log.error("error in getCallsBySite for siteId="+siteId+": ",e);
+            throw new DataRetrievalFailureException("error in getCallsBySite for siteId="+siteId+": ",e);
         }
     }
 
@@ -65,8 +69,16 @@ public class CallRepository {
     }
 
     private List<Call> getCalls(String date) {
-        String where=" where date2='"+date+"'";
-        return getCallsList(where);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where date2=?")) {
+            stmt.setString(1,date);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
+        }
+        catch (SQLException e) {
+            log.error("error in getCalls where date2="+date+": ",e);
+            throw new DataRetrievalFailureException("error in getCalls where date2="+date+": ",e);
+        }
     }
 
     public List<Call> getCalls(LocalDate date) {
@@ -78,46 +90,118 @@ public class CallRepository {
     }
 
     private List<Call> getCalls(String date, int driver) {
-        String where=" where date2='"+date+"' and driverid='"+driver+"'";
-        return getCallsList(where);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where date2=? and driverid=?")) {
+            stmt.setString(1,date);
+            stmt.setInt(2,driver);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
+        }
+        catch (SQLException e) {
+            log.error("error in getCalls where date2="+date+" and driver="+driver+": ",e);
+            throw new DataRetrievalFailureException("error in getCalls where date2="+date+" and driver="+driver+": ",e);
+        }
     }
 
     public List<Call> getLocalCalls() {
-        String where=" where here='true'";
-        return getCallsList(where);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where here=?")) {
+            stmt.setBoolean(1,true);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
+        }
+        catch (SQLException e) {
+            log.error("error in getLocalCalls: ",e);
+            throw new DataRetrievalFailureException("error in getLocalCalls: ",e);
+        }
     }
 
     public List<Call> getCalls(Boolean isDone) {
-        String where=" where done='"+isDone+"'";
-        return getCallsList(where);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where done=?")) {
+            stmt.setBoolean(1,isDone);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
+        }
+        catch (SQLException e) {
+            log.error("error in getCalls where done="+isDone+": ",e);
+            throw new DataRetrievalFailureException("error in getCalls where done="+isDone+": ",e);
+        }
     }
 
     public List<Call> getOpenCallsPerArea(int area) {
-        String where;
         if(areaRepository.getAreaById(area).getName().equals("מוסך"))
-        {
-            where = " where done='false' and ((siteid in (select id from site where areaid=" + area + ")) " +
-                    " or (here='true' and date2='" + Call.nullDateString + "')) order by date2";
+            return getGarageCalls(area);
+        else
+            return getAreaCalls(area);
+    }
+
+    private List<Call> getGarageCalls(int area) {
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where done=? and ((siteid in " +
+                        "(select id from site where areaid=?)) " +
+                        "or (here=? and date2=?)) order by date2")) {
+            stmt.setBoolean(1,false);
+            stmt.setInt(2,area);
+            stmt.setBoolean(3,true);
+            stmt.setString(4,Call.nullDateString);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
         }
-        else {
-            where = " where done='false' and siteid in (select id from site where areaid=" + area + ") " +
-                    "and (here='false' or (here='true' and date2!='" + Call.nullDateString + "')) order by date2";
+        catch (SQLException e) {
+            log.error("error in getGarageCalls: ",e);
+            throw new DataRetrievalFailureException("error getGarageCalls: ",e);
         }
-        return getCallsList(where);
+    }
+
+    private List<Call> getAreaCalls(int area) {
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where done=? and ((siteid in " +
+                        "(select id from site where areaid=?)) " +
+                        "and (here=? or (here=? and date2!=?))) order by date2")) {
+            stmt.setBoolean(1,false);
+            stmt.setInt(2,area);
+            stmt.setBoolean(3,false);
+            stmt.setBoolean(4,true);
+            stmt.setString(5,Call.nullDateString);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
+        }
+        catch (SQLException e) {
+            log.error("error in getAreaCalls for area="+area+": ",e);
+            throw new DataRetrievalFailureException("error in getAreaCalls for area="+area+": ",e);
+        }
     }
 
     public int countActiveCallsByCustomer (Integer customerId) {
-        String where=" where done='false' and custid='"+customerId+"'";
-        return getCallsList(where).size();
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where done=? and custid=?")) {
+            stmt.setBoolean(1,false);
+            stmt.setInt(2,customerId);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs).size();
+        }
+        catch (SQLException e) {
+            log.error("error in countActiveCallsByCustomer where customer="+customerId+": ",e);
+            throw new DataRetrievalFailureException("error in countActiveCallsByCustomer where customer="+customerId+": ",e);
+        }
     }
 
     public Call getCallById(Integer id) {
-        String where=" where id='"+id+"'";
-        List<Call> calls = getCallsList(where);
-        if (calls.isEmpty())
-            return new Call();
-        else
-            return calls.get(0);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where id=?")) {
+            stmt.setInt(1,id);
+            ResultSet rs = stmt.executeQuery();
+            List<Call> list = getListFromRS(rs);
+            if (list.isEmpty())
+                return new Call();
+            else
+                return list.get(0);
+        }
+        catch (SQLException e) {
+            log.error("error in getCallById where id="+id+": ",e);
+            throw new DataRetrievalFailureException("error in getCallById where id="+id+": ",e);
+        }
     }
 
     public long insertCall(int customerId, LocalDate startDate) {
@@ -161,12 +245,11 @@ public class CallRepository {
     public int deleteCall(int id) {
         Call call = getCallById(id);
         call.setDate2(Call.nullDate);
-        int n=0;
         try (Connection con = dataSource.getConnection();
              PreparedStatement stmt = con.prepareStatement("delete from call where id=?",
                      Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1,call.getId());
-            n=stmt.executeUpdate();
+            int n=stmt.executeUpdate();
             if (n == 1) {
                 log.info("call id="+call.getId()+" has been deleted");
             }
@@ -200,9 +283,6 @@ public class CallRepository {
             stmt.setInt(13, call.getId());
             int n = stmt.executeUpdate();
             log.info("updateCall with id="+call.getId()+": "+stmt);
-            if ((call.getDate2()!=call.getPreDate2()) || (call.getOrder()!=call.getPreOrder())
-                    || (call.getDriverId()!=call.getPreDriverId()) )
-                n += updateCallPlan(call);
             return n;
         } catch (SQLException e) {
             log.error("error in updateCall (id="+call.getId()+"): ",e);
@@ -210,7 +290,7 @@ public class CallRepository {
         }
     }
 
-    private int newOrder(Call call) {
+    public int newOrder(Call call) {
         int newOrder = 1;
         if (call.getDriverId() == 0)
             return 0;
@@ -233,7 +313,7 @@ public class CallRepository {
         }
     }
 
-    private int updateQuery(String sql) {
+    public int updateQuery(String sql) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             int n = stmt.executeUpdate();
             log.info("SQL statement: "+sql);
@@ -244,119 +324,36 @@ public class CallRepository {
         }
     }
 
-    private int updateCallPlan(Call call) {
-        String sql;
-        int n = 0;
-        sql = "update call set workorder=0 where id=" + call.getId();
-        n += updateQuery(sql);
-
-        //fix newOrder in case of null values in other fields or too big new value in newOrder
-        if ((call.getDriverId() == 0)
-                || ((call.getDate2().format(Call.dateFormatter)).equals(Call.nullDateString))
-                || (call.getOrder() == 0) || (call.getOrder() > newOrder(call)) )
-            call.setOrder(newOrder(call));
-
-        // if there is no change and date and driver and there are valid values
-        if ((call.getPreDriverId() == call.getDriverId())
-                && ((call.getPreDate2().format(Call.dateFormatter)).equals(call.getDate2().format(Call.dateFormatter)))
-                && (call.getDriverId() != 0)
-                && !((call.getDate2().format(Call.dateFormatter)).equals(Call.nullDateString)))
-            n+=updateCallPlanNoChange(call);
-
-        // if there is change and date and driver
-        else
-            n+=updateCallPlanChange(call);
-
-        // update the call with its new values
-        sql = "update call set date2='" + call.getDate2().format(Call.dateFormatter)
-                + "', driverid=" + call.getDriverId()
-                + ", workorder=" + call.getOrder()
-                + " where id=" + call.getId();
-        n += updateQuery(sql);
-        call.setPreOrder(call.getOrder());
-        call.setPreDriverId(call.getDriverId());
-        call.setPreDate2(call.getDate2());
-        return n;
-
-    }
-
-    private int updateCallPlanNoChange(Call call) {
-        String sql;
-        int n = 0;
-
-            //validate new order value not too big
-            if (call.getOrder() > newOrder(call)) {
-                call.setOrder(newOrder(call) - 1);
-            };
-
-            // if the call had no order value before the change
-            // fix others call with its new driver and date
-            if ((call.getPreOrder() == 0) && (call.getOrder() != 0)) {
-                sql = query("+1",call.getDriverId(),call.getDate2()
-                        ,">=",call.getOrder());
-                n += updateQuery(sql);
-            }
-
-            // if the call had order value before
-            else {
-                // if order value is smaller than before or from next valid value
-                // fix order value in other calls with the same date and driver
-                if (call.getPreOrder() > call.getOrder()) {
-                    sql = query("+1",call.getDriverId(),call.getDate2()
-                            ,">=",call.getOrder(),"<",call.getPreOrder());
-                    n += updateQuery(sql);
-                }
-
-                //if order value is bigger than before
-                // fix order value in other calls with the same date and driver
-                if (call.getPreOrder() < call.getOrder()) {
-                    sql = query("-1",call.getDriverId(),call.getDate2()
-                            ,"<=",call.getOrder(),">",call.getPreOrder());
-                    n += updateQuery(sql);
-                }
-            }
-
-        return n;
-    }
-
-    private int updateCallPlanChange(Call call) {
-        String sql;
-        int n = 0;
-
-        // if valid driver and date
-        // fix order value in other calls with the same date and driver
-        // (according to new values)
-        if ((call.getDriverId() != 0)
-                && !((call.getDate2().format(Call.dateFormatter)).equals(Call.nullDateString))) {
-            sql = query("+1", call.getDriverId(), call.getDate2()
-                    , ">=", call.getOrder());
-            n += updateQuery(sql);
-        }
-
-        // if the call had previous order value with valid driver and date
-        // fix order value in other calls with the same date and driver
-        // (according to previous values)
-        if ((call.getPreOrder() != 0) && (call.getPreDriverId() != 0)
-                && !((call.getPreDate2().format(Call.dateFormatter)).equals(Call.nullDateString))) {
-            sql = query("-1", call.getPreDriverId(), call.getPreDate2()
-                    , ">", call.getPreOrder());
-            n += updateQuery(sql);
-        }
-
-        return n;
-    }
-
-    private String query (String plus, int driver, LocalDate date,
-                          String orderOperator, int order, String orderOperator2, int order2) {
-        return query(plus, driver, date, orderOperator, order)
+    public int updateQuery(String plus, int driver, LocalDate date,
+                            String orderOperator, int order, String orderOperator2, int order2) {
+        String sql = stringUpdateQuery(plus, driver, date, orderOperator, order)
                 + " and workorder" + orderOperator2 + order2;
+        return updateQuery(sql);
     }
 
-    private String query (String plus, int driver, LocalDate date, String orderOperator, int order) {
+    public int updateQuery(String plus, int driver, LocalDate date, String orderOperator, int order) {
+        String sql = stringUpdateQuery(plus,driver,date,orderOperator,order);
+        return updateQuery(sql);
+    }
+
+    public String stringUpdateQuery(String plus, int driver, LocalDate date, String orderOperator, int order) {
         return "update call set workorder=workorder"+plus+" where "
                 + "driverid=" + driver
                 + " and date2='" + (date.format(Call.dateFormatter))
                 + "' and workorder" + orderOperator + order;
+    }
+
+    public int resetOrderQuery(Call call) {
+        String sql = "update call set workorder=0 where id=" + call.getId();
+        return updateQuery(sql);
+    }
+
+    public int updateOrderQuery(Call call) {
+        String sql = "update call set date2='" + call.getDate2().format(Call.dateFormatter)
+                + "', driverid=" + call.getDriverId()
+                + ", workorder=" + call.getOrder()
+                + " where id=" + call.getId();
+        return updateQuery(sql);
     }
 
 }

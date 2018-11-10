@@ -72,14 +72,13 @@ public class CustomerRepository {
         }
     }
 
-    public int updateCustomerType(Customer customer) {
+    public void updateCustomerType(Customer customer) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
                 ("update cust set custtype=? where id=?")) {
             stmt.setInt(1,customer.getCustomerTypeID());
             stmt.setInt(2,customer.getId());
             int n=stmt.executeUpdate();
             log.info("Updating customer where id="+customer.getId()+" > "+n+" records has been updated");
-            return n;
         }
         catch (SQLException e) {
             log.error("error in updateCustomerType (id="+customer.getId()+"): ",e);

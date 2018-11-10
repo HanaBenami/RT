@@ -8,7 +8,6 @@ import com.vaadin.ui.renderers.LocalDateRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import il.co.rtcohen.rt.dao.Call;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
-import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 import org.vaadin.ui.NumberField;
 import java.time.LocalDate;
@@ -16,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UIcomponents {
+public class UIComponents {
 
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -25,9 +24,9 @@ public class UIcomponents {
             return "green";
         if (call.getDate2().equals(LocalDate.now().plusDays(1)))
             return "yellow";
-        if ((call.getDate2().equals(call.nullDate))&&(call.getStartDate().isBefore(LocalDate.now().minusDays(6))))
+        if ((call.getDate2().equals(Call.nullDate))&&(call.getStartDate().isBefore(LocalDate.now().minusDays(6))))
             return "darkred";
-        if ((call.getDate2().equals(call.nullDate))&&(call.getStartDate().isBefore(LocalDate.now().minusDays(2))))
+        if ((call.getDate2().equals(Call.nullDate))&&(call.getStartDate().isBefore(LocalDate.now().minusDays(2))))
             return "red";
         return null;
     }
@@ -95,7 +94,7 @@ public class UIcomponents {
             if (item==0) return "";
             return generalRepository.getNameById(item,"custType");
         };
-        return UIcomponents.comboBox(custTypeList,custTypeCaption,w,h);
+        return UIComponents.comboBox(custTypeList,custTypeCaption,w,h);
     }
 
     public ComboBox<Integer> siteComboBox(GeneralRepository generalRepository, int w, int h) {
@@ -110,13 +109,13 @@ public class UIcomponents {
         ItemCaptionGenerator<Integer> areaCaption = (ItemCaptionGenerator<Integer>) item -> {
             if (item==0) return "";
             return generalRepository.getNameById(item,"area"); };
-        return UIcomponents.comboBox(areaList,areaCaption,w,h);
+        return UIComponents.comboBox(areaList,areaCaption,w,h);
     }
 
-    public static ComboBox<Integer> comboBox (List<Integer> items,
-                                     ItemCaptionGenerator<Integer> caption,
-                                     Integer w, Integer h) {
-        ComboBox<Integer> comboBox = new ComboBox();
+    private static ComboBox<Integer> comboBox(List<Integer> items,
+                                              ItemCaptionGenerator<Integer> caption,
+                                              Integer w, Integer h) {
+        ComboBox<Integer> comboBox = new ComboBox<>();
         comboBox.setItems(items);
         comboBox.setItemCaptionGenerator(caption);
         comboBox.setHeight(String.valueOf(h));
@@ -150,15 +149,15 @@ public class UIcomponents {
     }
 
     public static Label header(String title) {
-        return UIcomponents.label(title,"LABEL");
+        return UIComponents.label(title,"LABEL");
     }
 
     public static Label smallHeader(String title) {
-        return UIcomponents.label(title,"LABEL-RIGHT");
+        return UIComponents.label(title,"LABEL-RIGHT");
     }
 
     public static Label label(String value,String style) {
-        Label label = UIcomponents.label(style);
+        Label label = UIComponents.label(style);
         label.setValue(value);
         return label;
     }
@@ -212,15 +211,6 @@ public class UIcomponents {
         return button;
     }
 
-    public static FilterGrid myGrid (String style) {
-        FilterGrid grid = new FilterGrid();
-        grid.getEditor().setSaveCaption("שמור");
-        grid.getEditor().setCancelCaption("בטל");
-        if (!style.equals(""))
-            grid.setStyleGenerator(item -> style);
-        return grid;
-    }
-
     public static TextField textField (String value, Boolean enabled, int w, int h) {
         TextField textField = textField(enabled,w,h);
         textField.setValue(value);
@@ -233,9 +223,6 @@ public class UIcomponents {
         return textField;
     }
 
-    public static TextField textField (int w, int h) {
-        return textField(String.valueOf(w),String.valueOf(h));
-    }
 
     public static TextField textField (String w, String h) {
         TextField textField = new TextField();
@@ -248,7 +235,7 @@ public class UIcomponents {
         return textField(String.valueOf(h));
     }
 
-    public static TextField textField (String h) {
+    private static TextField textField(String h) {
         TextField textField = new TextField();
         textField.setHeight(h);
         return textField;
@@ -290,7 +277,7 @@ public class UIcomponents {
         return dateField(String.valueOf(h));
     }
 
-    public static DateField dateField (String h) {
+    private static DateField dateField(String h) {
         DateField dateField = dateField();
         dateField.setHeight(h);
         return dateField;
@@ -304,8 +291,7 @@ public class UIcomponents {
     }
 
     public static SerializableBiPredicate<Boolean,Boolean> BooleanPredicate () {
-        return (SerializableBiPredicate<Boolean, Boolean>) (aBoolean, aBoolean2) ->
-                aBoolean.equals(aBoolean2);
+        return (SerializableBiPredicate<Boolean, Boolean>) Boolean::equals;
     }
 
     public static SerializableBiPredicate<Boolean,Boolean> BooleanPredicateWithShowAll () {
@@ -326,7 +312,7 @@ public class UIcomponents {
     }
 
 
-    public static SerializableBiPredicate textFilter() {
+    public static SerializableBiPredicate<Integer, String> integerFilter() {
         return (InMemoryFilter.StringComparator.containsIgnoreCase());
     }
 

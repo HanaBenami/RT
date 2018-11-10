@@ -1,15 +1,13 @@
 package il.co.rtcohen.rt.ui;
 
-import com.vaadin.annotations.Theme;
 import com.vaadin.event.UIEvents;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.*;
-import il.co.rtcohen.rt.UIcomponents;
+import il.co.rtcohen.rt.UIComponents;
 import il.co.rtcohen.rt.dao.Call;
 import il.co.rtcohen.rt.repositories.AreaRepository;
 import il.co.rtcohen.rt.repositories.CallRepository;
@@ -22,19 +20,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-@UIScope
 @SpringComponent
-@SpringUI(path="/bigscreen")
-@Theme("myTheme")
-public class BigScreen extends AbstractUI {
+@SpringUI(path="/bigScreen")
+public class BigScreenUI extends AbstractUI<HorizontalLayout> {
 
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM");
-    private HorizontalLayout layout;
     private Integer intervalTime;
     private AreaRepository areaRepository;
 
     @Autowired
-    private BigScreen(ErrorHandler errorHandler,CallRepository callRepository, GeneralRepository generalRepository, AreaRepository areaRepository,@Value("${settings.bigScreenInterval}") Integer intervalTime) {
+    private BigScreenUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, AreaRepository areaRepository, @Value("${settings.bigScreenInterval}") Integer intervalTime) {
         super(errorHandler,callRepository,generalRepository);
         this.areaRepository=areaRepository;
         this.intervalTime=intervalTime;
@@ -46,7 +41,7 @@ public class BigScreen extends AbstractUI {
         layout.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
         layout.setWidth("100%");
         layout.setHeight("100%");
-        addData();
+        loadData();
         setContent(layout);
         layout.addStyleName("custom-margins");
         //auto refresh
@@ -54,7 +49,7 @@ public class BigScreen extends AbstractUI {
         addPollListener((UIEvents.PollListener) event -> Page.getCurrent().reload());
     }
 
-    private void addData () {
+    private void loadData() {
         List <Integer> areas = new ArrayList<>();
         String condition = getPage().getUriFragment();
         if (!condition.equals("here"))
@@ -67,27 +62,29 @@ public class BigScreen extends AbstractUI {
             if (areaRepository.getAreaById(o1).getDisplayOrder() >
                     areaRepository.getAreaById(o2).getDisplayOrder())
                 return -1 ;
+            else if (areaRepository.getAreaById(o1).getDisplayOrder().equals(areaRepository.getAreaById(o2).getDisplayOrder()))
+                return 0 ;
             else
                 return 1;
         });
 
         //add data per area
         for (Integer area : areas) {
-            layout.addComponent(areaLayout(area));
+            layout.addComponent(initAreaLayout(area));
         }
     }
 
-    private VerticalLayout areaLayout (int area) {
+    private VerticalLayout initAreaLayout(int area) {
         VerticalLayout areaLayout = new VerticalLayout();
         areaLayout.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
-        Label areaTitle = UIcomponents.label(generalRepository.getNameById(area,"area"),"LABEL");
+        Label areaTitle = UIComponents.label(generalRepository.getNameById(area,"area"),"LABEL");
         areaLayout.addComponent(areaTitle);
         List<Call> list = callRepository.getOpenCallsPerArea(area);
         Label dateTitle;
         LocalDate nullDate = Call.nullDate;
         for (int i=0;i<list.size();i++)
             if((i==0)||(!(list.get(i).getDate2().equals(list.get(i-1).getDate2())))) {
-                dateTitle = UIcomponents.label("LABEL-BIGSCREEN");
+                dateTitle = UIComponents.label("LABEL-BIGSCREEN");
                 if (list.get(i).getDate2().equals(nullDate)) {
                     if((areaTitle.getValue().equals("מוסך")))
                         dateTitle.setValue("בטיפול כאן");
@@ -97,13 +94,13 @@ public class BigScreen extends AbstractUI {
                     dateTitle.setValue(list.get(i).getDate2().format(dateFormatter));
                 }
                 areaLayout.addComponent(dateTitle);
-                areaLayout.addComponent(dateLayout(list,list.get(i).getDate2()));
+                areaLayout.addComponent(addDataPerDate(list,list.get(i).getDate2()));
             }
         areaLayout.addStyleName("custom-margins");
         return areaLayout;
     }
 
-    private Grid dateLayout(List<Call> list, LocalDate date) {
+    private Grid addDataPerDate(List<Call> list, LocalDate date) {
         Grid<Call> grid = new Grid<>();
         grid.setWidth("100%");
         List<Call> dateList = new ArrayList<>();
@@ -114,20 +111,20 @@ public class BigScreen extends AbstractUI {
         grid.setHeaderVisible(false);
         grid.setHeightByRows(dateList.size());
         grid.addStyleName("bigscreen");
-        Grid.Column<Call, Label> dataColumn = grid.addComponentColumn(this::callLabel);
+        grid.addComponentColumn(this::createCallLabel);
         grid.addStyleName("custom-margins");
-        grid.setStyleGenerator((StyleGenerator<Call>) UIcomponents::callStyle);
+        grid.setStyleGenerator((StyleGenerator<Call>) UIComponents::callStyle);
         return grid;
     }
 
-    private Label callLabel(Call call) {
-        Label data = new Label(callData(call), ContentMode.HTML);
+    private Label createCallLabel(Call call) {
+        Label data = new Label(getCallData(call), ContentMode.HTML);
         data.setStyleName("LABEL-SMALL");
         data.setWidth("100%");
         return data;
     }
 
-    private String callData (Call call){
+    private String getCallData(Call call){
             String dataString =
                     "<div align=right dir=\"rtl\"><b>"
                             +(call.getStartDate().format(dateFormatter))+"</b> <B>/</B> "

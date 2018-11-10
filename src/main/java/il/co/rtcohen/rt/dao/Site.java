@@ -34,7 +34,7 @@ public class Site extends GeneralType {
     public String getContact () {return this.contact;}
     public String getPhone () {return this.phone;}
     public String getNotes () {return this.notes;}
-    public int getCustomerId() {return this.customerId;};
+    public int getCustomerId() {return this.customerId;}
 
     public void setAddress (String address) {
         this.address=address;

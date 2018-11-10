@@ -1,25 +1,23 @@
 package il.co.rtcohen.rt.ui;
 
-import com.vaadin.annotations.Theme;
 import com.vaadin.server.ErrorHandler;
+import com.vaadin.server.Page;
 import com.vaadin.server.UserError;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.*;
-import il.co.rtcohen.rt.UIcomponents;
+import il.co.rtcohen.rt.UIComponents;
 import il.co.rtcohen.rt.dao.Call;
 import il.co.rtcohen.rt.repositories.CallRepository;
 import il.co.rtcohen.rt.repositories.GeneralRepository;
 import il.co.rtcohen.rt.repositories.SiteRepository;
+import il.co.rtcohen.rt.services.CallService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.ui.NumberField;
 import java.time.LocalDate;
 
-@UIScope
 @SpringComponent
-@SpringUI(path="/editcall")
-@Theme("myTheme")
+@SpringUI(path="/editCall")
 public class EditCallUI extends AbstractEditUI {
 
     private Call call;
@@ -38,71 +36,81 @@ public class EditCallUI extends AbstractEditUI {
     private TextField notes;
     private CheckBox here;
     private CheckBox meeting;
+    private CallService callService;
 
     @Autowired
-    private EditCallUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository) {
+    private EditCallUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository, CallService callService) {
         super(siteRepository,errorHandler,callRepository,generalRepository);
+        this.callService=callService;
     }
 
     @Override
     protected void setupLayout() {
-        getSelected();
+        getSelectedId();
         if (call.getId()==0) {
             Notification.show("שגיאה",
                     "קריאה #" + getPage().getUriFragment() + " לא קיימת",
                     Notification.Type.WARNING_MESSAGE);
             closeWindow();
         } else {
-            startLayout("פרטי קריאה");
-            continueLayout();
-            setContent(mainLayout());
-            refresh_call();
+            initLayout("פרטי קריאה");
+            addLayoutComponents();
+            refreshData();
         }
     }
 
     @Override
-    void getSelected() {
-        int callId;
-        if (noParameter())
-            callId = (int) (callRepository.insertCall(0,LocalDate.now()));
-        else if (selectedId().isPresent())
-            callId = Integer.parseInt(selectedId().get().toString());
-        else
-            callId = 0;
-        call = callRepository.getCallById(callId);
+    void getSelectedId() {
+        if(hasParameter())
+            if (selectedId().isPresent())
+                selectedId = Integer.parseInt(selectedId().get().toString());
+            else
+                selectedId = 0;
+            call = callRepository.getCallById(selectedId);
     }
 
-    private void id() {
-        TextField id = UIcomponents.textField(Integer.toString(call.getId()),
+    @Override
+    void createNew() {
+        selectedId = (int) (callRepository.insertCall(0,LocalDate.now()));
+        reloadNew();
+    }
+
+    @Override
+    void reloadNew() {
+        Page.getCurrent().open(UIPaths.EDITCALL.getPath()+String.valueOf(selectedId), "_new3");
+    }
+
+    private void addIdField() {
+        TextField id = UIComponents.textField(Integer.toString(call.getId()),
                 false,130,40);
         layout.addComponent(id,2,0);
     }
-    private void siteNotes() {
-        siteNotes = UIcomponents.textField(false,130,30);
+    private void addSiteNotesField() {
+        siteNotes = UIComponents.textField(false,130,30);
         layout.addComponent(siteNotes,0,4);
     }
-    private void phone() {
-        phone = UIcomponents.textField(false,130,30);
+    private void addPhoneField() {
+        phone = UIComponents.textField(false,130,30);
         layout.addComponent(phone,1,4);
     }
-    private void contact() {
+    private void addContactField() {
         Label contactLabel = new Label("איש קשר");
         layout.addComponent(contactLabel,3,4);
-        contact = UIcomponents.textField(false,130,30);
+        contact = UIComponents.textField(false,130,30);
         layout.addComponent(contact,2,4);
     }
-    private void address() {
-        address = UIcomponents.textField(false,130,30);
+    private void addAddressField() {
+        address = UIComponents.textField(false,130,30);
         layout.addComponent(address,1,3);
     }
-    private void area() {
-        area = UIcomponents.textField(false,130,30);
+    private void addAreaField() {
+        area = UIComponents.textField(false,130,30);
         layout.addComponent(area,0,3);
     }
-    private void site() {
+    private void addSiteField() {
         Label siteLabel = new Label("אתר");
         layout.addComponent(siteLabel,3,3);
-        siteCombo = new UIcomponents().siteComboBox(generalRepository,130,30);
+        siteCombo = new UIComponents().siteComboBox(generalRepository,130,30);
         if(call.getCustomerId()>0)
             siteCombo.setItems(siteRepository.getActiveIdByCustomer(call.getCustomerId()));
         siteCombo.setValue(call.getSiteId());
@@ -110,7 +118,7 @@ public class EditCallUI extends AbstractEditUI {
         siteCombo.addValueChangeListener(valueChangeEvent -> siteChange());
         layout.addComponent(siteCombo,2,3);
     }
-    private void here() {
+    private void addHereField() {
         here = new CheckBox();
         here.setValue(call.isHere());
         here.setCaption("נמצא כאן");
@@ -120,15 +128,15 @@ public class EditCallUI extends AbstractEditUI {
                 call.setDate2(Call.nullDate);
             }
             call.setHere(here.getValue());
-            callRepository.updateCall(call);
-            refresh_call();
+            callService.updateCall(call);
+            refreshData();
         });
         layout.addComponent(here,1,2);
     }
-    private void carType() {
+    private void addCarTypeField() {
         Label carLabel = new Label("סוג כלי");
         layout.addComponent(carLabel,3,2);
-        carCombo = new UIcomponents().carComboBox(generalRepository,130,30);
+        carCombo = new UIComponents().carComboBox(generalRepository,130,30);
         carCombo.setEmptySelectionAllowed(true);
         carCombo.setValue(call.getCarTypeId());
         carCombo.addValueChangeListener(valueChangeEvent -> {
@@ -137,12 +145,12 @@ public class EditCallUI extends AbstractEditUI {
             }
             else {
                 call.setCarTypeId(carCombo.getValue()); }
-            callRepository.updateCall(call);
+            callService.updateCall(call);
         });
         layout.addComponent(carCombo,2,2);
     }
-    private void callType() {
-        callTypeCombo = new UIcomponents().callTypeComboBox(generalRepository,130,40);
+    private void addCallTypeField() {
+        callTypeCombo = new UIComponents().callTypeComboBox(generalRepository,130,40);
         callTypeCombo.setEmptySelectionAllowed(true);
         callTypeCombo.setValue(call.getCallTypeId());
         callTypeCombo.addValueChangeListener(valueChangeEvent -> {
@@ -151,165 +159,165 @@ public class EditCallUI extends AbstractEditUI {
             }
             else {
                 call.setCallTypeId(callTypeCombo.getValue()); }
-            callRepository.updateCall(call);
+            callService.updateCall(call);
         });
         layout.addComponent(callTypeCombo,1,0);
     }
-    private void customer() {
-        customerCombo = new UIcomponents().customerComboBox(generalRepository,400,30);
+    private void addCustomerField() {
+        customerCombo = new UIComponents().customerComboBox(generalRepository,400,30);
         customerCombo.setEmptySelectionAllowed(false);
         customerCombo.setValue(call.getCustomerId());
         customerCombo.addValueChangeListener( valueChangeEvent -> customerChange());
         layout.addComponent(customerCombo,1,1,3,1);
     }
-    private void startDate() {
+    private void addStartDateField() {
         Label start = new Label("תאריך פתיחה");
         layout.addComponent(start,3,5);
-        startDate = UIcomponents.dateField(130,30);
+        startDate = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getStartDate()))
             startDate.setValue(null);
         else
             startDate.setValue(call.getStartDate());
         startDate.addValueChangeListener(valueChangeEvent -> {
             call.setStartDate(startDate.getValue());
-            callRepository.updateCall(call);
+            callService.updateCall(call);
         });
         layout.addComponent(startDate,2,5);
     }
-    private void date1() {
+    private void addDate1Field() {
         Label date1Label = new Label("תאריך מתוכנן");
         layout.addComponent(date1Label,1,5);
-        date1 = UIcomponents.dateField(130,30);
+        date1 = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getDate1()))
             date1.setValue(null);
         else
             date1.setValue(call.getDate1());
         date1.addValueChangeListener(valueChangeEvent -> {
             call.setDate1(date1.getValue());
-            callRepository.updateCall(call);
+            callService.updateCall(call);
         });
         layout.addComponent(date1,0,5);
     }
-    private void description() {
+    private void addDescriptionField() {
         Label descriptionLabel = new Label("תיאור");
         layout.addComponent(descriptionLabel,3,6);
         layout.setComponentAlignment(descriptionLabel,Alignment.TOP_LEFT);
-        description = UIcomponents.textField(true,400,50);
+        description = UIComponents.textField(true,400,50);
         description.setValue(call.getDescription());
         description.addValueChangeListener(valueChangeEvent -> {
             call.setDescription(description.getValue());
-            callRepository.updateCall(call);
+            callService.updateCall(call);
         });
         layout.addComponent(description,0,6,2,6);
     }
-    private void notes() {
+    private void addNotesField() {
         Label notesLabel = new Label("הערות");
         layout.addComponent(notesLabel,3,7);
         layout.setComponentAlignment(notesLabel,Alignment.TOP_LEFT);
-        notes = UIcomponents.textField(true,400,50);
+        notes = UIComponents.textField(true,400,50);
         notes.setValue(call.getNotes());
         notes.addValueChangeListener(valueChangeEvent -> {
             call.setNotes(notes.getValue());
-            callRepository.updateCall(call);
+            callService.updateCall(call);
         });
         layout.addComponent(notes,0,7,2,7);
     }
-    private void meeting() {
-        meeting = UIcomponents.checkBox(call.isMeeting(),"תואם מראש");
+    private void addMeetingField() {
+        meeting = UIComponents.checkBox(call.isMeeting(),"תואם מראש");
         meeting.addValueChangeListener(valueChangeEvent -> {
             call.setMeeting(meeting.getValue());
-            callRepository.updateCall(call);
+            callService.updateCall(call);
         });
         layout.addComponent(meeting,1,10);
     }
-    private void date2() {
+    private void addDate2Field() {
         Label date2Label = new Label("תאריך שיבוץ");
         layout.addComponent(date2Label,3,9);
-        date2 = UIcomponents.dateField(130,30);
+        date2 = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getDate2()))
             date2.setValue(null);
         else
             date2.setValue(call.getDate2());
         date2.addValueChangeListener(valueChangeEvent -> {
             call.setDate2(date2.getValue());
-            callRepository.updateCall(call);
-            refresh_call();
+            callService.updateCall(call);
+            refreshData();
         });
         layout.addComponent(date2,2,9);
     }
-    private void driver() {
-        driverCombo = new UIcomponents().driverComboBox(generalRepository,130,30);
+    private void addDriverField() {
+        driverCombo = new UIComponents().driverComboBox(generalRepository,130,30);
         driverCombo.setValue(call.getDriverId());
         driverCombo.addValueChangeListener(valueChangeEvent -> {
             if(driverCombo.getValue()==0)
                 call.setDriverID(0);
             else
                 call.setDriverID(driverCombo.getValue());
-            callRepository.updateCall(call);
-            refresh_call();
+            callService.updateCall(call);
+            refreshData();
         });
         layout.addComponent(driverCombo,1,9);
     }
-    private void order() {
-        order = UIcomponents.numberField("130","30");
+    private void addOrderField() {
+        order = UIComponents.numberField("130","30");
         order.setValue(String.valueOf(call.getOrder()));
         order.addValueChangeListener(valueChangeEvent -> {
             if (order.getValue().matches("\\d+")) {
                 call.setOrder(Integer.parseInt(order.getValue()));
-                callRepository.updateCall(call);
-                refresh_call();
+                callService.updateCall(call);
+                refreshData();
             }
         });
         layout.addComponent(order,0,9);
     }
-    private void endDate() {
+    private void addEndDateField() {
         Label endDateLabel = new Label("תאריך סיום");
         layout.addComponent(endDateLabel,3,10);
-        endDate = UIcomponents.dateField(130,30);
+        endDate = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getEndDate()))
             endDate.setValue(null);
         else
             endDate.setValue(call.getEndDate());
         endDate.addValueChangeListener(valueChangeEvent -> {
             call.setEndDate(endDate.getValue());
-            callRepository.updateCall(call);
-            refresh_call();
+            callService.updateCall(call);
+            refreshData();
         });
         layout.addComponent(endDate,2,10);
     }
-    private void done() {
-        done = UIcomponents.checkBox(call.isDone(),"בוצע",true);
+    private void addDoneField() {
+        done = UIComponents.checkBox(call.isDone(),"בוצע",true);
         layout.addComponent(done,0,10);
     }
 
     @Override
-    void addData() {
-        id();
-        siteNotes();
-        phone();
-        contact();
-        address();
-        area();
-        site();
-        here();
-        carType();
-        callType();
-        customer();
-        startDate();
-        date1();
-        description();
-        layout.addComponent(UIcomponents.smallHeader("פרטי שיבוץ"),3,8);
-        notes();
-        meeting();
-        date2();
-        driver();
-        order();
-        endDate();
-        done();
+    void addFields() {
+        addIdField();
+        addSiteNotesField();
+        addPhoneField();
+        addContactField();
+        addAddressField();
+        addAreaField();
+        addSiteField();
+        addHereField();
+        addCarTypeField();
+        addCallTypeField();
+        addCustomerField();
+        addStartDateField();
+        addDate1Field();
+        addDescriptionField();
+        layout.addComponent(UIComponents.smallHeader("פרטי שיבוץ"),3,8);
+        addNotesField();
+        addMeetingField();
+        addDate2Field();
+        addDriverField();
+        addOrderField();
+        addEndDateField();
+        addDoneField();
     }
 
     @Override
-    void tabIndexes() {
+    void setTabIndexes() {
         callTypeCombo.focus();
         callTypeCombo.setTabIndex(1);
         customerCombo.setTabIndex(2);
@@ -326,7 +334,7 @@ public class EditCallUI extends AbstractEditUI {
         meeting.setTabIndex(14);
     }
 
-    private void  refresh_call () {
+    private void refreshData() {
         siteNotes.setValue(siteRepository.getSiteById(call.getSiteId()).getNotes());
         phone.setValue(siteRepository.getSiteById(call.getSiteId()).getPhone());
         contact.setValue(siteRepository.getSiteById(call.getSiteId()).getContact());
@@ -339,7 +347,7 @@ public class EditCallUI extends AbstractEditUI {
     }
 
     @Override
-    void deleteId() {
+    void deleteCurrentId() {
         if (call.getOrder()>0) {
             Notification.show("לא ניתן למחוק קריאה שמשובצת לסידור העבודה",
                     "", Notification.Type.ERROR_MESSAGE);
@@ -367,7 +375,7 @@ public class EditCallUI extends AbstractEditUI {
                         new UserError("יש לבחור לקוח"));
             }
         }
-        callRepository.updateCall(call);
+        callService.updateCall(call);
         siteCombo.setValue(0);
         try {
             siteCombo.setItems(siteRepository.getActiveIdByCustomer(customerCombo.getValue()));
@@ -378,7 +386,7 @@ public class EditCallUI extends AbstractEditUI {
             customerCombo.setComponentError(
                     new UserError("יש לבחור לקוח"));
         }
-        refresh_call();
+        refreshData();
     }
     private void siteChange() {
         if(siteCombo.getValue()==null) {
@@ -387,7 +395,7 @@ public class EditCallUI extends AbstractEditUI {
         else {
             call.setSiteId(siteCombo.getValue());
         }
-        callRepository.updateCall(call);
-        refresh_call();
+        callService.updateCall(call);
+        refreshData();
     }
 }

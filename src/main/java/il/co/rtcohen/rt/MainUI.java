@@ -1,12 +1,5 @@
 //TODO:
-//H2 hebrew issue (JAR)         V   JAVA_TOOL_OPTIONS = -Dfile.encoding=UTF8    test using another computer ?
-//prepared statement            V
-//TEST                                      ???
-//maven profile without h2      VX          ???
-//debug mode warning            V
-//shorter code in ui/views      V
-//ui+views abstract classes     VX
-//README?
+//README
 
 package il.co.rtcohen.rt;
 
@@ -26,6 +19,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Panel;
+import il.co.rtcohen.rt.ui.UIPaths;
 
 import java.time.LocalDate;
 
@@ -44,9 +38,9 @@ public class MainUI extends UI implements ViewDisplay {
         mainLayout.setSizeFull();
         setContent(mainLayout);
         topLayout = new HorizontalLayout();
-        logo();
-        printButton();
-        navigationBar();
+        addLogo();
+        addPrintButton();
+        addNavigationBar();
         mainLayout.addComponent(topLayout);
         springViewDisplay = new Panel();
         springViewDisplay.setSizeFull();
@@ -54,20 +48,20 @@ public class MainUI extends UI implements ViewDisplay {
         mainLayout.setExpandRatio(springViewDisplay, 1.0f);
     }
 
-    private void logo() {
+    private void addLogo() {
         Image logo = new Image(null, new ThemeResource("rtlogo.png"));
         logo.setHeight("40");
         topLayout.addComponent(logo);
     }
 
-    private void printButton() {
-        Button print = UIcomponents.printButton();
+    private void addPrintButton() {
+        Button print = UIComponents.printButton();
         print.addClickListener(clickEvent ->
                 JavaScript.getCurrent().execute("print();"));
         topLayout.addComponent(print);
     }
 
-    private void navigationBar() {
+    private void addNavigationBar() {
         Component navigationBar = createNavigationBar();
         navigationBar.addStyleName("menu");
         topLayout.addComponentsAndExpand(navigationBar);
@@ -92,19 +86,19 @@ public class MainUI extends UI implements ViewDisplay {
                 getUI().getNavigator().navigateTo("area"));
         setup.addSeparator();
 
-        MenuBar.MenuItem custtype = setup.addItem("סוגי לקוחות");
-        custtype.setCommand((MenuBar.Command) selectedItem ->
+        MenuBar.MenuItem custType = setup.addItem("סוגי לקוחות");
+        custType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=custtype"));
 
-        MenuBar.MenuItem cartype = setup.addItem("סוגי כלים");
-        cartype.setCommand((MenuBar.Command) selectedItem ->
+        MenuBar.MenuItem carType = setup.addItem("סוגי כלים");
+        carType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=cartype"));
 
-        MenuBar.MenuItem calltype = setup.addItem("סוגי קריאות");
-        calltype.setCommand((MenuBar.Command) selectedItem ->
+        MenuBar.MenuItem callType = setup.addItem("סוגי קריאות");
+        callType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=calltype"));
     }
-    private void customerMenu() {
+    private void addCustomerMenu() {
         MenuBar.MenuItem customerMenu = menu.addItem("לקוחות");
         customerMenu.setIcon(VaadinIcons.GROUP);
         MenuBar.MenuItem customer = customerMenu.addItem("לקוחות");
@@ -114,48 +108,48 @@ public class MainUI extends UI implements ViewDisplay {
         MenuBar.MenuItem site = customerMenu.addItem("אתרים");
         site.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("site"));
-        MenuBar.MenuItem addSite = customerMenu.addItem("הוספת אתר", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/editsite#0", "_new2",750,400, BorderStyle.NONE));
+        customerMenu.addItem("הוספת אתר", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.EDITSITE.getPath(), "_new2",750,400, BorderStyle.NONE));
     }
-    private void reportsMenu() {
+    private void addReportsMenu() {
         MenuBar.MenuItem reports = menu.addItem ("דוחות");
         reports.setIcon(VaadinIcons.PRINT);
-        MenuBar.MenuItem reportOrder = reports.addItem("סידור עבודה", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/print#"+ LocalDate.now().format(UIcomponents.dateFormatter), "_blank",
+        reports.addItem("סידור עבודה", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.PRINT.getPath()+ LocalDate.now().format(UIComponents.dateFormatter), "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
-        MenuBar.MenuItem reportOpenCalls = reports.addItem("קריאות פתוחות", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/print#open", "_blank",
+        reports.addItem("קריאות פתוחות", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.PRINT.getPath()+"open", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
-        MenuBar.MenuItem reportHere = reports.addItem("כלים שנמצאים כאן", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/print#here", "_blank",
+        reports.addItem("כלים שנמצאים כאן", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.PRINT.getPath()+"here", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
     }
-    private void bigScreenMenu() {
+    private void addBigScreenMenu() {
         MenuBar.MenuItem bigScreen = menu.addItem("מסך גדול");
         bigScreen.setIcon(VaadinIcons.EYE);
-        MenuBar.MenuItem out = bigScreen.addItem("בחוץ", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/bigscreen#out", "_blank",getPage().getBrowserWindowWidth(),
+        bigScreen.addItem("בחוץ", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.BIGSCREEN.getPath()+"out", "_blank",getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
-        MenuBar.MenuItem here = bigScreen.addItem("כאן", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/bigscreen#here", "_blank",
+        bigScreen.addItem("כאן", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.BIGSCREEN.getPath()+"here", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
-        MenuBar.MenuItem all = bigScreen.addItem("הכל", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/bigscreen#all", "_blank",
+        bigScreen.addItem("הכל", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.BIGSCREEN.getPath()+"all", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
     }
-    private void callsMenu() {
+    private void addCallsMenu() {
         MenuBar.MenuItem call = menu.addItem("קריאות");
         call.setIcon(VaadinIcons.BELL_O);
         MenuBar.MenuItem calls = call.addItem("טבלת קריאות");
         calls.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("call"));
-        MenuBar.MenuItem add = call.addItem("הוספה", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open("/editcall#0", "_blank",750,700, BorderStyle.NONE));
+        call.addItem("הוספה", (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.EDITCALL.getPath(), "_new3",700,700, BorderStyle.NONE));
     }
     private Component createNavigationBar() {
         menu = new MenuBar();
@@ -164,10 +158,10 @@ public class MainUI extends UI implements ViewDisplay {
         welcome.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo(""));
         setupMenu();
-        customerMenu();
-        reportsMenu();
-        bigScreenMenu();
-        callsMenu();
+        addCustomerMenu();
+        addReportsMenu();
+        addBigScreenMenu();
+        addCallsMenu();
         return menu;
     }
 

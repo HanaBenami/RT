@@ -71,17 +71,18 @@ public class AreaRepository {
     }
 
     public List<Integer> getOutAreaId() {
-        return getActiveId(" and here=0");
+        return getActiveId(false);
     }
 
     public List<Integer> getHereAreaId() {
-        return getActiveId(" and here=1");
+        return getActiveId(true);
     }
 
-    private List<Integer> getActiveId(String where) {
+    private List<Integer> getActiveId(Boolean here) {
         List<Integer> idList = new ArrayList<>();
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
-                ("SELECT * FROM area where active=1"+where)) {
+                ("SELECT * FROM area where active=1 and here=?")) {
+            stmt.setBoolean(1,here);
             ResultSet rs = stmt.executeQuery();
             List<Area> list = new ArrayList<>();
             if (rs.next())
@@ -92,7 +93,7 @@ public class AreaRepository {
             return idList;
         }
         catch (SQLException e) {
-            log.error("SQL statement: SELECT * FROM area where active=1"+where);
+            log.error("SQL statement: SELECT * FROM area where active=1 and where="+here);
             log.error("error in getActiveId: ",e);
             throw new DataRetrievalFailureException("error in getActiveId: ",e);
         }
