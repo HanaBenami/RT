@@ -311,10 +311,8 @@ public class UIComponents {
         return (InMemoryFilter.StringComparator.containsIgnoreCase());
     }
 
-
     public static SerializableBiPredicate<Integer, String> integerFilter() {
         return (InMemoryFilter.StringComparator.containsIgnoreCase());
     }
-
 
 }

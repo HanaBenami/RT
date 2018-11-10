@@ -1,6 +1,3 @@
-//TODO:
-//README
-
 package il.co.rtcohen.rt;
 
 import com.vaadin.annotations.Theme;
