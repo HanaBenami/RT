@@ -24,4 +24,4 @@ The application consists of few different spring and maven profiles:
 ## License
 :copyright: Hana Ben-Ami
 
-:email: [Contact me](mailto:hana.benami@gmail.com)
+:email: [Contact me](mailto:hana.benami@gmail.com){:target="_blank"}
