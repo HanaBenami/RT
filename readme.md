@@ -17,11 +17,11 @@ The application consists of few different spring and maven profiles:
 * **"Dev"** (Spring) + **"MSSQL"** (Maven): The development profile using an on premise MSSQL server and debugging mode enabled for Vaadin framework.
 
 ## How to run the demo?
-1. **Download**: :link:[RT.jar](https://drive.google.com/file/d/1SEB9qbpnZ24JYBqUHcheoSdYe-Y1Ubrc/view?usp=sharing)
+1. **Download**: :link:<a href="https://drive.google.com/file/d/1SEB9qbpnZ24JYBqUHcheoSdYe-Y1Ubrc/view?usp=sharing" target="_blank">RT.jar</a>
 2. **Run**: JAVA -Dfile.encoding=UTF8 -jar rt.jar
-3. **Go to**: :link:[http://localhost:8090/](http://localhost:8090/)
+3. **Go to**: :link:<a href="http://localhost:8090/" target="_blank">http://localhost:8090/</a>
 
 ## License
 :copyright: Hana Ben-Ami
 
-:email: [Contact me](mailto:hana.benami@gmail.com){:target="_blank"}
+:email: [Contact me](mailto:hana.benami@gmail.com)

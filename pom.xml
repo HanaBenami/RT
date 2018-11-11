@@ -179,7 +179,7 @@
 					<goals>
 						<goal>java</goal>
 					</goals>
-					<!--<configuration>
+					<configuration>
 						<classpathScope>compile</classpathScope>
 						<mainClass>com.vaadin.sass.SassCompiler</mainClass>
 						<arguments>
@@ -190,7 +190,7 @@
 								${project.basedir}/src/main/resources/VAADIN/themes/mytheme/styles.css
 							</argument>
 						</arguments>
-					</configuration>-->
+					</configuration>
 				</execution>
 				</executions>
 			</plugin>
