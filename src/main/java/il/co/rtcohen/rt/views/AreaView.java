@@ -57,7 +57,7 @@ public class AreaView extends AbstractDataView<Area> {
         FilterGrid.Column<Area, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<Area, Component>) area ->
                         UIComponents.checkBox(area.getActive(),true));
-        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
+        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<Area, Boolean>) GeneralType::getActive,
                 (Setter<Area, Boolean>) (area, Boolean) -> {
@@ -138,7 +138,8 @@ public class AreaView extends AbstractDataView<Area> {
 
         grid.getEditor().setEnabled(true);
         grid.sort("nameColumn");
-        grid.setWidth("440");
+        grid.setWidthUndefined();
+        //grid.setWidth("440");
         addComponentsAndExpand(grid);
     }
 

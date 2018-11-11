@@ -30,7 +30,11 @@ public class Site extends GeneralType {
         this.areaId = areaId;
     }
 
-    public String getAddress () {return this.address;}
+    public String getAddress () {
+        if (this.address==null) return "";
+        else
+            return this.address;
+    }
     public String getContact () {return this.contact;}
     public String getPhone () {return this.phone;}
     public String getNotes () {return this.notes;}

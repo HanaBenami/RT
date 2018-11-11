@@ -144,7 +144,7 @@ public class CallView extends AbstractDataView<Call> {
     }
 
     private void addSetOrderColumn() {
-        FilterGrid.Column<Call, Component> setColumn =
+        FilterGrid.Column<Call, Component> setOrderColumn =
                 grid.addComponentColumn((ValueProvider<Call, Component>) call -> {
                             Button setButton = new Button();
                             if ((call.getDate2().equals(Call.nullDate)) || call.getDriverId() == 0) {
@@ -168,11 +168,9 @@ public class CallView extends AbstractDataView<Call> {
                             setButton.setStyleName("noBorderButton");
                             return setButton;
                         }
-                ).setId("setColumn");
-        setColumn.setWidth(60);
-        setColumn.setHidable(true);
-        setColumn.setHidden(false);
-        grid.getDefaultHeaderRow().getCell("setColumn").setText("שיבוץ");
+                ).setId("setOrderColumn");
+        setOrderColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
+        grid.getDefaultHeaderRow().getCell("setOrderColumn").setText("שיבוץ");
     }
     private void addEditColumn() {
         FilterGrid.Column editColumn =
@@ -184,7 +182,7 @@ public class CallView extends AbstractDataView<Call> {
                     opener.extend(editButton);
                     return editButton;
                 }).setId("editColumn");
-        editColumn.setWidth(60).setHidable(true).setHidden(false);
+        editColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
         grid.getDefaultHeaderRow().getCell("editColumn").setText("עריכה");
 
     }
@@ -202,7 +200,7 @@ public class CallView extends AbstractDataView<Call> {
                             return notesButton;
                         }
                 ).setId("notesColumn");
-        notesColumn.setWidth(60).setHidable(true).setHidden(false);
+        notesColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
         grid.getDefaultHeaderRow().getCell("notesColumn").setText("הערות");
     }
     private void addDescriptionColumn() {
@@ -218,7 +216,7 @@ public class CallView extends AbstractDataView<Call> {
                             grid.setDetailsVisible(call, !grid.isDetailsVisible(call)));
                     return descrButton;
                 }).setId("descriptionColumn");
-        descrColumn.setWidth(60).setHidable(true).setHidden(false);
+        descrColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
         grid.getDefaultHeaderRow().getCell("descriptionColumn").setText("תיאור");
     }
     private void addDoneColumn() {
@@ -228,6 +226,7 @@ public class CallView extends AbstractDataView<Call> {
         doneColumn.setId("doneColumn").setExpandRatio(1).setResizable(true).setWidth(60);
         doneColumn.setHidable(true);
         doneColumn.setHidden(false);
+        doneColumn.setSortable(false);
         CheckBox filterDone = new CheckBox();
         filterDone.setValue(filterDoneActive);
         switch (selectOption.getValue().getEng()) {

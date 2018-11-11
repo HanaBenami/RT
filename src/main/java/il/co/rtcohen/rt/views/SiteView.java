@@ -68,14 +68,14 @@ public class SiteView extends AbstractDataView<Site> {
                     return editButton;
                 }).setId("editColumn");
         editColumn.setWidth(60);
-        editColumn.setHidable(false).setHidden(false);
+        editColumn.setHidable(false).setHidden(false).setSortable(false);
         grid.getDefaultHeaderRow().getCell("editColumn").setText("עריכה");
     }
     private void addActiveColumn() {
         FilterGrid.Column<Site, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<Site, Component>) site ->
                     UIComponents.checkBox(site.getActive(), true));
-        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
+        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<Site, Boolean>) Site::getActive,
                 (Setter<Site, Boolean>) (site, Boolean) -> {

@@ -64,7 +64,7 @@ public class CustomerView extends AbstractDataView<Customer> {
                     }
                     return callsButton;
                 });
-        callsColumn.setId("callsColumn").setExpandRatio(1).setResizable(false).setWidth(85);
+        callsColumn.setId("callsColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
         grid.getDefaultHeaderRow().getCell("callsColumn").setText("קריאות");
     }
     private void addSitesColumn() {
@@ -85,14 +85,14 @@ public class CustomerView extends AbstractDataView<Customer> {
                     }
                     return sitesButton;
                 });
-        sitesColumn.setId("sitesColumn").setExpandRatio(1).setResizable(false).setWidth(85);
+        sitesColumn.setId("sitesColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
         grid.getDefaultHeaderRow().getCell("sitesColumn").setText("אתרים");
     }
     private void addActiveColumn() {
         FilterGrid.Column<Customer, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<Customer, Component>) Customer ->
                         UIComponents.checkBox(Customer.getActive(),true));
-        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
+        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<Customer, Boolean>) GeneralType::getActive,
                 (Setter<Customer, Boolean>) (Customer, Boolean) -> {

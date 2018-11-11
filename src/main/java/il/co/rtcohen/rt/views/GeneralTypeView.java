@@ -51,7 +51,7 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
         FilterGrid.Column<GeneralType, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<GeneralType, Component>) generalType ->
                         UIComponents.checkBox(generalType.getActive(), true));
-        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70);
+        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
                 (ValueProvider<GeneralType, Boolean>) GeneralType::getActive,
                 (Setter<GeneralType, Boolean>) (generalType, Boolean) -> {
@@ -71,7 +71,7 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
                             generalType.setName(String);
                             generalRepository.update(generalType);
                         })
-                        .setExpandRatio(1).setResizable(false).setWidth(230);
+                        .setExpandRatio(1).setResizable(false).setMinimumWidth(230);
         grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
         TextField filterName = UIComponents.textField(30);
         nameColumn.setFilter(filterName, UIComponents.stringFilter());
@@ -99,7 +99,8 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
         grid.setItems(repository.getNames(table));
         addColumns();
         grid.sort("nameColumn");
-        grid.setWidth("370");
+        grid.setWidthUndefined();
+        //grid.setWidth("370");
         addComponentsAndExpand(grid);
     }
 

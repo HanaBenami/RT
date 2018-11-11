@@ -135,7 +135,7 @@ public class SiteRepository {
             rs.getString("phone"),rs.getString("notes"));
     }
 
-    public long insertSite (String name,Integer areaId,String address, Integer customerId, String contact, String phone, String notes) {
+    public long     insertSite (String name,Integer areaId,String address, Integer customerId, String contact, String phone, String notes) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement stmt = con.prepareStatement("insert into site"+
                              " (name,areaID,address,custid,contact,phone,notes)"+
