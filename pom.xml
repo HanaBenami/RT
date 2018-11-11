@@ -134,9 +134,6 @@
 		</profile>
 		<profile>
 			<id>mssql</id>
-<!--			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>-->
 			<dependencies>
 				<dependency>
 					<groupId>com.microsoft.sqlserver</groupId>
