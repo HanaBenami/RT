@@ -22,6 +22,6 @@ The application consists of few different spring and maven profiles:
 3. **Go to**: :link:[http://localhost:8090/](http://localhost:8090/)
 
 ## License
-Copyright {exp:copyright:show} Hana Ben-Ami
+:copyright: Hana Ben-Ami
 
-:email: [Contact me](**mailto:hana.benami@gmail.com**)
+:email: [Contact me](mailto:hana.benami@gmail.com)
