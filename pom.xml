@@ -164,6 +164,7 @@
 	</dependencyManagement>
 
 	<build>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -198,6 +199,9 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>src/main/resources/VAADIN/themes/mytheme</directory>
 			</resource>
 		</resources>
 	</build>
