@@ -1,4 +1,5 @@
 language: java
 jdk: oraclejdk8
 before_install:
+- cat /home/travis/build/HanaBenami/RT/src/main/resources/VAADIN/themes/mytheme/styles.scss
 - chmod +x mvnw

@@ -1,7 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.exceptions.InsertException;
-import il.co.rtcohen.rt.dal.exceptions.UpdateException;
+import il.co.rtcohen.rt.dal.InsertException;
+import il.co.rtcohen.rt.dal.UpdateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

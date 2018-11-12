@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.dal.config;
+package il.co.rtcohen.rt.dal;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
