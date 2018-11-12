@@ -1,4 +1,5 @@
 # RT web application
+[![Build Status](https://travis-ci.org/HanaBenami/RT.svg?branch=master)](https://travis-ci.org/HanaBenami/RT)
 
 A web application written in Java, using Spring Boot 2.0.1 with Tomcat as the servlet container.
 The fronted UI is written using Vaadin 8, with Vaadin Spring extension.
