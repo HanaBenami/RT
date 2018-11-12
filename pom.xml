@@ -185,10 +185,10 @@
 						<mainClass>com.vaadin.sass.SassCompiler</mainClass>
 						<arguments>
 							<argument>
-								${project.basedir}/src/main/resources/VAADIN/themes/mytheme/styles.scss
+								${project.basedir}/src/main/resources/VAADIN/themes/myTheme/styles.scss
 							</argument>
 							<argument>
-								${project.basedir}/src/main/resources/VAADIN/themes/mytheme/styles.css
+								${project.basedir}/src/main/resources/VAADIN/themes/myTheme/styles.css
 							</argument>
 						</arguments>
 					</configuration>
@@ -199,9 +199,6 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>src/main/resources/VAADIN/themes/mytheme</directory>
 			</resource>
 		</resources>
 	</build>
