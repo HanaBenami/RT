@@ -188,6 +188,10 @@ public class UIComponents {
         return bigButton(VaadinIcons.TRASH);
     }
 
+    public static Button closeButton() {
+        return bigButton(VaadinIcons.CLOSE);
+    }
+
     public static Button searchButton() {
         return bigButton(VaadinIcons.SEARCH);
     }

@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.app.ui;
 
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.UIComponents;
@@ -24,7 +25,6 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         this.siteRepository=siteRepository;
     }
 
-
     abstract void setTabIndexes();
     abstract void deleteCurrentId();
     abstract void addFields();
@@ -40,7 +40,6 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         layout.setComponentAlignment(print, Alignment.TOP_LEFT);
     }
 
-
     void initLayout(String title) {
         layout = new GridLayout(4, 11);
         layout.addComponent(UIComponents.smallHeader(title),3,0);
@@ -52,6 +51,7 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         addFields();
         setPrintButton();
         setDeleteButton();
+        setEscapeButton();
         setTabIndexes();
         layout.setSpacing(true);
         layout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
@@ -66,6 +66,14 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         delete.addClickListener(clickEvent -> deleteCurrentId());
         layout.addComponent(delete,0,1,0,1);
         layout.setComponentAlignment(delete,Alignment.TOP_LEFT);
+    }
+
+    private void setEscapeButton() {
+        Button escapeButton = UIComponents.closeButton();
+        escapeButton.addClickListener(clickEvent -> closeWindow());
+        escapeButton.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
+        layout.addComponent(escapeButton,0,2,0,2);
+        layout.setComponentAlignment(escapeButton,Alignment.TOP_LEFT);
     }
 
     Boolean hasParameter() {

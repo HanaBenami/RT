@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.app.ui;
 
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Page;
 import com.vaadin.server.UserError;
@@ -118,13 +119,18 @@ public class EditSiteUI extends AbstractEditUI {
         areaCombo.addValueChangeListener(valueChangeEvent -> areaChange());
         layout.addComponent(areaCombo,1,0);
     }
-    private void addSiteField() {
+    private void addSiteNameField() {
         Label siteLabel = new Label("שם האתר");
         layout.addComponent(siteLabel,3,2);
         name = UIComponents.textField(site.getName(),true,270,30);
         name.addValueChangeListener(valueChangeEvent -> {
             site.setName(name.getValue());
             siteRepository.updateSite(site);
+            addButton.setEnabled(true);
+            if(!name.isEmpty())
+                addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+            else
+                addButton.removeClickShortcut();
         });
         layout.addComponent(name,1,2,2,2);
     }
@@ -164,7 +170,7 @@ public class EditSiteUI extends AbstractEditUI {
         addContactField();
         addAddressField();
         addAreaField();
-        addSiteField();
+        addSiteNameField();
         addCustomerField();
     }
 
@@ -185,6 +191,7 @@ public class EditSiteUI extends AbstractEditUI {
 
     private void addAddButton() {
         addButton = UIComponents.addButton();
+        addButton.setCaption("הוספת קריאה");
         addButton.setWidth("300");
         addButton.addClickListener(clickEvent -> addCall());
         addButton.setTabIndex(8);
@@ -214,6 +221,10 @@ public class EditSiteUI extends AbstractEditUI {
             }
         }
         siteRepository.updateSite(site);
+        if(customerCombo.getValue()==null)
+            customerCombo.focus();
+        else
+            name.focus();
     }
 
     private void customerChange() {
@@ -226,7 +237,7 @@ public class EditSiteUI extends AbstractEditUI {
                 site.setCustomerId(customerCombo.getValue());
                 customerCombo.setEnabled(false);
                 customerCombo.setComponentError(null);
-                addButton.setEnabled(true);
+                name.focus();
             }
             catch (RuntimeException e) {
                 customerCombo.setComponentError(new UserError("יש לבחור לקוח"));

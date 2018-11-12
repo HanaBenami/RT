@@ -21,7 +21,6 @@ public abstract class AbstractDataView<T> extends AbstractView implements View {
     AbstractDataView(ErrorHandler errorHandler,GeneralRepository generalRepository) {
         super(errorHandler);
         this.generalRepository=generalRepository;
-        this.generalRepository=generalRepository;
         setAddButton();
     }
 

@@ -3,13 +3,16 @@ package il.co.rtcohen.rt.app.views;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.UIEvents;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.*;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.Site;
+import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
 import il.co.rtcohen.rt.app.ui.UIPaths;
@@ -32,14 +35,16 @@ public class SiteView extends AbstractDataView<Site> {
     private TextField newName;
     private Map<String,String> parametersMap;
     private SiteRepository siteRepository;
+    private CallRepository callRepository;
     private VerticalLayout headerLayout;
     private HorizontalLayout selectCustomerLayout;
     private Label noCustomer;
 
     @Autowired
-    private SiteView(ErrorHandler errorHandler, SiteRepository siteRepository, GeneralRepository generalRepository) {
+    private SiteView(ErrorHandler errorHandler, SiteRepository siteRepository, GeneralRepository generalRepository, CallRepository callRepository) {
         super(errorHandler,generalRepository);
         this.siteRepository=siteRepository;
+        this.callRepository=callRepository;
     }
 
     @Override
@@ -50,7 +55,10 @@ public class SiteView extends AbstractDataView<Site> {
         addHeaderLayout();
         showSelectedCustomer();
         setTabIndexes();
-        selectCustomer.focus();
+        if (selectCustomer.isEnabled())
+            selectCustomer.focus();
+        else
+            newName.focus();
     }
 
     private void addEmptyGrid() {
@@ -73,6 +81,25 @@ public class SiteView extends AbstractDataView<Site> {
         editColumn.setHidable(false).setHidden(false).setSortable(false);
         grid.getDefaultHeaderRow().getCell("editColumn").setText("עריכה");
     }
+
+    private void addCallsColumn() {
+        FilterGrid.Column callsColumn =
+                grid.addComponentColumn((ValueProvider<Site, Component>) site -> {
+                    int openCallsCounter=callRepository.getCallsBySite(site.getId()).size();
+                    Button callsButton = UIComponents.gridSmallButton(VaadinIcons.BELL_O);
+                    callsButton.addClickListener(clickEvent ->
+                            getUI().getNavigator().navigateTo
+                                    ("call/customer="+ site.getCustomerId()));
+                    if(openCallsCounter>0) {
+                        callsButton.setIcon(VaadinIcons.BELL);
+                        callsButton.setCaption(String.valueOf((openCallsCounter)));
+                    }
+                    return callsButton;
+                });
+        callsColumn.setId("callsColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
+        grid.getDefaultHeaderRow().getCell("callsColumn").setText("קריאות");
+    }
+
     private void addActiveColumn() {
         FilterGrid.Column<Site, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<Site, Component>) site ->
@@ -182,6 +209,7 @@ public class SiteView extends AbstractDataView<Site> {
     @Override
     void addColumns() {
         addEditColumn();
+        addCallsColumn();
         addActiveColumn();
         addNotesColumn();
         addPhoneColumn();
@@ -223,6 +251,7 @@ public class SiteView extends AbstractDataView<Site> {
         if ((selectCustomer.getValue()!=null)&&!(selectCustomer.getValue().toString().equals("0"))) {
             addGrid();
             newName.setValue("");
+            newName.focus();
             newName.setEnabled(true);
             newArea.setEnabled(true);
         }

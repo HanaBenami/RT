@@ -38,7 +38,6 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     private SiteRepository siteRepository;
     private Label title;
     private HorizontalLayout titleLayout;
-    FilterGrid.Column<Call, String> descriptionColumn;
 
     @Autowired
     private PrintUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository) {
@@ -113,7 +112,6 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         addCustomerColumn();
         addIdColumn();
         addOrderColumn();
-        descriptionColumn.setMinimumWidth(280);
     }
     private void addEndDateColumn() {
         FilterGrid.Column<Call, LocalDate> endDateColumn = grid.addColumn(Call::getEndDate, UIComponents.dateRenderer())
@@ -129,11 +127,14 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         grid.getDefaultHeaderRow().getCell("endDateColumn").setText("ת' סגירה");
     }
     private void addDescriptionColumn() {
-        descriptionColumn = grid.addColumn(Call::getDescription);
+        FilterGrid.Column<Call, String> descriptionColumn = grid.addColumn(Call::getDescription);
         descriptionColumn.setId("descriptionColumn").setResizable(true);
         descriptionColumn.setHidable(true);
         descriptionColumn.setHidden(false);
-        descriptionColumn.setWidth(300);
+        if ((condition.equals("open") || (condition.equals("here"))))
+            descriptionColumn.setWidth(320);
+        else
+            descriptionColumn.setWidth(280);
         TextField filterDescription = UIComponents.textField("95%","30");
         descriptionColumn.setFilter(filterDescription, UIComponents.stringFilter());
         grid.getDefaultHeaderRow().getCell("descriptionColumn").setText("תיאור");

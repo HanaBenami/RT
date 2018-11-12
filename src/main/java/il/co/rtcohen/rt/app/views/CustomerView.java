@@ -54,14 +54,14 @@ public class CustomerView extends AbstractDataView<Customer> {
     private void addCallsColumn() {
         FilterGrid.Column callsColumn =
                 grid.addComponentColumn((ValueProvider<Customer, Component>) Customer -> {
-                    int n=callRepository.countActiveCallsByCustomer(Customer.getId());
+                    int openCallsCounter=callRepository.countActiveCallsByCustomer(Customer.getId());
                     Button callsButton = UIComponents.gridSmallButton(VaadinIcons.BELL_O);
                     callsButton.addClickListener(clickEvent ->
                             getUI().getNavigator().navigateTo
                                     ("call/customer="+ Customer.getId()));
-                    if(n>0) {
+                    if(openCallsCounter>0) {
                         callsButton.setIcon(VaadinIcons.BELL);
-                        callsButton.setCaption(String.valueOf((n)));
+                        callsButton.setCaption(String.valueOf((openCallsCounter)));
                     }
                     return callsButton;
                 });

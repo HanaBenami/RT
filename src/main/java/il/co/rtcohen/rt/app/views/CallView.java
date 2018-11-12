@@ -12,6 +12,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.DetailsGenerator;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
+import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
@@ -168,6 +169,27 @@ public class CallView extends AbstractDataView<Call> {
                 ).setId("setOrderColumn");
         setOrderColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
         grid.getDefaultHeaderRow().getCell("setOrderColumn").setText("שיבוץ");
+    }
+    private void addSitesColumn() {
+        FilterGrid.Column sitesColumn =
+                grid.addComponentColumn((ValueProvider<Call, Component>) Call -> {
+                    int n=siteRepository.getActiveIdByCustomer(Call.getCustomerId()).size();
+                    Button sitesButton = UIComponents.gridSmallButton(VaadinIcons.FROWN_O);
+                    sitesButton.addClickListener(clickEvent ->
+                            getUI().getNavigator().navigateTo
+                                    ("site/customer="+ Call.getCustomerId()));
+                    if(n==1) {
+                        sitesButton.setCaption(String.valueOf((n)));
+                        sitesButton.setIcon(VaadinIcons.HOME_O);
+                    }
+                    else  if (n>1) {
+                        sitesButton.setCaption(String.valueOf((n)));
+                        sitesButton.setIcon(VaadinIcons.HOME);
+                    }
+                    return sitesButton;
+                });
+        sitesColumn.setId("sitesColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
+        grid.getDefaultHeaderRow().getCell("sitesColumn").setText("אתרים");
     }
     private void addEditColumn() {
         FilterGrid.Column editColumn =
@@ -598,6 +620,7 @@ public class CallView extends AbstractDataView<Call> {
     @Override
     void addColumns() {
         addSetOrderColumn();
+        addSitesColumn();
         addEditColumn();
         addNotesColumn();
         addDescriptionColumn();

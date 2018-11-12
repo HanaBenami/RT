@@ -135,7 +135,7 @@ public class SiteRepository {
             rs.getString("phone"),rs.getString("notes"));
     }
 
-    public long     insertSite (String name,Integer areaId,String address, Integer customerId, String contact, String phone, String notes) {
+    public long insertSite (String name,Integer areaId,String address, Integer customerId, String contact, String phone, String notes) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement stmt = con.prepareStatement("insert into site"+
                              " (name,areaID,address,custid,contact,phone,notes)"+
@@ -197,7 +197,7 @@ public class SiteRepository {
         }
     }
 
-    public long updateSite (Site site) {
+    public void updateSite (Site site) {
         try (Connection con = dataSource.getConnection();
              PreparedStatement stmt = con.prepareStatement("update site"+
                      " set name=?,areaID=?,address=?,custid=?,contact=?,phone=?,notes=?"+
@@ -214,8 +214,6 @@ public class SiteRepository {
             if (n == 0) {
                 throw new SQLException("no record has been updated");
             }
-            else
-                return n;
         }
         catch (SQLException e) {
             log.error("error in updateSite (id="+site.getId()+"):",e);
