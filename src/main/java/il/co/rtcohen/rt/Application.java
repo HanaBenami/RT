@@ -10,9 +10,10 @@ import static eu.hurion.vaadin.heroku.VaadinForHeroku.herokuServer;
 @SpringBootApplication()
 public class Application {
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
-		//herokuServer(forApplication(MainUI.class)).start();
-
+		//SpringApplication.run(Application.class, args);
+		herokuServer(forApplication(MainUI.class)).start();
+/* https://rt2019.herokuapp.com/
+ git push heroku master*/
 	}
 
 }
