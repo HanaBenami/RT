@@ -143,7 +143,7 @@
 					<version>6.4.0.jre8</version>
 				</dependency>
 			</dependencies>
-		</profile>
+		</profile><!--
 		<profile>
 			<id>heroku</id>
 			<dependencies>
@@ -158,7 +158,7 @@
 					<version>0.6</version>
 				</dependency>
 			</dependencies>
-		</profile>
+		</profile>-->
 
 	</profiles>
 
@@ -213,7 +213,7 @@
 				</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!--<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.4</version>
@@ -235,7 +235,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>-->
 		</plugins>
 		<resources>
 			<resource>
