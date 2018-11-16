@@ -1,3 +1,4 @@
+/*
 package il.co.rtcohen.rt;
 
 import il.co.rtcohen.rt.app.MainUI;
@@ -14,3 +15,4 @@ public class Heroku {
 	}
 
 }
+*/

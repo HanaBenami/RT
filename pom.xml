@@ -153,22 +153,6 @@
 					<version>1.0</version>
 				</dependency>
 			</dependencies>
-			<!--<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<includes>
-								<include>${project.basedir}\src\main\java\il\co\rtcohen\rt\Heroku</include>
-							</includes>
-							<excludes>
-								<exclude>${project.basedir}\src\main\java\il\co\rtcohen\rt\Application</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>-->
 		</profile>
 
 	</profiles>
@@ -224,16 +208,6 @@
 				</execution>
 				</executions>
 			</plugin>
-<!--			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>${project.basedir}\src\main\java\il\co\rtcohen\rt\Heroku</exclude>
-					</excludes>
-				</configuration>
-			</plugin>-->
-
 		</plugins>
 		<resources>
 			<resource>
