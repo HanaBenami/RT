@@ -20,7 +20,7 @@ The application consists of few different spring and maven profiles:
 
 ## Online demo
 :link: [https://hana2019.herokuapp.com/](https://hana2019.herokuapp.com/) <br/>
-(It might take a minute to load the application for the first time, since the application is sleeping if there is no traffic for 30 minutes)
+(It might take a minute to load the application for the first time, since it is sleeping if there is no traffic for 30 minutes)
 
 ## License
 :copyright: Hana Ben-Ami
