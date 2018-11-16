@@ -25,10 +25,12 @@
 	</properties>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -142,6 +144,33 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		<profile>
+			<id>heroku</id>
+			<dependencies>
+				<dependency>
+					<groupId>eu.hurion.vaadin.heroku</groupId>
+					<artifactId>vaadin-for-heroku</artifactId>
+					<version>1.0</version>
+				</dependency>
+			</dependencies>
+			<!--<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<includes>
+								<include>${project.basedir}\src\main\java\il\co\rtcohen\rt\Heroku</include>
+							</includes>
+							<excludes>
+								<exclude>${project.basedir}\src\main\java\il\co\rtcohen\rt\Application</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>-->
+		</profile>
+
 	</profiles>
 
 	<repositories>
@@ -195,6 +224,16 @@
 				</execution>
 				</executions>
 			</plugin>
+<!--			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>${project.basedir}\src\main\java\il\co\rtcohen\rt\Heroku</exclude>
+					</excludes>
+				</configuration>
+			</plugin>-->
+
 		</plugins>
 		<resources>
 			<resource>

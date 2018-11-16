@@ -95,6 +95,7 @@ public class MainUI extends UI implements ViewDisplay {
         callType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=calltype"));
     }
+
     private void addCustomerMenu() {
         MenuBar.MenuItem customerMenu = menu.addItem("לקוחות");
         customerMenu.setIcon(VaadinIcons.GROUP);
@@ -108,6 +109,7 @@ public class MainUI extends UI implements ViewDisplay {
         customerMenu.addItem("הוספת אתר", (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.EDITSITE.getPath(), "_new2",750,400, BorderStyle.NONE));
     }
+
     private void addReportsMenu() {
         MenuBar.MenuItem reports = menu.addItem ("דוחות");
         reports.setIcon(VaadinIcons.PRINT);
@@ -124,6 +126,7 @@ public class MainUI extends UI implements ViewDisplay {
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
     }
+
     private void addBigScreenMenu() {
         MenuBar.MenuItem bigScreen = menu.addItem("מסך גדול");
         bigScreen.setIcon(VaadinIcons.EYE);
@@ -139,6 +142,7 @@ public class MainUI extends UI implements ViewDisplay {
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
     }
+
     private void addCallsMenu() {
         MenuBar.MenuItem call = menu.addItem("קריאות");
         call.setIcon(VaadinIcons.BELL_O);
@@ -148,6 +152,7 @@ public class MainUI extends UI implements ViewDisplay {
         call.addItem("הוספה", (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.EDITCALL.getPath(), "_new3",700,700, BorderStyle.NONE));
     }
+
     private Component createNavigationBar() {
         menu = new MenuBar();
         MenuBar.MenuItem welcome = menu.addItem("ראשי");
@@ -161,5 +166,4 @@ public class MainUI extends UI implements ViewDisplay {
         addCallsMenu();
         return menu;
     }
-
 }
