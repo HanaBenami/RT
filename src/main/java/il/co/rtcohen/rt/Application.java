@@ -1,6 +1,5 @@
 package il.co.rtcohen.rt;
 
-import il.co.rtcohen.rt.app.MainUI;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -15,6 +14,7 @@ public class Application {
 /* https://rt2019.herokuapp.com/
 git commit -am "heroku"
 git push heroku master*/
+
 	}
 
 }

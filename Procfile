@@ -1,1 +1,1 @@
-web:    java $JAVA_OPTS -cp target/classes:target/dependency/* il.co.rtcohen.rt.Application
+web: java -jar target/RT-2.2.jar
