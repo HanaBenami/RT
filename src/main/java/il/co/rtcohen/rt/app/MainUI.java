@@ -166,6 +166,4 @@ public class MainUI extends UI implements ViewDisplay {
         addCallsMenu();
         return menu;
     }
-
-
 }

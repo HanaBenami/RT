@@ -152,6 +152,11 @@
 					<artifactId>vaadin-for-heroku</artifactId>
 					<version>1.0</version>
 				</dependency>
+				<dependency>
+					<groupId>com.bsb.common.vaadin</groupId>
+					<artifactId>com.bsb.common.vaadin7.embed</artifactId>
+					<version>0.6</version>
+				</dependency>
 			</dependencies>
 		</profile>
 
