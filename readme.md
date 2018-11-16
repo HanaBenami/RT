@@ -1,5 +1,6 @@
 # RT web application
 [![Build Status](https://travis-ci.org/HanaBenami/RT.svg?branch=master)](https://travis-ci.org/HanaBenami/RT)
+[![Heroku](http://heroku-badge.herokuapp.com/?app=hana2019)]
 
 A web application written in Java, using Spring Boot 2.0.1 with Tomcat as the servlet container.
 The fronted UI is written using Vaadin 8, with Vaadin Spring extension.
@@ -19,7 +20,7 @@ The application consists of few different spring and maven profiles:
 
 ## Online demo
 :link: [https://hana2019.herokuapp.com/](https://hana2019.herokuapp.com/)
-(It might takes two minutes to load the application for the first time since the application is sleeping if there is no traffic for 30 minutes)
+(It might take a minute to load the application for the first time, since the application is sleeping if there is no traffic for 30 minutes)
 
 ## License
 :copyright: Hana Ben-Ami
