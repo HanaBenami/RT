@@ -13,11 +13,8 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 		herokuServer(forApplication(MainUI.class)).start();
 /* https://rt2019.herokuapp.com/
- git push heroku master*/
-
-/*
-		heroku deploy:jar target/rt-2.2.jar --app hana2018
-*/
+git commit -am "heroku"
+git push heroku master*/
 	}
 
 }
