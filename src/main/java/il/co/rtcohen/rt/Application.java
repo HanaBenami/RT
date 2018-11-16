@@ -1,4 +1,3 @@
-/*
 package il.co.rtcohen.rt;
 
 import org.springframework.boot.SpringApplication;
@@ -11,4 +10,3 @@ public class Application {
     }
 
 }
-*/

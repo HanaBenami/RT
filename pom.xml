@@ -119,6 +119,12 @@
 			<version>1.2.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>eu.hurion.vaadin.heroku</groupId>
+			<artifactId>vaadin-for-heroku</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
@@ -146,18 +152,18 @@
 		</profile>
 		<profile>
 			<id>heroku</id>
-			<dependencies>
+<!--			<dependencies>
 				<dependency>
 					<groupId>eu.hurion.vaadin.heroku</groupId>
 					<artifactId>vaadin-for-heroku</artifactId>
 					<version>1.0</version>
 				</dependency>
-				<dependency>
+&lt;!&ndash;				<dependency>
 					<groupId>com.bsb.common.vaadin</groupId>
 					<artifactId>com.bsb.common.vaadin7.embed</artifactId>
 					<version>0.6</version>
-				</dependency>
-			</dependencies>
+				</dependency>&ndash;&gt;
+			</dependencies>-->
 		</profile>
 
 	</profiles>
@@ -213,6 +219,20 @@
 				</execution>
 				</executions>
 			</plugin>
+<!--			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>-->
 		</plugins>
 		<resources>
 			<resource>
