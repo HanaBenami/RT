@@ -1,0 +1,1 @@
+web: java $JAVA_OPTS -jar target/rt-2.2.jar -Dserver.port=8090 $JAR_OPTS
