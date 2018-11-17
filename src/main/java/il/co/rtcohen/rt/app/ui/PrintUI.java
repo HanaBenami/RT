@@ -466,6 +466,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         return print;
     }
 
+
     private void uploadWorkOrder() {
         if((condition.matches("^\\d{4}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"))) {
             title.setValue(LanguageSettings.getLocaleString("workScheduleTitle"));
@@ -507,7 +508,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                 filterDays.setValue(x.getValue());
             x.focus();
         });
-        Label days = new Label(LanguageSettings.getLocaleString("days"));
+        Label days = new Label(LanguageSettings.getLocaleString("daysAgo"));
         days.setStyleName("LABEL-RIGHT");
         if(LanguageSettings.isHebrew())
             titleLayout.addComponents(days, x, title);
@@ -533,7 +534,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     private void addTimeLabel() {
         Label time = new Label(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 +"  " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
-        titleLayout.addComponentsAndExpand(time);
+        titleLayout.addComponents(time);
         titleLayout.setComponentAlignment(time,Alignment.TOP_LEFT);
     }
 
@@ -548,9 +549,13 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     @Override
     protected void setupLayout() {
         titleLayout = new HorizontalLayout();
-        addPrintButton();
-        addTimeLabel();
         titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        Label space = new Label(" ");
+        if(LanguageSettings.isHebrew()) {
+            addPrintButton();
+            addTimeLabel();
+            titleLayout.addComponentsAndExpand(space);
+        }
         getParameters();
         if(LanguageSettings.isHebrew())
             title = UIComponents.label("LABEL-RIGHT");
@@ -568,6 +573,11 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             default: {
                 uploadWorkOrder();
             }
+        }
+        if(!LanguageSettings.isHebrew()) {
+            titleLayout.addComponentsAndExpand(space);
+            addTimeLabel();
+            addPrintButton();
         }
         setContent(layout);
     }
