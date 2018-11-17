@@ -9,6 +9,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.GeneralType;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
@@ -59,7 +60,7 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
                     generalType.setActive(Boolean);
                     generalRepository.update(generalType);
                 }));
-        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
+        grid.getDefaultHeaderRow().getCell("activeColumn").setText(LanguageSettings.getLocaleString("active"));
         CheckBox filterActive = UIComponents.checkBox(true);
         activeColumn.setFilter(UIComponents.BooleanValueProvider(),
                 filterActive, UIComponents.BooleanPredicate());
@@ -73,7 +74,7 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
                             generalRepository.update(generalType);
                         })
                         .setExpandRatio(1).setResizable(false).setMinimumWidth(230);
-        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+        grid.getDefaultHeaderRow().getCell("nameColumn").setText(LanguageSettings.getLocaleString("name"));
         TextField filterName = UIComponents.textField(30);
         nameColumn.setFilter(filterName, UIComponents.stringFilter());
         filterName.setWidth("95%");
@@ -83,7 +84,7 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
         FilterGrid.Column<GeneralType, Integer> idColumn = grid.addColumn(GeneralType::getId).setId("idColumn")
                 .setWidth(70).setResizable(false);
         grid.getEditor().setEnabled(true);
-        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+        grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
         TextField filterId = UIComponents.textField(30);
         idColumn.setFilter(filterId, UIComponents.integerFilter());
         filterId.setWidth("95%");
@@ -108,11 +109,11 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
 
     private String getTitle() {
         switch (table) {
-            case "calltype": {return "סוגי קריאות";}
-            case "custtype": {return "סוגי לקוחות";}
-            case "cartype": {return "סוגי כלים";}
-            case "driver": {return "רשימת נהגים";}
-            default: {table=""; return "שגיאה בבחירת טבלה";}
+            case "calltype": {return LanguageSettings.getLocaleString("callTypeTitle");}
+            case "custtype": {return LanguageSettings.getLocaleString("customerTypeTitle");}
+            case "cartype": {return LanguageSettings.getLocaleString("carTypeTitle");}
+            case "driver": {return LanguageSettings.getLocaleString("driversTitle");}
+            default: {table=""; return LanguageSettings.getLocaleString("tableNameError");}
         }
     }
 

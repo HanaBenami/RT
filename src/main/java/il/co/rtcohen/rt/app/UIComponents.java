@@ -153,7 +153,10 @@ public class UIComponents {
     }
 
     public static Label smallHeader(String title) {
-        return UIComponents.label(title,"LABEL-RIGHT");
+        if(LanguageSettings.isHebrew())
+            return UIComponents.label(title,"LABEL-RIGHT");
+        else
+            return UIComponents.label(title,"LABEL-LEFT");
     }
 
     public static Label label(String value,String style) {
@@ -204,7 +207,7 @@ public class UIComponents {
         return bigButton(VaadinIcons.TRUCK);
     }
 
-    private static Button bigButton(VaadinIcons icon) {
+    public static Button bigButton(VaadinIcons icon) {
         return button(icon,ValoTheme.BUTTON_PRIMARY);
     }
 

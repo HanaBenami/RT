@@ -5,6 +5,7 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 
@@ -26,6 +27,7 @@ public abstract class AbstractUI<T extends Layout> extends UI {
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         setupLayout();
+        getUI().setLocale(LanguageSettings.locale);
     }
 
 }

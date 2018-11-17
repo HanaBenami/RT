@@ -10,9 +10,9 @@ import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.DetailsGenerator;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
-import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
@@ -73,39 +73,39 @@ public class CallView extends AbstractDataView<Call> {
     }
 
     public class Options {
-        String heb, eng;
-        Options(String eng, String heb) {
-            this.heb = heb;
-            this.eng = eng;
+        String string, key;
+        Options(String key, String string) {
+            this.string = string;
+            this.key = key;
         }
-        String getHeb() {
-            return heb;
+        String getString() {
+            return string;
         }
-        String getEng() {
-            return eng;
+        String getKey() {
+            return key;
         }
     }
     private List<Options> options() {
         List<Options> options = new ArrayList<>();
-        Options all = new Options("all", "כל הקריאות");
-        open = new Options("open", "קריאות פתוחות");
-        Options close = new Options("close", "קריאות סגורות");
-        Options yesterday = new Options("yesterday", "אתמול");
-        Options today = new Options("today", "היום");
-        Options tomorrow = new Options("tomorrow", "מחר");
-        Options plus2 = new Options("plus2", "מחרתיים");
+        Options all = new Options("all", LanguageSettings.getLocaleString("allCalls"));
+        open = new Options("open", LanguageSettings.getLocaleString("openCalls"));
+        Options close = new Options("close", LanguageSettings.getLocaleString("closeCalls"));
+        Options yesterday = new Options("yesterday", LanguageSettings.getLocaleString("yesterday"));
+        Options today = new Options("today", LanguageSettings.getLocaleString("today"));
+        Options tomorrow = new Options("tomorrow", LanguageSettings.getLocaleString("tomorrow"));
+        Options plus2days = new Options("plus2days", LanguageSettings.getLocaleString("plus2days"));
         options.add(all);
         options.add(open);
         options.add(close);
         options.add(yesterday);
         options.add(today);
         options.add(tomorrow);
-        options.add(plus2);
+        options.add(plus2days);
         return options;
     }
     private List<Call> getCalls() {
         List<Call> list;
-        switch (selectOption.getValue().getEng()) {
+        switch (selectOption.getValue().getKey()) {
             case "all":
                 filterDoneActive = false;
                 list = callRepository.getCalls();
@@ -118,7 +118,7 @@ public class CallView extends AbstractDataView<Call> {
                 filterDoneActive = false;
                 list = callRepository.getCalls(LocalDate.now().plusDays(1));
                 break;
-            case "plus2":
+            case "plus2days":
                 filterDoneActive = false;
                 list = callRepository.getCalls(LocalDate.now().plusDays(2));
                 break;
@@ -168,7 +168,7 @@ public class CallView extends AbstractDataView<Call> {
                         }
                 ).setId("setOrderColumn");
         setOrderColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("setOrderColumn").setText("שיבוץ");
+        grid.getDefaultHeaderRow().getCell("setOrderColumn").setText(LanguageSettings.getLocaleString("setOrder"));
     }
     private void addSitesColumn() {
         FilterGrid.Column sitesColumn =
@@ -189,7 +189,7 @@ public class CallView extends AbstractDataView<Call> {
                     return sitesButton;
                 });
         sitesColumn.setId("sitesColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("sitesColumn").setText("אתרים");
+        grid.getDefaultHeaderRow().getCell("sitesColumn").setText(LanguageSettings.getLocaleString("sites"));
     }
     private void addEditColumn() {
         FilterGrid.Column editColumn =
@@ -197,12 +197,12 @@ public class CallView extends AbstractDataView<Call> {
                     Button editButton = UIComponents.editButton();
                     final BrowserWindowOpener opener = new BrowserWindowOpener
                             (new ExternalResource(UIPaths.EDITCALL.getPath() + call.getId()));
-                    opener.setFeatures("height=700,width=700,resizable");
+                    opener.setFeatures("height=650,width=700,resizable");
                     opener.extend(editButton);
                     return editButton;
                 }).setId("editColumn");
         editColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("editColumn").setText("עריכה");
+        grid.getDefaultHeaderRow().getCell("editColumn").setText(LanguageSettings.getLocaleString("edit"));
 
     }
     private void addNotesColumn() {
@@ -220,23 +220,23 @@ public class CallView extends AbstractDataView<Call> {
                         }
                 ).setId("notesColumn");
         notesColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("notesColumn").setText("הערות");
+        grid.getDefaultHeaderRow().getCell("notesColumn").setText(LanguageSettings.getLocaleString("notes"));
     }
     private void addDescriptionColumn() {
-        FilterGrid.Column descrColumn =
+        FilterGrid.Column descriptionColumn =
                 grid.addComponentColumn((ValueProvider<Call, Component>) call -> {
-                    Button descrButton = new Button();
+                    Button descriptionButton = new Button();
                     if (call.getDescription().equals(""))
-                        descrButton.setIcon(VaadinIcons.COMMENT_O);
+                        descriptionButton.setIcon(VaadinIcons.COMMENT_O);
                     else
-                        descrButton.setIcon(VaadinIcons.COMMENT);
-                    descrButton.setStyleName("noBorderButton");
-                    descrButton.addClickListener(clickEvent ->
+                        descriptionButton.setIcon(VaadinIcons.COMMENT);
+                    descriptionButton.setStyleName("noBorderButton");
+                    descriptionButton.addClickListener(clickEvent ->
                             grid.setDetailsVisible(call, !grid.isDetailsVisible(call)));
-                    return descrButton;
+                    return descriptionButton;
                 }).setId("descriptionColumn");
-        descrColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("descriptionColumn").setText("תיאור");
+        descriptionColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
+        grid.getDefaultHeaderRow().getCell("descriptionColumn").setText(LanguageSettings.getLocaleString("description"));
     }
     private void addDoneColumn() {
         FilterGrid.Column<Call, Component> doneColumn =
@@ -248,7 +248,7 @@ public class CallView extends AbstractDataView<Call> {
         doneColumn.setSortable(false);
         CheckBox filterDone = new CheckBox();
         filterDone.setValue(filterDoneActive);
-        switch (selectOption.getValue().getEng()) {
+        switch (selectOption.getValue().getKey()) {
             case "open":
                 doneColumn.setFilter(UIComponents.BooleanValueProvider(),
                         filterDone, UIComponents.BooleanPredicate());
@@ -257,7 +257,7 @@ public class CallView extends AbstractDataView<Call> {
                 doneColumn.setFilter(UIComponents.BooleanValueProvider(),
                         filterDone, UIComponents.BooleanPredicateWithShowAll());
         }
-        grid.getDefaultHeaderRow().getCell("doneColumn").setText("בוצע");
+        grid.getDefaultHeaderRow().getCell("doneColumn").setText(LanguageSettings.getLocaleString("done"));
     }
     private void addEndDateColumn() {
         DateField endDate = UIComponents.dateField();
@@ -275,7 +275,7 @@ public class CallView extends AbstractDataView<Call> {
         endDateColumn.setStyleGenerator(call -> UIComponents.regularDateStyle(call.getEndDate()));
         endDateColumn.setHidable(true);
         endDateColumn.setHidden(false);
-        grid.getDefaultHeaderRow().getCell("endDateColumn").setText("ת' סגירה");
+        grid.getDefaultHeaderRow().getCell("endDateColumn").setText(LanguageSettings.getLocaleString("endDateShort"));
         DateField filterEndDate = UIComponents.dateField(30);
         filterEndDate.addContextClickListener(contextClickEvent -> filterEndDate.setValue(null));
         endDateColumn.setFilter(filterEndDate, UIComponents.dateFilter());
@@ -303,7 +303,7 @@ public class CallView extends AbstractDataView<Call> {
                 )).setExpandRatio(1).setResizable(true);
         driverColumn.setHidable(true);
         driverColumn.setHidden(false);
-        grid.getDefaultHeaderRow().getCell("driverColumn").setText("נהג");
+        grid.getDefaultHeaderRow().getCell("driverColumn").setText(LanguageSettings.getLocaleString("driver"));
         ComboBox<Integer> filterDriver = new UIComponents().driverComboBox(generalRepository, 100, 30);
         filterDriver.setWidth("95%");
         driverColumn.setFilter((filterDriver),
@@ -332,7 +332,7 @@ public class CallView extends AbstractDataView<Call> {
         TextField filterOrder = UIComponents.textField(30);
         orderColumn.setFilter(filterOrder, UIComponents.integerFilter());
         filterOrder.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("orderColumn").setText("סדר");
+        grid.getDefaultHeaderRow().getCell("orderColumn").setText(LanguageSettings.getLocaleString("order"));
     }
     private void addMeetingColumn() {
         FilterGrid.Column<Call, Component> meetingColumn =
@@ -349,7 +349,7 @@ public class CallView extends AbstractDataView<Call> {
         meetingColumn.setHidden(true);
         meetingColumn.setFilter(UIComponents.BooleanValueProvider(),
                 new CheckBox(), UIComponents.BooleanPredicateWithShowAll());
-        grid.getDefaultHeaderRow().getCell("meetingColumn").setText("תואם");
+        grid.getDefaultHeaderRow().getCell("meetingColumn").setText(LanguageSettings.getLocaleString("meetingShort"));
     }
     private void addDate2Column() {
         DateField date2 = UIComponents.dateField();
@@ -372,7 +372,7 @@ public class CallView extends AbstractDataView<Call> {
         filterDate2.addContextClickListener(contextClickEvent -> filterDate2.setValue(null));
         date2Column.setFilter(filterDate2, UIComponents.dateFilter());
         filterDate2.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("date2Column").setText("ת' שיבוץ");
+        grid.getDefaultHeaderRow().getCell("date2Column").setText(LanguageSettings.getLocaleString("date2short"));
     }
     private void addDate1Column() {
         DateField date1 = UIComponents.dateField();
@@ -394,7 +394,7 @@ public class CallView extends AbstractDataView<Call> {
         filterDate1.addContextClickListener(contextClickEvent -> filterDate1.setValue(null));
         date1Column.setFilter(filterDate1, UIComponents.dateFilter());
         filterDate1.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("date1Column").setText("ת' מתוכנן");
+        grid.getDefaultHeaderRow().getCell("date1Column").setText(LanguageSettings.getLocaleString("date1short"));
     }
     private void addStartDateColumn() {
         DateField startDate = UIComponents.dateField();
@@ -415,7 +415,7 @@ public class CallView extends AbstractDataView<Call> {
         filterStartDate.addContextClickListener(contextClickEvent -> filterStartDate.setValue(null));
         startDateColumn.setFilter(filterStartDate, UIComponents.dateFilter());
         filterStartDate.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("startDateColumn").setText("ת' פתיחה");
+        grid.getDefaultHeaderRow().getCell("startDateColumn").setText(LanguageSettings.getLocaleString("startDateShort"));
     }
     private void addSiteColumn() {
         siteCombo = new UIComponents().siteComboBox(generalRepository, 110, 30);
@@ -442,7 +442,7 @@ public class CallView extends AbstractDataView<Call> {
         TextField filterSite = UIComponents.textField(30);
         siteColumn.setFilter(filterSite, UIComponents.stringFilter());
         filterSite.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("siteColumn").setText("אתר");
+        grid.getDefaultHeaderRow().getCell("siteColumn").setText(LanguageSettings.getLocaleString("site"));
     }
     private void getSitesPerCustomer(Grid.ItemClick<Call> event) {
         if (event.getItem().getCustomerId() > 0) {
@@ -461,7 +461,7 @@ public class CallView extends AbstractDataView<Call> {
         TextField filterPhone = UIComponents.textField(30);
         phoneColumn.setFilter(filterPhone, UIComponents.stringFilter());
         filterPhone.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("phoneColumn").setText("טלפון");
+        grid.getDefaultHeaderRow().getCell("phoneColumn").setText(LanguageSettings.getLocaleString("phone"));
     }
     private void addContactColumn() {
         FilterGrid.Column<Call, String> contactColumn = grid.addColumn(call -> {
@@ -474,7 +474,7 @@ public class CallView extends AbstractDataView<Call> {
         TextField filterContact = UIComponents.textField(30);
         contactColumn.setFilter(filterContact, UIComponents.stringFilter());
         filterContact.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("contactColumn").setText("א.קשר");
+        grid.getDefaultHeaderRow().getCell("contactColumn").setText(LanguageSettings.getLocaleString("contactShort"));
     }
     private void addAddressColumn() {
         FilterGrid.Column<Call, String> addressColumn = grid.addColumn(call -> {
@@ -487,7 +487,7 @@ public class CallView extends AbstractDataView<Call> {
         TextField filterAddress = UIComponents.textField(30);
         addressColumn.setFilter(filterAddress, UIComponents.stringFilter());
         filterAddress.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("addressColumn").setText("כתובת");
+        grid.getDefaultHeaderRow().getCell("addressColumn").setText(LanguageSettings.getLocaleString("address"));
     }
     private void addAreaColumn() {
         FilterGrid.Column<Call, String> areaColumn = grid.addColumn(call -> {
@@ -502,7 +502,7 @@ public class CallView extends AbstractDataView<Call> {
         filterArea.setWidth("95%");
         areaColumn.setFilter((filterArea),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"area").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("areaColumn").setText("אזור");
+        grid.getDefaultHeaderRow().getCell("areaColumn").setText(LanguageSettings.getLocaleString("area"));
     }
     private void addHereColumn() {
         FilterGrid.Column<Call, Component> hereColumn =
@@ -524,7 +524,7 @@ public class CallView extends AbstractDataView<Call> {
         hereColumn.setHidden(false);
         hereColumn.setFilter(UIComponents.BooleanValueProvider(),
                 new CheckBox(), UIComponents.BooleanPredicateWithShowAll());
-        grid.getDefaultHeaderRow().getCell("hereColumn").setText("כאן");
+        grid.getDefaultHeaderRow().getCell("hereColumn").setText(LanguageSettings.getLocaleString("here"));
     }
     private void addCarTypeColumn() {
         ComboBox<Integer> carCombo = new UIComponents().carComboBox(generalRepository, 200, 30);
@@ -551,7 +551,7 @@ public class CallView extends AbstractDataView<Call> {
         filterCar.setWidth("95%");
         carColumn.setFilter((filterCar),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"cartype").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("carColumn").setText("כלי");
+        grid.getDefaultHeaderRow().getCell("carColumn").setText(LanguageSettings.getLocaleString("carTypeShort"));
     }
     private void addCallTypeColumn() {
         ComboBox<Integer> callTypeCombo = new UIComponents().callTypeComboBox(generalRepository, 150, 30);
@@ -578,7 +578,7 @@ public class CallView extends AbstractDataView<Call> {
         filterCallType.setWidth("95%");
         callTypeColumn.setFilter((filterCallType),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"calltype").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("callTypeColumn").setText("סוג");
+        grid.getDefaultHeaderRow().getCell("callTypeColumn").setText(LanguageSettings.getLocaleString("callType"));
     }
     private void addCustomerColumn() {
         ComboBox<Integer> customerCombo = new UIComponents().customerComboBox(generalRepository, 120, 30);
@@ -603,7 +603,7 @@ public class CallView extends AbstractDataView<Call> {
         customerColumn.setFilter((filterCustomer),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"cust").equals(cValue));
         filterCustomer.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("customerColumn").setText("לקוח");
+        grid.getDefaultHeaderRow().getCell("customerColumn").setText(LanguageSettings.getLocaleString("customer"));
     }
     private void addIdColumn() {
         FilterGrid.Column<Call, Integer> idColumn = grid.addColumn(Call::getId).setId("idColumn")
@@ -614,7 +614,7 @@ public class CallView extends AbstractDataView<Call> {
         filterId.addFocusListener(focusEvent -> filterId.setValue(""));
         idColumn.setFilter(filterId, UIComponents.integerFilter());
         filterId.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+        grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
     }
 
     @Override
@@ -680,13 +680,13 @@ public class CallView extends AbstractDataView<Call> {
     }
 
     private VerticalLayout getCallDetails(Call call) {
-        TextArea bigDescr = UIComponents.textArea("תיאור","100%","55");
+        TextArea bigDescr = UIComponents.textArea(LanguageSettings.getLocaleString("description"),"100%","55");
         bigDescr.setValue(call.getDescription());
         bigDescr.addValueChangeListener(valueChangeEvent -> {
             call.setDescription(bigDescr.getValue());
             callService.updateCall(call);
         });
-        TextArea bigNotes =  UIComponents.textArea("הערות","100%","55");
+        TextArea bigNotes =  UIComponents.textArea(LanguageSettings.getLocaleString("notes"),"100%","55");
         bigNotes.setValue(call.getNotes());
         bigNotes.addValueChangeListener(valueChangeEvent -> {
             call.setNotes(bigNotes.getValue());
@@ -782,7 +782,7 @@ public class CallView extends AbstractDataView<Call> {
         selectOption.setWidth("500");
         selectOption.setItems(options());
         selectOption.setValue(open);
-        selectOption.setItemCaptionGenerator(Options::getHeb);
+        selectOption.setItemCaptionGenerator(Options::getString);
         selectOption.addValueChangeListener(ValueChangeEvent -> {
             if (selectOption.getValue()!=null) {
                 removeComponent(grid);
@@ -827,7 +827,7 @@ public class CallView extends AbstractDataView<Call> {
             addGrid();
             filterId.setValue(String.valueOf(newId));
             Page.getCurrent().open(UIPaths.EDITCALL.getPath()+String.valueOf(newId),"_new3",
-                    700,700,BorderStyle.NONE);
+                    700,650,BorderStyle.NONE);
         }
     }
 

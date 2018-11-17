@@ -15100,6 +15100,15 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: 150%;
 }
 
+.myTheme .LABEL-LEFT {
+	color: black;
+	float: left;
+	text-align: left !important;
+	font-size: 30px;
+	font-weight: bold;
+	line-height: 150%;
+}
+
 .myTheme .LABEL-BIGSCREEN {
 	color: black;
 	float: right;
@@ -15113,6 +15122,15 @@ div.v-layout.v-horizontal.v-widget {
 	color: black;
 	float: right;
 	text-align: right !important;
+	font-size: 24px;
+	font-weight: bold;
+	line-height: 100%;
+}
+
+.myTheme .LABEL-LEFT-PRINT {
+	color: black;
+	float: left;
+	text-align: left !important;
 	font-size: 24px;
 	font-weight: bold;
 	line-height: 100%;
@@ -15158,6 +15176,7 @@ div.v-layout.v-horizontal.v-widget {
 	right: 0px;
 	bottom: 0px;
 	left: 0px;
+	cursor: pointer !important;
 }
 
 .myTheme .noBorderButton:after {
@@ -15174,8 +15193,12 @@ div.v-layout.v-horizontal.v-widget {
 	left: 0px;
 }
 
-.myTheme .menu {
-	text-align: right;
+.myTheme .menu_right {
+	text-align: right !important;
+}
+
+.myTheme .menu_left {
+	text-align: left;
 }
 
 .myTheme th {
@@ -15212,7 +15235,6 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .myTheme .v-gridlayout-slot {
-	align: left;
 	text-align: left;
 }
 

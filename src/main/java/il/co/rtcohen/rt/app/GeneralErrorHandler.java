@@ -22,7 +22,7 @@ public class GeneralErrorHandler implements ErrorHandler {
             t = DefaultErrorHandler.findRelevantThrowable(t);
             AbstractComponent component = DefaultErrorHandler.findAbstractComponent(event);
             if (component != null) {
-                ErrorMessage errorMessage = new UserError("שגיאה");
+                ErrorMessage errorMessage = new UserError(LanguageSettings.getLocaleString("error"));
                 component.setComponentError(errorMessage);
             }
             getLogger().log(Level.SEVERE, "", t);

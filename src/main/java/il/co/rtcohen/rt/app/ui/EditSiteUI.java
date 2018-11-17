@@ -8,6 +8,7 @@ import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
@@ -34,12 +35,12 @@ public class EditSiteUI extends AbstractEditUI {
     protected void setupLayout() {
         getSelectedId();
         if (site.getId()==0) {
-            Notification.show("שגיאה",
-                    "אתר #" + getPage().getUriFragment() + " לא קיים",
+            Notification.show(LanguageSettings.getLocaleString("error"), LanguageSettings.getLocaleString("site#")
+                            + getPage().getUriFragment() + LanguageSettings.getLocaleString("notExistM"),
                     Notification.Type.WARNING_MESSAGE);
             closeWindow();
         } else {
-            initLayout("פרטי אתר");
+            initLayout(LanguageSettings.getLocaleString("siteDetails"));
             addAddButton();
             addLayoutComponents();
         }
@@ -73,7 +74,7 @@ public class EditSiteUI extends AbstractEditUI {
         layout.addComponent(id,2,0);
     }
     private void addPhoneField() {
-        Label phoneLabel = new Label("טלפון");
+        Label phoneLabel = new Label(LanguageSettings.getLocaleString("phone"));
         layout.addComponent(phoneLabel, 1, 4);
         phone = UIComponents.textField(site.getPhone(), true, 130, 30);
         phone.addValueChangeListener(valueChangeEvent -> {
@@ -83,7 +84,7 @@ public class EditSiteUI extends AbstractEditUI {
         layout.addComponent(phone, 0, 4);
     }
     private void addSiteNotesField() {
-        Label notesLabel = new Label("הערות");
+        Label notesLabel = new Label(LanguageSettings.getLocaleString("notes"));
         layout.addComponent(notesLabel,3,5);
         siteNotes = UIComponents.textField(site.getNotes(),true,410,30);
         siteNotes.addValueChangeListener(valueChangeEvent -> {
@@ -93,7 +94,7 @@ public class EditSiteUI extends AbstractEditUI {
         layout.addComponent(siteNotes,0,5,2,5);
     }
     private void addContactField() {
-        Label contactLabel = new Label("איש קשר");
+        Label contactLabel = new Label(LanguageSettings.getLocaleString("contact"));
         layout.addComponent(contactLabel,3,4);
         contact = UIComponents.textField(site.getContact(),true,130,30);
         contact.addValueChangeListener(valueChangeEvent -> {
@@ -103,7 +104,7 @@ public class EditSiteUI extends AbstractEditUI {
         layout.addComponent(contact,2,4);
     }
     private void addAddressField() {
-        Label addressLabel = new Label("כתובת");
+        Label addressLabel = new Label(LanguageSettings.getLocaleString("address"));
         layout.addComponent(addressLabel,3,3);
         address = UIComponents.textField(site.getAddress(),true,410,30);
         address.addValueChangeListener(valueChangeEvent -> {
@@ -120,7 +121,7 @@ public class EditSiteUI extends AbstractEditUI {
         layout.addComponent(areaCombo,1,0);
     }
     private void addSiteNameField() {
-        Label siteLabel = new Label("שם האתר");
+        Label siteLabel = new Label(LanguageSettings.getLocaleString("siteName"));
         layout.addComponent(siteLabel,3,2);
         name = UIComponents.textField(site.getName(),true,270,30);
         name.addValueChangeListener(valueChangeEvent -> {
@@ -177,12 +178,12 @@ public class EditSiteUI extends AbstractEditUI {
     @Override
     void deleteCurrentId() {
         if (callRepository.getCallsBySite(site.getId()).size()>0) {
-            Notification.show("לא ניתן למחוק אתר אליו משויכות קריאות",
+            Notification.show(LanguageSettings.getLocaleString("siteWithCallsDeleteError"),
                     "", Notification.Type.ERROR_MESSAGE);
         } else {
             int n = siteRepository.deleteSite(site.getId());
             if (n == 1) {
-                Notification.show("האתר נמחק",
+                Notification.show(LanguageSettings.getLocaleString("siteDelete"),
                         "", Notification.Type.WARNING_MESSAGE);
                 closeWindow();
             }
@@ -191,7 +192,7 @@ public class EditSiteUI extends AbstractEditUI {
 
     private void addAddButton() {
         addButton = UIComponents.addButton();
-        addButton.setCaption("הוספת קריאה");
+        addButton.setCaption(LanguageSettings.getLocaleString("addCall"));
         addButton.setWidth("300");
         addButton.addClickListener(clickEvent -> addCall());
         addButton.setTabIndex(8);
@@ -217,7 +218,8 @@ public class EditSiteUI extends AbstractEditUI {
                 site.setAreaId(areaCombo.getValue());
                 areaCombo.setComponentError(null);
             } catch (RuntimeException e) {
-                areaCombo.setComponentError(new UserError("יש לבחור אזור"));
+                areaCombo.setComponentError(new UserError
+                        (LanguageSettings.getLocaleString("pleaseSelectArea")));
             }
         }
         siteRepository.updateSite(site);
@@ -240,7 +242,8 @@ public class EditSiteUI extends AbstractEditUI {
                 name.focus();
             }
             catch (RuntimeException e) {
-                customerCombo.setComponentError(new UserError("יש לבחור לקוח"));
+                customerCombo.setComponentError(new UserError
+                        (LanguageSettings.getLocaleString("pleaseSelectCustomer")));
             }
         }
         siteRepository.updateSite(site);

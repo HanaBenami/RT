@@ -12,6 +12,7 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.GeneralType;
@@ -44,7 +45,7 @@ public class CustomerView extends AbstractDataView<Customer> {
 
     @Override
     public void createView(ViewChangeListener.ViewChangeEvent event) {
-        title="רשימת לקוחות";
+        title=LanguageSettings.getLocaleString("customersList");
         addHeader();
         addNewCustomerForm();
         addGrid();
@@ -66,7 +67,7 @@ public class CustomerView extends AbstractDataView<Customer> {
                     return callsButton;
                 });
         callsColumn.setId("callsColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("callsColumn").setText("קריאות");
+        grid.getDefaultHeaderRow().getCell("callsColumn").setText(LanguageSettings.getLocaleString("calls"));
     }
     private void addSitesColumn() {
         FilterGrid.Column sitesColumn =
@@ -87,7 +88,7 @@ public class CustomerView extends AbstractDataView<Customer> {
                     return sitesButton;
                 });
         sitesColumn.setId("sitesColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("sitesColumn").setText("אתרים");
+        grid.getDefaultHeaderRow().getCell("sitesColumn").setText(LanguageSettings.getLocaleString("sites"));
     }
     private void addActiveColumn() {
         FilterGrid.Column<Customer, Component> activeColumn =
@@ -104,7 +105,7 @@ public class CustomerView extends AbstractDataView<Customer> {
         filterActive.setValue(true);
         activeColumn.setFilter(UIComponents.BooleanValueProvider(),
                 filterActive, UIComponents.BooleanPredicate());
-        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
+        grid.getDefaultHeaderRow().getCell("activeColumn").setText(LanguageSettings.getLocaleString("active"));
     }
     private void addCustomerTypeColumn() {
         ComboBox<Integer> customerTypeCombo = new UIComponents().custTypeComboBox(generalRepository,130,30);
@@ -121,7 +122,7 @@ public class CustomerView extends AbstractDataView<Customer> {
         filterCustomerType.setWidth("95%");
         customerTypeColumn.setFilter((filterCustomerType),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"custType").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("custTypeColumn").setText("סוג");
+        grid.getDefaultHeaderRow().getCell("custTypeColumn").setText(LanguageSettings.getLocaleString("callType"));
     }
     private void addNameColumn() {
         FilterGrid.Column<Customer, String> nameColumn = grid.addColumn(Customer::getName).setId("nameColumn")
@@ -131,7 +132,7 @@ public class CustomerView extends AbstractDataView<Customer> {
                 }).setExpandRatio(1).setResizable(false).setMinimumWidth(230);
         filterName = UIComponents.textField(30);
         nameColumn.setFilter(filterName, UIComponents.stringFilter());
-        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+        grid.getDefaultHeaderRow().getCell("nameColumn").setText(LanguageSettings.getLocaleString("name"));
         filterName.setWidth("95%");
     }
     private void addIdColumn() {
@@ -140,7 +141,7 @@ public class CustomerView extends AbstractDataView<Customer> {
         TextField filterId = UIComponents.textField(30);
         idColumn.setFilter(filterId, UIComponents.integerFilter());
         filterId.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+        grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
     }
 
     @Override
@@ -164,7 +165,8 @@ public class CustomerView extends AbstractDataView<Customer> {
         grid.getEditor().setEnabled(true);
         grid.sort("nameColumn", SortDirection.ASCENDING);
         grid.setStyleGenerator((StyleGenerator<Customer>) Customer -> {
-            if (generalRepository.getNameById(Customer.getCustomerTypeID(), "custType").equals("פרטי"))
+            if (generalRepository.getNameById(Customer.getCustomerTypeID(), "custType")
+                    .equals(LanguageSettings.getLocaleString("privateCustomerType")))
                 return "yellow";
             return null;
         });

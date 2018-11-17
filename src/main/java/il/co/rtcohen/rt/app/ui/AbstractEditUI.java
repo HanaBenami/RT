@@ -3,6 +3,7 @@ package il.co.rtcohen.rt.app.ui;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
@@ -37,13 +38,13 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         print.addClickListener(clickEvent ->
                 JavaScript.getCurrent().execute("print();"));
         layout.addComponent(print,0,0,0,0);
-        layout.setComponentAlignment(print, Alignment.TOP_LEFT);
+        //layout.setComponentAlignment(print, Alignment.TOP_LEFT);
     }
 
     void initLayout(String title) {
         layout = new GridLayout(4, 11);
         layout.addComponent(UIComponents.smallHeader(title),3,0);
-        layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
         setContent(layout);
     }
 
@@ -54,9 +55,9 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         setEscapeButton();
         setTabIndexes();
         layout.setSpacing(true);
-        layout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+        layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
         VerticalLayout mainLayout = new VerticalLayout();
-        mainLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        mainLayout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
         mainLayout.addComponentsAndExpand(layout);
         setContent(mainLayout);
     }
@@ -65,7 +66,7 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         Button delete = UIComponents.trashButton();
         delete.addClickListener(clickEvent -> deleteCurrentId());
         layout.addComponent(delete,0,1,0,1);
-        layout.setComponentAlignment(delete,Alignment.TOP_LEFT);
+        //layout.setComponentAlignment(delete,Alignment.TOP_LEFT);
     }
 
     private void setEscapeButton() {
@@ -73,7 +74,7 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         escapeButton.addClickListener(clickEvent -> closeWindow());
         escapeButton.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
         layout.addComponent(escapeButton,0,2,0,2);
-        layout.setComponentAlignment(escapeButton,Alignment.TOP_LEFT);
+        //layout.setComponentAlignment(escapeButton,Alignment.TOP_LEFT);
     }
 
     Boolean hasParameter() {

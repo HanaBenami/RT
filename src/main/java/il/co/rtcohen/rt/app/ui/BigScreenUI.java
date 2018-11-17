@@ -7,6 +7,7 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.repositories.AreaRepository;
@@ -86,10 +87,10 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
             if((i==0)||(!(list.get(i).getDate2().equals(list.get(i-1).getDate2())))) {
                 dateTitle = UIComponents.label("LABEL-BIGSCREEN");
                 if (list.get(i).getDate2().equals(nullDate)) {
-                    if((areaTitle.getValue().equals("מוסך")))
-                        dateTitle.setValue("בטיפול כאן");
+                    if((areaTitle.getValue().equals(LanguageSettings.getLocaleString("garage"))))
+                        dateTitle.setValue(LanguageSettings.getLocaleString("currentlyHere"));
                     else
-                        dateTitle.setValue("טרם שובצו");
+                        dateTitle.setValue(LanguageSettings.getLocaleString("notInSchedule"));
                 } else {
                     dateTitle.setValue(list.get(i).getDate2().format(dateFormatter));
                 }

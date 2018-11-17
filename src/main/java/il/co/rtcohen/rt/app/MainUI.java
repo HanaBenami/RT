@@ -28,15 +28,19 @@ public class MainUI extends UI implements ViewDisplay {
     private Panel springViewDisplay;
     private MenuBar menu;
     private HorizontalLayout topLayout;
+    private Component navigationBar;
+    Image language;
 
     @Override
     protected void init(VaadinRequest request) {
+
         final VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
         setContent(mainLayout);
         topLayout = new HorizontalLayout();
         addLogo();
         addPrintButton();
+        addLanguageButton();
         addNavigationBar();
         mainLayout.addComponent(topLayout);
         springViewDisplay = new Panel();
@@ -58,9 +62,30 @@ public class MainUI extends UI implements ViewDisplay {
         topLayout.addComponent(print);
     }
 
+    private void addLanguageButton() {
+        language = LanguageSettings.getFlag();
+        language.setStyleName("noBorderButton");
+        language.setHeight("40");
+        language.setWidth("62");
+        language.addClickListener(clickEvent -> changeLocale());
+        topLayout.addComponent(language);
+    }
+
+    private void changeLocale() {
+        LanguageSettings.changeLocale();
+        topLayout.removeComponent(navigationBar);
+        topLayout.removeComponent(language);
+        addLanguageButton();
+        addNavigationBar();
+        getUI().getNavigator().navigateTo("");
+    }
+
     private void addNavigationBar() {
-        Component navigationBar = createNavigationBar();
-        navigationBar.addStyleName("menu");
+        navigationBar = createNavigationBar();
+        if(LanguageSettings.isHebrew())
+            navigationBar.addStyleName("menu_right");
+        else
+            navigationBar.addStyleName("menu_left");
         topLayout.addComponentsAndExpand(navigationBar);
     }
 
@@ -71,91 +96,91 @@ public class MainUI extends UI implements ViewDisplay {
     }
 
     private void setupMenu() {
-        MenuBar.MenuItem setup = menu.addItem("תחזוקה");
+        MenuBar.MenuItem setup = menu.addItem(LanguageSettings.getLocaleString("setupMenu"));
         setup.setIcon(VaadinIcons.COG_O);
-        MenuBar.MenuItem driver = setup.addItem("נהגים");
+        MenuBar.MenuItem driver = setup.addItem(LanguageSettings.getLocaleString("drivers"));
         driver.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=driver"));
         setup.addSeparator();
 
-        MenuBar.MenuItem area = setup.addItem("אזורים בארץ");
+        MenuBar.MenuItem area = setup.addItem(LanguageSettings.getLocaleString("areaMenu"));
         area.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("area"));
         setup.addSeparator();
 
-        MenuBar.MenuItem custType = setup.addItem("סוגי לקוחות");
+        MenuBar.MenuItem custType = setup.addItem(LanguageSettings.getLocaleString("customerTypeTitle"));
         custType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=custtype"));
 
-        MenuBar.MenuItem carType = setup.addItem("סוגי כלים");
+        MenuBar.MenuItem carType = setup.addItem(LanguageSettings.getLocaleString("carTypeTitle"));
         carType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=cartype"));
 
-        MenuBar.MenuItem callType = setup.addItem("סוגי קריאות");
+        MenuBar.MenuItem callType = setup.addItem(LanguageSettings.getLocaleString("callTypeTitle"));
         callType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=calltype"));
     }
 
     private void addCustomerMenu() {
-        MenuBar.MenuItem customerMenu = menu.addItem("לקוחות");
+        MenuBar.MenuItem customerMenu = menu.addItem(LanguageSettings.getLocaleString("customers"));
         customerMenu.setIcon(VaadinIcons.GROUP);
-        MenuBar.MenuItem customer = customerMenu.addItem("לקוחות");
+        MenuBar.MenuItem customer = customerMenu.addItem(LanguageSettings.getLocaleString("customers"));
         customer.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("customer"));
         customerMenu.addSeparator();
-        MenuBar.MenuItem site = customerMenu.addItem("אתרים");
+        MenuBar.MenuItem site = customerMenu.addItem(LanguageSettings.getLocaleString("sites"));
         site.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("site"));
-        customerMenu.addItem("הוספת אתר", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.EDITSITE.getPath(), "_new2",750,400, BorderStyle.NONE));
+        customerMenu.addItem(LanguageSettings.getLocaleString("addSite"), (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.EDITSITE.getPath(), "_new2",700,400, BorderStyle.NONE));
     }
 
     private void addReportsMenu() {
-        MenuBar.MenuItem reports = menu.addItem ("דוחות");
+        MenuBar.MenuItem reports = menu.addItem (LanguageSettings.getLocaleString("reportsMenu"));
         reports.setIcon(VaadinIcons.PRINT);
-        reports.addItem("סידור עבודה", (MenuBar.Command) selectedItem -> Page.getCurrent()
+        reports.addItem(LanguageSettings.getLocaleString("workSchedule"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.PRINT.getPath()+ LocalDate.now().format(UIComponents.dateFormatter), "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
-        reports.addItem("קריאות פתוחות", (MenuBar.Command) selectedItem -> Page.getCurrent()
+        reports.addItem(LanguageSettings.getLocaleString("openCalls"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.PRINT.getPath()+"open", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
-        reports.addItem("כלים שנמצאים כאן", (MenuBar.Command) selectedItem -> Page.getCurrent()
+        reports.addItem(LanguageSettings.getLocaleString("currentlyHereReport"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.PRINT.getPath()+"here", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
     }
 
     private void addBigScreenMenu() {
-        MenuBar.MenuItem bigScreen = menu.addItem("מסך גדול");
+        MenuBar.MenuItem bigScreen = menu.addItem(LanguageSettings.getLocaleString("bigScreenMenu"));
         bigScreen.setIcon(VaadinIcons.EYE);
-        bigScreen.addItem("בחוץ", (MenuBar.Command) selectedItem -> Page.getCurrent()
+        bigScreen.addItem(LanguageSettings.getLocaleString("outsideBigScreen"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.BIGSCREEN.getPath()+"out", "_blank",getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
-        bigScreen.addItem("כאן", (MenuBar.Command) selectedItem -> Page.getCurrent()
+        bigScreen.addItem(LanguageSettings.getLocaleString("garageBigScreen"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.BIGSCREEN.getPath()+"here", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
-        bigScreen.addItem("הכל", (MenuBar.Command) selectedItem -> Page.getCurrent()
+        bigScreen.addItem(LanguageSettings.getLocaleString("allCalls"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.BIGSCREEN.getPath()+"all", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
     }
 
     private void addCallsMenu() {
-        MenuBar.MenuItem call = menu.addItem("קריאות");
+        MenuBar.MenuItem call = menu.addItem(LanguageSettings.getLocaleString("calls"));
         call.setIcon(VaadinIcons.BELL_O);
-        MenuBar.MenuItem calls = call.addItem("טבלת קריאות");
+        MenuBar.MenuItem calls = call.addItem(LanguageSettings.getLocaleString("callsTable"));
         calls.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("call"));
-        call.addItem("הוספה", (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.EDITCALL.getPath(), "_new3",700,700, BorderStyle.NONE));
+        call.addItem(LanguageSettings.getLocaleString("addCall"), (MenuBar.Command) selectedItem -> Page.getCurrent()
+                .open(UIPaths.EDITCALL.getPath(), "_new3",700,650, BorderStyle.NONE));
     }
 
     private Component createNavigationBar() {
         menu = new MenuBar();
-        MenuBar.MenuItem welcome = menu.addItem("ראשי");
+        MenuBar.MenuItem welcome = menu.addItem(LanguageSettings.getLocaleString("main"));
         welcome.setIcon(VaadinIcons.HOME_O);
         welcome.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo(""));

@@ -6,6 +6,7 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Setter;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Area;
 import il.co.rtcohen.rt.dal.dao.GeneralType;
@@ -32,7 +33,7 @@ public class AreaView extends AbstractDataView<Area> {
 
     @Override
     public void createView(ViewChangeListener.ViewChangeEvent event) {
-        title="רשימת אזורים";
+        title=LanguageSettings.getLocaleString("areaTitle");
         addHeader();
         addNewAreaFields();
         addGrid();
@@ -51,7 +52,7 @@ public class AreaView extends AbstractDataView<Area> {
                 }));
         hereColumn.setFilter(UIComponents.BooleanValueProvider(),
                 UIComponents.checkBox(false), UIComponents.BooleanPredicateWithShowAll());
-        grid.getDefaultHeaderRow().getCell("hereColumn").setText("כאן");
+        grid.getDefaultHeaderRow().getCell("hereColumn").setText(LanguageSettings.getLocaleString("here"));
     }
     private void addActiveColumn() {
         FilterGrid.Column<Area, Component> activeColumn =
@@ -64,7 +65,7 @@ public class AreaView extends AbstractDataView<Area> {
                     area.setActive(Boolean);
                     generalRepository.update(area);
                 }));
-        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
+        grid.getDefaultHeaderRow().getCell("activeColumn").setText(LanguageSettings.getLocaleString("active"));
         CheckBox filterActive = UIComponents.checkBox(true);
         activeColumn.setFilter(UIComponents.BooleanValueProvider(),
                 filterActive, UIComponents.BooleanPredicate());
@@ -79,7 +80,7 @@ public class AreaView extends AbstractDataView<Area> {
                         .setExpandRatio(1).setResizable(false).setWidth(60);
         displayOrderColumn.setStyleGenerator(area -> {
             if(area.getDisplayOrder()==0) return "null"; else return "bold" ;});
-        grid.getDefaultHeaderRow().getCell("displayOrderColumn").setText("סדר");
+        grid.getDefaultHeaderRow().getCell("displayOrderColumn").setText(LanguageSettings.getLocaleString("order"));
         TextField filterDisplay = UIComponents.textField("95%","30");
         displayOrderColumn.setFilter(filterDisplay, UIComponents.integerFilter());
         filterDisplay.setWidth("95%");
@@ -97,8 +98,8 @@ public class AreaView extends AbstractDataView<Area> {
         FilterGrid.Column<Area, String> nameColumn =
                 grid.addColumn(Area::getName).setId("nameColumn")
                         .setEditorComponent(name, (area, String) -> {
-                            if((area.getName().equals("מוסך"))&&(!name.getValue().equals("מוסך"))) {
-                                Notification.show("לא ניתן לעדכן את שם המוסך",
+                            if((area.getName().equals(LanguageSettings.getLocaleString("garage")))&&(!name.getValue().equals(LanguageSettings.getLocaleString("garage")))) {
+                                Notification.show(LanguageSettings.getLocaleString("garageWrongUpdate"),
                                         "",Notification.Type.ERROR_MESSAGE);
                             } else {
                                 area.setName(String);
@@ -106,7 +107,7 @@ public class AreaView extends AbstractDataView<Area> {
                             }
                         })
                         .setExpandRatio(1).setResizable(false).setMinimumWidth(230);
-        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+        grid.getDefaultHeaderRow().getCell("nameColumn").setText(LanguageSettings.getLocaleString("name"));
         TextField filterName = UIComponents.textField(30);
         nameColumn.setFilter(filterName, UIComponents.stringFilter());
         filterName.setWidth("95%");
@@ -114,7 +115,7 @@ public class AreaView extends AbstractDataView<Area> {
     private void addIdColumn() {
         FilterGrid.Column<Area, Integer> idColumn = grid.addColumn(Area::getId).setId("idColumn")
                 .setWidth(70).setResizable(false);
-        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+        grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
         TextField filterId = UIComponents.textField(30);
         idColumn.setFilter(filterId, UIComponents.integerFilter());
         filterId.setWidth("95%");

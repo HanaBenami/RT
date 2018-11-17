@@ -9,8 +9,8 @@ import com.vaadin.server.*;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
@@ -62,7 +62,7 @@ public class SiteView extends AbstractDataView<Site> {
     }
 
     private void addEmptyGrid() {
-        noCustomer = new Label("יש לבחור לקוח");
+        noCustomer = new Label(LanguageSettings.getLocaleString("pleaseSelectCustomer"));
         noCustomer.setStyleName("LABEL-WARNING");
         addComponentsAndExpand(noCustomer);
     }
@@ -73,13 +73,13 @@ public class SiteView extends AbstractDataView<Site> {
                     Button editButton = UIComponents.editButton();
                     final BrowserWindowOpener opener = new BrowserWindowOpener
                             (new ExternalResource(UIPaths.EDITSITE.getPath() + site.getId()));
-                    opener.setFeatures("height=400,width=750,resizable");
+                    opener.setFeatures("height=400,width=700,resizable");
                     opener.extend(editButton);
                     return editButton;
                 }).setId("editColumn");
         editColumn.setWidth(60);
         editColumn.setHidable(false).setHidden(false).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("editColumn").setText("עריכה");
+        grid.getDefaultHeaderRow().getCell("editColumn").setText(LanguageSettings.getLocaleString("edit"));
     }
 
     private void addCallsColumn() {
@@ -97,7 +97,7 @@ public class SiteView extends AbstractDataView<Site> {
                     return callsButton;
                 });
         callsColumn.setId("callsColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
-        grid.getDefaultHeaderRow().getCell("callsColumn").setText("קריאות");
+        grid.getDefaultHeaderRow().getCell("callsColumn").setText(LanguageSettings.getLocaleString("calls"));
     }
 
     private void addActiveColumn() {
@@ -114,7 +114,7 @@ public class SiteView extends AbstractDataView<Site> {
         CheckBox filterActive = UIComponents.checkBox(true);
         activeColumn.setFilter(UIComponents.BooleanValueProvider(),
                 filterActive, UIComponents.BooleanPredicate());
-        grid.getDefaultHeaderRow().getCell("activeColumn").setText("פעיל");
+        grid.getDefaultHeaderRow().getCell("activeColumn").setText(LanguageSettings.getLocaleString("active"));
     }
     private void addNotesColumn() {
         FilterGrid.Column<Site, String> notesColumn =
@@ -127,7 +127,7 @@ public class SiteView extends AbstractDataView<Site> {
         TextField filterNotes = UIComponents.textField(30);
         notesColumn.setFilter(filterNotes, UIComponents.stringFilter());
         filterNotes.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("notesColumn").setText("הערות");
+        grid.getDefaultHeaderRow().getCell("notesColumn").setText(LanguageSettings.getLocaleString("notes"));
     }
     private void addPhoneColumn() {
         FilterGrid.Column<Site, String> phoneColumn = grid.addColumn(Site::getPhone).setId("phoneColumn")
@@ -139,7 +139,7 @@ public class SiteView extends AbstractDataView<Site> {
         TextField filterPhone = UIComponents.textField(30);
         phoneColumn.setFilter(filterPhone, UIComponents.stringFilter());
         filterPhone.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("phoneColumn").setText("טלפון");
+        grid.getDefaultHeaderRow().getCell("phoneColumn").setText(LanguageSettings.getLocaleString("phone"));
     }
     private void addContactColumn() {
         FilterGrid.Column<Site, String> contactColumn = grid.addColumn(Site::getContact).setId("contactColumn")
@@ -151,7 +151,7 @@ public class SiteView extends AbstractDataView<Site> {
         TextField filterContact = UIComponents.textField(30);
         contactColumn.setFilter(filterContact, UIComponents.stringFilter());
         filterContact.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("contactColumn").setText("א. קשר");
+        grid.getDefaultHeaderRow().getCell("contactColumn").setText(LanguageSettings.getLocaleString("contactShort"));
     }
     private void addAreaColumn() {
         ComboBox<Integer> areaCombo = new UIComponents().areaComboBox(generalRepository,95,30);
@@ -170,7 +170,7 @@ public class SiteView extends AbstractDataView<Site> {
         areaColumn.setFilter((filterArea),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue, "area").equals(cValue));
         filterArea.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("areaColumn").setText("אזור");
+        grid.getDefaultHeaderRow().getCell("areaColumn").setText(LanguageSettings.getLocaleString("area"));
     }
     private void addAddressColumn() {
         FilterGrid.Column<Site, String> addressColumn = grid.addColumn(Site::getAddress).setId("addressColumn")
@@ -182,7 +182,7 @@ public class SiteView extends AbstractDataView<Site> {
         TextField filterAddress = UIComponents.textField(30);
         addressColumn.setFilter(filterAddress, UIComponents.stringFilter());
         filterAddress.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("addressColumn").setText("כתובת");
+        grid.getDefaultHeaderRow().getCell("addressColumn").setText(LanguageSettings.getLocaleString("address"));
     }
     private void addNameColumn() {
         FilterGrid.Column<Site, String> nameColumn = grid.addColumn(Site::getName).setId("nameColumn")
@@ -194,7 +194,7 @@ public class SiteView extends AbstractDataView<Site> {
         TextField filterName = UIComponents.textField(30);
         nameColumn.setFilter(filterName, UIComponents.stringFilter());
         filterName.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("nameColumn").setText("שם");
+        grid.getDefaultHeaderRow().getCell("nameColumn").setText(LanguageSettings.getLocaleString("name"));
     }
     private void addIdColumn() {
         FilterGrid.Column<Site, Integer> idColumn = grid.addColumn(Site::getId).setId("idColumn")
@@ -203,7 +203,7 @@ public class SiteView extends AbstractDataView<Site> {
         TextField filterId = UIComponents.textField(30);
         idColumn.setFilter(filterId, UIComponents.integerFilter());
         filterId.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+        grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
     }
 
     @Override
@@ -275,7 +275,7 @@ public class SiteView extends AbstractDataView<Site> {
         selectCustomerLayout = new HorizontalLayout();
         selectCustomerLayout.setWidth("610");
         addSelectCustomerFields();
-        Label header = new Label("אתרים");
+        Label header = new Label(LanguageSettings.getLocaleString("sites"));
         header.setStyleName("LABEL-RIGHT");
         selectCustomerLayout.addComponentsAndExpand(header);
         headerLayout.addComponent(selectCustomerLayout);

@@ -7,6 +7,7 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.TextField;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.FilterGrid;
@@ -37,12 +38,13 @@ public abstract class AbstractDataView<T> extends AbstractView implements View {
         setDefaultComponentAlignment(Alignment.TOP_CENTER);
         setHeight(getUI().getHeight(),getUI().getHeightUnits());
         createView(event);
+        getUI().setLocale(LanguageSettings.locale);
     }
 
     void initGrid(String style) {
         grid = new FilterGrid<>();
-        grid.getEditor().setSaveCaption("שמור");
-        grid.getEditor().setCancelCaption("בטל");
+        grid.getEditor().setSaveCaption(LanguageSettings.getLocaleString("save"));
+        grid.getEditor().setCancelCaption(LanguageSettings.getLocaleString("cancel"));
         if (!style.equals(""))
             grid.setStyleGenerator(item -> style);
     }

@@ -9,6 +9,7 @@ import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
@@ -84,10 +85,15 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void loadDataForCurrentDriver(Integer driver) {
-        if (driver == 0)
-            layout.addComponent(UIComponents.label("לא משובץ לנהג", "LABEL-RIGHT-PRINT"));
+        String style;
+        if (LanguageSettings.isHebrew())
+            style="LABEL-RIGHT-PRINT";
         else
-            layout.addComponent(UIComponents.label(generalRepository.getNameById(driver, "driver"), "LABEL-RIGHT-PRINT"));
+            style="LABEL-LEFT-PRINT";
+        if (driver == 0)
+            layout.addComponent(UIComponents.label(LanguageSettings.getLocaleString("scheduledWithoutDriver"), style));
+        else
+            layout.addComponent(UIComponents.label(generalRepository.getNameById(driver, "driver"), style));
         addGridPerDriver(driver);
     }
 
@@ -124,7 +130,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         });
         DateField filterEndDate = UIComponents.dateField("95%","30");
         endDateColumn.setFilter(filterEndDate, UIComponents.dateFilter());
-        grid.getDefaultHeaderRow().getCell("endDateColumn").setText("ת' סגירה");
+        grid.getDefaultHeaderRow().getCell("endDateColumn").setText(LanguageSettings.getLocaleString("endDateShort"));
     }
     private void addDescriptionColumn() {
         FilterGrid.Column<Call, String> descriptionColumn = grid.addColumn(Call::getDescription);
@@ -137,7 +143,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             descriptionColumn.setWidth(280);
         TextField filterDescription = UIComponents.textField("95%","30");
         descriptionColumn.setFilter(filterDescription, UIComponents.stringFilter());
-        grid.getDefaultHeaderRow().getCell("descriptionColumn").setText("תיאור");
+        grid.getDefaultHeaderRow().getCell("descriptionColumn").setText(LanguageSettings.getLocaleString("description"));
     }
     private void addDriverColumn() {
         FilterGrid.Column<Call, String> driverColumn = grid.addColumn(call ->
@@ -152,7 +158,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         driverColumn.setFilter((filterDriver),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,
                         "driver").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("driverColumn").setText("נהג");
+        grid.getDefaultHeaderRow().getCell("driverColumn").setText(LanguageSettings.getLocaleString("driver"));
     }
     private void addMeetingColumn() {
         FilterGrid.Column<Call, Component> meetingColumn =
@@ -163,7 +169,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         meetingColumn.setHidden(true);
         meetingColumn.setFilter(UIComponents.BooleanValueProvider(),
                 new CheckBox(), UIComponents.BooleanPredicateWithShowAll());
-        grid.getDefaultHeaderRow().getCell("meetingColumn").setText("תואם");
+        grid.getDefaultHeaderRow().getCell("meetingColumn").setText(LanguageSettings.getLocaleString("meetingShort"));
     }
     private void addDate2Column() {
         FilterGrid.Column<Call, LocalDate> date2Column = grid.addColumn(Call::getDate2, UIComponents.dateRenderer())
@@ -180,7 +186,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             date2Column.setHidden(true);
         DateField filterDate2 = UIComponents.dateField("95%","30");
         date2Column.setFilter(filterDate2, UIComponents.dateFilter());
-        grid.getDefaultHeaderRow().getCell("date2Column").setText("ת' שיבוץ");
+        grid.getDefaultHeaderRow().getCell("date2Column").setText(LanguageSettings.getLocaleString("date2short"));
     }
     private void addDaysColumn() {
         FilterGrid.Column<Call, Integer> daysColumn = grid.addColumn(call -> {
@@ -196,7 +202,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         filterDays.setHeight("30");
         daysColumn.setFilter((filterDays), (v, fv) -> fv.isEmpty() || Integer.parseInt(fv) <= v);
         grid.sort("daysColumn", SortDirection.ASCENDING);
-        grid.getDefaultHeaderRow().getCell("daysColumn").setText("ימים");
+        grid.getDefaultHeaderRow().getCell("daysColumn").setText(LanguageSettings.getLocaleString("days"));
     }
     private void addDate1Column() {
         FilterGrid.Column<Call, LocalDate> date1Column = grid.addColumn(Call::getDate1, UIComponents.dateRenderer())
@@ -209,7 +215,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         date1Column.setHidden(true);
         DateField filterDate1 = UIComponents.dateField("95%","30");
         date1Column.setFilter(filterDate1, UIComponents.dateFilter());
-        grid.getDefaultHeaderRow().getCell("date1Column").setText("ת' מתוכנן");
+        grid.getDefaultHeaderRow().getCell("date1Column").setText(LanguageSettings.getLocaleString("date1short"));
     }
     private void addStartDateColumn() {
         FilterGrid.Column<Call, LocalDate> startDateColumn = grid.addColumn(Call::getStartDate, UIComponents.dateRenderer())
@@ -227,7 +233,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             startDateColumn.setHidden(true);
         DateField filterStartDate = UIComponents.dateField("95%","30");
         startDateColumn.setFilter(filterStartDate, UIComponents.dateFilter());
-        grid.getDefaultHeaderRow().getCell("startDateColumn").setText("ת' פתיחה");
+        grid.getDefaultHeaderRow().getCell("startDateColumn").setText(LanguageSettings.getLocaleString("startDateShort"));
     }
     private void addPhoneColumn() {
         FilterGrid.Column<Call, String> phoneColumn = grid.addColumn(call -> {
@@ -241,7 +247,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             phoneColumn.setHidden(false);
         TextField filterPhone = UIComponents.textField("95%","30");
         phoneColumn.setFilter(filterPhone, UIComponents.stringFilter());
-        grid.getDefaultHeaderRow().getCell("phoneColumn").setText("טלפון");
+        grid.getDefaultHeaderRow().getCell("phoneColumn").setText(LanguageSettings.getLocaleString("phone"));
     }
     private void addContactColumn() {
         FilterGrid.Column<Call, String> contactColumn = grid.addColumn(call -> {
@@ -256,7 +262,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             contactColumn.setHidden(false);
         TextField filterContact = UIComponents.textField("95%","30");
         contactColumn.setFilter(filterContact, UIComponents.stringFilter());
-        grid.getDefaultHeaderRow().getCell("contactColumn").setText("א.קשר");
+        grid.getDefaultHeaderRow().getCell("contactColumn").setText(LanguageSettings.getLocaleString("contactShort"));
     }
     private void addAddressColumn() {
         FilterGrid.Column<Call, String> addressColumn = grid.addColumn(call -> {
@@ -270,7 +276,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             addressColumn.setHidden(false);
         TextField filterAddress = UIComponents.textField("95%","30");
         addressColumn.setFilter(filterAddress, UIComponents.stringFilter());
-        grid.getDefaultHeaderRow().getCell("addressColumn").setText("כתובת");
+        grid.getDefaultHeaderRow().getCell("addressColumn").setText(LanguageSettings.getLocaleString("address"));
     }
     private void addAreaColumn() {
         FilterGrid.Column<Call, String> areaColumn = grid.addColumn(call -> {
@@ -289,7 +295,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         filterArea.setWidth("95%");
         areaColumn.setFilter((filterArea),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"area").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("areaColumn").setText("אזור");
+        grid.getDefaultHeaderRow().getCell("areaColumn").setText(LanguageSettings.getLocaleString("area"));
     }
     private void addSiteColumn() {
     FilterGrid.Column<Call, String> siteColumn = grid.addColumn(call -> generalRepository.getNameById(call.getSiteId(), "site"))
@@ -300,7 +306,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         siteColumn.setHidden(false);
         TextField filterSite = UIComponents.textField("95%","30");
         siteColumn.setFilter(filterSite, UIComponents.stringFilter());
-        grid.getDefaultHeaderRow().getCell("siteColumn").setText("אתר");
+        grid.getDefaultHeaderRow().getCell("siteColumn").setText(LanguageSettings.getLocaleString("site"));
     }
     private void addHereColumn() {
         FilterGrid.Column<Call, Component> hereColumn =
@@ -321,7 +327,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             hereColumn.setHidden(true);
         hereColumn.setFilter(UIComponents.BooleanValueProvider(),
                 new CheckBox(), UIComponents.BooleanPredicateWithShowAll());
-        grid.getDefaultHeaderRow().getCell("hereColumn").setText("כאן");
+        grid.getDefaultHeaderRow().getCell("hereColumn").setText(LanguageSettings.getLocaleString("here"));
     }
     private void addCarColumn() {
         FilterGrid.Column<Call, String> carColumn = grid.addColumn(call ->
@@ -334,7 +340,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         filterCar.setWidth("95%");
         carColumn.setFilter((filterCar),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"cartype").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("carColumn").setText("כלי");
+        grid.getDefaultHeaderRow().getCell("carColumn").setText(LanguageSettings.getLocaleString("carTypeShort"));
     }
     private void addCallTypeColumn() {
         FilterGrid.Column<Call, String> callTypeColumn = grid.addColumn(call ->
@@ -349,7 +355,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         filterCallType.setPopupWidth("90");
         callTypeColumn.setFilter((filterCallType),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"calltype").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("callTypeColumn").setText("סוג");
+        grid.getDefaultHeaderRow().getCell("callTypeColumn").setText(LanguageSettings.getLocaleString("callType"));
     }
     private void addCustomerColumn() {
         FilterGrid.Column<Call, String> customerColumn = grid.addColumn(call ->
@@ -363,7 +369,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         filterCustomer.setWidth("95%");
         customerColumn.setFilter((filterCustomer),
                 (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"cust").equals(cValue));
-        grid.getDefaultHeaderRow().getCell("customerColumn").setText("לקוח");
+        grid.getDefaultHeaderRow().getCell("customerColumn").setText(LanguageSettings.getLocaleString("customer"));
     }
     private void addIdColumn() {
         FilterGrid.Column<Call, Integer> idColumn = grid.addColumn(Call::getId).setId("idColumn")
@@ -373,7 +379,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         filterId = UIComponents.textField("95%","30");
         filterId.addFocusListener(focusEvent -> filterId.setValue(""));
         idColumn.setFilter(filterId, UIComponents.integerFilter());
-        grid.getDefaultHeaderRow().getCell("idColumn").setText("#");
+        grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
     }
     private void addOrderColumn() {
         FilterGrid.Column<Call, Integer> orderColumn = grid.addColumn(Call::getOrder);
@@ -388,7 +394,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         else
             orderColumn.setHidden(false);
         orderColumn.setFilter(UIComponents.textField("95%","30"), UIComponents.integerFilter());
-        grid.getDefaultHeaderRow().getCell("orderColumn").setText("סדר");
+        grid.getDefaultHeaderRow().getCell("orderColumn").setText(LanguageSettings.getLocaleString("order"));
     }
 
     private FilterGrid<Call> loadData(Integer driver) {
@@ -403,10 +409,12 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void initGrid() {
+        getUI().setLocale(LanguageSettings.locale);
         grid = new FilterGrid<>();
-        grid.getEditor().setSaveCaption("שמור");
-        grid.getEditor().setCancelCaption("בטל");
+        grid.getEditor().setSaveCaption(LanguageSettings.getLocaleString("save"));
+        grid.getEditor().setCancelCaption(LanguageSettings.getLocaleString("cancel"));
         grid.setStyleName("print");
+
     }
 
     private void sortGrid() {
@@ -436,7 +444,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         if (getCallListByDriver(driver).size() > 0)
             dataLayout.addComponents(loadData(driver));
         else {
-            Label noData = new Label("אין נתונים להצגה");
+            Label noData = new Label(LanguageSettings.getLocaleString("noData"));
             noData.setStyleName("LABEL-WARNING");
             dataLayout.addComponents(noData);
             dataLayout.setComponentAlignment(noData,Alignment.TOP_CENTER);
@@ -460,7 +468,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
 
     private void uploadWorkOrder() {
         if((condition.matches("^\\d{4}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"))) {
-            title.setValue("סידור עבודה לתאריך");
+            title.setValue(LanguageSettings.getLocaleString("workScheduleTitle"));
             DateField date = UIComponents.dateField(150, 40);
             date.setValue(LocalDate.parse(condition, UIComponents.dateFormatter));
             date.addValueChangeListener(valueChangeEvent -> {
@@ -469,7 +477,10 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                 layout.addComponents(titleLayout);
                 loadDriversData(false);
             });
-            titleLayout.addComponents(date);
+            if(LanguageSettings.isHebrew())
+                titleLayout.addComponents(date, title);
+            else
+                titleLayout.addComponents(title, date);
             addHeader();
             loadDriversData(false);
         }
@@ -478,7 +489,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void setDateError() {
-        Notification.show("תאריך לא חוקי",
+        Notification.show(LanguageSettings.getLocaleString("dateError"),
                 "", Notification.Type.WARNING_MESSAGE);
         JavaScript.getCurrent().execute(
                 "setTimeout(function() {self.close();},500);");
@@ -486,7 +497,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void uploadOpenCalls () {
-        title.setValue("קריאות שפתוחות יותר מ");
+        title.setValue(LanguageSettings.getLocaleString("openCallsReportTitle"));
         NumberField x = UIComponents.numberField("60","40");
         x.setValue("6");
         x.focus();
@@ -496,16 +507,20 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                 filterDays.setValue(x.getValue());
             x.focus();
         });
-        Label days = new Label("ימים");
+        Label days = new Label(LanguageSettings.getLocaleString("days"));
         days.setStyleName("LABEL-RIGHT");
-        titleLayout.addComponents(days, x);
+        if(LanguageSettings.isHebrew())
+            titleLayout.addComponents(days, x, title);
+        else
+            titleLayout.addComponents(title, x, days);
         addHeader();
         addGridPerDriver(null);
     }
 
     private void uploadHere() {
-        title.setValue("נמצאים כאן");
+        title.setValue(LanguageSettings.getLocaleString("currentlyHere"));
         addHeader();
+        titleLayout.addComponents(title);
         addGridPerDriver(null);
     }
 
@@ -535,9 +550,12 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         titleLayout = new HorizontalLayout();
         addPrintButton();
         addTimeLabel();
-        titleLayout.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
+        titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         getParameters();
-        title = UIComponents.label("LABEL-RIGHT");
+        if(LanguageSettings.isHebrew())
+            title = UIComponents.label("LABEL-RIGHT");
+        else
+            title = UIComponents.label("LABEL-LEFT");
         switch (condition) {
             case "here": {
                 uploadHere();
@@ -555,7 +573,6 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void addHeader() {
-        titleLayout.addComponents(title);
         titleLayout.setWidth("100%");
         titleLayout.setHeight("60px");
         layout = new VerticalLayout();
