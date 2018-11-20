@@ -19,10 +19,10 @@ The application consists of few different spring and maven profiles:
 * **"Dev"** (Spring) + **"MSSQL"** (Maven): The development profile using an on premise MSSQL server and debugging mode enabled for Vaadin framework.
 
 ## Online demo
-:link: [https://hana2019.herokuapp.com/](https://hana2019.herokuapp.com/){:target="_blank"} <br/>
+:link: [https://hana2019.herokuapp.com/](https://hana2019.herokuapp.com/){: .external} <br/>
 (It might take a minute to load the application for the first time, since it is sleeping if there is no traffic for 30 minutes)
 
 ## License
 :copyright: Hana Ben-Ami
 
-:email: [Contact me](mailto:hana.benami@gmail.com)
+:email: [Contact me](mailto:hana.benami@gmail.com){: .external}
