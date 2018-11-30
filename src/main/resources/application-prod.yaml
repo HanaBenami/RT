@@ -10,4 +10,8 @@ log:
   path: c:\\rt\\logs\\prod
 
 settings:
-  bigScreenInterval: 60000
+  multiLanguage: false
+  bigScreen:
+    rowHeight: 65
+    rowsPerColumn: 10
+    interval: 60000

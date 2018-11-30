@@ -3,7 +3,9 @@ package il.co.rtcohen.rt.app.ui;
 import com.vaadin.event.UIEvents;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Page;
+import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
@@ -27,13 +29,21 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
 
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM");
     private Integer intervalTime;
+    private Integer rowHeight;
     private AreaRepository areaRepository;
+    private Integer rowsPerColumn;
 
     @Autowired
-    private BigScreenUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, AreaRepository areaRepository, @Value("${settings.bigScreenInterval}") Integer intervalTime) {
+    private BigScreenUI(ErrorHandler errorHandler, CallRepository callRepository,
+                        GeneralRepository generalRepository, AreaRepository areaRepository,
+                        @Value("${settings.bigScreen.interval}") Integer intervalTime,
+                        @Value("${settings.bigScreen.rowHeight}") Integer rowHeight,
+                        @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn) {
         super(errorHandler,callRepository,generalRepository);
         this.areaRepository=areaRepository;
         this.intervalTime=intervalTime;
+        this.rowHeight=rowHeight;
+        this.rowsPerColumn=rowsPerColumn;
     }
 
     @Override
@@ -75,44 +85,66 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         }
     }
 
-    private VerticalLayout initAreaLayout(int area) {
-        VerticalLayout areaLayout = new VerticalLayout();
-        areaLayout.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
-        Label areaTitle = UIComponents.label(generalRepository.getNameById(area,"area"),"LABEL");
-        areaLayout.addComponent(areaTitle);
+    private GridLayout initAreaLayout(int area) {
         List<Call> list = callRepository.getOpenCallsPerArea(area);
+        int datesCounter = 1;
+        for (Call call : list)
+            if ((list.indexOf(call)>0)&&(call.getDate2().equals(list.get(list.indexOf(call)-1).getDate2())))
+                    datesCounter++;
+        int columns = Math.max(1,(int) Math.ceil( (float) (list.size()+datesCounter) / (rowsPerColumn - 1)));
+        GridLayout areaLayout = new GridLayout(columns, rowsPerColumn+1);
+        areaLayout.setWidth("100%");
+        areaLayout.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
+        Label areaTitle = UIComponents.label(generalRepository
+                .getNameById(area,"area"),"LABEL");
+        areaLayout.addComponent(areaTitle,columns-1,0);
         Label dateTitle;
         LocalDate nullDate = Call.nullDate;
-        for (int i=0;i<list.size();i++)
-            if((i==0)||(!(list.get(i).getDate2().equals(list.get(i-1).getDate2())))) {
+        int x = columns-1;
+        int y = 1;
+        for (Call call : list){
+            if ((list.indexOf(call)==0) || (y==1) || (y==rowsPerColumn) ||
+                    (!(call.getDate2().equals(list.get(list.indexOf(call)-1).getDate2())))) {
                 dateTitle = UIComponents.label("LABEL-BIGSCREEN");
-                if (list.get(i).getDate2().equals(nullDate)) {
-                    if((areaTitle.getValue().equals(LanguageSettings.getLocaleString("garage"))))
+                if (call.getDate2().equals(nullDate)) {
+                    if ((areaTitle.getValue().equals(LanguageSettings.getLocaleString("garage"))))
                         dateTitle.setValue(LanguageSettings.getLocaleString("currentlyHere"));
                     else
                         dateTitle.setValue(LanguageSettings.getLocaleString("notInSchedule"));
                 } else {
-                    dateTitle.setValue(list.get(i).getDate2().format(dateFormatter));
+                    dateTitle.setValue(call.getDate2().format(dateFormatter));
                 }
-                areaLayout.addComponent(dateTitle);
-                areaLayout.addComponent(addDataPerDate(list,list.get(i).getDate2()));
+                if (y+1>rowsPerColumn) {
+                    y=1;
+                    x--;
+                }
+                areaLayout.addComponent(dateTitle,x,y);
+                areaLayout.setComponentAlignment(dateTitle,Alignment.BOTTOM_RIGHT);
+                y = y + 1;
             }
+            if (y>rowsPerColumn) {
+                y=1;
+                x--;
+            }
+            areaLayout.addComponent(addCall(call),x,y);
+            y = y + 1;
+        }
         areaLayout.addStyleName("custom-margins");
         return areaLayout;
     }
 
-    private Grid addDataPerDate(List<Call> list, LocalDate date) {
+    private Grid<Call> addCall(Call call) {
         Grid<Call> grid = new Grid<>();
         grid.setWidth("100%");
-        List<Call> dateList = new ArrayList<>();
-        for (Call call : list)
-            if (call.getDate2().equals(date))
-                dateList.add(call);
-        grid.setItems(dateList);
+        grid.setRowHeight(rowHeight);
+        grid.setHeightMode(HeightMode.UNDEFINED);
+        grid.setItems(call);
         grid.setHeaderVisible(false);
-        grid.setHeightByRows(dateList.size());
         grid.addStyleName("bigscreen");
         grid.addComponentColumn(this::createCallLabel);
+        grid.addContextClickListener(clickEvent ->
+                Page.getCurrent().open(UIPaths.EDITCALL.getPath() + call.getId(),
+                        "_new3",700,650, BorderStyle.NONE));
         grid.addStyleName("custom-margins");
         grid.setStyleGenerator((StyleGenerator<Call>) UIComponents::callStyle);
         return grid;
@@ -136,7 +168,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
                 dataString+=" <B>/</B> <b><u>"+(generalRepository.getNameById(call.getCarTypeId(),"cartype"))+"</u></b>";
             if (!(call.getDescription().equals("")))
                 dataString+=" <B>/</B> "+(call.getDescription());
-            dataString+="</p>";
+            dataString+="</div>";
             return dataString;
     }
 

@@ -9,9 +9,9 @@ sqlserver:
 log:
   path: c:\\rt\\logs\\dev
 
-settings:
-  bigScreenInterval: 60000
-
 vaadin:
   servlet:
     productionMode: false
+
+settings:
+  multiLanguage: true

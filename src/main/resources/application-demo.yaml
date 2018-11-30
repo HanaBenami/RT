@@ -17,4 +17,4 @@ log:
   path: c:\\rt\\logs\\demo
 
 settings:
-  bigScreenInterval: 60000
+  multiLanguage: true

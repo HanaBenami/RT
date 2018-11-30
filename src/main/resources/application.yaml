@@ -5,3 +5,10 @@ spring:
 vaadin:
   servlet:
     productionMode: true
+
+settings:
+  multiLanguage: false
+  bigScreen:
+    rowHeight: 70
+    rowsPerColumn: 10
+    interval: 60000

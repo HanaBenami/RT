@@ -55,7 +55,7 @@
         color: black;
         float: right;
         text-align: right !important;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
         line-height: 100%;
     }
@@ -93,7 +93,9 @@
     }
 
     .bigscreen tr .v-grid-cell {
-        height: 80px !important;
+        /*height: 80px !important;*/
+        padding-top: 2px !important;
+        padding-button: 2px !important;
         padding-left: 2px !important;
         padding-right: 3px !important;
     }
@@ -282,6 +284,11 @@
     }
     .v-filterselect-button {
         border-left: 0 !important;
+    }
+    .v-filterselect-input {
+        float: right !important;
+        text-align: right !important;
+        align: right !important;
     }
 }
 

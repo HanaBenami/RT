@@ -17,6 +17,8 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Panel;
 import il.co.rtcohen.rt.app.ui.UIPaths;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 
@@ -31,6 +33,9 @@ public class MainUI extends UI implements ViewDisplay {
     private Component navigationBar;
     Image language;
 
+    @Autowired
+    @Value("${settings.multiLanguage}") Boolean multiLanguage;
+
     @Override
     protected void init(VaadinRequest request) {
 
@@ -40,7 +45,8 @@ public class MainUI extends UI implements ViewDisplay {
         topLayout = new HorizontalLayout();
         addLogo();
         addPrintButton();
-        addLanguageButton();
+        if (multiLanguage)
+            addLanguageButton();
         addNavigationBar();
         mainLayout.addComponent(topLayout);
         springViewDisplay = new Panel();
