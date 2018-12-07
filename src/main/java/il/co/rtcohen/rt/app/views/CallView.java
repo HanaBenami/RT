@@ -419,7 +419,7 @@ public class CallView extends AbstractDataView<Call> {
     }
     private void addSiteColumn() {
         siteCombo = new UIComponents().siteComboBox(generalRepository, 110, 30);
-        siteCombo.setEmptySelectionAllowed(true);
+        siteCombo.setEmptySelectionAllowed(false);
         FilterGrid.Column<Call, String> siteColumn = grid.addColumn(call ->
                 generalRepository.getNameById(call.getSiteId(), "site"))
                 .setId("siteColumn")
@@ -592,8 +592,9 @@ public class CallView extends AbstractDataView<Call> {
                         (Setter<Call, Integer>) (call, integer) -> {
                             if (customerCombo.getValue() == null) {
                                 call.setCustomerId(0);
-                            } else {
+                            } else if (customerCombo.getValue()!=call.getCustomerId()) {
                                 call.setCustomerId(customerCombo.getValue());
+                                call.setSiteId(siteRepository.getActiveIdByCustomer(call.getCustomerId()).get(0));
                             }
                             callService.updateCall(call);
                             grid.setItems(getCalls());

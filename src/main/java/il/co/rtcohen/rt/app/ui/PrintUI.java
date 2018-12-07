@@ -5,6 +5,7 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Page;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.BorderStyle;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
@@ -119,6 +120,14 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         addIdColumn();
         addOrderColumn();
     }
+
+    private String shorterString(String string,int chars) {
+        if (string.length()<20)
+            return string;
+        else
+            return string.substring(0,chars-1);
+    }
+
     private void addEndDateColumn() {
         FilterGrid.Column<Call, LocalDate> endDateColumn = grid.addColumn(Call::getEndDate, UIComponents.dateRenderer())
                 .setId("endDateColumn").setWidth(120).setSortable(true)
@@ -133,7 +142,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         grid.getDefaultHeaderRow().getCell("endDateColumn").setText(LanguageSettings.getLocaleString("endDateShort"));
     }
     private void addDescriptionColumn() {
-        FilterGrid.Column<Call, String> descriptionColumn = grid.addColumn(Call::getDescription);
+        FilterGrid.Column<Call, String> descriptionColumn = grid.addColumn(Call -> shorterString(Call.getDescription(),20));
         descriptionColumn.setId("descriptionColumn").setResizable(true);
         descriptionColumn.setHidable(true);
         descriptionColumn.setHidden(false);
@@ -267,13 +276,10 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     private void addAddressColumn() {
         FilterGrid.Column<Call, String> addressColumn = grid.addColumn(call -> {
             if (call.getSiteId() == 0) return "";
-            else return siteRepository.getSiteById(call.getSiteId()).getAddress();
+            else return shorterString(siteRepository.getSiteById(call.getSiteId()).getAddress(),15);
         }).setId("addressColumn").setWidth(190);
         addressColumn.setHidable(true);
-        if ((condition.equals("open") || (condition.equals("here"))))
-            addressColumn.setHidden(true);
-        else
-            addressColumn.setHidden(false);
+        addressColumn.setHidden(true);
         TextField filterAddress = UIComponents.textField("95%","30");
         addressColumn.setFilter(filterAddress, UIComponents.stringFilter());
         grid.getDefaultHeaderRow().getCell("addressColumn").setText(LanguageSettings.getLocaleString("address"));
@@ -298,7 +304,8 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         grid.getDefaultHeaderRow().getCell("areaColumn").setText(LanguageSettings.getLocaleString("area"));
     }
     private void addSiteColumn() {
-    FilterGrid.Column<Call, String> siteColumn = grid.addColumn(call -> generalRepository.getNameById(call.getSiteId(), "site"))
+    FilterGrid.Column<Call, String> siteColumn = grid.addColumn(call ->
+            shorterString(generalRepository.getNameById(call.getSiteId(), "site"),15))
             .setId("siteColumn")
             .setWidth(190)
             .setExpandRatio(1).setResizable(true);
@@ -346,10 +353,13 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         FilterGrid.Column<Call, String> callTypeColumn = grid.addColumn(call ->
                 generalRepository.getNameById(call.getCallTypeId(), "calltype"))
                 .setId("callTypeColumn")
-                .setWidth(90)
+                .setWidth(150)
                 .setExpandRatio(1).setResizable(true);
         callTypeColumn.setHidable(true);
-        callTypeColumn.setHidden(true);
+        if ((condition.equals("open") || (condition.equals("here"))))
+            callTypeColumn.setHidden(true);
+        else
+            callTypeColumn.setHidden(false);
         ComboBox<Integer> filterCallType = new UIComponents().callTypeComboBox(generalRepository,60,30);
         filterCallType.setWidth("95%");
         filterCallType.setPopupWidth("90");
@@ -359,7 +369,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
     private void addCustomerColumn() {
         FilterGrid.Column<Call, String> customerColumn = grid.addColumn(call ->
-            generalRepository.getNameById(call.getCustomerId(), "cust"))
+            shorterString(generalRepository.getNameById(call.getCustomerId(), "cust"),15))
             .setId("customerColumn")
             .setWidth(150)
             .setExpandRatio(1).setResizable(true);
@@ -402,6 +412,9 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         grid.setItems(getCallListByDriver(driver));
         addColumns();
         sortGrid();
+        if (!(condition.equals("open") && !(condition.equals("here")))) {
+            grid.removeHeaderRow(1);
+        }
         grid.setWidth("100%");
         grid.setHeightByRows(getCallListByDriver(driver).size());
         grid.setHeightMode(HeightMode.ROW);
@@ -450,6 +463,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             dataLayout.setComponentAlignment(noData,Alignment.TOP_CENTER);
         }
         dataLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        dataLayout.setMargin(new MarginInfo(true,false,true,false));
         layout.addComponent(dataLayout);
         layout.setComponentAlignment(dataLayout, Alignment.TOP_CENTER);
     }

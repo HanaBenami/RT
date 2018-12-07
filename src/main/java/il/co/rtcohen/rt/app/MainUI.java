@@ -146,7 +146,7 @@ public class MainUI extends UI implements ViewDisplay {
         reports.setIcon(VaadinIcons.PRINT);
         reports.addItem(LanguageSettings.getLocaleString("workSchedule"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.PRINT.getPath()+ LocalDate.now().format(UIComponents.dateFormatter), "_blank",
-                        getPage().getBrowserWindowWidth(),
+                        1270,
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
         reports.addItem(LanguageSettings.getLocaleString("openCalls"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.PRINT.getPath()+"open", "_blank",

@@ -113,10 +113,13 @@ public class EditCallUI extends AbstractEditUI {
         Label siteLabel = new Label(LanguageSettings.getLocaleString("site"));
         layout.addComponent(siteLabel,3,3);
         siteCombo = new UIComponents().siteComboBox(generalRepository,130,30);
-        if(call.getCustomerId()>0)
+        if(call.getCustomerId()>0) {
             siteCombo.setItems(siteRepository.getActiveIdByCustomer(call.getCustomerId()));
+            if(call.getSiteId()==0)
+                siteCombo.setValue(siteRepository.getActiveIdByCustomer(call.getCustomerId()).get(0));
+        }
         siteCombo.setValue(call.getSiteId());
-        siteCombo.setEmptySelectionAllowed(true);
+        siteCombo.setEmptySelectionAllowed(false);
         siteCombo.addValueChangeListener(valueChangeEvent -> siteChange());
         layout.addComponent(siteCombo,2,3);
     }
@@ -169,6 +172,9 @@ public class EditCallUI extends AbstractEditUI {
         customerCombo = new UIComponents().customerComboBox(generalRepository,400,30);
         customerCombo.setEmptySelectionAllowed(false);
         customerCombo.setValue(call.getCustomerId());
+        if(customerCombo.getValue()==0)
+            customerCombo.setComponentError(
+                    new UserError(LanguageSettings.getLocaleString("pleaseSelectCustomer")));
         customerCombo.addValueChangeListener( valueChangeEvent -> customerChange());
         layout.addComponent(customerCombo,1,1,3,1);
     }
@@ -379,7 +385,10 @@ public class EditCallUI extends AbstractEditUI {
         siteCombo.setValue(0);
         try {
             siteCombo.setItems(siteRepository.getActiveIdByCustomer(customerCombo.getValue()));
-            siteCombo.setValue(call.getSiteId());
+            if(call.getSiteId()==0)
+                siteCombo.setValue(siteRepository.getActiveIdByCustomer(call.getCustomerId()).get(0));
+            else
+                siteCombo.setValue(call.getSiteId());
             customerCombo.setComponentError(null);
         }
         catch (RuntimeException e) {

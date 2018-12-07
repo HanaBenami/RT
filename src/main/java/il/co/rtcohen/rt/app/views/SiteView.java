@@ -250,16 +250,16 @@ public class SiteView extends AbstractDataView<Site> {
         noCustomer = new Label();
         if ((selectCustomer.getValue()!=null)&&!(selectCustomer.getValue().toString().equals("0"))) {
             addGrid();
-            newName.setValue("");
-            newName.focus();
-            newName.setEnabled(true);
             newArea.setEnabled(true);
+            newArea.focus();
+            newName.setValue("");
+            newName.setEnabled(false);
         }
         else {
             addEmptyGrid();
             addButton.setEnabled(false);
-            newName.setEnabled(false);
             newArea.setEnabled(false);
+            newName.setEnabled(false);
         }
     }
 
@@ -295,10 +295,10 @@ public class SiteView extends AbstractDataView<Site> {
         addLayout.setWidth("610");
         addLayout.addComponent(addButton);
         addButton.setEnabled(false);
-        addNewSiteAreaField();
-        addLayout.addComponent(newArea);
         newName = super.addNewNameField();
         addLayout.addComponentsAndExpand(newName);
+        addNewSiteAreaField();
+        addLayout.addComponent(newArea);
         addButton.addClickListener(click -> addSite());
         headerLayout.addComponent(addLayout);
     }
@@ -306,8 +306,8 @@ public class SiteView extends AbstractDataView<Site> {
     @Override
     void setTabIndexes() {
         selectCustomer.setTabIndex(1);
-        newName.setTabIndex(2);
-        newArea.setTabIndex(3);
+        newArea.setTabIndex(2);
+        newName.setTabIndex(3);
         if(grid.isAttached())
             grid.setTabIndex(4);
     }
@@ -316,6 +316,7 @@ public class SiteView extends AbstractDataView<Site> {
         newArea = new UIComponents().areaComboBox(generalRepository,95,30);
         newArea.setValue(0);
         newArea.setEmptySelectionAllowed(false);
+        newArea.addValueChangeListener(valueChangeEvent -> newName.setEnabled(true));
         newArea.setHeight(addButton.getHeight(),addButton.getHeightUnits());
         newArea.addFocusListener(focusEvent -> addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
         newArea.addBlurListener(event -> addButton.removeClickShortcut());

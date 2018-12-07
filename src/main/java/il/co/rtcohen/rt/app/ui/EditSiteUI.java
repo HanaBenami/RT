@@ -124,29 +124,41 @@ public class EditSiteUI extends AbstractEditUI {
         Label siteLabel = new Label(LanguageSettings.getLocaleString("siteName"));
         layout.addComponent(siteLabel,3,2);
         name = UIComponents.textField(site.getName(),true,270,30);
-        name.addValueChangeListener(valueChangeEvent -> {
-            site.setName(name.getValue());
-            siteRepository.updateSite(site);
-            addButton.setEnabled(true);
-            if(!name.isEmpty())
-                addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-            else
-                addButton.removeClickShortcut();
-        });
+        name.addValueChangeListener(valueChangeEvent -> siteNameChange());
         layout.addComponent(name,1,2,2,2);
     }
+
+    private void siteNameChange() {
+        site.setName(name.getValue());
+        siteRepository.updateSite(site);
+        if(name.isEmpty()) {
+            addButton.setEnabled(false);
+            address.setEnabled(false);
+            contact.setEnabled(false);
+            phone.setEnabled(false);
+            siteNotes.setEnabled(false);
+
+        }
+        if(!name.isEmpty()) {
+            address.setEnabled(true);
+            contact.setEnabled(true);
+            phone.setEnabled(true);
+            siteNotes.setEnabled(true);
+            if((areaCombo.getValue()==0)||(customerCombo.getValue()==0)) {
+                addButton.setEnabled(false);
+                addButton.removeClickShortcut();
+            }
+            else {
+                addButton.setEnabled(true);
+                addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+            }
+        }
+    }
+
     private void addCustomerField() {
         customerCombo = new UIComponents().customerComboBox(generalRepository,400,30);
         customerCombo.setEmptySelectionAllowed(false);
         customerCombo.setValue(site.getCustomerId());
-        if(customerCombo.getValue()>0) {
-            customerCombo.setEnabled(false);
-            addButton.setEnabled(true);
-        }
-        else {
-            customerCombo.setEnabled(true);
-            addButton.setEnabled(false);
-        }
         customerCombo.addValueChangeListener( valueChangeEvent -> customerChange());
         layout.addComponent(customerCombo,1,1,3,1);
     }
@@ -173,6 +185,9 @@ public class EditSiteUI extends AbstractEditUI {
         addAreaField();
         addSiteNameField();
         addCustomerField();
+        customerChange();
+        areaChange();
+        siteNameChange();
     }
 
     @Override
@@ -183,7 +198,7 @@ public class EditSiteUI extends AbstractEditUI {
         } else {
             int n = siteRepository.deleteSite(site.getId());
             if (n == 1) {
-                Notification.show(LanguageSettings.getLocaleString("siteDelete"),
+                Notification.show(LanguageSettings.getLocaleString("siteDeleted"),
                         "", Notification.Type.WARNING_MESSAGE);
                 closeWindow();
             }
@@ -211,8 +226,11 @@ public class EditSiteUI extends AbstractEditUI {
     }
 
     private void areaChange() {
-        if (areaCombo.getValue() == null) {
+        if ((areaCombo.getValue()==0)||(areaCombo.isEmpty())) {
             site.setAreaId(0);
+            name.setEnabled(false);
+            areaCombo.setComponentError(new UserError
+                    (LanguageSettings.getLocaleString("pleaseSelectArea")));
         } else {
             try {
                 site.setAreaId(areaCombo.getValue());
@@ -223,28 +241,38 @@ public class EditSiteUI extends AbstractEditUI {
             }
         }
         siteRepository.updateSite(site);
-        if(customerCombo.getValue()==null)
+        if ((customerCombo.getValue()==0)||(customerCombo.isEmpty())) {
             customerCombo.focus();
-        else
+        }
+        else  {
+            name.setEnabled(true);
             name.focus();
+        }
     }
 
     private void customerChange() {
-        if(customerCombo.getValue()==null) {
+        if ((customerCombo.getValue()==0)||(customerCombo.isEmpty())) {
+            name.setEnabled(false);
             site.setCustomerId(0);
-            addButton.setEnabled(false);
+            customerCombo.setComponentError(new UserError
+                    (LanguageSettings.getLocaleString("pleaseSelectCustomer")));
         }
         else {
             try {
                 site.setCustomerId(customerCombo.getValue());
                 customerCombo.setEnabled(false);
                 customerCombo.setComponentError(null);
-                name.focus();
             }
             catch (RuntimeException e) {
                 customerCombo.setComponentError(new UserError
                         (LanguageSettings.getLocaleString("pleaseSelectCustomer")));
             }
+            if(areaCombo.getValue()>0) {
+                name.setEnabled(true);
+                name.focus();
+            }
+            else
+                areaCombo.focus();
         }
         siteRepository.updateSite(site);
     }
