@@ -5,6 +5,7 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
@@ -80,6 +81,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         });
 
         //add data per area
+        layout.setMargin(new MarginInfo(false,true,true,true));
         for (Integer area : areas) {
             layout.addComponent(initAreaLayout(area));
         }

@@ -33,8 +33,9 @@ public class MainUI extends UI implements ViewDisplay {
     private Component navigationBar;
     Image language;
 
-    @Autowired
     @Value("${settings.multiLanguage}") Boolean multiLanguage;
+
+    @Value("${settings.workOrderWidth}") int workOrderWidth;
 
     @Override
     protected void init(VaadinRequest request) {
@@ -146,7 +147,7 @@ public class MainUI extends UI implements ViewDisplay {
         reports.setIcon(VaadinIcons.PRINT);
         reports.addItem(LanguageSettings.getLocaleString("workSchedule"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.PRINT.getPath()+ LocalDate.now().format(UIComponents.dateFormatter), "_blank",
-                        1270,
+                        workOrderWidth,
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
         reports.addItem(LanguageSettings.getLocaleString("openCalls"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.PRINT.getPath()+"open", "_blank",

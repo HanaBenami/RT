@@ -15,3 +15,4 @@ settings:
     rowHeight: 65
     rowsPerColumn: 10
     interval: 60000
+  workOrderWidth: 1400

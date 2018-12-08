@@ -21,6 +21,7 @@ import il.co.rtcohen.rt.app.ui.UIPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.ui.NumberField;
 import java.time.LocalDate;
@@ -51,6 +52,7 @@ public class CallView extends AbstractDataView<Call> {
     private Button selectButton;
     private Button refresh;
     private Button print;
+    @Value("${settings.workOrderWidth}") int workOrderWidth;
 
     @Autowired
     private CallView(ErrorHandler errorHandler, CallRepository callRepository, SiteRepository siteRepository, GeneralRepository generalRepository, CallService callService) {
@@ -835,7 +837,7 @@ public class CallView extends AbstractDataView<Call> {
     private void print() {
         Page.getCurrent().open(UIPaths.PRINT.getPath()+newDate.getValue().format(UIComponents.dateFormatter),
                         "_blank",
-                        getUI().getPage().getBrowserWindowWidth(),
+                        workOrderWidth,
                         getUI().getPage().getBrowserWindowHeight(),
                         BorderStyle.NONE);
     }
