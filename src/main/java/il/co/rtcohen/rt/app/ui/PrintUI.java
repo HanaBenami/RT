@@ -147,7 +147,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         descriptionColumn.setHidable(true);
         descriptionColumn.setHidden(false);
         if ((condition.equals("open") || (condition.equals("here"))))
-            descriptionColumn.setWidth(320);
+            descriptionColumn.setWidth(400);
         else
             descriptionColumn.setWidth(280);
         TextField filterDescription = UIComponents.textField("95%","30");
@@ -371,7 +371,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         FilterGrid.Column<Call, String> customerColumn = grid.addColumn(call ->
             shorterString(generalRepository.getNameById(call.getCustomerId(), "cust"),15))
             .setId("customerColumn")
-            .setWidth(150)
+            .setWidth(200)
             .setExpandRatio(1).setResizable(true);
         customerColumn.setHidable(true);
         customerColumn.setHidden(false);
