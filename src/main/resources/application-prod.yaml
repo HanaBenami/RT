@@ -5,7 +5,7 @@ server:
   port: 8084
 
 sqlserver:
-  url: jdbc:sqlserver://zeev-asus:1433;databaseName=RT_clean;integratedSecurity=true
+  url: jdbc:sqlserver://zeev-asus:1433;databaseName=RT;integratedSecurity=true
 log:
   path: c:\\rt\\logs\\prod
 
@@ -13,6 +13,6 @@ settings:
   multiLanguage: false
   bigScreen:
     rowHeight: 65
-    rowsPerColumn: 10
+    rowsPerColumn: 14
     interval: 60000
   workOrderWidth: 1400

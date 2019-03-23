@@ -91,7 +91,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         List<Call> list = callRepository.getOpenCallsPerArea(area);
         int datesCounter = 1;
         for (Call call : list)
-            if ((list.indexOf(call)>0)&&(call.getDate2().equals(list.get(list.indexOf(call)-1).getDate2())))
+            if ((list.indexOf(call)>0)&&(!(call.getDate2().equals(list.get(list.indexOf(call)-1).getDate2()))))
                     datesCounter++;
         int columns = Math.max(1,(int) Math.ceil( (float) (list.size()+datesCounter) / (rowsPerColumn - 1)));
         GridLayout areaLayout = new GridLayout(columns, rowsPerColumn+1);
@@ -116,7 +116,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
                 } else {
                     dateTitle.setValue(call.getDate2().format(dateFormatter));
                 }
-                if (y+1>rowsPerColumn) {
+                if (y+2>rowsPerColumn) {
                     y=1;
                     x--;
                 }
@@ -124,7 +124,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
                 areaLayout.setComponentAlignment(dateTitle,Alignment.BOTTOM_RIGHT);
                 y = y + 1;
             }
-            if (y>rowsPerColumn) {
+            if (y+1>rowsPerColumn) {
                 y=1;
                 x--;
             }

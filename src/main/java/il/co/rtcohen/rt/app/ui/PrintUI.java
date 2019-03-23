@@ -143,13 +143,13 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
     private void addDescriptionColumn() {
         FilterGrid.Column<Call, String> descriptionColumn = grid.addColumn(Call -> shorterString(Call.getDescription(),20));
-        descriptionColumn.setId("descriptionColumn").setResizable(true);
+        descriptionColumn.setId("descriptionColumn").setResizable(true).setExpandRatio(1);
         descriptionColumn.setHidable(true);
         descriptionColumn.setHidden(false);
         if ((condition.equals("open") || (condition.equals("here"))))
-            descriptionColumn.setWidth(400);
+            descriptionColumn.setWidth(440);
         else
-            descriptionColumn.setWidth(280);
+            descriptionColumn.setWidth(440);
         TextField filterDescription = UIComponents.textField("95%","30");
         descriptionColumn.setFilter(filterDescription, UIComponents.stringFilter());
         grid.getDefaultHeaderRow().getCell("descriptionColumn").setText(LanguageSettings.getLocaleString("description"));
@@ -371,7 +371,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         FilterGrid.Column<Call, String> customerColumn = grid.addColumn(call ->
             shorterString(generalRepository.getNameById(call.getCustomerId(), "cust"),15))
             .setId("customerColumn")
-            .setWidth(200)
+            .setWidth(250)
             .setExpandRatio(1).setResizable(true);
         customerColumn.setHidable(true);
         customerColumn.setHidden(false);
