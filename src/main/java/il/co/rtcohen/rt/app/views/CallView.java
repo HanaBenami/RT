@@ -91,6 +91,7 @@ public class CallView extends AbstractDataView<Call> {
         List<Options> options = new ArrayList<>();
         Options all = new Options("all", LanguageSettings.getLocaleString("allCalls"));
         open = new Options("open", LanguageSettings.getLocaleString("openCalls"));
+        Options recentClose = new Options("recentClose", LanguageSettings.getLocaleString("recentCloseCalls"));
         Options close = new Options("close", LanguageSettings.getLocaleString("closeCalls"));
         Options yesterday = new Options("yesterday", LanguageSettings.getLocaleString("yesterday"));
         Options today = new Options("today", LanguageSettings.getLocaleString("today"));
@@ -98,6 +99,7 @@ public class CallView extends AbstractDataView<Call> {
         Options plus2days = new Options("plus2days", LanguageSettings.getLocaleString("plus2days"));
         options.add(all);
         options.add(open);
+        options.add(recentClose);
         options.add(close);
         options.add(yesterday);
         options.add(today);
@@ -131,6 +133,10 @@ public class CallView extends AbstractDataView<Call> {
             case "open":
                 filterDoneActive = false;
                 list = callRepository.getCalls(false);
+                break;
+            case "recentClose":
+                filterDoneActive = true;
+                list = callRepository.getCalls(LocalDate.now().minusMonths(6), true);
                 break;
             case "close":
                 filterDoneActive = true;

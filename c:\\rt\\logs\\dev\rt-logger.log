@@ -1,0 +1,409 @@
+01-05-2020 11:44:37.984 [main] INFO  il.co.rtcohen.rt.Application.logStarting - Starting Application v3 on hana-pc with PID 30979 (/home/hana/dev/rt/RT/target/RT-3.jar started by hana in /home/hana/dev/rt/RT)
+01-05-2020 11:44:37.993 [main] INFO  il.co.rtcohen.rt.Application.logStartupProfileInfo - The following profiles are active: dev
+01-05-2020 11:44:38.049 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.prepareRefresh - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@5ace1ed4: startup date [Fri May 01 11:44:38 IDT 2020]; root of context hierarchy
+01-05-2020 11:44:38.781 [main] WARN  o.s.c.a.ConfigurationClassPostProcessor.enhanceConfigurationClasses - Cannot enhance @Configuration bean definition 'com.vaadin.spring.VaadinConfiguration' since its singleton instance has been created too early. The typical cause is a non-static @Bean method with a BeanDefinitionRegistryPostProcessor return type: Consider declaring such methods as 'static'.
+01-05-2020 11:44:39.075 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization - Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$eec7b0b9] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+01-05-2020 11:44:39.425 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.initialize - Tomcat initialized with port(s): 8083 (http)
+01-05-2020 11:44:39.463 [main] INFO  o.a.catalina.core.StandardService.log - Starting service [Tomcat]
+01-05-2020 11:44:39.463 [main] INFO  o.a.catalina.core.StandardEngine.log - Starting Servlet Engine: Apache Tomcat/8.5.29
+01-05-2020 11:44:39.473 [localhost-startStop-1] INFO  o.a.c.core.AprLifecycleListener.log - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [:/home/hana/git/hana-infinity-labs/ds/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib]
+01-05-2020 11:44:39.601 [localhost-startStop-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring embedded WebApplicationContext
+01-05-2020 11:44:39.601 [localhost-startStop-1] INFO  o.s.web.context.ContextLoader.prepareWebApplicationContext - Root WebApplicationContext: initialization completed in 1552 ms
+01-05-2020 11:44:39.689 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Registering Vaadin servlet
+01-05-2020 11:44:39.689 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Servlet will be mapped to URLs [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 11:44:39.705 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameters - Setting servlet init parameters
+01-05-2020 11:44:39.705 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [productionMode] = [false]
+01-05-2020 11:44:39.705 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [resourceCacheTime] = [3600]
+01-05-2020 11:44:39.705 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [heartbeatInterval] = [300]
+01-05-2020 11:44:39.705 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [closeIdleSessions] = [false]
+01-05-2020 11:44:39.755 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet dispatcherServlet mapped to [/]
+01-05-2020 11:44:39.756 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet springVaadinServlet mapped to [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 11:44:39.759 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'characterEncodingFilter' to: [/*]
+01-05-2020 11:44:39.759 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+01-05-2020 11:44:39.760 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+01-05-2020 11:44:39.760 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'requestContextFilter' to: [/*]
+01-05-2020 11:44:40.646 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:44:40.830 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter.initControllerAdviceCache - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@5ace1ed4: startup date [Fri May 01 11:44:38 IDT 2020]; root of context hierarchy
+01-05-2020 11:44:40.924 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+01-05-2020 11:44:40.925 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+01-05-2020 11:44:40.965 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:44:40.965 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:44:41.162 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.getUIPaths - Checking the application context for Vaadin UI mappings
+01-05-2020 11:44:41.166 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingController - Registering Vaadin servlet of type [com.vaadin.spring.server.SpringVaadinServlet]
+01-05-2020 11:44:41.172 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingHandlerMapping - Forwarding @SpringUI URLs from {/editCall=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /editCall/=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /print/=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /bigScreen=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /editSite/=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /bigScreen/=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /editSite=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /print=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f, /=org.springframework.web.servlet.mvc.ServletForwardingController@51751e5f}
+01-05-2020 11:44:41.173 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.173 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.173 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.174 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.174 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.174 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.174 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.174 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.174 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Root mapping to handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:44:41.485 [main] INFO  o.s.j.e.a.AnnotationMBeanExporter.afterSingletonsInstantiated - Registering beans for JMX exposure on startup
+01-05-2020 11:44:41.522 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.start - Tomcat started on port(s): 8083 (http) with context path ''
+01-05-2020 11:44:41.527 [main] INFO  il.co.rtcohen.rt.Application.logStarted - Started Application in 4.149 seconds (JVM running for 4.648)
+01-05-2020 11:44:46.896 [Thread-2] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.doClose - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@5ace1ed4: startup date [Fri May 01 11:44:38 IDT 2020]; root of context hierarchy
+01-05-2020 11:44:46.902 [Thread-2] INFO  o.s.j.e.a.AnnotationMBeanExporter.destroy - Unregistering JMX-exposed beans on shutdown
+01-05-2020 11:46:04.379 [main] INFO  il.co.rtcohen.rt.Application.logStarting - Starting Application v3 on hana-pc with PID 31530 (/home/hana/dev/rt/RT/target/RT-3.jar started by hana in /home/hana/dev/rt/RT)
+01-05-2020 11:46:04.383 [main] INFO  il.co.rtcohen.rt.Application.logStartupProfileInfo - The following profiles are active: dev
+01-05-2020 11:46:04.460 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.prepareRefresh - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@732c2a62: startup date [Fri May 01 11:46:04 IDT 2020]; root of context hierarchy
+01-05-2020 11:46:05.540 [main] WARN  o.s.c.a.ConfigurationClassPostProcessor.enhanceConfigurationClasses - Cannot enhance @Configuration bean definition 'com.vaadin.spring.VaadinConfiguration' since its singleton instance has been created too early. The typical cause is a non-static @Bean method with a BeanDefinitionRegistryPostProcessor return type: Consider declaring such methods as 'static'.
+01-05-2020 11:46:05.941 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization - Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$1d449e91] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+01-05-2020 11:46:06.262 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.initialize - Tomcat initialized with port(s): 8083 (http)
+01-05-2020 11:46:06.293 [main] INFO  o.a.catalina.core.StandardService.log - Starting service [Tomcat]
+01-05-2020 11:46:06.293 [main] INFO  o.a.catalina.core.StandardEngine.log - Starting Servlet Engine: Apache Tomcat/8.5.29
+01-05-2020 11:46:06.309 [localhost-startStop-1] INFO  o.a.c.core.AprLifecycleListener.log - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [:/home/hana/git/hana-infinity-labs/ds/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib]
+01-05-2020 11:46:06.430 [localhost-startStop-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring embedded WebApplicationContext
+01-05-2020 11:46:06.432 [localhost-startStop-1] INFO  o.s.web.context.ContextLoader.prepareWebApplicationContext - Root WebApplicationContext: initialization completed in 1972 ms
+01-05-2020 11:46:06.551 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Registering Vaadin servlet
+01-05-2020 11:46:06.552 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Servlet will be mapped to URLs [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 11:46:06.571 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameters - Setting servlet init parameters
+01-05-2020 11:46:06.571 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [productionMode] = [false]
+01-05-2020 11:46:06.572 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [resourceCacheTime] = [3600]
+01-05-2020 11:46:06.572 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [heartbeatInterval] = [300]
+01-05-2020 11:46:06.573 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [closeIdleSessions] = [false]
+01-05-2020 11:46:06.633 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet dispatcherServlet mapped to [/]
+01-05-2020 11:46:06.635 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet springVaadinServlet mapped to [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 11:46:06.642 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'characterEncodingFilter' to: [/*]
+01-05-2020 11:46:06.643 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+01-05-2020 11:46:06.644 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+01-05-2020 11:46:06.644 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'requestContextFilter' to: [/*]
+01-05-2020 11:46:07.108 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:46:07.381 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter.initControllerAdviceCache - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@732c2a62: startup date [Fri May 01 11:46:04 IDT 2020]; root of context hierarchy
+01-05-2020 11:46:07.555 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+01-05-2020 11:46:07.557 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+01-05-2020 11:46:07.597 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:46:07.598 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:46:07.845 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.getUIPaths - Checking the application context for Vaadin UI mappings
+01-05-2020 11:46:07.853 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingController - Registering Vaadin servlet of type [com.vaadin.spring.server.SpringVaadinServlet]
+01-05-2020 11:46:07.861 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingHandlerMapping - Forwarding @SpringUI URLs from {/editCall=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /editCall/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /print/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /editSite/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /bigScreen=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /editSite=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /bigScreen/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /print=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6}
+01-05-2020 11:46:07.863 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.864 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.864 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.864 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.865 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.865 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.865 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.865 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:07.865 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Root mapping to handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:46:08.251 [main] INFO  o.s.j.e.a.AnnotationMBeanExporter.afterSingletonsInstantiated - Registering beans for JMX exposure on startup
+01-05-2020 11:46:08.289 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.start - Tomcat started on port(s): 8083 (http) with context path ''
+01-05-2020 11:46:08.296 [main] INFO  il.co.rtcohen.rt.Application.logStarted - Started Application in 4.671 seconds (JVM running for 5.17)
+01-05-2020 11:46:13.296 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring FrameworkServlet 'dispatcherServlet'
+01-05-2020 11:46:13.296 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization started
+01-05-2020 11:46:13.320 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization completed in 23 ms
+01-05-2020 11:46:13.350 [http-nio-8083-exec-1] WARN  c.v.s.DefaultDeploymentConfiguration.checkProductionMode - 
+=================================================================
+Vaadin is running in DEBUG MODE.
+Add productionMode=true to web.xml to disable debug features.
+To show debug window, add ?debug to your application URL.
+=================================================================
+01-05-2020 11:46:21.274 [http-nio-8083-exec-3] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 11:53:27.660 [Thread-2] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.doClose - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@732c2a62: startup date [Fri May 01 11:46:04 IDT 2020]; root of context hierarchy
+01-05-2020 11:53:27.667 [Thread-2] INFO  o.s.j.e.a.AnnotationMBeanExporter.destroy - Unregistering JMX-exposed beans on shutdown
+01-05-2020 11:53:45.230 [main] INFO  il.co.rtcohen.rt.Application.logStarting - Starting Application v3 on hana-pc with PID 32569 (/home/hana/dev/rt/RT/target/RT-3.jar started by hana in /home/hana/dev/rt/RT)
+01-05-2020 11:53:45.235 [main] INFO  il.co.rtcohen.rt.Application.logStartupProfileInfo - The following profiles are active: dev
+01-05-2020 11:53:45.312 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.prepareRefresh - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 11:53:45 IDT 2020]; root of context hierarchy
+01-05-2020 11:53:46.350 [main] WARN  o.s.c.a.ConfigurationClassPostProcessor.enhanceConfigurationClasses - Cannot enhance @Configuration bean definition 'com.vaadin.spring.VaadinConfiguration' since its singleton instance has been created too early. The typical cause is a non-static @Bean method with a BeanDefinitionRegistryPostProcessor return type: Consider declaring such methods as 'static'.
+01-05-2020 11:53:46.695 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization - Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$f62ec282] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+01-05-2020 11:53:47.065 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.initialize - Tomcat initialized with port(s): 8083 (http)
+01-05-2020 11:53:47.122 [main] INFO  o.a.catalina.core.StandardService.log - Starting service [Tomcat]
+01-05-2020 11:53:47.124 [main] INFO  o.a.catalina.core.StandardEngine.log - Starting Servlet Engine: Apache Tomcat/8.5.29
+01-05-2020 11:53:47.147 [localhost-startStop-1] INFO  o.a.c.core.AprLifecycleListener.log - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [:/home/hana/git/hana-infinity-labs/ds/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib]
+01-05-2020 11:53:47.299 [localhost-startStop-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring embedded WebApplicationContext
+01-05-2020 11:53:47.301 [localhost-startStop-1] INFO  o.s.web.context.ContextLoader.prepareWebApplicationContext - Root WebApplicationContext: initialization completed in 1988 ms
+01-05-2020 11:53:47.428 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Registering Vaadin servlet
+01-05-2020 11:53:47.429 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Servlet will be mapped to URLs [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 11:53:47.449 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameters - Setting servlet init parameters
+01-05-2020 11:53:47.449 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [productionMode] = [false]
+01-05-2020 11:53:47.450 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [resourceCacheTime] = [3600]
+01-05-2020 11:53:47.450 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [heartbeatInterval] = [300]
+01-05-2020 11:53:47.450 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [closeIdleSessions] = [false]
+01-05-2020 11:53:47.512 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet dispatcherServlet mapped to [/]
+01-05-2020 11:53:47.514 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet springVaadinServlet mapped to [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 11:53:47.517 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'characterEncodingFilter' to: [/*]
+01-05-2020 11:53:47.518 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+01-05-2020 11:53:47.518 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+01-05-2020 11:53:47.519 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'requestContextFilter' to: [/*]
+01-05-2020 11:53:47.971 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:53:48.191 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter.initControllerAdviceCache - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 11:53:45 IDT 2020]; root of context hierarchy
+01-05-2020 11:53:48.278 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+01-05-2020 11:53:48.280 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+01-05-2020 11:53:48.317 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:53:48.318 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 11:53:48.521 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.getUIPaths - Checking the application context for Vaadin UI mappings
+01-05-2020 11:53:48.527 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingController - Registering Vaadin servlet of type [com.vaadin.spring.server.SpringVaadinServlet]
+01-05-2020 11:53:48.537 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingHandlerMapping - Forwarding @SpringUI URLs from {/editCall=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /editCall/=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /print/=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /bigScreen=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /editSite/=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /bigScreen/=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /editSite=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /print=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21, /=org.springframework.web.servlet.mvc.ServletForwardingController@6dd93a21}
+01-05-2020 11:53:48.538 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.538 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.538 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.539 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.539 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.539 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.539 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.539 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.539 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Root mapping to handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 11:53:48.841 [main] INFO  o.s.j.e.a.AnnotationMBeanExporter.afterSingletonsInstantiated - Registering beans for JMX exposure on startup
+01-05-2020 11:53:48.881 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.start - Tomcat started on port(s): 8083 (http) with context path ''
+01-05-2020 11:53:48.887 [main] INFO  il.co.rtcohen.rt.Application.logStarted - Started Application in 4.503 seconds (JVM running for 4.937)
+01-05-2020 11:53:49.629 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring FrameworkServlet 'dispatcherServlet'
+01-05-2020 11:53:49.630 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization started
+01-05-2020 11:53:49.647 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization completed in 17 ms
+01-05-2020 11:53:49.673 [http-nio-8083-exec-1] WARN  c.v.s.DefaultDeploymentConfiguration.checkProductionMode - 
+=================================================================
+Vaadin is running in DEBUG MODE.
+Add productionMode=true to web.xml to disable debug features.
+To show debug window, add ?debug to your application URL.
+=================================================================
+01-05-2020 11:53:50.225 [http-nio-8083-exec-4] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 11:54:00.789 [http-nio-8083-exec-5] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:08:09.001 [Thread-2] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.doClose - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 11:53:45 IDT 2020]; root of context hierarchy
+01-05-2020 12:08:09.005 [Thread-2] INFO  o.s.j.e.a.AnnotationMBeanExporter.destroy - Unregistering JMX-exposed beans on shutdown
+01-05-2020 12:08:25.519 [main] INFO  il.co.rtcohen.rt.Application.logStarting - Starting Application v3 on hana-pc with PID 1399 (/home/hana/dev/rt/RT/target/RT-3.jar started by hana in /home/hana/dev/rt/RT)
+01-05-2020 12:08:25.522 [main] INFO  il.co.rtcohen.rt.Application.logStartupProfileInfo - The following profiles are active: dev
+01-05-2020 12:08:25.564 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.prepareRefresh - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@27ff5d15: startup date [Fri May 01 12:08:25 IDT 2020]; root of context hierarchy
+01-05-2020 12:08:26.339 [main] WARN  o.s.c.a.ConfigurationClassPostProcessor.enhanceConfigurationClasses - Cannot enhance @Configuration bean definition 'com.vaadin.spring.VaadinConfiguration' since its singleton instance has been created too early. The typical cause is a non-static @Bean method with a BeanDefinitionRegistryPostProcessor return type: Consider declaring such methods as 'static'.
+01-05-2020 12:08:26.739 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization - Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$a403e8a] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+01-05-2020 12:08:27.112 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.initialize - Tomcat initialized with port(s): 8083 (http)
+01-05-2020 12:08:27.142 [main] INFO  o.a.catalina.core.StandardService.log - Starting service [Tomcat]
+01-05-2020 12:08:27.142 [main] INFO  o.a.catalina.core.StandardEngine.log - Starting Servlet Engine: Apache Tomcat/8.5.29
+01-05-2020 12:08:27.155 [localhost-startStop-1] INFO  o.a.c.core.AprLifecycleListener.log - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [:/home/hana/git/hana-infinity-labs/ds/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib]
+01-05-2020 12:08:27.242 [localhost-startStop-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring embedded WebApplicationContext
+01-05-2020 12:08:27.243 [localhost-startStop-1] INFO  o.s.web.context.ContextLoader.prepareWebApplicationContext - Root WebApplicationContext: initialization completed in 1679 ms
+01-05-2020 12:08:27.340 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Registering Vaadin servlet
+01-05-2020 12:08:27.341 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Servlet will be mapped to URLs [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 12:08:27.365 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameters - Setting servlet init parameters
+01-05-2020 12:08:27.365 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [productionMode] = [false]
+01-05-2020 12:08:27.365 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [resourceCacheTime] = [3600]
+01-05-2020 12:08:27.366 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [heartbeatInterval] = [300]
+01-05-2020 12:08:27.366 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [closeIdleSessions] = [false]
+01-05-2020 12:08:27.441 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet dispatcherServlet mapped to [/]
+01-05-2020 12:08:27.443 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet springVaadinServlet mapped to [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 12:08:27.448 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'characterEncodingFilter' to: [/*]
+01-05-2020 12:08:27.448 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+01-05-2020 12:08:27.449 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+01-05-2020 12:08:27.449 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'requestContextFilter' to: [/*]
+01-05-2020 12:08:27.912 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:08:28.172 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter.initControllerAdviceCache - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@27ff5d15: startup date [Fri May 01 12:08:25 IDT 2020]; root of context hierarchy
+01-05-2020 12:08:28.289 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+01-05-2020 12:08:28.291 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+01-05-2020 12:08:28.326 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:08:28.326 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:08:28.573 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.getUIPaths - Checking the application context for Vaadin UI mappings
+01-05-2020 12:08:28.579 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingController - Registering Vaadin servlet of type [com.vaadin.spring.server.SpringVaadinServlet]
+01-05-2020 12:08:28.590 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingHandlerMapping - Forwarding @SpringUI URLs from {/editCall=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /editCall/=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /print/=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /editSite/=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /bigScreen=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /editSite=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /bigScreen/=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /print=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd, /=org.springframework.web.servlet.mvc.ServletForwardingController@76b224cd}
+01-05-2020 12:08:28.591 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.591 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.591 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.592 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.592 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.592 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.592 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.592 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.592 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Root mapping to handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:08:28.959 [main] INFO  o.s.j.e.a.AnnotationMBeanExporter.afterSingletonsInstantiated - Registering beans for JMX exposure on startup
+01-05-2020 12:08:29.012 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.start - Tomcat started on port(s): 8083 (http) with context path ''
+01-05-2020 12:08:29.020 [main] INFO  il.co.rtcohen.rt.Application.logStarted - Started Application in 4.057 seconds (JVM running for 4.504)
+01-05-2020 12:08:30.980 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring FrameworkServlet 'dispatcherServlet'
+01-05-2020 12:08:30.980 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization started
+01-05-2020 12:08:30.999 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization completed in 18 ms
+01-05-2020 12:08:31.028 [http-nio-8083-exec-1] WARN  c.v.s.DefaultDeploymentConfiguration.checkProductionMode - 
+=================================================================
+Vaadin is running in DEBUG MODE.
+Add productionMode=true to web.xml to disable debug features.
+To show debug window, add ?debug to your application URL.
+=================================================================
+01-05-2020 12:08:31.548 [http-nio-8083-exec-2] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:08:40.168 [http-nio-8083-exec-8] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:12:37.414 [Thread-2] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.doClose - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@27ff5d15: startup date [Fri May 01 12:08:25 IDT 2020]; root of context hierarchy
+01-05-2020 12:12:37.421 [Thread-2] INFO  o.s.j.e.a.AnnotationMBeanExporter.destroy - Unregistering JMX-exposed beans on shutdown
+01-05-2020 12:12:49.751 [main] INFO  il.co.rtcohen.rt.Application.logStarting - Starting Application v3 on hana-pc with PID 2178 (/home/hana/dev/rt/RT/target/RT-3.jar started by hana in /home/hana/dev/rt/RT)
+01-05-2020 12:12:49.754 [main] INFO  il.co.rtcohen.rt.Application.logStartupProfileInfo - The following profiles are active: dev
+01-05-2020 12:12:49.798 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.prepareRefresh - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 12:12:49 IDT 2020]; root of context hierarchy
+01-05-2020 12:12:50.619 [main] WARN  o.s.c.a.ConfigurationClassPostProcessor.enhanceConfigurationClasses - Cannot enhance @Configuration bean definition 'com.vaadin.spring.VaadinConfiguration' since its singleton instance has been created too early. The typical cause is a non-static @Bean method with a BeanDefinitionRegistryPostProcessor return type: Consider declaring such methods as 'static'.
+01-05-2020 12:12:51.107 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization - Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$2f6a42e] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+01-05-2020 12:12:51.440 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.initialize - Tomcat initialized with port(s): 8083 (http)
+01-05-2020 12:12:51.473 [main] INFO  o.a.catalina.core.StandardService.log - Starting service [Tomcat]
+01-05-2020 12:12:51.474 [main] INFO  o.a.catalina.core.StandardEngine.log - Starting Servlet Engine: Apache Tomcat/8.5.29
+01-05-2020 12:12:51.487 [localhost-startStop-1] INFO  o.a.c.core.AprLifecycleListener.log - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [:/home/hana/git/hana-infinity-labs/ds/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib]
+01-05-2020 12:12:51.581 [localhost-startStop-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring embedded WebApplicationContext
+01-05-2020 12:12:51.581 [localhost-startStop-1] INFO  o.s.web.context.ContextLoader.prepareWebApplicationContext - Root WebApplicationContext: initialization completed in 1784 ms
+01-05-2020 12:12:51.685 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Registering Vaadin servlet
+01-05-2020 12:12:51.686 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Servlet will be mapped to URLs [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 12:12:51.703 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameters - Setting servlet init parameters
+01-05-2020 12:12:51.703 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [productionMode] = [false]
+01-05-2020 12:12:51.704 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [resourceCacheTime] = [3600]
+01-05-2020 12:12:51.704 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [heartbeatInterval] = [300]
+01-05-2020 12:12:51.704 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [closeIdleSessions] = [false]
+01-05-2020 12:12:51.753 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet dispatcherServlet mapped to [/]
+01-05-2020 12:12:51.754 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet springVaadinServlet mapped to [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 12:12:51.757 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'characterEncodingFilter' to: [/*]
+01-05-2020 12:12:51.758 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+01-05-2020 12:12:51.758 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+01-05-2020 12:12:51.758 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'requestContextFilter' to: [/*]
+01-05-2020 12:12:52.252 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:12:52.506 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter.initControllerAdviceCache - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 12:12:49 IDT 2020]; root of context hierarchy
+01-05-2020 12:12:52.606 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+01-05-2020 12:12:52.608 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+01-05-2020 12:12:52.646 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:12:52.647 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:12:52.855 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.getUIPaths - Checking the application context for Vaadin UI mappings
+01-05-2020 12:12:52.859 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingController - Registering Vaadin servlet of type [com.vaadin.spring.server.SpringVaadinServlet]
+01-05-2020 12:12:52.869 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingHandlerMapping - Forwarding @SpringUI URLs from {/editCall=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /editCall/=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /print/=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /bigScreen=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /editSite/=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /bigScreen/=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /editSite=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /print=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8, /=org.springframework.web.servlet.mvc.ServletForwardingController@4c0884e8}
+01-05-2020 12:12:52.871 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.871 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.871 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.872 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.872 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.872 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.872 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.873 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:52.873 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Root mapping to handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:12:53.179 [main] INFO  o.s.j.e.a.AnnotationMBeanExporter.afterSingletonsInstantiated - Registering beans for JMX exposure on startup
+01-05-2020 12:12:53.209 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.start - Tomcat started on port(s): 8083 (http) with context path ''
+01-05-2020 12:12:53.215 [main] INFO  il.co.rtcohen.rt.Application.logStarted - Started Application in 3.998 seconds (JVM running for 4.461)
+01-05-2020 12:12:54.847 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring FrameworkServlet 'dispatcherServlet'
+01-05-2020 12:12:54.847 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization started
+01-05-2020 12:12:54.862 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization completed in 15 ms
+01-05-2020 12:12:54.883 [http-nio-8083-exec-1] WARN  c.v.s.DefaultDeploymentConfiguration.checkProductionMode - 
+=================================================================
+Vaadin is running in DEBUG MODE.
+Add productionMode=true to web.xml to disable debug features.
+To show debug window, add ?debug to your application URL.
+=================================================================
+01-05-2020 12:12:55.300 [http-nio-8083-exec-3] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:13:04.318 [http-nio-8083-exec-7] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:24:30.125 [http-nio-8083-exec-4] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:30:32.880 [http-nio-8083-exec-10] ERROR c.vaadin.server.DefaultErrorHandler.doDefault - 
+org.apache.catalina.connector.ClientAbortException: java.io.IOException: Broken pipe
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:356)
+	at org.apache.catalina.connector.OutputBuffer.appendByteArray(OutputBuffer.java:785)
+	at org.apache.catalina.connector.OutputBuffer.append(OutputBuffer.java:714)
+	at org.apache.catalina.connector.OutputBuffer.writeBytes(OutputBuffer.java:391)
+	at org.apache.catalina.connector.OutputBuffer.write(OutputBuffer.java:369)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:96)
+	at org.apache.catalina.connector.CoyoteOutputStream.write(CoyoteOutputStream.java:89)
+	at com.vaadin.server.communication.UIInitHandler.commitJsonResponse(UIInitHandler.java:120)
+	at com.vaadin.server.communication.UidlRequestHandler.synchronizedHandleRequest(UidlRequestHandler.java:109)
+	at com.vaadin.server.SynchronizedRequestHandler.handleRequest(SynchronizedRequestHandler.java:40)
+	at com.vaadin.server.VaadinService.handleRequest(VaadinService.java:1601)
+	at com.vaadin.server.VaadinServlet.service(VaadinServlet.java:445)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:742)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:81)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:200)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:198)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:496)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:140)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:81)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:87)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:803)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:66)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:790)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1459)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: java.io.IOException: Broken pipe
+	at java.base/sun.nio.ch.FileDispatcherImpl.write0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:47)
+	at java.base/sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:113)
+	at java.base/sun.nio.ch.IOUtil.write(IOUtil.java:79)
+	at java.base/sun.nio.ch.IOUtil.write(IOUtil.java:50)
+	at java.base/sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:466)
+	at org.apache.tomcat.util.net.NioChannel.write(NioChannel.java:134)
+	at org.apache.tomcat.util.net.NioBlockingSelector.write(NioBlockingSelector.java:101)
+	at org.apache.tomcat.util.net.NioSelectorPool.write(NioSelectorPool.java:157)
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.doWrite(NioEndpoint.java:1267)
+	at org.apache.tomcat.util.net.SocketWrapperBase.doWrite(SocketWrapperBase.java:670)
+	at org.apache.tomcat.util.net.SocketWrapperBase.writeBlocking(SocketWrapperBase.java:450)
+	at org.apache.tomcat.util.net.SocketWrapperBase.write(SocketWrapperBase.java:388)
+	at org.apache.coyote.http11.Http11OutputBuffer$SocketOutputBuffer.doWrite(Http11OutputBuffer.java:623)
+	at org.apache.coyote.http11.filters.IdentityOutputFilter.doWrite(IdentityOutputFilter.java:116)
+	at org.apache.coyote.http11.Http11OutputBuffer.doWrite(Http11OutputBuffer.java:225)
+	at org.apache.coyote.Response.doWrite(Response.java:541)
+	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:351)
+	... 49 common frames omitted
+01-05-2020 12:30:32.904 [http-nio-8083-exec-2] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:33:14.763 [Thread-2] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.doClose - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 12:12:49 IDT 2020]; root of context hierarchy
+01-05-2020 12:33:14.770 [Thread-2] INFO  o.s.j.e.a.AnnotationMBeanExporter.destroy - Unregistering JMX-exposed beans on shutdown
+01-05-2020 12:33:49.586 [main] INFO  il.co.rtcohen.rt.Application.logStarting - Starting Application v3 on hana-pc with PID 4133 (/home/hana/dev/rt/RT/target/RT-3.jar started by hana in /home/hana/dev/rt/RT)
+01-05-2020 12:33:49.588 [main] INFO  il.co.rtcohen.rt.Application.logStartupProfileInfo - The following profiles are active: dev
+01-05-2020 12:33:49.643 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.prepareRefresh - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 12:33:49 IDT 2020]; root of context hierarchy
+01-05-2020 12:33:50.388 [main] WARN  o.s.c.a.ConfigurationClassPostProcessor.enhanceConfigurationClasses - Cannot enhance @Configuration bean definition 'com.vaadin.spring.VaadinConfiguration' since its singleton instance has been created too early. The typical cause is a non-static @Bean method with a BeanDefinitionRegistryPostProcessor return type: Consider declaring such methods as 'static'.
+01-05-2020 12:33:50.788 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker.postProcessAfterInitialization - Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$f8ee73a4] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+01-05-2020 12:33:51.235 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.initialize - Tomcat initialized with port(s): 8083 (http)
+01-05-2020 12:33:51.262 [main] INFO  o.a.catalina.core.StandardService.log - Starting service [Tomcat]
+01-05-2020 12:33:51.263 [main] INFO  o.a.catalina.core.StandardEngine.log - Starting Servlet Engine: Apache Tomcat/8.5.29
+01-05-2020 12:33:51.272 [localhost-startStop-1] INFO  o.a.c.core.AprLifecycleListener.log - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [:/home/hana/git/hana-infinity-labs/ds/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib]
+01-05-2020 12:33:51.360 [localhost-startStop-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring embedded WebApplicationContext
+01-05-2020 12:33:51.361 [localhost-startStop-1] INFO  o.s.web.context.ContextLoader.prepareWebApplicationContext - Root WebApplicationContext: initialization completed in 1718 ms
+01-05-2020 12:33:51.480 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Registering Vaadin servlet
+01-05-2020 12:33:51.481 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.createServletRegistrationBean - Servlet will be mapped to URLs [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 12:33:51.509 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameters - Setting servlet init parameters
+01-05-2020 12:33:51.509 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [productionMode] = [false]
+01-05-2020 12:33:51.509 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [resourceCacheTime] = [3600]
+01-05-2020 12:33:51.510 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [heartbeatInterval] = [300]
+01-05-2020 12:33:51.510 [localhost-startStop-1] INFO  c.v.s.b.i.VaadinServletConfiguration.addInitParameter - Set servlet init parameter [closeIdleSessions] = [false]
+01-05-2020 12:33:51.570 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet dispatcherServlet mapped to [/]
+01-05-2020 12:33:51.572 [localhost-startStop-1] INFO  o.s.b.w.s.ServletRegistrationBean.addRegistration - Servlet springVaadinServlet mapped to [/vaadinServlet/*, /VAADIN/*]
+01-05-2020 12:33:51.575 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'characterEncodingFilter' to: [/*]
+01-05-2020 12:33:51.576 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+01-05-2020 12:33:51.576 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+01-05-2020 12:33:51.577 [localhost-startStop-1] INFO  o.s.b.w.s.FilterRegistrationBean.configure - Mapping filter: 'requestContextFilter' to: [/*]
+01-05-2020 12:33:52.041 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:33:52.256 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter.initControllerAdviceCache - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 12:33:49 IDT 2020]; root of context hierarchy
+01-05-2020 12:33:52.338 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+01-05-2020 12:33:52.340 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping.register - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+01-05-2020 12:33:52.368 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:33:52.368 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+01-05-2020 12:33:52.557 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.getUIPaths - Checking the application context for Vaadin UI mappings
+01-05-2020 12:33:52.561 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingController - Registering Vaadin servlet of type [com.vaadin.spring.server.SpringVaadinServlet]
+01-05-2020 12:33:52.567 [main] INFO  c.v.s.b.i.VaadinServletConfiguration.vaadinUiForwardingHandlerMapping - Forwarding @SpringUI URLs from {/editCall=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /editCall/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /print/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /editSite/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /bigScreen=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /print=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /editSite=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /bigScreen/=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6, /=org.springframework.web.servlet.mvc.ServletForwardingController@6b3871d6}
+01-05-2020 12:33:52.568 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.569 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editCall/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.569 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.569 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.569 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.570 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/print] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.570 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/editSite] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.570 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Mapped URL path [/bigScreen/] onto handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.570 [main] INFO  o.s.w.s.h.SimpleUrlHandlerMapping.registerHandler - Root mapping to handler of type [class org.springframework.web.servlet.mvc.ServletForwardingController]
+01-05-2020 12:33:52.881 [main] INFO  o.s.j.e.a.AnnotationMBeanExporter.afterSingletonsInstantiated - Registering beans for JMX exposure on startup
+01-05-2020 12:33:52.934 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer.start - Tomcat started on port(s): 8083 (http) with context path ''
+01-05-2020 12:33:52.941 [main] INFO  il.co.rtcohen.rt.Application.logStarted - Started Application in 4.049 seconds (JVM running for 4.52)
+01-05-2020 12:33:54.689 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/].log - Initializing Spring FrameworkServlet 'dispatcherServlet'
+01-05-2020 12:33:54.689 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization started
+01-05-2020 12:33:54.709 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization completed in 20 ms
+01-05-2020 12:33:54.734 [http-nio-8083-exec-1] WARN  c.v.s.DefaultDeploymentConfiguration.checkProductionMode - 
+=================================================================
+Vaadin is running in DEBUG MODE.
+Add productionMode=true to web.xml to disable debug features.
+To show debug window, add ?debug to your application URL.
+=================================================================
+01-05-2020 12:34:02.700 [http-nio-8083-exec-6] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 12:47:37.266 [Thread-2] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.doClose - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@34f5090e: startup date [Fri May 01 12:33:49 IDT 2020]; root of context hierarchy
+01-05-2020 12:47:37.269 [Thread-2] INFO  o.s.j.e.a.AnnotationMBeanExporter.destroy - Unregistering JMX-exposed beans on shutdown

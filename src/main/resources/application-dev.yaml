@@ -5,7 +5,9 @@ server:
   port: 8083
 
 sqlserver:
-  url: jdbc:sqlserver://zeev-asus:1433;databaseName=RT;integratedSecurity=true
+  url: jdbc:sqlserver://localhost;databaseName=RT_PROD;user=SA;password=Hana1989;
+
+
 log:
   path: c:\\rt\\logs\\dev
 

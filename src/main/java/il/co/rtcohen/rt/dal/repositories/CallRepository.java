@@ -129,6 +129,24 @@ public class CallRepository {
         }
     }
 
+    public List<Call> getCalls(LocalDate date, Boolean isDone) {
+        return getCalls(date.format(Call.dateFormatter), isDone);
+    }
+
+    public List<Call> getCalls(String date, Boolean isDone) {
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
+                con.prepareStatement("select * from call where done=? and ?<endDate")) {
+            stmt.setBoolean(1,isDone);
+            stmt.setString(2,date);
+            ResultSet rs = stmt.executeQuery();
+            return getListFromRS(rs);
+        }
+        catch (SQLException e) {
+            log.error("error in getCalls where done="+isDone+" and "+date+"<date2: ",e);
+            throw new DataRetrievalFailureException("error in getCalls where done="+isDone+" and "+date+"<date2: ",e);
+        }
+    }
+
     public List<Call> getOpenCallsPerArea(int area) {
         if(areaRepository.getAreaById(area).getName().equals("מוסך"))
             return getGarageCalls(area);

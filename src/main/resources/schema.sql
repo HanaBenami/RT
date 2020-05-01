@@ -76,3 +76,6 @@ CREATE TABLE call (
 	driverID int DEFAULT 0,
 	workOrder int DEFAULT 0,
 	descr text NOT NULL DEFAULT '');
+
+CREATE INDEX ix_date2 on call(date2 desc);
+CREATE INDEX ix_enddate on call(enddate desc);
