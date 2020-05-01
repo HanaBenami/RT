@@ -1,5 +1,5 @@
 language: java
-jdk: oraclejdk8
+jdk: openjdk10
 sudo: required
 before_install:
 - chmod +x mvnw
