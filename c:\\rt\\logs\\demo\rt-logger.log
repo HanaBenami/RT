@@ -53,3 +53,5 @@
 01-05-2020 12:48:01.960 [http-nio-8090-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization started
 01-05-2020 12:48:01.989 [http-nio-8090-exec-1] INFO  o.s.web.servlet.DispatcherServlet.initServletBean - FrameworkServlet 'dispatcherServlet': initialization completed in 28 ms
 01-05-2020 12:48:09.325 [http-nio-8090-exec-9] INFO  i.c.r.rt.app.views.CustomerView.createView - Parameters map  []
+01-05-2020 13:02:03.971 [Thread-2] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.doClose - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1b6e1eff: startup date [Fri May 01 12:47:51 IDT 2020]; root of context hierarchy
+01-05-2020 13:02:03.978 [Thread-2] INFO  o.s.j.e.a.AnnotationMBeanExporter.destroy - Unregistering JMX-exposed beans on shutdown
