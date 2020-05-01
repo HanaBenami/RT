@@ -1,1 +1,1 @@
-web: java -jar -Dserver.port=$PORT target/RT-2.2.jar
+web: java -jar -Dserver.port=$PORT target/RT-3.jar
