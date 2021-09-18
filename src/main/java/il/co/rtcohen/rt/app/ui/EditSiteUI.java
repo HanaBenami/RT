@@ -10,8 +10,10 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
+import il.co.rtcohen.rt.dal.repositories.ContactRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,12 @@ public class EditSiteUI extends AbstractEditUI {
     private ComboBox<Integer> areaCombo;
     private TextField name;
     private Button addButton;
+    private Grid<Contact> contactsGrid;
 
     @Autowired
-    private EditSiteUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository) {
-        super(siteRepository,errorHandler,callRepository,generalRepository);
+    private EditSiteUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository,
+                       SiteRepository siteRepository, ContactRepository contactRepository) {
+        super(siteRepository, errorHandler, callRepository, generalRepository, contactRepository);
     }
 
     @Override
@@ -48,12 +52,14 @@ public class EditSiteUI extends AbstractEditUI {
 
     @Override
     void getSelectedId() {
-        if(hasParameter())
-            if (selectedId().isPresent())
+        if (hasParameter()) {
+            if (selectedId().isPresent()) {
                 selectedId = Integer.parseInt(selectedId().get().toString());
-            else
+            } else {
                 selectedId = 0;
-            site = siteRepository.getSiteById(selectedId);
+            }
+        }
+        site = siteRepository.getSiteById(selectedId);
     }
 
     @Override
@@ -65,7 +71,7 @@ public class EditSiteUI extends AbstractEditUI {
 
     @Override
     void reloadNew() {
-        Page.getCurrent().open(UIPaths.EDITSITE.getPath()+String.valueOf(selectedId), "_new2");
+        Page.getCurrent().open(UIPaths.EDITSITE.getPath()+String.valueOf(selectedId), "_new2", 700,500, BorderStyle.NONE);
     }
 
     private void addIdField() {
@@ -73,86 +79,13 @@ public class EditSiteUI extends AbstractEditUI {
                 false,130,40);
         layout.addComponent(id,2,0);
     }
-    private void addPhoneField() {
-        Label phoneLabel = new Label(LanguageSettings.getLocaleString("phone"));
-        layout.addComponent(phoneLabel, 1, 4);
-        phone = UIComponents.textField(site.getPhone(), true, 130, 30);
-        phone.addValueChangeListener(valueChangeEvent -> {
-            site.setPhone(phone.getValue());
-            siteRepository.updateSite(site);
-        });
-        layout.addComponent(phone, 0, 4);
-    }
-    private void addSiteNotesField() {
-        Label notesLabel = new Label(LanguageSettings.getLocaleString("notes"));
-        layout.addComponent(notesLabel,3,5);
-        siteNotes = UIComponents.textField(site.getNotes(),true,410,30);
-        siteNotes.addValueChangeListener(valueChangeEvent -> {
-            site.setNotes(siteNotes.getValue());
-            siteRepository.updateSite(site);
-        });
-        layout.addComponent(siteNotes,0,5,2,5);
-    }
-    private void addContactField() {
-        Label contactLabel = new Label(LanguageSettings.getLocaleString("contact"));
-        layout.addComponent(contactLabel,3,4);
-        contact = UIComponents.textField(site.getContact(),true,130,30);
-        contact.addValueChangeListener(valueChangeEvent -> {
-            site.setContact(contact.getValue());
-            siteRepository.updateSite(site);
-        });
-        layout.addComponent(contact,2,4);
-    }
-    private void addAddressField() {
-        Label addressLabel = new Label(LanguageSettings.getLocaleString("address"));
-        layout.addComponent(addressLabel,3,3);
-        address = UIComponents.textField(site.getAddress(),true,410,30);
-        address.addValueChangeListener(valueChangeEvent -> {
-            site.setAddress(address.getValue());
-            siteRepository.updateSite(site);
-        });
-        layout.addComponent(address,0,3,2,3);
-    }
+
     private void addAreaField() {
         areaCombo = new UIComponents().areaComboBox(generalRepository,120,40);
         areaCombo.setEmptySelectionAllowed(false);
         areaCombo.setValue(site.getAreaId());
         areaCombo.addValueChangeListener(valueChangeEvent -> areaChange());
         layout.addComponent(areaCombo,1,0);
-    }
-    private void addSiteNameField() {
-        Label siteLabel = new Label(LanguageSettings.getLocaleString("siteName"));
-        layout.addComponent(siteLabel,3,2);
-        name = UIComponents.textField(site.getName(),true,270,30);
-        name.addValueChangeListener(valueChangeEvent -> siteNameChange());
-        layout.addComponent(name,1,2,2,2);
-    }
-
-    private void siteNameChange() {
-        site.setName(name.getValue());
-        siteRepository.updateSite(site);
-        if(name.isEmpty()) {
-            addButton.setEnabled(false);
-            address.setEnabled(false);
-            contact.setEnabled(false);
-            phone.setEnabled(false);
-            siteNotes.setEnabled(false);
-
-        }
-        if(!name.isEmpty()) {
-            address.setEnabled(true);
-            contact.setEnabled(true);
-            phone.setEnabled(true);
-            siteNotes.setEnabled(true);
-            if((areaCombo.getValue()==0)||(customerCombo.getValue()==0)) {
-                addButton.setEnabled(false);
-                addButton.removeClickShortcut();
-            }
-            else {
-                addButton.setEnabled(true);
-                addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-            }
-        }
     }
 
     private void addCustomerField() {
@@ -163,6 +96,48 @@ public class EditSiteUI extends AbstractEditUI {
         layout.addComponent(customerCombo,1,1,3,1);
     }
 
+    private void addSiteNameField() {
+        Label siteLabel = new Label(LanguageSettings.getLocaleString("siteName"));
+        layout.addComponent(siteLabel,3,2);
+        name = UIComponents.textField(site.getName(),true,270,30);
+        name.addValueChangeListener(valueChangeEvent -> siteNameChange());
+        layout.addComponent(name,1,2,2,2);
+    }
+
+    private void addAddressField() {
+        Label addressLabel = new Label(LanguageSettings.getLocaleString("address"));
+        layout.addComponent(addressLabel,3,3);
+        address = UIComponents.textField(site.getAddress(),true,410,30);
+        address.addValueChangeListener(valueChangeEvent -> {
+            site.setAddress(address.getValue());
+            siteRepository.updateSite(site);
+        });
+        layout.addComponent(address,0,3,2,3);
+    }
+
+    private void addContactsGrid() {
+        Label contactLabel = new Label(LanguageSettings.getLocaleString("contacts"));
+        layout.addComponent(contactLabel,3,4);
+        contactsGrid = new Grid<>(Contact.class);
+        contactsGrid.setHeaderVisible(false);
+        contactsGrid.setColumns("notes", "phone", "name");
+        contactsGrid.setWidth("400");
+        contactsGrid.setHeightByRows(3);
+        contactsGrid.setItems(contactRepository.getContactsBySite(selectedId));
+        layout.addComponent(contactsGrid,0,4, 2,4);
+    }
+
+    private void addSiteNotesField() {
+        Label notesLabel = new Label(LanguageSettings.getLocaleString("notes"));
+        layout.addComponent(notesLabel,3,5);
+        siteNotes = UIComponents.textField(site.getNotes(),true,410,30);
+        siteNotes.addValueChangeListener(valueChangeEvent -> {
+            site.setNotes(siteNotes.getValue());
+            siteRepository.updateSite(site);
+        });
+        layout.addComponent(siteNotes,0,5,2,5);
+    }
+
     @Override
     void setTabIndexes() {
         areaCombo.focus();
@@ -170,17 +145,14 @@ public class EditSiteUI extends AbstractEditUI {
         customerCombo.setTabIndex(2);
         name.setTabIndex(3);
         address.setTabIndex(4);
-        contact.setTabIndex(5);
-        phone.setTabIndex(6);
-        siteNotes.setTabIndex(7);
+        siteNotes.setTabIndex(5);
     }
 
     @Override
     void addFields() {
         addIdField();
         addSiteNotesField();
-        addPhoneField();
-        addContactField();
+        addContactsGrid();
         addAddressField();
         addAreaField();
         addSiteNameField();
@@ -188,6 +160,29 @@ public class EditSiteUI extends AbstractEditUI {
         customerChange();
         areaChange();
         siteNameChange();
+    }
+
+    private void siteNameChange() {
+        site.setName(name.getValue());
+        siteRepository.updateSite(site);
+        if(name.isEmpty()) {
+            addButton.setEnabled(false);
+            address.setEnabled(false);
+            siteNotes.setEnabled(false);
+
+        }
+        if(!name.isEmpty()) {
+            address.setEnabled(true);
+            siteNotes.setEnabled(true);
+            if((areaCombo.getValue()==0)||(customerCombo.getValue()==0)) {
+                addButton.setEnabled(false);
+                addButton.removeClickShortcut();
+            }
+            else {
+                addButton.setEnabled(true);
+                addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+            }
+        }
     }
 
     @Override
@@ -219,7 +214,7 @@ public class EditSiteUI extends AbstractEditUI {
         long n = callRepository.insertCall(site.getCustomerId(),
                 LocalDate.now(),site.getId());
         Page.getCurrent().open(UIPaths.EDITCALL.getPath()+String.valueOf(n),"_new3",
-                700,700,
+                750,770,
                 BorderStyle.NONE);
         JavaScript.getCurrent().execute(
                 "setTimeout(function() {self.close();},0);");

@@ -12,4 +12,7 @@ class AbstractView extends VerticalLayout implements View {
         setErrorHandler(errorHandler);
     }
 
+    int getSessionUsernameId() {
+        return (int) getSession().getAttribute("userid");
+    }
 }

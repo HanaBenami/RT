@@ -41,12 +41,17 @@ public abstract class AbstractDataView<T> extends AbstractView implements View {
         getUI().setLocale(LanguageSettings.locale);
     }
 
+    static <C> void initGrid(String style, FilterGrid<C> filterGrid) {
+        filterGrid.getEditor().setSaveCaption(LanguageSettings.getLocaleString("save"));
+        filterGrid.getEditor().setCancelCaption(LanguageSettings.getLocaleString("cancel"));
+        if (!style.equals("")) {
+            filterGrid.setStyleGenerator(item -> style);
+        }
+    }
+
     void initGrid(String style) {
         grid = new FilterGrid<>();
-        grid.getEditor().setSaveCaption(LanguageSettings.getLocaleString("save"));
-        grid.getEditor().setCancelCaption(LanguageSettings.getLocaleString("cancel"));
-        if (!style.equals(""))
-            grid.setStyleGenerator(item -> style);
+        initGrid(style, grid);
     }
 
     void addHeader() {
@@ -65,13 +70,8 @@ public abstract class AbstractDataView<T> extends AbstractView implements View {
                 addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
         newName.addBlurListener(event -> addButton.removeClickShortcut());
         newName.addValueChangeListener(valueChangeEvent -> {
-            if (newName.getValue().isEmpty())
-                addButton.setEnabled(false);
-            else
-                addButton.setEnabled(true);
+            addButton.setEnabled(!newName.getValue().isEmpty());
         });
         return newName;
     }
-
-
 }

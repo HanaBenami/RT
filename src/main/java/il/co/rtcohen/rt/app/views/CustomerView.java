@@ -76,7 +76,7 @@ public class CustomerView extends AbstractDataView<Customer> {
                     Button sitesButton = UIComponents.gridSmallButton(VaadinIcons.FROWN_O);
                     sitesButton.addClickListener(clickEvent ->
                             getUI().getNavigator().navigateTo
-                                    ("site/customer="+ Customer.getId()));
+                                    ("site/customer=" + Customer.getId()));
                     if(n==1) {
                         sitesButton.setCaption(String.valueOf((n)));
                         sitesButton.setIcon(VaadinIcons.HOME_O);
@@ -231,7 +231,7 @@ public class CustomerView extends AbstractDataView<Customer> {
             long siteID = siteRepository.insertSite("",0,"",
                     (Integer.parseInt(String.valueOf(newCustomerId))),"","","");
             Page.getCurrent().open(UIPaths.EDITSITE.getPath()+String.valueOf(siteID),"_new2",
-                    700,400,
+                    700,500,
                     BorderStyle.NONE);
             refreshData();
         }

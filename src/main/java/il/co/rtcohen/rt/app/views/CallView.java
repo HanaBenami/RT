@@ -45,13 +45,14 @@ public class CallView extends AbstractDataView<Call> {
     private ComboBox<Integer> siteCombo;
     private Map<String, String> parametersMap;
     private Options open;
-    private CallRepository callRepository;
-    private CallService callService;
-    private SiteRepository siteRepository;
+    private final CallRepository callRepository;
+    private final CallService callService;
+    private final SiteRepository siteRepository;
     private GridLayout headerLayout;
     private Button selectButton;
     private Button refresh;
     private Button print;
+
     @Value("${settings.workOrderWidth}") int workOrderWidth;
 
     @Autowired
@@ -93,6 +94,8 @@ public class CallView extends AbstractDataView<Call> {
         open = new Options("open", LanguageSettings.getLocaleString("openCalls"));
         Options recentClose = new Options("recentClose", LanguageSettings.getLocaleString("recentCloseCalls"));
         Options close = new Options("close", LanguageSettings.getLocaleString("closeCalls"));
+        Options recentDelete = new Options("recentDelete", LanguageSettings.getLocaleString("recentDeleteCalls"));
+        Options delete = new Options("delete", LanguageSettings.getLocaleString("deleteCalls"));
         Options yesterday = new Options("yesterday", LanguageSettings.getLocaleString("yesterday"));
         Options today = new Options("today", LanguageSettings.getLocaleString("today"));
         Options tomorrow = new Options("tomorrow", LanguageSettings.getLocaleString("tomorrow"));
@@ -101,6 +104,8 @@ public class CallView extends AbstractDataView<Call> {
         options.add(open);
         options.add(recentClose);
         options.add(close);
+        options.add(recentDelete);
+        options.add(delete);
         options.add(yesterday);
         options.add(today);
         options.add(tomorrow);
@@ -132,15 +137,23 @@ public class CallView extends AbstractDataView<Call> {
                 break;
             case "open":
                 filterDoneActive = false;
-                list = callRepository.getCalls(false);
+                list = callRepository.getCalls(false, false);
                 break;
             case "recentClose":
                 filterDoneActive = true;
-                list = callRepository.getCalls(LocalDate.now().minusMonths(6), true);
+                list = callRepository.getCalls(LocalDate.now().minusMonths(6), true, false);
                 break;
             case "close":
                 filterDoneActive = true;
-                list = callRepository.getCalls(true);
+                list = callRepository.getCalls(true, false);
+                break;
+            case "recentDelete":
+                filterDoneActive = true;
+                list = callRepository.getCalls(LocalDate.now().minusMonths(6), true, true);
+                break;
+            case "delete":
+                filterDoneActive = true;
+                list = callRepository.getCalls(true, true);
                 break;
             default:
                 list = callRepository.getCalls();
@@ -205,7 +218,7 @@ public class CallView extends AbstractDataView<Call> {
                     Button editButton = UIComponents.editButton();
                     final BrowserWindowOpener opener = new BrowserWindowOpener
                             (new ExternalResource(UIPaths.EDITCALL.getPath() + call.getId()));
-                    opener.setFeatures("height=650,width=700,resizable");
+                    opener.setFeatures("height=770,width=750,resizable");
                     opener.extend(editButton);
                     return editButton;
                 }).setId("editColumn");
@@ -266,6 +279,27 @@ public class CallView extends AbstractDataView<Call> {
                         filterDone, UIComponents.BooleanPredicateWithShowAll());
         }
         grid.getDefaultHeaderRow().getCell("doneColumn").setText(LanguageSettings.getLocaleString("done"));
+    }
+    private void addDeletedColumn() {
+        FilterGrid.Column<Call, Component> deletedColumn =
+                grid.addComponentColumn((ValueProvider<Call, Component>) call ->
+                        UIComponents.checkBox(call.isDeleted(), true));
+        deletedColumn.setId("deletedColumn").setExpandRatio(1).setResizable(true).setWidth(60);
+        deletedColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
+                (ValueProvider<Call, Boolean>) Call::isDeleted,
+                (Setter<Call, Boolean>) (call, Boolean) -> {
+                    call.setDriverID(0);
+                    call.setDate2(Call.nullDate);
+                    call.setDeleted(Boolean);
+                    callService.updateCall(call);
+                    grid.setItems(getCalls());
+                }));
+        deletedColumn.setEditable(false);
+        deletedColumn.setHidable(true);
+        deletedColumn.setHidden(true);
+        deletedColumn.setFilter(UIComponents.BooleanValueProvider(),
+                new CheckBox(), UIComponents.BooleanPredicateWithShowAll());
+        grid.getDefaultHeaderRow().getCell("deletedColumn").setText(LanguageSettings.getLocaleString("deleted"));
     }
     private void addEndDateColumn() {
         DateField endDate = UIComponents.dateField();
@@ -633,6 +667,7 @@ public class CallView extends AbstractDataView<Call> {
         addEditColumn();
         addNotesColumn();
         addDescriptionColumn();
+        addDeletedColumn();
         addDoneColumn();
         addEndDateColumn();
         addDriverColumn();
@@ -830,13 +865,13 @@ public class CallView extends AbstractDataView<Call> {
     private void addCall() {
         if (selectCustomer.getValue()!=null) {
             long newId=
-                    callRepository.insertCall(selectCustomer.getValue(),LocalDate.now());
+                    callRepository.insertCall(selectCustomer.getValue(),LocalDate.now(), getSessionUsernameId());
             selectOption.setValue(open);
             removeComponent(grid);
             addGrid();
             filterId.setValue(String.valueOf(newId));
             Page.getCurrent().open(UIPaths.EDITCALL.getPath()+String.valueOf(newId),"_new3",
-                    700,650,BorderStyle.NONE);
+                    750,770,BorderStyle.NONE);
         }
     }
 

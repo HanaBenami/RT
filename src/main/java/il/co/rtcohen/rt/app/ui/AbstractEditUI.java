@@ -6,6 +6,7 @@ import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
+import il.co.rtcohen.rt.dal.repositories.ContactRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
 
@@ -14,16 +15,24 @@ import java.util.Optional;
 abstract class AbstractEditUI extends AbstractUI<GridLayout> {
 
     SiteRepository siteRepository;
+    ContactRepository contactRepository;
     TextField siteNotes;
     TextField phone;
     TextField contact;
     TextField address;
     ComboBox<Integer> customerCombo;
     int selectedId;
+    Button deleteBtn;
 
     AbstractEditUI(SiteRepository siteRepository,ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository) {
         super(errorHandler,callRepository,generalRepository);
         this.siteRepository=siteRepository;
+    }
+
+    AbstractEditUI(SiteRepository siteRepository,ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, ContactRepository contactRepository) {
+        super(errorHandler,callRepository,generalRepository);
+        this.siteRepository = siteRepository;
+        this.contactRepository = contactRepository;
     }
 
     abstract void setTabIndexes();
@@ -42,7 +51,7 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
     }
 
     void initLayout(String title) {
-        layout = new GridLayout(4, 11);
+        layout = new GridLayout(4, 13);
         layout.addComponent(UIComponents.smallHeader(title),3,0);
         layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
         setContent(layout);
@@ -62,10 +71,10 @@ abstract class AbstractEditUI extends AbstractUI<GridLayout> {
         setContent(mainLayout);
     }
 
-    private void setDeleteButton() {
-        Button delete = UIComponents.trashButton();
-        delete.addClickListener(clickEvent -> deleteCurrentId());
-        layout.addComponent(delete,0,1,0,1);
+    void setDeleteButton() {
+        deleteBtn = UIComponents.trashButton();
+        deleteBtn.addClickListener(clickEvent -> deleteCurrentId());
+        layout.addComponent(deleteBtn,0,1,0,1);
         //layout.setComponentAlignment(delete,Alignment.TOP_LEFT);
     }
 

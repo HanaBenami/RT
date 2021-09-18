@@ -100,8 +100,19 @@ public class UIComponents {
     public ComboBox<Integer> siteComboBox(GeneralRepository generalRepository, int w, int h) {
         ItemCaptionGenerator<Integer> siteCaption = (ItemCaptionGenerator<Integer>) item -> {
             if (item==0) return "";
-            return generalRepository.getNameById(item,"site"); };
+            return generalRepository.getNameById(item,"site");
+        };
         return comboBox(new ArrayList<>(),siteCaption,w,h);
+    }
+
+    public ComboBox<Integer> custSiteComboBox(GeneralRepository generalRepository, int w, int h, int custId) {
+        List<Integer> siteList = generalRepository.getIds("site", false, "custId=" + custId);
+        ItemCaptionGenerator<Integer> siteCaption = (ItemCaptionGenerator<Integer>) item -> {
+            if (item==0)
+                return "";
+            return generalRepository.getNameById(item,"site", "custId=" + custId);
+        };
+        return comboBox(siteList, siteCaption, w, h);
     }
 
     public ComboBox<Integer> areaComboBox(GeneralRepository generalRepository, int w, int h) {
@@ -110,6 +121,19 @@ public class UIComponents {
             if (item==0) return "";
             return generalRepository.getNameById(item,"area"); };
         return UIComponents.comboBox(areaList,areaCaption,w,h);
+    }
+
+    public ComboBox<Integer> userComboBox(GeneralRepository generalRepository, int w, int h) {
+        ItemCaptionGenerator<Integer> usersCaption = (ItemCaptionGenerator<Integer>) item -> {
+            return (0 == item ? "" : generalRepository.getNameById(item,"users"));
+        };
+        return comboBox(new ArrayList<>(),usersCaption,w,h);
+    }
+
+    public ComboBox<Integer> emptyComboBox(int w, int h) {
+        List<Integer> emptyList = new ArrayList<>();
+        ItemCaptionGenerator<Integer> caption = (ItemCaptionGenerator<Integer>) item -> "";
+        return UIComponents.comboBox(emptyList, caption, w, h);
     }
 
     private static ComboBox<Integer> comboBox(List<Integer> items,
@@ -123,7 +147,7 @@ public class UIComponents {
         return comboBox;
     }
 
-    public static CheckBox checkBox (Boolean value, String caption, Boolean isReadOnly){
+    public static CheckBox checkBox(Boolean value, String caption, Boolean isReadOnly){
         CheckBox checkBox = checkBox(value);
         checkBox.setReadOnly(isReadOnly);
         checkBox.setCaption(caption);
@@ -254,6 +278,10 @@ public class UIComponents {
         textArea.setWidth(w);
         textArea.setHeight(h);
         return textArea;
+    }
+
+    public static TextArea textArea (int w, int h) {
+        return textArea("", Integer.toString(w), Integer.toString(h));
     }
 
     public static NumberField numberField (String w, String h) {

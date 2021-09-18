@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: demo
+    active: dev
 
 vaadin:
   servlet:

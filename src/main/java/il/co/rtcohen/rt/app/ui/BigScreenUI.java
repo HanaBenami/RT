@@ -92,6 +92,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         int datesCounter = 1;
         for (Call call : list)
             if ((list.indexOf(call)>0)&&(!(call.getDate2().equals(list.get(list.indexOf(call)-1).getDate2()))))
+
                     datesCounter++;
         int columns = Math.max(1,(int) Math.ceil( (float) (list.size()+datesCounter) / (rowsPerColumn - 1)));
         GridLayout areaLayout = new GridLayout(columns, rowsPerColumn+1);
@@ -146,7 +147,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         grid.addComponentColumn(this::createCallLabel);
         grid.addContextClickListener(clickEvent ->
                 Page.getCurrent().open(UIPaths.EDITCALL.getPath() + call.getId(),
-                        "_new3",700,650, BorderStyle.NONE));
+                        "_new3",750,770, BorderStyle.NONE));
         grid.addStyleName("custom-margins");
         grid.setStyleGenerator((StyleGenerator<Call>) UIComponents::callStyle);
         return grid;

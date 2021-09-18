@@ -1,0 +1,18 @@
+spring:
+  profiles: rt_prod
+
+server:
+  port: 8080
+
+sqlserver:
+  url: jdbc:sqlserver://server\WIZSOFT;databaseName=RT_prod;user=RT;password=RTRT;integratedSecurity=false;
+log:
+  path: d:\rt\logs
+
+settings:
+  multiLanguage: false
+  bigScreen:
+    rowHeight: 70
+    rowsPerColumn: 14
+    interval: 60000
+  workOrderWidth: 1400

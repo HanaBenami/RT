@@ -26,9 +26,14 @@ public class GeneralRepository {
     }
 
     public List<GeneralType> getNames (String table) {
+        return getNames(table, false);
+    }
+
+    public List<GeneralType> getNames(String table, boolean activeOnly) {
         List<GeneralType> list = new ArrayList<>();
-        String sql = "SELECT * FROM "+table+"";
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+        String sql = "SELECT * FROM " + table + (activeOnly ? " WHERE active=1" : "");
+        try (Connection con = dataSource.getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 list.add(new GeneralType(rs.getInt("id"),rs.getString("name"),rs.getBoolean("active"),table));
@@ -37,14 +42,39 @@ public class GeneralRepository {
         }
         catch (SQLException e) {
             log.error(sql);
-            log.error("error in getNames: ",e);
-            throw new DataRetrievalFailureException("error in getNames: ",e);
+            String msg = "error in getNames (table=" + table + ", activeOnly=" + activeOnly + "): ";
+            log.error(msg, e);
+            throw new DataRetrievalFailureException(msg, e);
         }
     }
 
+    public int getIdByName(String table, String name) {
+        List<GeneralType> list = getNames(table);
+        for (GeneralType obj : list) {
+            if (obj.getName().equals(name)) {
+                return obj.getId();
+            }
+        }
+        return -1;
+    }
+
     public List<Integer> getActiveId(String table) {
+        return getIds(table, true);
+    }
+
+    public List<Integer> getIds(String table) {
+        return getIds(table, false);
+    }
+
+    public List<Integer> getIds(String table, boolean onlyActive) {
+        return getIds(table, onlyActive, null);
+    }
+
+    public List<Integer> getIds(String table, boolean onlyActive, String additionalWhere) {
         List<Integer> list = new ArrayList<>();
-        String sql = "SELECT * FROM "+table+" where active=1";
+        String sql = "SELECT * FROM " + table
+                + (onlyActive ? " where active=1" : "")
+                + (null != additionalWhere ? (onlyActive ? " and " : " where ") + additionalWhere : "");
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -54,13 +84,19 @@ public class GeneralRepository {
         }
         catch (SQLException e) {
             log.error(sql);
-            log.error("error in getActiveId: ",e);
-            throw new DataRetrievalFailureException("error in getActiveId: ",e);
+            String msg = "error in getIds (table=" + table + ", onlyActive=" + onlyActive + ", additionalWhere=" + additionalWhere + "): ";
+            log.error(msg, e);
+            throw new DataRetrievalFailureException(msg, e);
         }
     }
 
-    public String getNameById (int id,String table) {
-        String sql = "SELECT * FROM "+table+" WHERE id= "+id;
+    public String getNameById (int id, String table) {
+        return getNameById(id, table, null);
+    }
+
+    public String getNameById(int id, String table, String additionalWhere) {
+        String sql = "SELECT * FROM " + table + " WHERE id= " + id
+                + (null != additionalWhere ? " and " + additionalWhere : "");
         if (id==0)
             return "";
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {

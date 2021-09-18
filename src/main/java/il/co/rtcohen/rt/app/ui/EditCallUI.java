@@ -9,7 +9,9 @@ import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
+import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
+import il.co.rtcohen.rt.dal.repositories.ContactRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
 import il.co.rtcohen.rt.dal.services.CallService;
@@ -29,6 +31,7 @@ public class EditCallUI extends AbstractEditUI {
     private ComboBox<Integer> siteCombo;
     private ComboBox<Integer> carCombo;
     private ComboBox<Integer> callTypeCombo;
+    private ComboBox<Integer> openByCombo;
     private DateField startDate;
     private DateField date1;
     private DateField date2;
@@ -37,18 +40,20 @@ public class EditCallUI extends AbstractEditUI {
     private TextField notes;
     private CheckBox here;
     private CheckBox meeting;
-    private CallService callService;
+    private final CallService callService;
+    private Grid<Contact> contactsGrid;
 
     @Autowired
-    private EditCallUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, SiteRepository siteRepository, CallService callService) {
-        super(siteRepository,errorHandler,callRepository,generalRepository);
-        this.callService=callService;
+    private EditCallUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository,
+                       SiteRepository siteRepository, CallService callService, ContactRepository contactRepository) {
+        super(siteRepository, errorHandler, callRepository, generalRepository, contactRepository);
+        this.callService = callService;
     }
 
     @Override
     protected void setupLayout() {
         getSelectedId();
-        if (call.getId()==0) {
+        if (call.getId() == 0) {
             Notification.show(LanguageSettings.getLocaleString("error"),
                     LanguageSettings.getLocaleString("call#") + getPage().getUriFragment()
                             + LanguageSettings.getLocaleString("notExistF"),
@@ -73,7 +78,7 @@ public class EditCallUI extends AbstractEditUI {
 
     @Override
     void createNew() {
-        selectedId = (int) (callRepository.insertCall(0,LocalDate.now()));
+        selectedId = (int) (callRepository.insertCall(0,LocalDate.now(), getSessionUsernameId()));
         reloadNew();
     }
 
@@ -88,18 +93,18 @@ public class EditCallUI extends AbstractEditUI {
         layout.addComponent(id,2,0);
     }
     private void addSiteNotesField() {
-        siteNotes = UIComponents.textField(false,130,30);
-        layout.addComponent(siteNotes,0,4);
+        siteNotes = UIComponents.textField(false,470,30);
+        layout.addComponent(siteNotes,0,4, 2, 4);
     }
-    private void addPhoneField() {
-        phone = UIComponents.textField(false,130,30);
-        layout.addComponent(phone,1,4);
-    }
-    private void addContactField() {
-        Label contactLabel = new Label(LanguageSettings.getLocaleString("contact"));
-        layout.addComponent(contactLabel,3,4);
-        contact = UIComponents.textField(false,130,30);
-        layout.addComponent(contact,2,4);
+    private void addContactsGrid() {
+        Label contactLabel = new Label(LanguageSettings.getLocaleString("contacts"));
+        layout.addComponent(contactLabel,3,5);
+        contactsGrid = new Grid<>(Contact.class);
+        contactsGrid.setHeaderVisible(false);
+        contactsGrid.setColumns("notes", "phone", "name");
+        contactsGrid.setWidth("470");
+        contactsGrid.setHeightByRows(3);
+        layout.addComponent(contactsGrid,0,5, 2,5);
     }
     private void addAddressField() {
         address = UIComponents.textField(false,130,30);
@@ -169,7 +174,7 @@ public class EditCallUI extends AbstractEditUI {
         layout.addComponent(callTypeCombo,1,0);
     }
     private void addCustomerField() {
-        customerCombo = new UIComponents().customerComboBox(generalRepository,400,30);
+        customerCombo = new UIComponents().customerComboBox(generalRepository,470,30);
         customerCombo.setEmptySelectionAllowed(false);
         customerCombo.setValue(call.getCustomerId());
         if(customerCombo.getValue()==0)
@@ -180,7 +185,7 @@ public class EditCallUI extends AbstractEditUI {
     }
     private void addStartDateField() {
         Label start = new Label(LanguageSettings.getLocaleString("startDate"));
-        layout.addComponent(start,3,5);
+        layout.addComponent(start,3,6);
         startDate = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getStartDate()))
             startDate.setValue(null);
@@ -190,11 +195,11 @@ public class EditCallUI extends AbstractEditUI {
             call.setStartDate(startDate.getValue());
             callService.updateCall(call);
         });
-        layout.addComponent(startDate,2,5);
+        layout.addComponent(startDate,2,6);
     }
     private void addDate1Field() {
         Label date1Label = new Label(LanguageSettings.getLocaleString("date1"));
-        layout.addComponent(date1Label,1,5);
+        layout.addComponent(date1Label,1,6);
         date1 = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getDate1()))
             date1.setValue(null);
@@ -204,41 +209,43 @@ public class EditCallUI extends AbstractEditUI {
             call.setDate1(date1.getValue());
             callService.updateCall(call);
         });
-        layout.addComponent(date1,0,5);
+        layout.addComponent(date1,0,6);
     }
     private void addDescriptionField() {
         Label descriptionLabel = new Label(LanguageSettings.getLocaleString("description"));
-        layout.addComponent(descriptionLabel,3,6);
-        description = UIComponents.textField(true,400,50);
+        layout.addComponent(descriptionLabel,3,7);
+        description = UIComponents.textField(true,470,50);
         description.setValue(call.getDescription());
         description.addValueChangeListener(valueChangeEvent -> {
             call.setDescription(description.getValue());
             callService.updateCall(call);
         });
-        layout.addComponent(description,0,6,2,6);
+        layout.addComponent(description,0,7,2,7);
     }
     private void addNotesField() {
         Label notesLabel = new Label(LanguageSettings.getLocaleString("notes"));
-        layout.addComponent(notesLabel,3,7);
-        notes = UIComponents.textField(true,400,50);
+        layout.addComponent(notesLabel,3,8);
+        notes = UIComponents.textField(true,470,50);
         notes.setValue(call.getNotes());
         notes.addValueChangeListener(valueChangeEvent -> {
             call.setNotes(notes.getValue());
             callService.updateCall(call);
         });
-        layout.addComponent(notes,0,7,2,7);
+        layout.addComponent(notes,0,8,2,8);
     }
-    private void addMeetingField() {
-        meeting = UIComponents.checkBox(call.isMeeting(),LanguageSettings.getLocaleString("meeting"));
-        meeting.addValueChangeListener(valueChangeEvent -> {
-            call.setMeeting(meeting.getValue());
-            callService.updateCall(call);
-        });
-        layout.addComponent(meeting,1,10);
+
+    private void addOpenByField() {
+        Label openByLabel = new Label(LanguageSettings.getLocaleString("openBy"));
+        layout.addComponent(openByLabel,3,9);
+        openByCombo = new UIComponents().userComboBox(generalRepository, 130, 30);
+        openByCombo.setValue(call.getUserId());
+        openByCombo.setEnabled(false);
+        layout.addComponent(openByCombo,2,9);
     }
+
     private void addDate2Field() {
         Label date2Label = new Label(LanguageSettings.getLocaleString("date2"));
-        layout.addComponent(date2Label,3,9);
+        layout.addComponent(date2Label,3,11);
         date2 = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getDate2()))
             date2.setValue(null);
@@ -249,8 +256,9 @@ public class EditCallUI extends AbstractEditUI {
             callService.updateCall(call);
             refreshData();
         });
-        layout.addComponent(date2,2,9);
+        layout.addComponent(date2,2,11);
     }
+
     private void addDriverField() {
         driverCombo = new UIComponents().driverComboBox(generalRepository,130,30);
         driverCombo.setValue(call.getDriverId());
@@ -262,7 +270,7 @@ public class EditCallUI extends AbstractEditUI {
             callService.updateCall(call);
             refreshData();
         });
-        layout.addComponent(driverCombo,1,9);
+        layout.addComponent(driverCombo,1,11);
     }
     private void addOrderField() {
         order = UIComponents.numberField("130","30");
@@ -274,11 +282,21 @@ public class EditCallUI extends AbstractEditUI {
                 refreshData();
             }
         });
-        layout.addComponent(order,0,9);
+        layout.addComponent(order,0,11);
     }
+
+    private void addMeetingField() {
+        meeting = UIComponents.checkBox(call.isMeeting(),LanguageSettings.getLocaleString("meeting"));
+        meeting.addValueChangeListener(valueChangeEvent -> {
+            call.setMeeting(meeting.getValue());
+            callService.updateCall(call);
+        });
+        layout.addComponent(meeting,1,12);
+    }
+
     private void addEndDateField() {
         Label endDateLabel = new Label(LanguageSettings.getLocaleString("endDate"));
-        layout.addComponent(endDateLabel,3,10);
+        layout.addComponent(endDateLabel,3,12);
         endDate = UIComponents.dateField(130,30);
         if(Call.nullDate.equals(call.getEndDate()))
             endDate.setValue(null);
@@ -289,19 +307,19 @@ public class EditCallUI extends AbstractEditUI {
             callService.updateCall(call);
             refreshData();
         });
-        layout.addComponent(endDate,2,10);
+        layout.addComponent(endDate,2,12);
     }
+
     private void addDoneField() {
         done = UIComponents.checkBox(call.isDone(),LanguageSettings.getLocaleString("done"),true);
-        layout.addComponent(done,0,10);
+        layout.addComponent(done,0,12);
     }
 
     @Override
     void addFields() {
         addIdField();
         addSiteNotesField();
-        addPhoneField();
-        addContactField();
+        addContactsGrid();
         addAddressField();
         addAreaField();
         addSiteField();
@@ -312,7 +330,8 @@ public class EditCallUI extends AbstractEditUI {
         addStartDateField();
         addDate1Field();
         addDescriptionField();
-        layout.addComponent(UIComponents.smallHeader(LanguageSettings.getLocaleString("scheduleDetails")),3,8);
+        addOpenByField();
+        layout.addComponent(UIComponents.smallHeader(LanguageSettings.getLocaleString("scheduleDetails")),3,10);
         addNotesField();
         addMeetingField();
         addDate2Field();
@@ -340,30 +359,56 @@ public class EditCallUI extends AbstractEditUI {
         meeting.setTabIndex(14);
     }
 
+    void disableAll() {
+        callTypeCombo.setEnabled(false);
+        callTypeCombo.setEnabled(false);
+        customerCombo.setEnabled(false);
+        carCombo.setEnabled(false);
+        here.setEnabled(false);
+        siteCombo.setEnabled(false);
+        startDate.setEnabled(false);
+        date1.setEnabled(false);
+        description.setEnabled(false);
+        notes.setEnabled(false);
+        date2.setEnabled(false);
+        driverCombo.setEnabled(false);
+        endDate.setEnabled(false);
+        meeting.setEnabled(false);
+        deleteBtn.setEnabled(false);
+    }
+
     private void refreshData() {
         siteNotes.setValue(siteRepository.getSiteById(call.getSiteId()).getNotes());
-        phone.setValue(siteRepository.getSiteById(call.getSiteId()).getPhone());
-        contact.setValue(siteRepository.getSiteById(call.getSiteId()).getContact());
         address.setValue(siteRepository.getSiteById(call.getSiteId()).getAddress());
-        area.setValue(generalRepository.getNameById(siteRepository.getSiteById(call.getSiteId()).getAreaId()
-                ,"area"));
+        area.setValue(generalRepository.getNameById(siteRepository.getSiteById(call.getSiteId()).getAreaId(),"area"));
+        contactsGrid.setItems(contactRepository.getContactsBySite(call.getSiteId(), true));
         driverCombo.setValue(call.getDriverId());
+        openByCombo.setValue(call.getUserId());
         order.setValue(String.valueOf(call.getOrder()));
         done.setValue(call.isDone());
+        if (call.isDeleted()) {
+            Label deleteLabel = new Label(LanguageSettings.getLocaleString("callDeleted"));
+            deleteLabel.setStyleName("LABEL-RIGHT-RED");
+            layout.addComponent(deleteLabel, 0, 9, 1, 9);
+            disableAll();
+        }
     }
 
     @Override
     void deleteCurrentId() {
-        if (call.getOrder()>0) {
+        if (call.getOrder() > 0) {
             Notification.show(LanguageSettings.getLocaleString("scheduledCallDeleteError"),
                     "", Notification.Type.ERROR_MESSAGE);
         } else {
-            int n = callRepository.deleteCall(call.getId());
-            if (n == 1) {
-                Notification.show(LanguageSettings.getLocaleString("callDeleted"),
-                        "", Notification.Type.WARNING_MESSAGE);
-                closeWindow();
-            }
+            call.setDeleted();
+            callService.updateCall(call);
+            refreshData();
+//            int n = callRepository.deleteCall(call.getId());
+//            if (n == 1) {
+//                Notification.show(LanguageSettings.getLocaleString("callDeleted"),
+//                        "", Notification.Type.WARNING_MESSAGE);
+//                closeWindow();
+//            }
         }
     }
 

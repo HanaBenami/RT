@@ -11,8 +11,10 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
+import il.co.rtcohen.rt.dal.repositories.ContactRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
 import il.co.rtcohen.rt.app.ui.UIPaths;
@@ -27,45 +29,214 @@ import java.util.Map;
 
 @SpringView(name = SiteView.VIEW_NAME)
 public class SiteView extends AbstractDataView<Site> {
-
     static final String VIEW_NAME = "site";
-    private static Logger logger = LoggerFactory.getLogger(CustomerView.class);
-    private ComboBox<Integer> selectCustomer;
-    private ComboBox<Integer> newArea;
-    private TextField newName;
+    private static final Logger logger = LoggerFactory.getLogger(CustomerView.class);
     private Map<String,String> parametersMap;
-    private SiteRepository siteRepository;
-    private CallRepository callRepository;
+    private final SiteRepository siteRepository;
+    private final ContactRepository contactRepository;
+    private final CallRepository callRepository;
     private VerticalLayout headerLayout;
     private HorizontalLayout selectCustomerLayout;
+    private ComboBox<Integer> selectCustomerCombo;
+    private ComboBox<Integer> newSiteArea;
+    private TextField newSiteName;
     private Label noCustomer;
+    private VerticalLayout contactsLayout;
+    Button addContactButton;
+    private FilterGrid<Contact> contactFilterGrid;
+    private TextField newContactName;
+    private Site lastSelectedSite;
 
     @Autowired
-    private SiteView(ErrorHandler errorHandler, SiteRepository siteRepository, GeneralRepository generalRepository, CallRepository callRepository) {
+    private SiteView(ErrorHandler errorHandler, SiteRepository siteRepository, GeneralRepository generalRepository,
+                     CallRepository callRepository, ContactRepository contactRepository) {
         super(errorHandler,generalRepository);
-        this.siteRepository=siteRepository;
-        this.callRepository=callRepository;
+        this.siteRepository = siteRepository;
+        this.contactRepository = contactRepository;
+        this.callRepository = callRepository;
     }
 
     @Override
     public void createView(ViewChangeListener.ViewChangeEvent event) {
         parametersMap = event.getParameterMap();
-        logger.info("Parameters map  " + Arrays.toString(parametersMap.entrySet().toArray()));
+        logger.info("Parameters map: " + Arrays.toString(parametersMap.entrySet().toArray()));
         getSelectedCustomer();
         addHeaderLayout();
-        showSelectedCustomer();
+        addOrRefreshSitesLayout();
+        addOrRefreshContactsLayout(null);
         setTabIndexes();
-        if (selectCustomer.isEnabled())
-            selectCustomer.focus();
-        else
-            newName.focus();
     }
 
-    private void addEmptyGrid() {
-        noCustomer = new Label(LanguageSettings.getLocaleString("pleaseSelectCustomer"));
-        noCustomer.setStyleName("LABEL-WARNING");
-        addComponentsAndExpand(noCustomer);
+    void resetSelectedSite() {
+        lastSelectedSite = null;
     }
+
+    // Header & customer selection -------------------------------------------------------------------------------------
+
+    private void getSelectedCustomer() {
+        List<Integer> customers = generalRepository.getActiveId("cust");
+        selectCustomerCombo = new UIComponents().customerComboBox(generalRepository,250,30);
+        String selectedCustomer = parametersMap.get("customer");
+        if ((null != selectedCustomer) && (selectedCustomer.matches("\\d+"))) {
+            if (customers.contains(Integer.parseInt(selectedCustomer))) {
+                selectCustomerCombo.setValue(Integer.parseInt(selectedCustomer));
+                selectCustomerCombo.setEnabled(false);
+            } else {
+                selectCustomerCombo.setValue(0);
+            }
+        }
+        resetSelectedSite();
+    }
+
+    private void addHeaderLayout() {
+        headerLayout = new VerticalLayout();
+        headerLayout.setWidth("610");
+        addSelectCustomerLayout();
+        addNewSiteLayout();
+        addComponent(headerLayout);
+    }
+
+    private void addSelectCustomerLayout() {
+        selectCustomerLayout = new HorizontalLayout();
+        selectCustomerLayout.setWidth("610");
+        addSelectCustomerFields();
+        Label header = new Label(LanguageSettings.getLocaleString("sites"));
+        header.setStyleName("LABEL-RIGHT");
+        selectCustomerLayout.addComponentsAndExpand(header);
+        headerLayout.addComponent(selectCustomerLayout);
+    }
+
+    private void addSelectCustomerFields() {
+        Button selectButton = UIComponents.searchButton();
+        selectCustomerLayout.addComponent(selectButton);
+        selectCustomerCombo.setHeight(selectButton.getHeight(),selectButton.getHeightUnits());
+        selectCustomerCombo.setWidth("340");
+        selectCustomerCombo.addValueChangeListener(ValueChangeEvent -> addOrRefreshSitesLayout());
+        selectCustomerLayout.addComponent(selectCustomerCombo);
+    }
+
+    @Override
+    void setTabIndexes() {
+        selectCustomerCombo.setTabIndex(1);
+        newSiteArea.setTabIndex(2);
+        newSiteName.setTabIndex(3);
+        if (grid.isAttached()) {
+            grid.setTabIndex(4);
+        }
+        if (null != contactsLayout && contactsLayout.isAttached()) {
+            if (null != newContactName) {
+                newContactName.setTabIndex(5);
+            }
+            if (null != contactFilterGrid) {
+                contactFilterGrid.setTabIndex(6);
+            }
+        }
+        if (selectCustomerCombo.isEnabled()) {
+            selectCustomerCombo.focus();
+        } else {
+            newSiteName.focus();
+        }
+    }
+
+
+    // Sites -----------------------------------------------------------------------------------------------------------
+
+    @Override
+    void addGrid() {
+        grid.setItems(siteRepository.getSitesByCustomer(selectCustomerCombo.getValue()));
+        UI.getCurrent().setPollInterval(10000);
+        UI.getCurrent().addPollListener((UIEvents.PollListener) event -> {
+            if((selectCustomerCombo.getValue()!=null)&&!(selectCustomerCombo.getValue().toString().equals("0")))
+                grid.setItems(siteRepository.getSitesByCustomer(selectCustomerCombo.getValue()));
+        });
+        addColumns();
+        grid.sort("nameColumn");
+        grid.setWidth("100%");
+        addComponentsAndExpand(grid);
+    }
+
+    private void addOrRefreshSitesLayout() {
+        if (null != noCustomer && noCustomer.isAttached()) {
+            removeComponent(noCustomer);
+        }
+        if (null != grid && grid.isAttached()) {
+            removeComponent(grid);
+        }
+        initGrid("v-align-right");
+        if ((null != selectCustomerCombo.getValue()) && !selectCustomerCombo.getValue().toString().equals("0")) {
+            addGrid();
+            newSiteArea.setEnabled(true);
+            newSiteArea.focus();
+            newSiteName.setValue("");
+            grid.addItemClickListener(event -> addOrRefreshContactsLayout(event.getItem()));
+        }
+        else {
+            noCustomer = new Label(LanguageSettings.getLocaleString("pleaseSelectCustomer"));
+            noCustomer.setStyleName("LABEL-WARNING");
+            addComponentsAndExpand(noCustomer);
+            addButton.setEnabled(false);
+            newSiteArea.setEnabled(false);
+        }
+        newSiteName.setEnabled(false);
+        addOrRefreshContactsLayout(null);
+        resetSelectedSite();
+    }
+
+    @Override
+    void addColumns() {
+        addEditColumn();
+        addContactsColumn();
+        addCallsColumn();
+        addActiveColumn();
+        addNotesColumn();
+        addAreaColumn();
+        addAddressColumn();
+        addNameColumn();
+        addIdColumn();
+    }
+
+    // Add site
+
+    private void addNewSiteLayout() {
+        HorizontalLayout addLayout = new HorizontalLayout();
+        addLayout.setWidth("610");
+        addLayout.addComponent(addButton);
+        addButton.setEnabled(false);
+        newSiteName = super.addNewNameField();
+        addLayout.addComponentsAndExpand(newSiteName);
+        addNewSiteAreaField();
+        addLayout.addComponent(newSiteArea);
+        addButton.addClickListener(click -> addSite());
+        headerLayout.addComponent(addLayout);
+    }
+
+    private void addNewSiteAreaField() {
+        newSiteArea = new UIComponents().areaComboBox(generalRepository,95,30);
+        newSiteArea.setValue(0);
+        newSiteArea.setEmptySelectionAllowed(false);
+        newSiteArea.addValueChangeListener(valueChangeEvent -> newSiteName.setEnabled(true));
+        newSiteArea.setHeight(addButton.getHeight(),addButton.getHeightUnits());
+        newSiteArea.addFocusListener(focusEvent -> addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
+        newSiteArea.addBlurListener(event -> addButton.removeClickShortcut());
+    }
+
+    private void addSite() {
+        if ((!newSiteName.getValue().isEmpty())&&(selectCustomerCombo.getValue()!=null)) {
+            int newSiteArea = 0;
+            if (this.newSiteArea.getValue()!=null)
+                newSiteArea = this.newSiteArea.getValue();
+            long n = siteRepository.insertSite(newSiteName.getValue(),newSiteArea,"",
+                    selectCustomerCombo.getValue(),"","","");
+            Page.getCurrent().open(UIPaths.EDITSITE.getPath()+String.valueOf(n),"_new2",
+                    700,500, BorderStyle.NONE);
+            this.newSiteArea.setValue(0);
+            newSiteName.setValue("");
+            newSiteName.focus();
+            grid.setItems(siteRepository.getSitesByCustomer(selectCustomerCombo.getValue()));
+        }
+    }
+
+    // Sites grid
 
     private void addEditColumn() {
         FilterGrid.Column editColumn =
@@ -73,13 +244,32 @@ public class SiteView extends AbstractDataView<Site> {
                     Button editButton = UIComponents.editButton();
                     final BrowserWindowOpener opener = new BrowserWindowOpener
                             (new ExternalResource(UIPaths.EDITSITE.getPath() + site.getId()));
-                    opener.setFeatures("height=400,width=700,resizable");
+                    opener.setFeatures("height=500,width=700,resizable");
                     opener.extend(editButton);
                     return editButton;
                 }).setId("editColumn");
         editColumn.setWidth(60);
         editColumn.setHidable(false).setHidden(false).setSortable(false);
         grid.getDefaultHeaderRow().getCell("editColumn").setText(LanguageSettings.getLocaleString("edit"));
+    }
+
+    private void addContactsColumn() {
+        FilterGrid.Column contactsColumn =
+                grid.addComponentColumn((ValueProvider<Site, Component>) site -> {
+                    int activeContactsCounter = contactRepository.getContactsBySite(site.getId(), true).size();
+                    Button contactsButton = UIComponents.gridSmallButton(VaadinIcons.ENVELOPE_OPEN_O);
+//                    contactsButton.addClickListener(clickEvent ->
+//                            getUI().getNavigator().navigateTo
+//                                    ("contact/cust=" + site.getCustomerId() + "&site=" + site.getId())
+//                    );
+                    if(activeContactsCounter > 0) {
+                        contactsButton.setIcon(VaadinIcons.ENVELOPE_OPEN);
+                        contactsButton.setCaption(String.valueOf((activeContactsCounter)));
+                    }
+                    return contactsButton;
+                });
+        contactsColumn.setId("contactsColumn").setExpandRatio(1).setResizable(false).setWidth(85).setSortable(false);
+        grid.getDefaultHeaderRow().getCell("contactsColumn").setText(LanguageSettings.getLocaleString("contacts"));
     }
 
     private void addCallsColumn() {
@@ -128,30 +318,6 @@ public class SiteView extends AbstractDataView<Site> {
         notesColumn.setFilter(filterNotes, UIComponents.stringFilter());
         filterNotes.setWidth("95%");
         grid.getDefaultHeaderRow().getCell("notesColumn").setText(LanguageSettings.getLocaleString("notes"));
-    }
-    private void addPhoneColumn() {
-        FilterGrid.Column<Site, String> phoneColumn = grid.addColumn(Site::getPhone).setId("phoneColumn")
-                .setEditorComponent(new TextField(), (site, String) -> {
-                    site.setPhone(String);
-                    siteRepository.updateSite(site);
-                })
-                .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
-        TextField filterPhone = UIComponents.textField(30);
-        phoneColumn.setFilter(filterPhone, UIComponents.stringFilter());
-        filterPhone.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("phoneColumn").setText(LanguageSettings.getLocaleString("phone"));
-    }
-    private void addContactColumn() {
-        FilterGrid.Column<Site, String> contactColumn = grid.addColumn(Site::getContact).setId("contactColumn")
-                .setEditorComponent(new TextField(), (site, String) -> {
-                    site.setContact(String);
-                    siteRepository.updateSite(site);
-                })
-                .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
-        TextField filterContact = UIComponents.textField(30);
-        contactColumn.setFilter(filterContact, UIComponents.stringFilter());
-        filterContact.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("contactColumn").setText(LanguageSettings.getLocaleString("contactShort"));
     }
     private void addAreaColumn() {
         ComboBox<Integer> areaCombo = new UIComponents().areaComboBox(generalRepository,95,30);
@@ -206,145 +372,153 @@ public class SiteView extends AbstractDataView<Site> {
         grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
     }
 
-    @Override
-    void addColumns() {
-        addEditColumn();
-        addCallsColumn();
-        addActiveColumn();
-        addNotesColumn();
-        addPhoneColumn();
-        addContactColumn();
-        addAreaColumn();
-        addAddressColumn();
-        addNameColumn();
-        addIdColumn();
-    }
+    // Contacts --------------------------------------------------------------------------------------------------------
 
-    @Override
-    void addGrid() {
-        grid.setItems(siteRepository.getSitesByCustomer(selectCustomer.getValue()));
-        UI.getCurrent().setPollInterval(10000);
-        UI.getCurrent().addPollListener((UIEvents.PollListener) event -> {
-            if((selectCustomer.getValue()!=null)&&!(selectCustomer.getValue().toString().equals("0")))
-             grid.setItems(siteRepository.getSitesByCustomer(selectCustomer.getValue()));});
-        addColumns();
-        grid.sort("nameColumn");
-        grid.setWidth("100%");
-        addComponentsAndExpand(grid);
-    }
-
-    private void getSelectedCustomer() {
-        List<Integer> customers = generalRepository.getActiveId("cust");
-        selectCustomer = new UIComponents().customerComboBox(generalRepository,250,30);
-        String selectedCustomer = parametersMap.get("customer");
-        if(((selectedCustomer!=null)&&(selectedCustomer.matches("\\d+"))))
-            if (customers.contains(Integer.parseInt(selectedCustomer))) {
-                selectCustomer.setValue(Integer.parseInt(selectedCustomer));
-                selectCustomer.setEnabled(false);
-            } else
-                selectCustomer.setValue(0);
-    }
-
-    private void showSelectedCustomer() {
-        initGrid("v-align-right");
-        noCustomer = new Label();
-        if ((selectCustomer.getValue()!=null)&&!(selectCustomer.getValue().toString().equals("0"))) {
-            addGrid();
-            newArea.setEnabled(true);
-            newArea.focus();
-            newName.setValue("");
-            newName.setEnabled(false);
+    private void addOrRefreshContactsLayout(Site site) {
+        if (null != contactsLayout && contactsLayout.isAttached()) {
+            removeComponent(contactsLayout);
+        }
+        contactsLayout = new VerticalLayout();
+        contactsLayout.setStyleName("v-align-center");
+        contactFilterGrid = new FilterGrid<>();
+        initGrid("v-align-center", contactFilterGrid);
+        if (null != site) {
+            lastSelectedSite = site;
+            addNewContactLayout();
+            addContactGrid(site);
+            newContactName.focus();
         }
         else {
-            addEmptyGrid();
-            addButton.setEnabled(false);
-            newArea.setEnabled(false);
-            newName.setEnabled(false);
+            resetSelectedSite();
+            Label noSite = new Label(LanguageSettings.getLocaleString("pleaseSelectSite"));
+            noSite.setStyleName("LABEL-WARNING");
+            contactsLayout.addComponentsAndExpand(noSite);
         }
+        this.addComponentsAndExpand(contactsLayout);
     }
 
-    private void addHeaderLayout() {
-        headerLayout = new VerticalLayout();
-        headerLayout.setWidth("610");
-        addSelectCustomerLayout();
-        addNewSiteLayout();
-        addComponent(headerLayout);
+    // Add contact
+
+    void addContactGrid(Site site) {
+        contactFilterGrid.setItems(contactRepository.getContactsBySite(site.getId(), false));
+        UI.getCurrent().setPollInterval(10000);
+        addContactColumns();
+        contactFilterGrid.sort("nameColumn");
+        contactFilterGrid.setWidth("100%");
+        contactsLayout.addComponentsAndExpand(contactFilterGrid);
     }
 
-    private void addSelectCustomerLayout() {
-        selectCustomerLayout = new HorizontalLayout();
-        selectCustomerLayout.setWidth("610");
-        addSelectCustomerFields();
-        Label header = new Label(LanguageSettings.getLocaleString("sites"));
+    private void addNewContactLayout() {
+        // Button
+        addContactButton = UIComponents.addButton();
+        addContactButton.setEnabled(false);
+        addContactButton.addClickListener(click -> addNewContact());
+        // Name - Text box
+        newContactName = super.addNewNameField();
+        newContactName.setValue("");
+        newContactName.focus();
+        newContactName.addFocusListener(focusEvent ->
+            addContactButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
+        newContactName.addBlurListener(event -> addContactButton.removeClickShortcut());
+        newContactName.addValueChangeListener(valueChangeEvent -> {
+            addContactButton.setEnabled(!newContactName.getValue().isEmpty());
+        });
+        // Header
+        Label header = new Label(LanguageSettings.getLocaleString("contacts")
+                + " - " + lastSelectedSite.getName());
         header.setStyleName("LABEL-RIGHT");
-        selectCustomerLayout.addComponentsAndExpand(header);
-        headerLayout.addComponent(selectCustomerLayout);
-    }
-
-    private void addSelectCustomerFields() {
-        Button selectButton = UIComponents.searchButton();
-        selectCustomerLayout.addComponent(selectButton);
-        selectCustomer.setHeight(selectButton.getHeight(),selectButton.getHeightUnits());
-        selectCustomer.setWidth("340");
-        selectCustomer.addValueChangeListener(ValueChangeEvent -> changeCustomer());
-        selectCustomerLayout.addComponent(selectCustomer);
-    }
-
-    private void addNewSiteLayout() {
+        header.setWidth("300");
+        // Layout
         HorizontalLayout addLayout = new HorizontalLayout();
-        addLayout.setWidth("610");
-        addLayout.addComponent(addButton);
-        addButton.setEnabled(false);
-        newName = super.addNewNameField();
-        addLayout.addComponentsAndExpand(newName);
-        addNewSiteAreaField();
-        addLayout.addComponent(newArea);
-        addButton.addClickListener(click -> addSite());
-        headerLayout.addComponent(addLayout);
+        addLayout.setWidth("800");
+        addLayout.setHeight("60");
+        addLayout.setStyleName("v-align-center");
+        addLayout.addComponents(addContactButton, newContactName);
+        addLayout.addComponentsAndExpand(header);
+        contactsLayout.addComponents(addLayout);
     }
 
-    @Override
-    void setTabIndexes() {
-        selectCustomer.setTabIndex(1);
-        newArea.setTabIndex(2);
-        newName.setTabIndex(3);
-        if(grid.isAttached())
-            grid.setTabIndex(4);
-    }
-
-    private void addNewSiteAreaField() {
-        newArea = new UIComponents().areaComboBox(generalRepository,95,30);
-        newArea.setValue(0);
-        newArea.setEmptySelectionAllowed(false);
-        newArea.addValueChangeListener(valueChangeEvent -> newName.setEnabled(true));
-        newArea.setHeight(addButton.getHeight(),addButton.getHeightUnits());
-        newArea.addFocusListener(focusEvent -> addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
-        newArea.addBlurListener(event -> addButton.removeClickShortcut());
-    }
-
-    private void addSite() {
-        if ((!newName.getValue().isEmpty())&&(selectCustomer.getValue()!=null)) {
-            int newSiteArea = 0;
-            if (newArea.getValue()!=null)
-                newSiteArea = newArea.getValue();
-            long n = siteRepository.insertSite(newName.getValue(),newSiteArea,"",
-                    selectCustomer.getValue(),"","","");
-            Page.getCurrent().open(UIPaths.EDITSITE.getPath()+String.valueOf(n),"_new2",
-                    700,400,BorderStyle.NONE);
-            newArea.setValue(0);
-            newName.setValue("");
-            newName.focus();
-            grid.setItems(siteRepository.getSitesByCustomer(selectCustomer.getValue()));
+    private void addNewContact() {
+        if (!newContactName.getValue().isEmpty() && (null != lastSelectedSite)) {
+            contactRepository.insertContact(newContactName.getValue(), lastSelectedSite.getId(),"", "");
+            addOrRefreshContactsLayout(lastSelectedSite);
         }
     }
 
-    private void changeCustomer() {
-        if(noCustomer.isAttached())
-            removeComponent(noCustomer);
-        if(grid.isAttached())
-            removeComponent(grid);
-        showSelectedCustomer();
-        setTabIndexes();
+    // Contacts grid
+
+    void addContactColumns() {
+        addContactActiveColumn();
+        addContactNotesColumn();
+        addContactPhoneColumn();
+        addContactNameColumn();
+        addContactIdColumn();
     }
 
+    private void addContactIdColumn() {
+        FilterGrid.Column<Contact, Integer> idColumn = contactFilterGrid.addColumn(Contact::getId).setId("idColumn")
+                .setWidth(80).setResizable(false);
+        contactFilterGrid.getEditor().setEnabled(true);
+        TextField filterId = UIComponents.textField(30);
+        idColumn.setFilter(filterId, UIComponents.integerFilter());
+        filterId.setWidth("95%");
+        contactFilterGrid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));
+    }
+
+    private void addContactNameColumn() {
+        FilterGrid.Column<Contact, String> nameColumn = contactFilterGrid.addColumn(Contact::getName).setId("nameColumn")
+                .setEditorComponent(new TextField(), (contact, String) -> {
+                    contact.setName(String);
+                    generalRepository.update(contact);
+                })
+                .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
+        TextField filterName = UIComponents.textField(30);
+        nameColumn.setFilter(filterName, UIComponents.stringFilter());
+        filterName.setWidth("95%");
+        contactFilterGrid.getDefaultHeaderRow().getCell("nameColumn").setText(LanguageSettings.getLocaleString("name"));
+    }
+
+    private void addContactPhoneColumn() {
+        FilterGrid.Column<Contact, String> phoneColumn = contactFilterGrid.addColumn(Contact::getPhone).setId("phoneColumn")
+                .setEditorComponent(new TextField(), (contact, String) -> {
+                    contact.setPhone(String);
+                    contactRepository.updateContact(contact);
+                })
+                .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
+        TextField filterPhone = UIComponents.textField(30);
+        phoneColumn.setFilter(filterPhone, UIComponents.stringFilter());
+        filterPhone.setWidth("95%");
+        contactFilterGrid.getDefaultHeaderRow().getCell("phoneColumn").setText(LanguageSettings.getLocaleString("phone"));
+    }
+
+    private void addContactNotesColumn() {
+        FilterGrid.Column<Contact, String> notesColumn =
+                contactFilterGrid.addColumn(Contact::getNotes).setId("notesColumn")
+                        .setEditorComponent(new TextField(), (contact, String) -> {
+                            contact.setNotes(String);
+                            contactRepository.updateContact(contact);
+                        })
+                        .setExpandRatio(1).setResizable(false).setMinimumWidth(120);
+        TextField filterNotes = UIComponents.textField(30);
+        notesColumn.setFilter(filterNotes, UIComponents.stringFilter());
+        filterNotes.setWidth("95%");
+        contactFilterGrid.getDefaultHeaderRow().getCell("notesColumn").setText(LanguageSettings.getLocaleString("notes"));
+    }
+
+    private void addContactActiveColumn() {
+        FilterGrid.Column<Contact, Component> activeColumn =
+                contactFilterGrid.addComponentColumn((ValueProvider<Contact, Component>) contact ->
+                        UIComponents.checkBox(contact.getActive(), true));
+        activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
+        activeColumn.setEditorBinding(contactFilterGrid.getEditor().getBinder().forField(new CheckBox()).bind(
+                (ValueProvider<Contact, Boolean>) Contact::getActive,
+                (Setter<Contact, Boolean>) (contact, Boolean) -> {
+                    contact.setActive(Boolean);
+                    generalRepository.update(contact);
+                }));
+        CheckBox filterActive = UIComponents.checkBox(true);
+        activeColumn.setFilter(UIComponents.BooleanValueProvider(),
+                filterActive, UIComponents.BooleanPredicate());
+        contactFilterGrid.getDefaultHeaderRow().getCell("activeColumn").setText(LanguageSettings.getLocaleString("active"));
+    }
 }

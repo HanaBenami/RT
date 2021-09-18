@@ -43,7 +43,23 @@
         font-weight: bold;
         line-height: 150%;
     }
+    .LABEL-RIGHT-RED {
+        color: red;
+        float: right;
+        text-align: right !important;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 150%;
+    }
     .LABEL-LEFT {
+        color: black;
+        float: left;
+        text-align: left !important;
+        font-size: 30px;
+        font-weight: bold;
+        line-height: 150%;
+    }
+    .LABEL-LEFT-BOLD {
         color: black;
         float: left;
         text-align: left !important;
@@ -231,6 +247,7 @@
         border-color: black !important;
         font-size: 24px  !important;
         word-wrap: break-word !important;
+        height: 120px;
     }
 
     .print .v-contextmenu {

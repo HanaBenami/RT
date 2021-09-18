@@ -16,15 +16,24 @@ public class Call {
     private int callTypeId;
     private String notes;
     private String startDate, date1, date2, endDate, preDate2;
-    private boolean meeting, done, here;
+    private boolean meeting, done, here, deleted;
     private int driverID, order, preDriverId, preOrder;
+    private int userId;
 
     public Call() {
-        this(0,0,0,"",0,0,"",nullDateString,nullDateString,nullDateString,nullDateString,false,false,false,0,0);
+        this(0,0,0,"",0,0,"",
+                nullDateString,nullDateString,nullDateString,nullDateString,
+                false,false,false,false,0,0, 0);
+    }
+
+    public Call(int userId) {
+        this(0,0,0,"",0,0,"",
+                nullDateString,nullDateString,nullDateString,nullDateString,
+                false,false,false,false,0,0, userId);
     }
 
     public Call(int id, int customerId, int siteId, String description, int carTypeId, int callTypeId, String notes, String startDate, String date1,
-                String date2, String endDate, boolean meeting, boolean done, boolean here, int driverID, int order) {
+                String date2, String endDate, boolean meeting, boolean done, boolean deleted, boolean here, int driverID, int order, int userId) {
         this.id = id;
         this.customerId = customerId;
         this.siteId = siteId;
@@ -38,12 +47,14 @@ public class Call {
         this.endDate = endDate;
         this.meeting = meeting;
         this.done = done;
+        this.deleted = deleted;
         this.here = here;
         this.driverID = driverID;
         this.order = order;
         this.preDate2 = this.date2;
         this.preDriverId = this.driverID;
         this.preOrder = this.order;
+        this.userId = userId;
     }
 
     public void setCustomerId(Integer newCustomerId) {
@@ -79,6 +90,17 @@ public class Call {
     public void setEndDate(LocalDate date) {
         this.endDate = dateCheck(date);
         this.done = !nullDateString.equals(this.endDate);
+    }
+
+    public void setDeleted() {
+        setDeleted(true);
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+        if (deleted) {
+            setEndDate(LocalDate.now());
+        }
     }
 
     public void setDescription(String newDescription) {
@@ -123,6 +145,10 @@ public class Call {
 
     public void setNotes(String newNotes) {
         this.notes = newNotes;
+    }
+
+    public void setUserId(int newUser) {
+        this.userId = newUser;
     }
 
     public int getId() {
@@ -181,6 +207,10 @@ public class Call {
         return done;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
     public boolean isHere() {
         return here;
     }
@@ -199,6 +229,10 @@ public class Call {
 
     public int getPreOrder() {
         return preOrder;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
 }

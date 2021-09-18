@@ -113,6 +113,7 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
             case "custtype": {return LanguageSettings.getLocaleString("customerTypeTitle");}
             case "cartype": {return LanguageSettings.getLocaleString("carTypeTitle");}
             case "driver": {return LanguageSettings.getLocaleString("driversTitle");}
+            case "users": {return LanguageSettings.getLocaleString("usersTitle");}
             default: {table=""; return LanguageSettings.getLocaleString("tableNameError");}
         }
     }

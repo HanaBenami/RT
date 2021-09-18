@@ -15100,7 +15100,25 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: 150%;
 }
 
+.myTheme .LABEL-RIGHT-RED {
+	color: red;
+	float: right;
+	text-align: right !important;
+	font-size: 20px;
+	font-weight: bold;
+	line-height: 150%;
+}
+
 .myTheme .LABEL-LEFT {
+	color: black;
+	float: left;
+	text-align: left !important;
+	font-size: 30px;
+	font-weight: bold;
+	line-height: 150%;
+}
+
+.myTheme .LABEL-LEFT-BOLD {
 	color: black;
 	float: left;
 	text-align: left !important;
@@ -15299,6 +15317,7 @@ div.v-layout.v-horizontal.v-widget {
 	border-color: black !important;
 	font-size: 24px !important;
 	word-wrap: break-word !important;
+	height: 120px;
 }
 
 .myTheme .print .v-contextmenu {

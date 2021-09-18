@@ -62,8 +62,9 @@ public class CallRepository {
                     rs.getInt("siteid"),rs.getString("descr"),rs.getInt("cartypeid"),
                     rs.getInt("calltypeid"),rs.getString("notes"),rs.getString("startdate"),
                     rs.getString("date1"),rs.getString("date2"),rs.getString("enddate"),
-                    rs.getBoolean("meeting"),rs.getBoolean("done"),rs.getBoolean("here"),
-                    rs.getInt("driverid"),rs.getInt("workorder")));
+                    rs.getBoolean("meeting"),rs.getBoolean("done"),rs.getBoolean("deleted"),
+                    rs.getBoolean("here"),rs.getInt("driverid"),rs.getInt("workorder"),
+                    rs.getInt("userid")));
         }
         return list;
     }
@@ -116,34 +117,39 @@ public class CallRepository {
         }
     }
 
-    public List<Call> getCalls(Boolean isDone) {
+    public List<Call> getCalls(Boolean isDone, Boolean isDeleted) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
-                con.prepareStatement("select * from call where done=?")) {
-            stmt.setBoolean(1,isDone);
+                con.prepareStatement("select * from call where done=? and deleted=?")) {
+            stmt.setBoolean(1, isDone);
+            stmt.setBoolean(2, isDeleted);
             ResultSet rs = stmt.executeQuery();
             return getListFromRS(rs);
         }
         catch (SQLException e) {
-            log.error("error in getCalls where done="+isDone+": ",e);
-            throw new DataRetrievalFailureException("error in getCalls where done="+isDone+": ",e);
+            String msg = "error in getCalls where done=" + isDone + " and deleted=" + isDeleted + ": ";
+            log.error(msg, e);
+            throw new DataRetrievalFailureException(msg,e);
         }
     }
 
-    public List<Call> getCalls(LocalDate date, Boolean isDone) {
-        return getCalls(date.format(Call.dateFormatter), isDone);
+    public List<Call> getCalls(LocalDate date, Boolean isDone, Boolean isDeleted) {
+        return getCalls(date.format(Call.dateFormatter), isDone, isDeleted);
     }
 
-    public List<Call> getCalls(String date, Boolean isDone) {
+    public List<Call> getCalls(String date, Boolean isDone, Boolean isDeleted) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
-                con.prepareStatement("select * from call where done=? and ?<endDate")) {
-            stmt.setBoolean(1,isDone);
-            stmt.setString(2,date);
+                con.prepareStatement("select * from call where done=? and deleted=? and ?<endDate")) {
+            stmt.setBoolean(1, isDone);
+            stmt.setBoolean(2, isDeleted);
+            stmt.setString(3, date);
             ResultSet rs = stmt.executeQuery();
             return getListFromRS(rs);
         }
         catch (SQLException e) {
-            log.error("error in getCalls where done="+isDone+" and "+date+"<date2: ",e);
-            throw new DataRetrievalFailureException("error in getCalls where done="+isDone+" and "+date+"<date2: ",e);
+            String msg = "error in getCalls where done=" + isDone + " and deleted=" + isDeleted +
+                    "and : " + date + "<date2: ";
+            log.error(msg,e);
+            throw new DataRetrievalFailureException(msg,e);
         }
     }
 
@@ -156,13 +162,13 @@ public class CallRepository {
 
     private List<Call> getGarageCalls(int area) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
-                con.prepareStatement("select * from call where done=? and ((siteid in " +
-                        "(select id from site where areaid=?)) " +
-                        "or (here=? and date2=?)) order by date2")) {
+                con.prepareStatement("select * from v_opencall where done=? " +
+                        "and ((areaid=?) or (here=? and date2=?)) " +
+                        "order by date2")) {
             stmt.setBoolean(1,false);
-            stmt.setInt(2,area);
-            stmt.setBoolean(3,true);
-            stmt.setString(4,Call.nullDateString);
+            stmt.setInt(2,area);           // garage area
+            stmt.setBoolean(3,true);    // or here=true + date2=empty
+            stmt.setString(4, Call.nullDateString);
             ResultSet rs = stmt.executeQuery();
             return getListFromRS(rs);
         }
@@ -174,14 +180,15 @@ public class CallRepository {
 
     private List<Call> getAreaCalls(int area) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt =
-                con.prepareStatement("select * from call where done=? and ((siteid in " +
-                        "(select id from site where areaid=?)) " +
-                        "and (here=? or (here=? and date2!=?))) order by date2")) {
+                con.prepareStatement("select * from v_opencall where done=? " +
+                        "and (areaid=?) " +
+                        "and (here=? or (here=? and date2!=?)) order by date2")) {
             stmt.setBoolean(1,false);
-            stmt.setInt(2,area);
-            stmt.setBoolean(3,false);
-            stmt.setBoolean(4,true);
-            stmt.setString(5,Call.nullDateString);
+            stmt.setInt(2,area);           // selected area
+            // and...
+            stmt.setBoolean(3,false);   // (here=false)
+            stmt.setBoolean(4,true);    // or (here=true + date2=not-empty)
+            stmt.setString(5, Call.nullDateString);
             ResultSet rs = stmt.executeQuery();
             return getListFromRS(rs);
         }
@@ -222,12 +229,13 @@ public class CallRepository {
         }
     }
 
-    public long insertCall(int customerId, LocalDate startDate) {
+    public long insertCall(int customerId, LocalDate startDate, int userId) {
         try (Connection con = dataSource.getConnection();
-             PreparedStatement stmt = con.prepareStatement("insert into call (custID,startdate) values (?,?)",
+             PreparedStatement stmt = con.prepareStatement("insert into call (custID,startdate,userID) values (?,?,?)",
                      Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1,customerId);
             stmt.setString(2,startDate.format(Call.dateFormatter));
+            stmt.setInt(3,userId);
             int n=stmt.executeUpdate();
             if (n == 0) {
                 throw new SQLException("no call has been created");
@@ -252,40 +260,41 @@ public class CallRepository {
         }
     }
 
-    public long insertCall(int customerId, LocalDate startDate, int siteId) {
-        long id = insertCall(customerId,startDate);
+    public long insertCall(int customerId, LocalDate startDate, int userId, int siteId) {
+        long id = insertCall(customerId,startDate, userId);
         Call call = getCallById((int)id);
         call.setSiteId(siteId);
         updateCall(call);
         return id;
     }
 
-    public int deleteCall(int id) {
-        Call call = getCallById(id);
-        call.setDate2(Call.nullDate);
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement stmt = con.prepareStatement("delete from call where id=?",
-                     Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setInt(1,call.getId());
-            int n=stmt.executeUpdate();
-            if (n == 1) {
-                log.info("call id="+call.getId()+" has been deleted");
-            }
-            else {
-                throw new SQLException(n+" records have been deleted for id="+call.getId());
-            }
-            return n;
-        }
-        catch (SQLException e) {
-            log.error("error in deleteCall: ",e);
-            throw new DeleteException("error in deleteCall: ",e);
-        }
-    }
+//    public int deleteCall(int id) {
+//        Call call = getCallById(id);
+//        call.setDate2(Call.nullDate);
+//        try (Connection con = dataSource.getConnection();
+//             PreparedStatement stmt = con.prepareStatement("delete from call where id=?",
+//                     Statement.RETURN_GENERATED_KEYS)) {
+//            stmt.setInt(1,call.getId());
+//            int n=stmt.executeUpdate();
+//            if (n == 1) {
+//                log.info("call id="+call.getId()+" has been deleted");
+//            }
+//            else {
+//                throw new SQLException(n+" records have been deleted for id="+call.getId());
+//            }
+//            return n;
+//        }
+//        catch (SQLException e) {
+//            log.error("error in deleteCall: ",e);
+//            throw new DeleteException("error in deleteCall: ",e);
+//        }
+//    }
 
     public void updateCall(Call call) {
+        String msg = "updateCall with id=" + call.getId() + ": ";
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(
                 "update call set custid=?, siteid=?, descr=?, cartypeid=?, calltypeid=?, notes=?, startdate=?, " +
-                        "date1=?, enddate=?, meeting=?, done=?, here=? where id=?")) {
+                        "date1=?, enddate=?, meeting=?, done=?, here=?, deleted=?, userId=? where id=?")) {
             stmt.setInt(1, call.getCustomerId());
             stmt.setInt(2, call.getSiteId());
             stmt.setString(3, call.getDescription());
@@ -298,12 +307,15 @@ public class CallRepository {
             stmt.setBoolean(10, call.isMeeting());
             stmt.setBoolean(11, call.isDone());
             stmt.setBoolean(12, call.isHere());
-            stmt.setInt(13, call.getId());
+            stmt.setBoolean(13, call.isDeleted());
+            stmt.setInt(14, call.getUserId());
+            stmt.setInt(15, call.getId());
+            msg += stmt.toString();
             stmt.executeUpdate();
-            log.info("updateCall with id="+call.getId()+": "+stmt);
+            log.info(msg);
         } catch (SQLException e) {
-            log.error("error in updateCall (id="+call.getId()+"): ",e);
-            throw new UpdateException("error in updateCall (id="+call.getId()+"): ",e);
+            log.error("error in " + msg, e);
+            throw new UpdateException("error in " + msg,e);
         }
     }
 

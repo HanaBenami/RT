@@ -1,12 +1,11 @@
 package il.co.rtcohen.rt.app;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
-import com.vaadin.server.Page;
-import com.vaadin.server.ThemeResource;
-import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.*;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.SpringViewDisplay;
@@ -17,38 +16,54 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Panel;
 import il.co.rtcohen.rt.app.ui.UIPaths;
+import il.co.rtcohen.rt.dal.dao.GeneralType;
+import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 @SpringUI()
 @SpringViewDisplay
 @Theme("myTheme")
 public class MainUI extends UI implements ViewDisplay {
 
+
+    private final GeneralRepository generalRepository;
     private Panel springViewDisplay;
     private MenuBar menu;
     private HorizontalLayout topLayout;
-    private Component navigationBar;
+    private HorizontalLayout loginLayout;
+    private HorizontalLayout navigationLayout;
     Image language;
 
     @Value("${settings.multiLanguage}") Boolean multiLanguage;
 
     @Value("${settings.workOrderWidth}") int workOrderWidth;
 
+    final static private Logger log = LoggerFactory.getLogger(MainUI.class);
+
+    @Autowired
+    private MainUI(GeneralRepository generalRepository) {
+        this.generalRepository = generalRepository;
+    }
+
     @Override
     protected void init(VaadinRequest request) {
-
         final VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
         setContent(mainLayout);
         topLayout = new HorizontalLayout();
         addLogo();
         addPrintButton();
-        if (multiLanguage)
+        if (multiLanguage) {
             addLanguageButton();
-        addNavigationBar();
+        }
+        addOrRefreshUsernameLayout();
+        addOrRefreshNavigationLayout();
         mainLayout.addComponent(topLayout);
         springViewDisplay = new Panel();
         springViewDisplay.setSizeFull();
@@ -70,6 +85,9 @@ public class MainUI extends UI implements ViewDisplay {
     }
 
     private void addLanguageButton() {
+        try {
+            topLayout.removeComponent(language);
+        } catch (Exception ignored) {}
         language = LanguageSettings.getFlag();
         language.setStyleName("noBorderButton");
         language.setHeight("40");
@@ -80,20 +98,25 @@ public class MainUI extends UI implements ViewDisplay {
 
     private void changeLocale() {
         LanguageSettings.changeLocale();
-        topLayout.removeComponent(navigationBar);
-        topLayout.removeComponent(language);
         addLanguageButton();
-        addNavigationBar();
+        addOrRefreshUsernameLayout();
+        addOrRefreshNavigationLayout();
         getUI().getNavigator().navigateTo("");
     }
 
-    private void addNavigationBar() {
-        navigationBar = createNavigationBar();
-        if(LanguageSettings.isHebrew())
-            navigationBar.addStyleName("menu_right");
-        else
-            navigationBar.addStyleName("menu_left");
-        topLayout.addComponentsAndExpand(navigationBar);
+    private void addOrRefreshNavigationLayout() {
+        try {
+            topLayout.removeComponent(navigationLayout);
+        } catch (Exception ignored) {}
+        Component navigationBar = createNavigationBar();
+        navigationBar.addStyleName(LanguageSettings.isHebrew() ? "menu_right" : "menu_left");
+        navigationLayout = new HorizontalLayout();
+        navigationLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+        navigationLayout.addComponentsAndExpand(navigationBar);
+        if (null == getSessionUsername()) {
+            menu.setEnabled(false);
+        }
+        topLayout.addComponentsAndExpand(navigationLayout);
     }
 
     @Override
@@ -109,23 +132,22 @@ public class MainUI extends UI implements ViewDisplay {
         driver.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=driver"));
         setup.addSeparator();
-
         MenuBar.MenuItem area = setup.addItem(LanguageSettings.getLocaleString("areaMenu"));
         area.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("area"));
         setup.addSeparator();
-
         MenuBar.MenuItem custType = setup.addItem(LanguageSettings.getLocaleString("customerTypeTitle"));
         custType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=custtype"));
-
         MenuBar.MenuItem carType = setup.addItem(LanguageSettings.getLocaleString("carTypeTitle"));
         carType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=cartype"));
-
         MenuBar.MenuItem callType = setup.addItem(LanguageSettings.getLocaleString("callTypeTitle"));
         callType.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("update/table=calltype"));
+        setup.addSeparator();
+        MenuBar.MenuItem user = setup.addItem(LanguageSettings.getLocaleString("usersMenu"));
+        user.setCommand((MenuBar.Command) selectedItem -> getUI().getNavigator().navigateTo("update/table=users"));
     }
 
     private void addCustomerMenu() {
@@ -139,7 +161,11 @@ public class MainUI extends UI implements ViewDisplay {
         site.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("site"));
         customerMenu.addItem(LanguageSettings.getLocaleString("addSite"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.EDITSITE.getPath(), "_new2",700,400, BorderStyle.NONE));
+                .open(UIPaths.EDITSITE.getPath(), "_new2",700,500, BorderStyle.NONE));
+//        customerMenu.addSeparator();
+//        MenuBar.MenuItem contact = customerMenu.addItem(LanguageSettings.getLocaleString("contacts"));
+//        contact.setCommand((MenuBar.Command) selectedItem ->
+//                getUI().getNavigator().navigateTo("contact"));
     }
 
     private void addReportsMenu() {
@@ -182,7 +208,7 @@ public class MainUI extends UI implements ViewDisplay {
         calls.setCommand((MenuBar.Command) selectedItem ->
                 getUI().getNavigator().navigateTo("call"));
         call.addItem(LanguageSettings.getLocaleString("addCall"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.EDITCALL.getPath(), "_new3",700,650, BorderStyle.NONE));
+                .open(UIPaths.EDITCALL.getPath(), "_new3",750,770, BorderStyle.NONE));
     }
 
     private Component createNavigationBar() {
@@ -199,4 +225,93 @@ public class MainUI extends UI implements ViewDisplay {
         return menu;
     }
 
+    // Login
+
+    TextField usernameTextbox;
+
+    private void addOrRefreshUsernameLayout() {
+        try {
+            topLayout.removeComponent(loginLayout);
+        } catch (Exception ignored) {}
+        loginLayout = new HorizontalLayout();
+        loginLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        if (null == getSessionUsername()) {
+            addUsernameTextbox();
+        } else {
+            addUsernameLabel();
+        }
+        topLayout.addComponents(loginLayout);
+        addOrRefreshNavigationLayout();
+    }
+
+    protected void addUsernameTextbox() {
+        // Login button
+        Button loginBtn = UIComponents.bigButton(VaadinIcons.KEY);
+        loginBtn.setEnabled(false);
+        loginBtn.addClickListener(click -> login());
+        loginLayout.addComponents(loginBtn);
+        // Username textbox
+        usernameTextbox = new TextField();
+        usernameTextbox.setWidth("200");
+        usernameTextbox.focus();
+        usernameTextbox.addFocusListener(
+            focusEvent -> loginBtn.setClickShortcut(ShortcutAction.KeyCode.ENTER)
+        );
+        usernameTextbox.addBlurListener(event -> loginBtn.removeClickShortcut());
+        usernameTextbox.addValueChangeListener(valueChangeEvent -> {
+            loginBtn.setEnabled(!usernameTextbox.getValue().isEmpty());
+        });
+        loginLayout.addComponents(usernameTextbox);
+    }
+
+    void addUsernameLabel() {
+        // exit button
+        Button exitBtn = UIComponents.bigButton(VaadinIcons.EXIT);
+        exitBtn.setEnabled(true);
+        exitBtn.addClickListener(click -> logout());
+        loginLayout.addComponents(exitBtn);
+        // Username label
+        log.info("Username: " + getSessionUsername());
+        Label usernameLabel = UIComponents.label("");
+        usernameLabel.setValue(LanguageSettings.getLocaleString("hello") + " " + getSessionUsername());
+        usernameLabel.setStyleName("LABEL-LEFT-BOLD");
+        usernameLabel.setHeight("40");
+        usernameLabel.setWidth("300");
+        loginLayout.addComponent(usernameLabel);
+    }
+
+    static boolean emptyToString(Object obj) {
+        return (null == obj || obj.toString().replace(" ", "").equals(""));
+    }
+
+    String getSessionUsername() {
+        Object username = getSession().getAttribute("username");
+        return (emptyToString(username) ? null : username.toString());
+    }
+
+    void setSessionUsername(String username) {
+        getSession().setAttribute("username", username);
+        log.info("username: " + username);
+        int userid = generalRepository.getIdByName("users", username);
+        getSession().setAttribute("userid", userid);
+        log.info("userid: " + userid);
+    }
+
+    void login() {
+        String newUsername = usernameTextbox.getValue();
+        if (emptyToString(newUsername)) {
+            usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("emptyUsername")));
+        } else if (!generalRepository.getNames("users", true).stream()
+                .map(GeneralType::getName).collect(Collectors.toList()).contains(newUsername)) {
+            usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("invalidUsername")));
+        } else {
+            setSessionUsername(newUsername);
+            addOrRefreshUsernameLayout();
+        }
+    }
+
+    void logout() {
+        setSessionUsername(null);
+        addOrRefreshUsernameLayout();
+    }
 }
