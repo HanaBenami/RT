@@ -17,13 +17,13 @@ import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import java.util.function.Supplier;
 
-public abstract class AbstractDataViewSingleObject<T extends AbstractType> extends AbstractView implements View {
+public abstract class AbstractDataView<T extends AbstractType> extends AbstractView implements View {
     String title;
     CustomFilterGrid<T> grid;
     GeneralRepository generalRepository;
     Button addButton;
 
-    AbstractDataViewSingleObject(ErrorHandler errorHandler, GeneralRepository generalRepository) {
+    AbstractDataView(ErrorHandler errorHandler,GeneralRepository generalRepository) {
         super(errorHandler);
         this.generalRepository=generalRepository;
 //      TODO:  UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);

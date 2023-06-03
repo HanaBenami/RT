@@ -11,7 +11,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.dal.dao.GeneralType;
+import il.co.rtcohen.rt.dal.dao.GeneralObject;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +21,9 @@ import org.vaadin.addons.filteringgrid.FilterGrid;
 import java.util.Arrays;
 import java.util.Map;
 
+@Deprecated
 @SpringView(name = GeneralTypeView.VIEW_NAME)
-public class GeneralTypeView extends AbstractDataView<GeneralType> {
+public class GeneralTypeView extends AbstractDataViewSingleObject<GeneralObject> {
 
     static final String VIEW_NAME = "update";
     private static Logger logger = LoggerFactory.getLogger(GeneralTypeView.class);
@@ -50,13 +51,13 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
     }
 
     private void addActiveColumn() {
-        FilterGrid.Column<GeneralType, Component> activeColumn =
-                grid.addComponentColumn((ValueProvider<GeneralType, Component>) generalType ->
-                        UIComponents.checkBox(generalType.getActive(), true));
+        FilterGrid.Column<GeneralObject, Component> activeColumn =
+                grid.addComponentColumn((ValueProvider<GeneralObject, Component>) generalType ->
+                        UIComponents.checkBox(generalType.isActive(), true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
-                (ValueProvider<GeneralType, Boolean>) GeneralType::getActive,
-                (Setter<GeneralType, Boolean>) (generalType, Boolean) -> {
+                (ValueProvider<GeneralObject, Boolean>) GeneralObject::isActive,
+                (Setter<GeneralObject, Boolean>) (generalType, Boolean) -> {
                     generalType.setActive(Boolean);
                     generalRepository.update(generalType);
                 }));
@@ -67,8 +68,8 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
     }
 
     private void addNameColumn() {
-        FilterGrid.Column<GeneralType, String> nameColumn =
-                grid.addColumn(GeneralType::getName).setId("nameColumn")
+        FilterGrid.Column<GeneralObject, String> nameColumn =
+                grid.addColumn(GeneralObject::getName).setId("nameColumn")
                         .setEditorComponent(new TextField(), (generalType, String) -> {
                             generalType.setName(String);
                             generalRepository.update(generalType);
@@ -81,7 +82,7 @@ public class GeneralTypeView extends AbstractDataView<GeneralType> {
     }
 
     private void addIdColumn() {
-        FilterGrid.Column<GeneralType, Integer> idColumn = grid.addColumn(GeneralType::getId).setId("idColumn")
+        FilterGrid.Column<GeneralObject, Integer> idColumn = grid.addColumn(GeneralObject::getId).setId("idColumn")
                 .setWidth(70).setResizable(false);
         grid.getEditor().setEnabled(true);
         grid.getDefaultHeaderRow().getCell("idColumn").setText(LanguageSettings.getLocaleString("id"));

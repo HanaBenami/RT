@@ -7,6 +7,15 @@ public class GeneralType {
     private boolean active;
     private String table;
 
+    public GeneralType() {
+        this.active = true;
+    }
+
+    public GeneralType(String name) {
+        this.active = true;
+        this.name = name;
+    }
+
     public GeneralType(Integer id, String name, boolean active, String table) {
         this.id=id;
         this.name=name;
