@@ -1,14 +1,22 @@
 package il.co.rtcohen.rt.dal.dao;
 
-public class Area extends GeneralType {
+public class Area extends GeneralObject {
 
     private boolean here;
     private Integer displayOrder;
 
+    public Area() {
+        super();
+    }
+
+    public Area(String name) {
+        super(name);
+    }
+
     public Area(int id, String name, boolean here, boolean active, int displayOrder) {
-        super(id,name,active,"area");
-        this.here=here;
-        this.displayOrder=displayOrder;
+        super(id, name, active);
+        this.here = here;
+        this.displayOrder = displayOrder;
     }
 
     public boolean getHere () {

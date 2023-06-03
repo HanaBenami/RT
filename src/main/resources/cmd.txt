@@ -1,0 +1,3 @@
+java.exe -jar d:\rt\rt.jar --spring.profiles.active=rt_prod --spring.config.name=./RT_prod --spring.config.location=D:\RT\
+
+java -jar target/RT-3.jar --spring.profiles.active=demo --spring.config.name=application-demo --spring.config.location=./src/main/resources/

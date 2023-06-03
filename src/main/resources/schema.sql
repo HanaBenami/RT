@@ -1,3 +1,5 @@
+DROP VIEW IF EXISTS v_opencall;
+
 DROP TABLE IF EXISTS area;
 CREATE TABLE area (
 	ID int IDENTITY(1,1) NOT NULL,
@@ -31,7 +33,6 @@ CREATE TABLE driver (
 	active bit NOT NULL DEFAULT 1);
 
 DROP TABLE IF EXISTS cust;
-
 CREATE TABLE cust(
 	ID int IDENTITY(1,1) NOT NULL,
 	NAME text NOT NULL DEFAULT '',
@@ -39,7 +40,6 @@ CREATE TABLE cust(
 	active bit NOT NULL DEFAULT 1);
 
 DROP TABLE IF EXISTS site;
-
 CREATE TABLE site (
 	ID int IDENTITY(1,1) NOT NULL,
 	NAME text NOT NULL DEFAULT '',
@@ -79,9 +79,11 @@ CREATE VIEW v_opencall AS SELECT TOP 1000 call.ID, call.custID, call.siteID, cal
 
 -- 18/09/21
 
+DROP VIEW v_opencall;
+
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (ID int IDENTITY(1,1) NOT NULL, NAME text NOT NULL DEFAULT '', active bit NOT NULL DEFAULT 1);
-INSERT INTO users (name) VALUES ("Hana")
+INSERT INTO users (name) VALUES ('Hana');
 
 DROP TABLE IF EXISTS contact;
 CREATE TABLE contact ( ID int IDENTITY(1,1) NOT NULL,
@@ -90,9 +92,9 @@ CREATE TABLE contact ( ID int IDENTITY(1,1) NOT NULL,
 	siteID int NULL DEFAULT 0,
 	phone text NOT NULL DEFAULT '',
 	notes text NOT NULL DEFAULT '');
-INSERT INTO contact (name, phone, siteId) SELECT contact, phone, id FROM site
+INSERT INTO contact (name, phone, siteId) SELECT contact, phone, id FROM site;
 
 ALTER TABLE call ADD deleted bit DEFAULT 0;
 ALTER TABLE call ADD userId int DEFAULT 0;
 
-ALTER VIEW v_opencall AS SELECT TOP 1000 call.ID, call.custID, call.siteID, call.contactID, call.carTypeID, call.callTypeID, call.Notes, call.startdate, call.date1, call.date2, call.enddate, call.meeting, call.done, call.here, call.driverID, call.workOrder, call.descr, site.areaID, call.deleted, call.userId FROM call INNER JOIN site ON call.siteID = site.ID WHERE call.done = 0 AND call.deleted = 0 ORDER BY call.date2;
+CREATE VIEW v_opencall AS SELECT TOP 1000 call.ID, call.custID, call.siteID, call.contactID, call.carTypeID, call.callTypeID, call.Notes, call.startdate, call.date1, call.date2, call.enddate, call.meeting, call.done, call.here, call.driverID, call.workOrder, call.descr, site.areaID, call.deleted, call.userId FROM call INNER JOIN site ON call.siteID = site.ID WHERE call.done = 0 AND call.deleted = 0 ORDER BY call.date2;

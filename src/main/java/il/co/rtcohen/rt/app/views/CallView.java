@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 @SpringView(name = CallView.VIEW_NAME)
-public class CallView extends AbstractDataView<Call> {
+public class CallView extends AbstractDataViewSingleObject<Call> {
     static final String VIEW_NAME = "call";
-    private static Logger logger = LoggerFactory.getLogger(CustomerView.class);
+    private static Logger logger = LoggerFactory.getLogger(CallView.class);
     private Integer defaultDaysAhead = 1;
     private TextField filterId;
     private Boolean filterDoneActive = false;

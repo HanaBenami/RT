@@ -1,51 +1,31 @@
 package il.co.rtcohen.rt.app.views;
 
-import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.spring.annotation.SpringView;
-import il.co.rtcohen.rt.app.ui.grids.GeneralObjectGrid;
+import il.co.rtcohen.rt.app.ui.grids.AreasGrid;
 import il.co.rtcohen.rt.dal.dao.GeneralObject;
-import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
+import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
-import java.util.Map;
-
-@SpringView(name = GeneralObjectView.VIEW_NAME)
-public class GeneralObjectView extends AbstractDataView<GeneralObject> {
-    static final String VIEW_NAME = "update";
-    private static final Logger logger = LoggerFactory.getLogger(GeneralObjectView.class);
+@SpringView(name = AreasView.VIEW_NAME)
+public class AreasView extends AbstractDataView<GeneralObject> {
+    static final String VIEW_NAME = "areas";
+    private static final Logger logger = LoggerFactory.getLogger(AreasView.class);
     private String dbTableName;
 
     // Repositories
-    private final GeneralObjectRepository generalObjectRepository;
+    private final AreasRepository areasRepository;
 
     // Grids
-    private GeneralObjectGrid generalObjectGrid;
+    private AreasGrid areasGrid;
 
     @Autowired
-    private GeneralObjectView(ErrorHandler errorHandler, GeneralObjectRepository generalObjectRepository) {
-        super(errorHandler, null);
-        this.generalObjectRepository = generalObjectRepository;
+    private AreasView(ErrorHandler errorHandler, AreasRepository areasRepository) {
+        super(errorHandler, "areaTitle");
+        this.areasRepository = areasRepository;
     }
-
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
-        Map<String, String> parametersMap = event.getParameterMap();
-        logger.info("Parameters map " + Arrays.toString(parametersMap.entrySet().toArray()));
-        this.dbTableName = parametersMap.get("table");
-        this.generalObjectRepository.setDbTableName(this.dbTableName);
-        this.generalObjectRepository.setRepositoryName(this.dbTableName);
-        this.setTitle(getTitleKey());
-        super.enter(event);
-    }
-
-    private String getTitleKey() {
-        return (null == this.dbTableName ? null : this.dbTableName + "Title");
-    }
-
     @Override
     void addGrids() {
         addGrid();
@@ -53,8 +33,8 @@ public class GeneralObjectView extends AbstractDataView<GeneralObject> {
 
     void addGrid() {
         removeGrid();
-        generalObjectGrid = new GeneralObjectGrid(generalObjectRepository, getTitleKey());
-        addComponentsAndExpand(generalObjectGrid.getVerticalLayout(true, false));
+        areasGrid = new AreasGrid(areasRepository);
+        addComponentsAndExpand(areasGrid.getVerticalLayout(true, false));
     }
 
     @Override
@@ -63,15 +43,15 @@ public class GeneralObjectView extends AbstractDataView<GeneralObject> {
     }
 
     void removeGrid() {
-        if (null != generalObjectGrid) {
-            removeComponent(generalObjectGrid.getVerticalLayout(false, false));
-            generalObjectGrid = null;
+        if (null != areasGrid) {
+            removeComponent(areasGrid.getVerticalLayout());
+            areasGrid = null;
         }
     }
 
     // TODO
     @Override
     void setTabIndexes() {
-        generalObjectGrid.setTabIndex(1);
+        areasGrid.setTabIndex(1);
     }
 }

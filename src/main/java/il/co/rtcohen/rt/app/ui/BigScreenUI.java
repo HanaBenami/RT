@@ -13,7 +13,7 @@ import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
-import il.co.rtcohen.rt.dal.repositories.AreaRepository;
+import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +31,17 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM");
     private Integer intervalTime;
     private Integer rowHeight;
-    private AreaRepository areaRepository;
+    private AreasRepository areasRepository;
     private Integer rowsPerColumn;
 
     @Autowired
     private BigScreenUI(ErrorHandler errorHandler, CallRepository callRepository,
-                        GeneralRepository generalRepository, AreaRepository areaRepository,
+                        GeneralRepository generalRepository, AreasRepository areasRepository,
                         @Value("${settings.bigScreen.interval}") Integer intervalTime,
                         @Value("${settings.bigScreen.rowHeight}") Integer rowHeight,
                         @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn) {
         super(errorHandler,callRepository,generalRepository);
-        this.areaRepository=areaRepository;
+        this.areasRepository=areasRepository;
         this.intervalTime=intervalTime;
         this.rowHeight=rowHeight;
         this.rowsPerColumn=rowsPerColumn;
@@ -65,16 +65,16 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         List <Integer> areas = new ArrayList<>();
         String condition = getPage().getUriFragment();
         if (!condition.equals("here"))
-            areas.addAll(areaRepository.getOutAreaId());
+            areas.addAll(areasRepository.getOutAreaId());
         if (!condition.equals("out"))
-            areas.addAll(areaRepository.getHereAreaId());
+            areas.addAll(areasRepository.getHereAreaId());
 
         //sort by display order
         areas.sort((o1, o2) -> {
-            if (areaRepository.getAreaById(o1).getDisplayOrder() >
-                    areaRepository.getAreaById(o2).getDisplayOrder())
+            if (areasRepository.getAreaById(o1).getDisplayOrder() >
+                    areasRepository.getAreaById(o2).getDisplayOrder())
                 return -1 ;
-            else if (areaRepository.getAreaById(o1).getDisplayOrder().equals(areaRepository.getAreaById(o2).getDisplayOrder()))
+            else if (areasRepository.getAreaById(o1).getDisplayOrder().equals(areasRepository.getAreaById(o2).getDisplayOrder()))
                 return 0 ;
             else
                 return 1;

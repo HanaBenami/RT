@@ -16,17 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class CallRepository {
+public class CallRepository {   // TODO: extends AbstractRepository
 
     final static private Logger log = LoggerFactory.getLogger(CallRepository.class);
 
     private DataSource dataSource;
 
-    private AreaRepository areaRepository;
+    private AreasRepository areasRepository;
 
     @Autowired
-    public CallRepository(DataSource dataSource,AreaRepository areaRepository) {
-        this.areaRepository = areaRepository;
+    public CallRepository(DataSource dataSource, AreasRepository areasRepository) {
+        this.areasRepository = areasRepository;
         this.dataSource = dataSource;
     }
 
@@ -154,7 +154,7 @@ public class CallRepository {
     }
 
     public List<Call> getOpenCallsPerArea(int area) {
-        if(areaRepository.getAreaById(area).getName().equals("מוסך"))
+        if(areasRepository.getAreaById(area).getName().equals("מוסך"))
             return getGarageCalls(area);
         else
             return getAreaCalls(area);

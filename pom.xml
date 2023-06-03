@@ -5,11 +5,11 @@
 
 	<groupId>il.co.rtcohen.rt</groupId>
 	<artifactId>RT</artifactId>
-	<version>3</version>
+	<version>2023.06</version>
 	<packaging>jar</packaging>
 
 	<name>RT</name>
-	<description>RT project / Hana</description>
+	<description>RT Application / (C) Hana</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -22,16 +22,18 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+<!--		TODO: upgrade to vaadin 24.0.1 ?-->
+		<vaadin.version>8.5.1</vaadin.version>
 	</properties>
 
 	<dependencies>
 
 		<!-- TODO: delete / comment out on RT Prod. -->
-		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<version>4.0</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.microsoft.sqlserver</groupId>-->
+<!--			<artifactId>sqljdbc4</artifactId>-->
+<!--			<version>4.0</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -147,7 +149,8 @@
 				<dependency>
 					<groupId>com.microsoft.sqlserver</groupId>
 					<artifactId>mssql-jdbc</artifactId>
-					<version>6.4.0.jre8</version>
+<!--					<version>6.4.0.jre8</version>-->
+					<version>12.2.0.jre8</version>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -166,7 +169,7 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-bom</artifactId>
-				<version>8.5.1</version>
+				<version>${vaadin.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

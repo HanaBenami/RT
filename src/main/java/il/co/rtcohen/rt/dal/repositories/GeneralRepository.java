@@ -1,5 +1,5 @@
 package il.co.rtcohen.rt.dal.repositories;
-import il.co.rtcohen.rt.dal.dao.GeneralType;
+import il.co.rtcohen.rt.dal.dao.GeneralObject;
 import il.co.rtcohen.rt.dal.InsertException;
 import il.co.rtcohen.rt.dal.UpdateException;
 import org.slf4j.Logger;
@@ -13,6 +13,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @Repository
 public class GeneralRepository {
 
@@ -25,18 +26,18 @@ public class GeneralRepository {
         this.dataSource = dataSource;
     }
 
-    public List<GeneralType> getNames (String table) {
+    public List<GeneralObject> getNames(String table) {
         return getNames(table, false);
     }
 
-    public List<GeneralType> getNames(String table, boolean activeOnly) {
-        List<GeneralType> list = new ArrayList<>();
+    public List<GeneralObject> getNames(String table, boolean activeOnly) {
+        List<GeneralObject> list = new ArrayList<>();
         String sql = "SELECT * FROM " + table + (activeOnly ? " WHERE active=1" : "");
         try (Connection con = dataSource.getConnection();
             PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                list.add(new GeneralType(rs.getInt("id"),rs.getString("name"),rs.getBoolean("active"),table));
+                list.add(new GeneralObject(rs.getInt("id"),rs.getString("name"),rs.getBoolean("active"),table));
             }
             return list;
         }
@@ -49,8 +50,8 @@ public class GeneralRepository {
     }
 
     public int getIdByName(String table, String name) {
-        List<GeneralType> list = getNames(table);
-        for (GeneralType obj : list) {
+        List<GeneralObject> list = getNames(table);
+        for (GeneralObject obj : list) {
             if (obj.getName().equals(name)) {
                 return obj.getId();
             }
@@ -90,8 +91,8 @@ public class GeneralRepository {
         }
     }
 
-    public String getNameById (int id, String table) {
-        return getNameById(id, table, null);
+    public String getNameById (Integer id, String table) {
+        return (null == id ? "" : getNameById(id, table, null));
     }
 
     public String getNameById(int id, String table, String additionalWhere) {
@@ -143,14 +144,14 @@ public class GeneralRepository {
         }
     }
 
-    public int update(GeneralType x) {
+    public int update(GeneralObject x) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
-                ("update "+x.getTable()+" set name=?, active=? where id=?")) {
+                ("update "+x.getDbTableName()+" set name=?, active=? where id=?")) {
             stmt.setString(1,x.getName());
-            stmt.setBoolean(2,x.getActive());
+            stmt.setBoolean(2,x.isActive());
             stmt.setInt(3,x.getId());
             int n=stmt.executeUpdate();
-            log.info("Update "+x.getTable()+" where id="+x.getId()+" > "+n+" records has been updated");
+            log.info("Update "+x.getDbTableName()+" where id="+x.getId()+" > "+n+" records has been updated");
             return n;
         }
         catch (SQLException e) {

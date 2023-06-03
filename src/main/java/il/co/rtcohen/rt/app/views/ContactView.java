@@ -20,8 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 @SpringView(name = ContactView.VIEW_NAME)
-public class ContactView extends AbstractDataView<Contact> {
+public class ContactView extends AbstractDataViewSingleObject<Contact> {
 
     static final String VIEW_NAME = "contact";
     private static final Logger logger = LoggerFactory.getLogger(ContactView.class);
@@ -65,10 +66,10 @@ public class ContactView extends AbstractDataView<Contact> {
     private void addActiveColumn() {
         FilterGrid.Column<Contact, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<Contact, Component>) contact ->
-                    UIComponents.checkBox(contact.getActive(), true));
+                    UIComponents.checkBox(contact.isActive(), true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
-                (ValueProvider<Contact, Boolean>) Contact::getActive,
+                (ValueProvider<Contact, Boolean>) Contact::isActive,
                 (Setter<Contact, Boolean>) (contact, Boolean) -> {
                     contact.setActive(Boolean);
                     generalRepository.update(contact);

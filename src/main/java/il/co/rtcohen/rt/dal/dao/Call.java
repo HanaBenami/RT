@@ -3,12 +3,11 @@ package il.co.rtcohen.rt.dal.dao;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Call {
+public class Call extends AbstractType {
 
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     final static public String nullDateString = "1901-01-01";
     final static public LocalDate nullDate = LocalDate.parse(nullDateString, dateFormatter);
-    private int id;
     private int customerId;
     private int siteId;
     private String description;
@@ -34,7 +33,7 @@ public class Call {
 
     public Call(int id, int customerId, int siteId, String description, int carTypeId, int callTypeId, String notes, String startDate, String date1,
                 String date2, String endDate, boolean meeting, boolean done, boolean deleted, boolean here, int driverID, int order, int userId) {
-        this.id = id;
+        super(id);
         this.customerId = customerId;
         this.siteId = siteId;
         this.description = description;
@@ -149,10 +148,6 @@ public class Call {
 
     public void setUserId(int newUser) {
         this.userId = newUser;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public int getCustomerId() {

@@ -5,30 +5,23 @@ import com.vaadin.server.Setter;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.dal.dao.Contact;
-import il.co.rtcohen.rt.dal.dao.Site;
-import il.co.rtcohen.rt.dal.repositories.ContactRepository;
+import il.co.rtcohen.rt.dal.dao.Area;
+import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 
-public class AreasGrid extends AbstractFilterGrid<Contact> {
-    private final Site site;
-
-    public AreasGrid(Site site,
-                     ContactRepository contactRepository) {
-        super(contactRepository, () -> {
-                    Contact contact = new Contact();
-                    contact.setSiteId(site.getId());
-                    return contact;
-                },
-                "contacts",
-                contact -> null == site || !contact.getSiteId().equals(site.getId()));
-        this.site = site;
+public class AreasGrid extends AbstractFilterGrid<Area> {
+    public AreasGrid(AreasRepository areasRepository) {
+        super(areasRepository,
+                Area::new,
+                "area",
+                null
+        );
         this.initGrid();
     }
 
     protected void addColumns() {
         addActiveColumn();
-        addNotesColumn();
-        addPhoneColumn();
+        addHereColumn();
+        addDisplayOrderColumn();
         addNameColumn();
         addIdColumn();
     }
@@ -39,39 +32,40 @@ public class AreasGrid extends AbstractFilterGrid<Contact> {
 
     private void addActiveColumn() {
         this.addBooleanColumn(
-                (ValueProvider<Contact, Component>) contact -> UIComponents.checkBox(contact.isActive(),true),
-                (ValueProvider<Contact, Boolean>) Contact::isActive,
-                (Setter<Contact, Boolean>) Contact::setActive,
+                (ValueProvider<Area, Component>) area -> UIComponents.checkBox(area.isActive(),true),
+                (ValueProvider<Area, Boolean>) Area::isActive,
+                (Setter<Area, Boolean>) Area::setActive,
                 "activeColumn",
                 "active",
                 Boolean.TRUE
         );
     }
 
-    private void addNotesColumn() {
-        this.addTextColumn(
-                Contact::getNotes,
-                Contact::setNotes,
-                230,
-                "notesColumn",
-                "notes"
+    private void addHereColumn() {
+        this.addBooleanColumn(
+                (ValueProvider<Area, Component>) area -> UIComponents.checkBox(area.getHere(),true),
+                (ValueProvider<Area, Boolean>) Area::getHere,
+                (Setter<Area, Boolean>) Area::setHere,
+                "hereColumn",
+                "here",
+                null
         );
     }
 
-    private void addPhoneColumn() {
-        this.addTextColumn(
-                Contact::getPhone,
-                Contact::setPhone,
-                230,
-                "phoneColumn",
-                "phone"
+    private void addDisplayOrderColumn() {
+        this.addNumericColumn(
+                Area::getDisplayOrder,
+                Area::setDisplayOrder,
+                80,
+                "displayOrderColumn",
+                "order"
         );
     }
 
     private void addNameColumn() {
         this.addTextColumn(
-                Contact::getName,
-                Contact::setName,
+                Area::getName,
+                Area::setName,
                 230,
                 "nameColumn",
                 "name"
@@ -80,7 +74,7 @@ public class AreasGrid extends AbstractFilterGrid<Contact> {
 
     private void addIdColumn() {
         this.addNumericColumn(
-                Contact::getId,
+                Area::getId,
                 null,
                 80,
                 "idColumn",

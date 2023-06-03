@@ -5,14 +5,14 @@ server:
   port: 8080
 
 sqlserver:
-  url: jdbc:sqlserver://server\WIZSOFT;databaseName=RT_prod;user=RT;password=RTRT;integratedSecurity=false;
+  url: jdbc:sqlserver://server\WIZSOFT;databaseName=RT_prod;user=RT_user;password=RTRT;integratedSecurity=false;trustServerCertificate=true;
 log:
   path: d:\rt\logs
 
 settings:
   multiLanguage: false
   bigScreen:
-    rowHeight: 70
-    rowsPerColumn: 14
+    rowHeight: 55
+    rowsPerColumn: 20
     interval: 60000
   workOrderWidth: 1400

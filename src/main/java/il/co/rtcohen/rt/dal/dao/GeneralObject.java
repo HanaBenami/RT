@@ -1,31 +1,35 @@
 package il.co.rtcohen.rt.dal.dao;
 
-public class GeneralType extends AbstractType {
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class GeneralObject extends AbstractType {
 
     private String name;
     private boolean active;
-    private String dbTableName;
 
-    public GeneralType() {
+    public GeneralObject() {
         super(null);
         this.active = true;
     }
 
-    public GeneralType(String name) {
+    public GeneralObject(String name) {
         super(null);
         this.name = name;
         this.active = true;
     }
 
-    public GeneralType(Integer id, String name, boolean active, String dbTableName) {
+    public GeneralObject(Integer id, String name, boolean active) {
         super(id);
         this.name = name;
         this.active = active;
-        this.dbTableName = dbTableName;
     }
 
-    public String getDbTableName() {
-        return DB_TABLE_NAME;
+    @Deprecated
+    public GeneralObject(Integer id, String name, boolean active, String dbTableName) {
+        super(id);
+        this.name = name;
+        this.active = active;
     }
 
     public Boolean isActive() {
@@ -37,13 +41,22 @@ public class GeneralType extends AbstractType {
     }
 
     public String getName() {
-        return name;
+        return (null == name ? "" : name);
     }
 
     public void setName(String name) {
-        if (!name.isEmpty()) {
-            this.name = name;
-        }
+        this.name = name;
     }
 
+    public boolean isItemValid() {
+        return (null != this.getName()) && (!this.getName().isEmpty());
+    }
+
+    public static List<Integer> generateListOfIds(List<GeneralObject> listOfObjects) {
+        return listOfObjects.stream().map(GeneralObject::getId).collect(Collectors.toList());
+    }
+
+    public static List<String> generateListOfNames(List<GeneralObject> listOfObjects) {
+        return listOfObjects.stream().map(GeneralObject::getName).collect(Collectors.toList());
+    }
 }

@@ -8,25 +8,33 @@ import com.vaadin.ui.components.grid.Editor;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
+import il.co.rtcohen.rt.dal.dao.Area;
 import il.co.rtcohen.rt.dal.repositories.AbstractRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.ui.NumberField;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-abstract public class CustomFilterGrid<T extends AbstractType> extends FilterGrid<T> {
+abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterGrid<T> {
     private AbstractRepository<T> mainRepository;
     private Supplier<T> newItemSupplier;
+    private VerticalLayout verticalLayout;
+    private String title;
+    private Predicate<T> itemsFilterPredicate;
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFilterGrid.class);
 
-    public CustomFilterGrid(AbstractRepository<T> mainRepository, Supplier<T> newItemSupplier) {
+    public AbstractFilterGrid(AbstractRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
+                              Predicate<T> itemsFilterPredicate) {
         super();
         this.setGridRepository(mainRepository);
         this.setNewItemSupplier(newItemSupplier);
+        this.setTitle(titleKey);
+        this.setItemsFilterPredicate(itemsFilterPredicate);
         this.setSaveAction();
     }
 
@@ -41,10 +49,18 @@ abstract public class CustomFilterGrid<T extends AbstractType> extends FilterGri
 
     abstract protected void sort();
 
-    abstract protected void setStyle();
+    protected void setStyle() {
+        this.setStyleGenerator((StyleGenerator<T>) T -> {
+            if (null == T.getId()) {
+                return "yellow";
+            } else {
+                return null;
+            }
+        });
+    }
 
     @Deprecated
-    public CustomFilterGrid() {
+    public AbstractFilterGrid() {
         super();
     }
 
@@ -56,16 +72,35 @@ abstract public class CustomFilterGrid<T extends AbstractType> extends FilterGri
         this.newItemSupplier = newItemSupplier;
     }
 
+    private void setTitle(String titleKey) {
+        this.title = (null == titleKey ? "" : LanguageSettings.getLocaleString(titleKey));
+    }
+
+    private void setItemsFilterPredicate(Predicate<T> itemsFilterPredicate) {
+        this.itemsFilterPredicate = itemsFilterPredicate;
+    }
+
+    public T getCurrentItem() {
+        Set<T> selected = this.getSelectedItems();
+        if (1 == selected.size()) {
+            for (T t : selected) {
+                return t;   // The first item will be returned
+            }
+        }
+        return null;
+    }
+
     private void setSaveAction() {
-        Editor editor = this.getEditor();
+        Editor<T> editor = this.getEditor();
         editor.setEnabled(true);
         editor.addSaveListener(listener -> {
-            T currentItem = (T) listener.getBean();
-            if (mainRepository.isItemValid(currentItem)) {
+            T currentItem = listener.getBean();
+            if (currentItem.isItemValid()) {
                 this.mainRepository.updateItem(currentItem);
                 this.getDataProvider().refreshItem(currentItem);
+                Notification.show(currentItem + " " + LanguageSettings.getLocaleString("wasEdited"));
             } else {
-                // TODO
+                Notification.show(currentItem + " " + LanguageSettings.getLocaleString("invalidAndCannotBeSaved"), Notification.Type.ERROR_MESSAGE);
             }
         });
         editor.setSaveCaption(LanguageSettings.getLocaleString("save"));
@@ -78,6 +113,9 @@ abstract public class CustomFilterGrid<T extends AbstractType> extends FilterGri
 
     private void populateGrid(int numOfEmptyLines) {
         List<T> items = mainRepository.getItems();
+        if (null != this.itemsFilterPredicate) {
+            items.removeIf(itemsFilterPredicate);
+        }
         if (0 < numOfEmptyLines) {
             assert null != newItemSupplier;
             for (int i = 0; i < numOfEmptyLines; ++i) {
@@ -111,11 +149,11 @@ abstract public class CustomFilterGrid<T extends AbstractType> extends FilterGri
         FilterGrid.Column<T, Component> column = this.addComponentColumn(componentProvider);
         column.setId(id).setExpandRatio(1).setWidth(70).setResizable(false).setSortable(false);
         column.setEditorBinding(this.getEditor().getBinder().forField(new CheckBox()).bind(valueProvider, setter));
-        CheckBox filterCheckBox = new CheckBox();
         if (null != defaultFilter) {
+            CheckBox filterCheckBox = new CheckBox();
             filterCheckBox.setValue(defaultFilter);
+            column.setFilter(UIComponents.BooleanValueProvider(), filterCheckBox, UIComponents.BooleanPredicate());
         }
-        column.setFilter(UIComponents.BooleanValueProvider(), filterCheckBox, UIComponents.BooleanPredicate());
         this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
     }
 
@@ -155,7 +193,16 @@ abstract public class CustomFilterGrid<T extends AbstractType> extends FilterGri
         FilterGrid.Column<T, Integer> column = this.addColumn(valueProvider);
         column.setId(id).setExpandRatio(1).setResizable(false).setWidth(width);
         if (null != setter) {
-//            column.setEditorComponent(new NumberField(), setter); // TODO
+            TextField numericField = UIComponents.textField(30);
+            column.setEditorBinding(this.getEditor().getBinder().forField(numericField).bind(
+                    area -> valueProvider.apply(area).toString(),
+                    new Setter<T, String>() {
+                        @Override
+                        public void accept(T t, String s) {
+                            setter.accept(t, Integer.parseInt(s));
+                        }
+                    }
+            ));
         }
 
         TextField filterField = UIComponents.textField(30);
@@ -235,8 +282,29 @@ abstract public class CustomFilterGrid<T extends AbstractType> extends FilterGri
         return button;
     }
 
+    public VerticalLayout getVerticalLayout() {
+        return this.getVerticalLayout(false, false);
+    }
 
-    public HorizontalLayout addEmptyLinesLayout() {
+    public VerticalLayout getVerticalLayout(boolean resetLayout, boolean withTitle) {
+        if (null == this.verticalLayout || resetLayout) {
+            initVerticalLayout(withTitle);
+        }
+        return this.verticalLayout;
+    }
+
+    private void initVerticalLayout(boolean withTitle) {
+        this.verticalLayout = new VerticalLayout();
+        this.verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        this.setWidth("70%");
+        if (withTitle) {
+            this.verticalLayout.addComponent(UIComponents.header(this.title));
+        }
+        this.verticalLayout.addComponentsAndExpand(this);
+        this.verticalLayout.addComponent(this.emptyLinesLayout());
+    }
+
+    private HorizontalLayout emptyLinesLayout() {
         HorizontalLayout newLinesLayout = new HorizontalLayout();
         newLinesLayout.setWidth(this.getWidth(), this.getWidthUnits());
         newLinesLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);

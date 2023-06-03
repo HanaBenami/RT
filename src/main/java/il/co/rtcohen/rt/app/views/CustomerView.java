@@ -15,7 +15,7 @@ import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.GeneralType;
+import il.co.rtcohen.rt.dal.dao.GeneralObject;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.CustomerRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
@@ -24,8 +24,9 @@ import il.co.rtcohen.rt.app.ui.UIPaths;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
+@Deprecated
 @SpringView(name = CustomerView.VIEW_NAME)
-public class CustomerView extends AbstractDataView<Customer> {
+public class CustomerView extends AbstractDataViewSingleObject<Customer> {
     static final String VIEW_NAME = "customer";
     private TextField filterName;
     private ComboBox<Integer> newCustomerType;
@@ -93,10 +94,10 @@ public class CustomerView extends AbstractDataView<Customer> {
     private void addActiveColumn() {
         FilterGrid.Column<Customer, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<Customer, Component>) Customer ->
-                        UIComponents.checkBox(Customer.getActive(),true));
+                        UIComponents.checkBox(Customer.isActive(),true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
-                (ValueProvider<Customer, Boolean>) GeneralType::getActive,
+                (ValueProvider<Customer, Boolean>) GeneralObject::isActive,
                 (Setter<Customer, Boolean>) (Customer, Boolean) -> {
                     Customer.setActive(Boolean);
                     generalRepository.update(Customer);
@@ -110,7 +111,9 @@ public class CustomerView extends AbstractDataView<Customer> {
     private void addCustomerTypeColumn() {
         ComboBox<Integer> customerTypeCombo = new UIComponents().custTypeComboBox(generalRepository,130,30);
         customerTypeCombo.setEmptySelectionAllowed(false);
-        FilterGrid.Column<Customer, String> customerTypeColumn = grid.addColumn(Customer -> generalRepository.getNameById(Customer.getCustomerTypeID(),"custType")).setId("custTypeColumn")
+        FilterGrid.Column<Customer, String> customerTypeColumn = grid.addColumn(
+                Customer -> generalRepository.getNameById(Customer.getCustomerTypeID(),"custType"))
+                .setId("custTypeColumn")
                 .setWidth(200).setEditorBinding(grid.getEditor().getBinder().forField(customerTypeCombo).bind(
                         (ValueProvider<Customer, Integer>) Customer::getCustomerTypeID,
                         (Setter<Customer, Integer>) (Customer, integer) -> {

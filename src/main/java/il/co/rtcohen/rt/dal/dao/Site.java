@@ -1,6 +1,10 @@
 package il.co.rtcohen.rt.dal.dao;
 
-public class Site extends GeneralType {
+public class Site extends GeneralObject {
+    static {
+        setDbTableName("site");
+        setObjectName("site");
+    }
 
     private Integer customerId;
     private Integer areaId;
@@ -10,20 +14,20 @@ public class Site extends GeneralType {
     private String notes;
 
     public Site() {
-        this(0,0,"",0,"",true,"","","");
+        this(0,null,"",0,"",true,"","","");
     }
 
-    public Site(int customerId, int id, String name, int areaId, String address, boolean active, String contact, String phone, String notes) {
-        super(id,name,active,"site");
+    public Site(int customerId, Integer id, String name, int areaId, String address, boolean active, String contact, String phone, String notes) {
+        super(id, name, active);
         this.customerId = customerId;
         this.areaId = areaId;
-        this.address=address;
-        this.contact=contact;
-        this.phone=phone;
-        this.notes=notes;
+        this.address = address;
+        this.contact = contact;
+        this.phone = phone;
+        this.notes = notes;
     }
 
-    public int getAreaId() {
+    public Integer getAreaId() {
         return areaId;
     }
     public void setAreaId(Integer areaId) {
@@ -38,7 +42,7 @@ public class Site extends GeneralType {
     public String getContact () {return this.contact;}
     public String getPhone () {return this.phone;}
     public String getNotes () {return this.notes;}
-    public int getCustomerId() {return this.customerId;}
+    public Integer getCustomerId() {return this.customerId;}
 
     public void setAddress (String address) {
         this.address=address;
@@ -56,4 +60,8 @@ public class Site extends GeneralType {
         this.customerId = customerId;
     }
 
+    @Override
+    public boolean isItemValid() {
+        return super.isItemValid() && (null != this.getAreaId()) && (null != this.getCustomerId());
+    }
 }

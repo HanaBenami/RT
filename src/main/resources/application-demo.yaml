@@ -11,10 +11,15 @@ spring:
       path: /h2
 
 server:
-  port: 8090
+  port: 8088
 
 log:
   path: c:\\rt\\logs\\demo
 
 settings:
   multiLanguage: true
+  workOrderWidth: 1400
+  bigScreen:
+    rowHeight: 70
+    rowsPerColumn: 10
+    interval: 60000

@@ -16,8 +16,8 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Panel;
 import il.co.rtcohen.rt.app.ui.UIPaths;
-import il.co.rtcohen.rt.dal.dao.GeneralType;
-import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
+import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.dal.repositories.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +30,8 @@ import java.util.stream.Collectors;
 @SpringViewDisplay
 @Theme("myTheme")
 public class MainUI extends UI implements ViewDisplay {
+    private final UsersRepository usersRepository;
 
-
-    private final GeneralRepository generalRepository;
     private Panel springViewDisplay;
     private MenuBar menu;
     private HorizontalLayout topLayout;
@@ -47,8 +46,8 @@ public class MainUI extends UI implements ViewDisplay {
     final static private Logger log = LoggerFactory.getLogger(MainUI.class);
 
     @Autowired
-    private MainUI(GeneralRepository generalRepository) {
-        this.generalRepository = generalRepository;
+    private MainUI(UsersRepository usersRepository) {
+        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -125,47 +124,53 @@ public class MainUI extends UI implements ViewDisplay {
             springViewDisplay.setContent((Component) view);
     }
 
-    private void setupMenu() {
+    private MenuBar.Command generateMenuBarCommand(String url) {
+        return (MenuBar.Command) selectedItem -> getUI().getNavigator().navigateTo(url);
+    }
+
+    private void addHomeMenu() {
+        MenuBar.MenuItem welcome = menu.addItem(LanguageSettings.getLocaleString("main"));
+        welcome.setIcon(VaadinIcons.HOME_O);
+        welcome.setCommand(generateMenuBarCommand(""));
+    }
+
+    private void addSetupMenu() {
         MenuBar.MenuItem setup = menu.addItem(LanguageSettings.getLocaleString("setupMenu"));
         setup.setIcon(VaadinIcons.COG_O);
         MenuBar.MenuItem driver = setup.addItem(LanguageSettings.getLocaleString("drivers"));
-        driver.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("update/table=driver"));
+        driver.setCommand(generateMenuBarCommand("update/table=driver"));
         setup.addSeparator();
         MenuBar.MenuItem area = setup.addItem(LanguageSettings.getLocaleString("areaMenu"));
-        area.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("area"));
+        area.setCommand(generateMenuBarCommand("areas"));
         setup.addSeparator();
-        MenuBar.MenuItem custType = setup.addItem(LanguageSettings.getLocaleString("customerTypeTitle"));
-        custType.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("update/table=custtype"));
-        MenuBar.MenuItem carType = setup.addItem(LanguageSettings.getLocaleString("carTypeTitle"));
-        carType.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("update/table=cartype"));
-        MenuBar.MenuItem callType = setup.addItem(LanguageSettings.getLocaleString("callTypeTitle"));
-        callType.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("update/table=calltype"));
+        MenuBar.MenuItem custType = setup.addItem(LanguageSettings.getLocaleString("custtypeTitle"));
+        custType.setCommand(generateMenuBarCommand("update/table=custtype"));
+        MenuBar.MenuItem carType = setup.addItem(LanguageSettings.getLocaleString("cartypeTitle"));
+        carType.setCommand(generateMenuBarCommand("update/table=cartype"));
+        MenuBar.MenuItem callType = setup.addItem(LanguageSettings.getLocaleString("calltypeTitle"));
+        callType.setCommand(generateMenuBarCommand("update/table=calltype"));
         setup.addSeparator();
         MenuBar.MenuItem user = setup.addItem(LanguageSettings.getLocaleString("usersMenu"));
-        user.setCommand((MenuBar.Command) selectedItem -> getUI().getNavigator().navigateTo("update/table=users"));
+        user.setCommand(generateMenuBarCommand("update/table=users"));
     }
 
     private void addCustomerMenu() {
         MenuBar.MenuItem customerMenu = menu.addItem(LanguageSettings.getLocaleString("customers"));
         customerMenu.setIcon(VaadinIcons.GROUP);
+        customerMenu.setCommand(generateMenuBarCommand("customers"));
+    }
+
+    @Deprecated
+    private void addCustomerMenuOld() {
+        MenuBar.MenuItem customerMenu = menu.addItem(LanguageSettings.getLocaleString("customers-old"));
+        customerMenu.setIcon(VaadinIcons.GROUP);
         MenuBar.MenuItem customer = customerMenu.addItem(LanguageSettings.getLocaleString("customers"));
-        customer.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("customer"));
+        customer.setCommand(generateMenuBarCommand("customer"));
         customerMenu.addSeparator();
         MenuBar.MenuItem site = customerMenu.addItem(LanguageSettings.getLocaleString("sites"));
-        site.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("site"));
+        site.setCommand(generateMenuBarCommand("site"));
         customerMenu.addItem(LanguageSettings.getLocaleString("addSite"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.EDITSITE.getPath(), "_new2",700,500, BorderStyle.NONE));
-//        customerMenu.addSeparator();
-//        MenuBar.MenuItem contact = customerMenu.addItem(LanguageSettings.getLocaleString("contacts"));
-//        contact.setCommand((MenuBar.Command) selectedItem ->
-//                getUI().getNavigator().navigateTo("contact"));
     }
 
     private void addReportsMenu() {
@@ -205,19 +210,16 @@ public class MainUI extends UI implements ViewDisplay {
         MenuBar.MenuItem call = menu.addItem(LanguageSettings.getLocaleString("calls"));
         call.setIcon(VaadinIcons.BELL_O);
         MenuBar.MenuItem calls = call.addItem(LanguageSettings.getLocaleString("callsTable"));
-        calls.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo("call"));
+        calls.setCommand(generateMenuBarCommand("call"));
         call.addItem(LanguageSettings.getLocaleString("addCall"), (MenuBar.Command) selectedItem -> Page.getCurrent()
                 .open(UIPaths.EDITCALL.getPath(), "_new3",750,770, BorderStyle.NONE));
     }
 
     private Component createNavigationBar() {
         menu = new MenuBar();
-        MenuBar.MenuItem welcome = menu.addItem(LanguageSettings.getLocaleString("main"));
-        welcome.setIcon(VaadinIcons.HOME_O);
-        welcome.setCommand((MenuBar.Command) selectedItem ->
-                getUI().getNavigator().navigateTo(""));
-        setupMenu();
+        addHomeMenu();
+        addSetupMenu();
+        addCustomerMenuOld();
         addCustomerMenu();
         addReportsMenu();
         addBigScreenMenu();
@@ -292,7 +294,7 @@ public class MainUI extends UI implements ViewDisplay {
     void setSessionUsername(String username) {
         getSession().setAttribute("username", username);
         log.info("username: " + username);
-        int userid = generalRepository.getIdByName("users", username);
+        int userid = usersRepository.getItem(username).getId();
         getSession().setAttribute("userid", userid);
         log.info("userid: " + userid);
     }
@@ -301,8 +303,8 @@ public class MainUI extends UI implements ViewDisplay {
         String newUsername = usernameTextbox.getValue();
         if (emptyToString(newUsername)) {
             usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("emptyUsername")));
-        } else if (!generalRepository.getNames("users", true).stream()
-                .map(GeneralType::getName).collect(Collectors.toList()).contains(newUsername)) {
+        } else if (!usersRepository.getItems(true).stream()
+                .map(GeneralObject::getName).collect(Collectors.toList()).contains(newUsername)) {
             usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("invalidUsername")));
         } else {
             setSessionUsername(newUsername);

@@ -27,8 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 @SpringView(name = SiteView.VIEW_NAME)
-public class SiteView extends AbstractDataView<Site> {
+public class SiteView extends AbstractDataViewSingleObject<Site> {
     static final String VIEW_NAME = "site";
     private static final Logger logger = LoggerFactory.getLogger(CustomerView.class);
     private Map<String,String> parametersMap;
@@ -293,10 +294,10 @@ public class SiteView extends AbstractDataView<Site> {
     private void addActiveColumn() {
         FilterGrid.Column<Site, Component> activeColumn =
                 grid.addComponentColumn((ValueProvider<Site, Component>) site ->
-                    UIComponents.checkBox(site.getActive(), true));
+                    UIComponents.checkBox(site.isActive(), true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
-                (ValueProvider<Site, Boolean>) Site::getActive,
+                (ValueProvider<Site, Boolean>) Site::isActive,
                 (Setter<Site, Boolean>) (site, Boolean) -> {
                     site.setActive(Boolean);
                     generalRepository.update(site);
@@ -508,10 +509,10 @@ public class SiteView extends AbstractDataView<Site> {
     private void addContactActiveColumn() {
         FilterGrid.Column<Contact, Component> activeColumn =
                 contactFilterGrid.addComponentColumn((ValueProvider<Contact, Component>) contact ->
-                        UIComponents.checkBox(contact.getActive(), true));
+                        UIComponents.checkBox(contact.isActive(), true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(contactFilterGrid.getEditor().getBinder().forField(new CheckBox()).bind(
-                (ValueProvider<Contact, Boolean>) Contact::getActive,
+                (ValueProvider<Contact, Boolean>) Contact::isActive,
                 (Setter<Contact, Boolean>) (contact, Boolean) -> {
                     contact.setActive(Boolean);
                     generalRepository.update(contact);

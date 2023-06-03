@@ -1,82 +1,71 @@
 package il.co.rtcohen.rt.app.views;
 
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.app.ui.components.CustomFilterGrid;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
-import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
-import org.vaadin.addons.filteringgrid.FilterGrid;
 
-import java.util.function.Supplier;
-
-public abstract class AbstractDataViewSingleObject<T extends AbstractType> extends AbstractView implements View {
+public abstract class AbstractDataView<T extends AbstractType> extends AbstractView implements View {
     String title;
-    CustomFilterGrid<T> grid;
-    GeneralRepository generalRepository;
-    Button addButton;
 
-    AbstractDataViewSingleObject(ErrorHandler errorHandler, GeneralRepository generalRepository) {
+    @Deprecated
+    AbstractDataView(ErrorHandler errorHandler) {
         super(errorHandler);
-        this.generalRepository=generalRepository;
-//      TODO:  UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
-        setAddButton();
     }
 
-    abstract void createView(ViewChangeListener.ViewChangeEvent event);
+    AbstractDataView(ErrorHandler errorHandler, String titleKey) {
+        super(errorHandler);
+        this.setTitle(titleKey);
+    }
 
-    abstract void addColumns();
-
-    abstract void addGrid();
-
-    abstract void setTabIndexes();
+    protected void setTitle(String titleKey) {
+        if (null != titleKey) {
+            this.title = LanguageSettings.getLocaleString(titleKey);
+        } else {
+            this.title = "";
+        }
+    }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         setDefaultComponentAlignment(Alignment.TOP_CENTER);
-        setHeight(getUI().getHeight(),getUI().getHeightUnits());
-        createView(event);
+        setHeight(getUI().getHeight(), getUI().getHeightUnits());
+        addTitle();
+        addGrids();
+        setTabIndexes();
         getUI().setLocale(LanguageSettings.locale);
     }
 
-    static <C> void initGrid(String style, FilterGrid<C> filterGrid) {
-        filterGrid.getEditor().setSaveCaption(LanguageSettings.getLocaleString("save"));
-        filterGrid.getEditor().setCancelCaption(LanguageSettings.getLocaleString("cancel"));
-        if (!style.equals("")) {
-            filterGrid.setStyleGenerator(item -> style);
-        }
+    private void addTitle() {
+        HorizontalLayout titleLayout = new HorizontalLayout();
+        titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        titleLayout.addComponent(getRefreshButton());
+        titleLayout.addComponents(UIComponents.header(this.title));
+        titleLayout.setWidth("80%");
+        this.addComponent(titleLayout);
     }
 
-    void initGrid(String style) {
-        grid = new CustomFilterGrid<>();
-        initGrid(style, grid);
+    private Button getRefreshButton() {
+        Button refreshButton = UIComponents.refreshButton();
+        refreshButton.addClickListener(clickEvent -> refreshData());
+        return refreshButton;
     }
 
-    void addHeader() {
-        addComponent(UIComponents.header(title));
-    }
+    abstract void addGrids();
 
-    private void setAddButton() {
-        addButton = UIComponents.addButton();
-        addButton.setEnabled(false);
-    }
+    abstract void removeGrids();
 
-    TextField addNewNameField() {
-        TextField newName = new TextField();
-        newName.focus();
-        newName.addFocusListener(focusEvent ->
-                addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
-        newName.addBlurListener(event -> addButton.removeClickShortcut());
-        newName.addValueChangeListener(valueChangeEvent -> {
-            addButton.setEnabled(!newName.getValue().isEmpty());
-        });
-        return newName;
+    abstract void setTabIndexes();
+
+    protected void refreshData() {
+        removeGrids();
+        addGrids();
+        setTabIndexes();
     }
 }

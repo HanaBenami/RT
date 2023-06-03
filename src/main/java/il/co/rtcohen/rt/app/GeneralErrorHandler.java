@@ -3,7 +3,9 @@ package il.co.rtcohen.rt.app;
 import com.vaadin.server.*;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.AbstractComponent;
+
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +17,7 @@ public class GeneralErrorHandler implements ErrorHandler {
     }
 
     private static void doDefault(ErrorEvent event) {
+        getLogger().info("***** doDefault"); // TODO delete
         Throwable t = event.getThrowable();
         if (t instanceof SocketException) {
             getLogger().info("SocketException in CommunicationManager. Most likely client (browser) closed socket.");
@@ -25,12 +28,11 @@ public class GeneralErrorHandler implements ErrorHandler {
                 ErrorMessage errorMessage = new UserError(LanguageSettings.getLocaleString("error"));
                 component.setComponentError(errorMessage);
             }
-            getLogger().log(Level.SEVERE, "", t);
+            getLogger().log(Level.SEVERE, "", Arrays.copyOfRange(t.getStackTrace(), 0, 5)); // TODO: Make it works
         }
     }
 
     private static Logger getLogger() {
         return Logger.getLogger(GeneralErrorHandler.class.getName());
     }
-
 }

@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 
+import il.co.rtcohen.rt.dal.dao.GeneralObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -7,11 +8,17 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 
 @Repository
-@Qualifier("CustomerTypeRepository")
-public class CustomerTypeRepository extends GeneralObjectRepository {
+@Qualifier("UsersRepository")
+public class UsersRepository extends GeneralObjectRepository {
     @Autowired
-    public CustomerTypeRepository(DataSource dataSource) {
-        super(dataSource, "custType", "Customer types");
+    public UsersRepository(DataSource dataSource) {
+        super(dataSource, "users", "users types");
+    }
+
+    public GeneralObject getItem(String name) {
+        if (null == name || name.isEmpty()) {
+            return null;
+        }
+        return super.getItem("name='" + name + "'");
     }
 }
-

@@ -1,49 +1,49 @@
 package il.co.rtcohen.rt.dal.dao;
 
-public class GeneralType {
+import il.co.rtcohen.rt.app.LanguageSettings;
+
+abstract public class AbstractType {
+    private static String dbTableName;
+    private static String objectName;
 
     private Integer id;
-    private String name;
-    private boolean active;
-    private String table;
 
-    public GeneralType() {
-        this.active = true;
-    }
-
-    public GeneralType(String name) {
-        this.active = true;
-        this.name = name;
-    }
-
-    public GeneralType(Integer id, String name, boolean active, String table) {
-        this.id=id;
-        this.name=name;
-        this.active=active;
-        this.table=table;
-    }
-
-    public String getName() {
-        return name;
+    public AbstractType(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {
         return id;
     }
 
-    public Boolean getActive() {return active; }
-
-    public String getTable() {
-        return table;
+    public void setId(long id) {
+        this.id = (int) id;
     }
 
-    public void setName(String name) {
-        if (!name.isEmpty())
-            this.name = name;
+    public boolean isItemValid() {
+        return true;
     }
 
-    public void setActive(boolean active) {
-        this.active=active;
+    public static void setDbTableName(String dbTableName) {
+        AbstractType.dbTableName = dbTableName;
     }
 
+    public static String getDbTableName() {
+        return dbTableName;
+    }
+
+    public static void setObjectName(String objectName) {
+        AbstractType.objectName = objectName;
+    }
+
+    public static String getObjectName() {
+        return objectName;
+    }
+
+    @Override
+    public String toString() {
+        return (null == getId() ? LanguageSettings.getLocaleString("the") : "")
+                + LanguageSettings.getLocaleString((null == getObjectName() ? "item" : getObjectName()))
+                + (null == getId() ? "" : (" #" + getId()));
+    }
 }

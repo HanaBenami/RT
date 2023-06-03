@@ -7,23 +7,22 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.app.ui.components.CustomFilterGrid;
+import il.co.rtcohen.rt.app.ui.grids.AbstractFilterGrid;
+import il.co.rtcohen.rt.app.ui.grids.CustomGrid;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
-import java.util.function.Supplier;
-
-public abstract class AbstractDataView<T extends AbstractType> extends AbstractView implements View {
+@Deprecated
+public abstract class AbstractDataViewSingleObject<T extends AbstractType> extends AbstractView implements View {
     String title;
-    CustomFilterGrid<T> grid;
+    AbstractFilterGrid<T> grid;
     GeneralRepository generalRepository;
     Button addButton;
 
-    AbstractDataView(ErrorHandler errorHandler,GeneralRepository generalRepository) {
+    AbstractDataViewSingleObject(ErrorHandler errorHandler, GeneralRepository generalRepository) {
         super(errorHandler);
         this.generalRepository=generalRepository;
 //      TODO:  UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
@@ -55,7 +54,7 @@ public abstract class AbstractDataView<T extends AbstractType> extends AbstractV
     }
 
     void initGrid(String style) {
-        grid = new CustomFilterGrid<>();
+        grid = new CustomGrid<>();
         initGrid(style, grid);
     }
 
