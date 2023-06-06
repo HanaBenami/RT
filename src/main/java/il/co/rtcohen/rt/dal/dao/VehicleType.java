@@ -1,8 +1,6 @@
 package il.co.rtcohen.rt.dal.dao;
 
-import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
-
-public class VehicleType extends GeneralObject implements BindRepository<VehicleType> {
+public class VehicleType extends AbstractTypeWithNameAndActiveFields implements BindRepository<VehicleType> {
     public VehicleType() {
     }
 

@@ -1,6 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 
-import il.co.rtcohen.rt.dal.dao.User;
+import il.co.rtcohen.rt.dal.dao.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -9,18 +9,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Repository
-public class UsersRepository extends AbstractTypeWithNameAndActiveFieldsRepository<User> implements RepositoryInterface<User> {
+public class DriverRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Driver> implements RepositoryInterface<Driver> {
     @Autowired
-    public UsersRepository(DataSource dataSource) {
-        super(dataSource, "users", "users types",
+    public DriverRepository(DataSource dataSource) {
+        super(dataSource, "driver", "drivers",
                 new String[] {
 
                 }
         );
     }
 
-    protected User getItemFromResultSet(ResultSet rs) throws SQLException {
-        return new User(
+    protected Driver getItemFromResultSet(ResultSet rs) throws SQLException {
+        return new Driver(
                 rs.getInt(DB_ID_COLUMN),
                 rs.getString(DB_NAME_COLUMN),
                 rs.getBoolean(DB_ACTIVE_COLUMN)

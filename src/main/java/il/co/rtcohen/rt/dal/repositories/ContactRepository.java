@@ -1,7 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import il.co.rtcohen.rt.dal.dao.Contact;
-import il.co.rtcohen.rt.dal.dao.Site;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -10,55 +9,45 @@ import java.sql.*;
 import java.util.List;
 
 @Repository
-public class ContactRepository extends AbstractRepository<Contact> {
+public class ContactRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Contact> implements RepositoryInterface<Contact> {
+    static protected final String DB_SITE_ID_COLUMN = "siteid";
+    static protected final String DB_PHONE_COLUMN = "phone";
+    static protected final String DB_NOTES_COLUMN = "notes";
+
+    private final SiteRepository siteRepository;
+
     @Autowired
-    public ContactRepository(DataSource dataSource) {
-        super(dataSource, "CONTACT", "Contacts", null);
+    public ContactRepository(DataSource dataSource, SiteRepository siteRepository) {
+        super(dataSource, "CONTACT", "Contacts",
+                new String[] {
+                        DB_SITE_ID_COLUMN,
+                        DB_PHONE_COLUMN,
+                        DB_NOTES_COLUMN
+                });
+        this.siteRepository = siteRepository;
     }
 
     protected Contact getItemFromResultSet(ResultSet rs) throws SQLException {
         return new Contact(
-                rs.getInt("id"),
-                rs.getString("name"),
-                rs.getBoolean("active"),
-                rs.getInt("siteid"),
-                rs.getString("phone"),
-                rs.getString("notes")
+                rs.getInt(DB_ID_COLUMN),
+                rs.getString(DB_NAME_COLUMN),
+                rs.getBoolean(DB_ACTIVE_COLUMN),
+                this.siteRepository.getItem(rs.getInt(DB_SITE_ID_COLUMN)),
+                rs.getString(DB_PHONE_COLUMN),
+                rs.getString(DB_NOTES_COLUMN)
         );
     }
 
-    protected PreparedStatement generateInsertStatement(Connection connection, Contact contact) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "insert into " + this.DB_TABLE_NAME
-                        + " (name,siteId,phone,notes)"
-                        + " values (?,?,?,?)",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        stmt.setString(1, contact.getName());
-        stmt.setInt(2, contact.getSiteId());
-        stmt.setString(3, contact.getPhone());
-        stmt.setString(4, contact.getNotes());
-        return stmt;
-    }
-
-    protected PreparedStatement generateUpdateStatement(Connection connection, Contact contact) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "update " + this.DB_TABLE_NAME + " set name=?, siteId=?, phone=?, notes=?, active=? where id=?",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        stmt.setString(1, contact.getName());
-        stmt.setInt(2, contact.getSiteId());
-        stmt.setString(3, contact.getPhone());
-        stmt.setString(4, contact.getNotes());
-        stmt.setBoolean(5, contact.isActive());
-        stmt.setInt(6, contact.getId());
-        return stmt;
-    }
-
-    public List<Contact> getItems(Site site) {
-        List<Contact> list = this.getItems();
-        list.removeIf(contact -> !contact.getSiteId().equals(site.getId()));
-        return list;
+    @Override
+    protected int updateItemDetailsInStatement(PreparedStatement stmt, Contact contact) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(stmt, contact);
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, contact.getSite().getId());
+        fieldsCounter++;
+        stmt.setString( fieldsCounter, contact.getPhone());
+        fieldsCounter++;
+        stmt.setString( fieldsCounter, contact.getNotes());
+        return fieldsCounter;
     }
 
     @Deprecated
@@ -69,7 +58,7 @@ public class ContactRepository extends AbstractRepository<Contact> {
     @Deprecated
     public List<Contact> getContactsBySite(Integer siteId, boolean onlyActive) {
         List<Contact> list = this.getItems();
-        list.removeIf(contact -> contact.getSiteId() != siteId || (onlyActive && !contact.isActive()));
+        list.removeIf(contact -> contact.getSite().getId() != siteId || (onlyActive && !contact.isActive()));
         return list;
     }
 
@@ -85,7 +74,7 @@ public class ContactRepository extends AbstractRepository<Contact> {
 
     @Deprecated
     public long insertContact (String name, int siteId, String phone, String notes) {
-        insertItem(new Contact(null, name, true, siteId, phone, notes));
+        insertItem(new Contact(null, name, true, this.siteRepository.getItem(siteId), phone, notes));
         return 1; // TODO: change to real value, if needed
     }
 

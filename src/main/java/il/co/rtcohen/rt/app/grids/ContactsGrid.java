@@ -3,7 +3,7 @@ package il.co.rtcohen.rt.app.grids;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
@@ -15,11 +15,11 @@ public class ContactsGrid extends AbstractFilterGrid<Contact> {
                         ContactRepository contactRepository) {
         super(contactRepository, () -> {
                     Contact contact = new Contact();
-                    contact.setSiteId(site.getId());
+                    contact.setSite(site);
                     return contact;
                 },
                 "contactsOfSites",
-                contact -> null == site || !contact.getSiteId().equals(site.getId()));
+                contact -> null == site || !contact.getSite().getId().equals(site.getId()));
         this.site = site;
         this.initGrid();
     }

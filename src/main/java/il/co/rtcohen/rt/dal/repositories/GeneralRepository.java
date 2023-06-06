@@ -1,5 +1,5 @@
 package il.co.rtcohen.rt.dal.repositories;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.InsertException;
 import il.co.rtcohen.rt.dal.UpdateException;
 import org.slf4j.Logger;
@@ -19,25 +19,27 @@ public class GeneralRepository {
 
     final static private Logger log = LoggerFactory.getLogger(GeneralRepository.class);
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     @Autowired
     public GeneralRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public List<GeneralObject> getNames(String table) {
+    public List<AbstractTypeWithNameAndActiveFields> getNames(String table) {
         return getNames(table, false);
     }
 
-    public List<GeneralObject> getNames(String table, boolean activeOnly) {
-        List<GeneralObject> list = new ArrayList<>();
+    public List<AbstractTypeWithNameAndActiveFields> getNames(String table, boolean activeOnly) {
+        List<AbstractTypeWithNameAndActiveFields> list = new ArrayList<>();
         String sql = "SELECT * FROM " + table + (activeOnly ? " WHERE active=1" : "");
         try (Connection con = dataSource.getConnection();
             PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                list.add(new GeneralObject(rs.getInt("id"),rs.getString("name"),rs.getBoolean("active"),table));
+                list.add(new AbstractTypeWithNameAndActiveFields(rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getBoolean("active")));
             }
             return list;
         }
@@ -50,8 +52,8 @@ public class GeneralRepository {
     }
 
     public int getIdByName(String table, String name) {
-        List<GeneralObject> list = getNames(table);
-        for (GeneralObject obj : list) {
+        List<AbstractTypeWithNameAndActiveFields> list = getNames(table);
+        for (AbstractTypeWithNameAndActiveFields obj : list) {
             if (obj.getName().equals(name)) {
                 return obj.getId();
             }
@@ -144,7 +146,7 @@ public class GeneralRepository {
         }
     }
 
-    public int update(GeneralObject x) {
+    public int update(AbstractTypeWithNameAndActiveFields x) {
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
                 ("update "+x.getDbTableName()+" set name=?, active=? where id=?")) {
             stmt.setString(1,x.getName());

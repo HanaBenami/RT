@@ -11,7 +11,7 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
@@ -74,7 +74,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
             if (areasRepository.getAreaById(o1).getDisplayOrder() >
                     areasRepository.getAreaById(o2).getDisplayOrder())
                 return -1 ;
-            else if (areasRepository.getAreaById(o1).getDisplayOrder().equals(areasRepository.getAreaById(o2).getDisplayOrder()))
+            else if (areasRepository.getAreaById(o1).getDisplayOrder() == areasRepository.getAreaById(o2).getDisplayOrder())
                 return 0 ;
             else
                 return 1;

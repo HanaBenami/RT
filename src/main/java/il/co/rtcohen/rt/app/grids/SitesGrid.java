@@ -5,42 +5,35 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
-import il.co.rtcohen.rt.dal.dao.Site;
+import com.vaadin.ui.GridLayout;
+import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
+import il.co.rtcohen.rt.app.UiComponents.CustomComboBoxColumn;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
 public class SitesGrid extends AbstractFilterGrid<Site> {
     private final Customer selectedCustomer;
-    private final CustomerRepository customerRepository;
     private final ContactRepository contactRepository;
-    private final SiteRepository siteRepository;
     private final CallRepository callRepository;
     private final AreasRepository areasRepository;
-    private final GeneralObjectRepository generalObjectRepository;
 
     public SitesGrid(Customer selectedCustomer,
-                     CustomerRepository customerRepository,
                      ContactRepository contactRepository,
                      SiteRepository siteRepository,
                      CallRepository callRepository,
-                     AreasRepository areasRepository,
-                     GeneralObjectRepository generalObjectRepository) {
+                     AreasRepository areasRepository) {
         super(siteRepository, () -> {
                     Site site = new Site();
-                    site.setCustomerId(selectedCustomer.getId());
+                    site.setCustomer(selectedCustomer);
                     return site;
                 },
                 "sitesOfCustomers",
-                site -> null == selectedCustomer || !site.getCustomerId().equals(selectedCustomer.getId()));
+                site -> null == selectedCustomer || null == site.getCustomer() || !site.getCustomer().getId().equals(selectedCustomer.getId()));
         this.selectedCustomer = selectedCustomer;
-        this.customerRepository = customerRepository;
         this.contactRepository = contactRepository;
-        this.siteRepository = siteRepository;
         this.callRepository = callRepository;
         this.areasRepository = areasRepository;
-        this.generalObjectRepository = generalObjectRepository;
         this.initGrid();
     }
 
@@ -102,7 +95,7 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                         int openCallsCounter = callRepository.getCallsBySite(site.getId()).size();
                         Button callsButton = AbstractFilterGrid.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
                         callsButton.addClickListener(clickEvent ->
-                                getUI().getNavigator().navigateTo("call/customer=" + site.getCustomerId()));    // TODO: Change to call/site=
+                                getUI().getNavigator().navigateTo("call/customer=" + site.getCustomer().getId()));    // TODO: Change to call/site=
                         return callsButton;
                     }
                 },
@@ -135,19 +128,19 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
     }
 
     private void addAreaColumn() {
-        this.addComboBoxColumn(
-                generalObjectRepository,
-                areasRepository.getDbTableName(),
+        CustomComboBoxColumn.addToGrid(
+                CustomComboBox.areaComboBox(areasRepository),
+                CustomComboBox.areaComboBox(areasRepository),
                 (ValueProvider<Site, String>) site -> {
-                    GeneralObject area = areasRepository.getItem(site.getAreaId());
+                    AbstractTypeWithNameAndActiveFields area = site.getArea();
                     return (null == area ? "" : area.getName());
                 },
-                (ValueProvider<Integer, String>) id -> areasRepository.getItem(id).getName(),
-                (ValueProvider<Site, Integer>) Site::getAreaId,
-                (Setter<Site, Integer>) Site::setAreaId,
+                (ValueProvider<Site, Area>) Site::getArea,
+                (Setter<Site, Area>) Site::setArea,
                 130,
                 "areaColumn",
-                "area"
+                "area",
+                this
         );
     }
 

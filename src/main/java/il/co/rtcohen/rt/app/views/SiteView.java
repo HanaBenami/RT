@@ -10,13 +10,10 @@ import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
-import il.co.rtcohen.rt.dal.repositories.CallRepository;
-import il.co.rtcohen.rt.dal.repositories.ContactRepository;
-import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
-import il.co.rtcohen.rt.dal.repositories.SiteRepository;
+import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.app.ui.UIPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +29,7 @@ import java.util.Map;
 public class SiteView extends AbstractDataViewSingleObject<Site> {
     static final String VIEW_NAME = "site";
     private static final Logger logger = LoggerFactory.getLogger(CustomerView.class);
+    private final AreasRepository areasRepository;
     private Map<String,String> parametersMap;
     private final SiteRepository siteRepository;
     private final ContactRepository contactRepository;
@@ -50,11 +48,13 @@ public class SiteView extends AbstractDataViewSingleObject<Site> {
 
     @Autowired
     private SiteView(ErrorHandler errorHandler, SiteRepository siteRepository, GeneralRepository generalRepository,
-                     CallRepository callRepository, ContactRepository contactRepository) {
+                     CallRepository callRepository, ContactRepository contactRepository,
+                     AreasRepository areasRepository) {
         super(errorHandler,generalRepository);
         this.siteRepository = siteRepository;
         this.contactRepository = contactRepository;
         this.callRepository = callRepository;
+        this.areasRepository = areasRepository;
     }
 
     @Override
@@ -280,7 +280,7 @@ public class SiteView extends AbstractDataViewSingleObject<Site> {
                     Button callsButton = UIComponents.gridSmallButton(VaadinIcons.BELL_O);
                     callsButton.addClickListener(clickEvent ->
                             getUI().getNavigator().navigateTo
-                                    ("call/customer="+ site.getCustomerId()));
+                                    ("call/customer="+ site.getCustomer().getId()));
                     if(openCallsCounter>0) {
                         callsButton.setIcon(VaadinIcons.BELL);
                         callsButton.setCaption(String.valueOf((openCallsCounter)));
@@ -324,12 +324,12 @@ public class SiteView extends AbstractDataViewSingleObject<Site> {
         ComboBox<Integer> areaCombo = new UIComponents().areaComboBox(generalRepository,95,30);
         areaCombo.setEmptySelectionAllowed(false);
         FilterGrid.Column<Site, String> areaColumn = grid.addColumn(site ->
-                generalRepository.getNameById(site.getAreaId(), "area"))
+                generalRepository.getNameById((null == site.getArea() ? null : site.getArea().getId()), "area"))
                 .setId("areaColumn")
                 .setWidth(120).setEditorBinding(grid.getEditor().getBinder().forField(areaCombo).bind(
-                        (ValueProvider<Site, Integer>) Site::getAreaId,
+                        (ValueProvider<Site, Integer>) site -> site.getArea().getId(),
                         (Setter<Site, Integer>) (site, integer) -> {
-                            site.setAreaId(integer);
+                            site.setArea(areasRepository.getItem(integer));
                             siteRepository.updateSite(site);
                         }))
                 .setExpandRatio(1).setResizable(false);

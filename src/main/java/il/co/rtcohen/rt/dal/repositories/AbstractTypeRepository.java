@@ -5,6 +5,7 @@ import il.co.rtcohen.rt.dal.UpdateException;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -19,36 +20,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public abstract class AbstractRepository<T extends AbstractType> implements RepositoryInterface<T> {
-
-    protected final Logger logger ;
-    private final DataSource dataSource;
+public abstract class AbstractTypeRepository<T extends AbstractType> implements RepositoryInterface<T> {
+    final protected Logger logger;
+    final private DataSource dataSource;
 
     final static private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     final static private String nullDateString = "1901-01-01";
+    final static protected String DB_ID_COLUMN = "id";
 
-    protected String DB_TABLE_NAME; // TODO: final?
-    protected String REPOSITORY_NAME; // TODO: final?
-    protected String[] DB_COLUMNS;
+    final protected String DB_TABLE_NAME;
+    final protected String REPOSITORY_NAME;
+    final private ArrayList<String> dbColumnsList;
 
-    public AbstractRepository(DataSource dataSource, String dbTableName, String repositoryName, String[] dbColumns ) {
+    public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName, String[]... additionalDbColumnsLists) {
         this.logger = LoggerFactory.getLogger(this.getClass());
         this.dataSource = dataSource;
         this.DB_TABLE_NAME = dbTableName;
         this.REPOSITORY_NAME = repositoryName;
-        this.DB_COLUMNS = dbColumns;
+        this.dbColumnsList = new ArrayList<>();
+        for (String[] additionalDbColumnsList : additionalDbColumnsLists) {
+            this.dbColumnsList.addAll(Arrays.asList(additionalDbColumnsList));
+        }
     }
 
     public String getDbTableName() {
         return this.DB_TABLE_NAME;
-    }
-
-    public void setDbTableName(String dbTableName) {
-        this.DB_TABLE_NAME = dbTableName;
-    }
-
-    public void setRepositoryName(String repositoryName) {
-        this.REPOSITORY_NAME = repositoryName;
     }
 
     public String getRepositoryName() {
@@ -56,19 +52,20 @@ public abstract class AbstractRepository<T extends AbstractType> implements Repo
     }
 
     protected String getDbColumnsStringForInsertStatement() {
-        return " (" + String.join(", ", this.DB_COLUMNS) + ") values ("
-                + Arrays.stream(DB_COLUMNS).map(dbColumn -> "?").collect(Collectors.joining(", ")) + ")";
+        return " (" + String.join(", ", this.dbColumnsList) + ") values ("
+                + dbColumnsList.stream().map(dbColumn -> "?").collect(Collectors.joining(", ")) + ")";
     }
 
     protected String getDbColumnsStringForUpdateStatement() {
-        return " " + String.join("=?, ", this.DB_COLUMNS) + "=? ";
+        return " " + String.join("=?, ", this.dbColumnsList) + "=? ";
     }
 
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
 
     // TODO: use in all the interfaces and change to abstract
-    protected void updateItemDetailsInStatement(PreparedStatement stmt, T t) throws SQLException {}
+    abstract protected int updateItemDetailsInStatement(PreparedStatement stmt, T t) throws SQLException;
 
+    // TODO: use in all the interfaces and change to private
     protected PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement(
                 "insert into " + this.DB_TABLE_NAME + getDbColumnsStringForInsertStatement(),
@@ -78,8 +75,9 @@ public abstract class AbstractRepository<T extends AbstractType> implements Repo
         return stmt;
     }
 
+    // TODO: use in all the interfaces and change to private
     protected PreparedStatement generateUpdateStatement(Connection connection, T t) throws SQLException {
-        String query = "update " + this.DB_TABLE_NAME + " set " + getDbColumnsStringForUpdateStatement() + " where id=?";
+        String query = "update " + this.DB_TABLE_NAME + " set " + getDbColumnsStringForUpdateStatement() + " where " + DB_ID_COLUMN + "=?";
         PreparedStatement stmt = connection.prepareStatement(
                 query,
                 Statement.RETURN_GENERATED_KEYS
@@ -106,11 +104,12 @@ public abstract class AbstractRepository<T extends AbstractType> implements Repo
         }
     }
 
+    @Cacheable  // TODO: Cache
     public T getItem(Integer id) {
         if (null == id || 0 == id) {
             return null;
         }
-        return getItem("id=" + id);
+        return getItem(DB_ID_COLUMN + "=" + id);
     }
 
     public T getItem(String whereClause) {
@@ -194,7 +193,7 @@ public abstract class AbstractRepository<T extends AbstractType> implements Repo
 
     private PreparedStatement generateDeleteStatement(Connection connection, T t) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement(
-                "delete from " + this.DB_TABLE_NAME + " where id=?",
+                "delete from " + this.DB_TABLE_NAME + " where " + DB_ID_COLUMN + "=?",
                 Statement.RETURN_GENERATED_KEYS
         );
         stmt.setInt(1, t.getId());

@@ -1,6 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 
-import il.co.rtcohen.rt.dal.dao.User;
+import il.co.rtcohen.rt.dal.dao.CallType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -9,18 +9,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Repository
-public class UsersRepository extends AbstractTypeWithNameAndActiveFieldsRepository<User> implements RepositoryInterface<User> {
+public class CallTypeRepository extends AbstractTypeWithNameAndActiveFieldsRepository<CallType> implements RepositoryInterface<CallType> {
     @Autowired
-    public UsersRepository(DataSource dataSource) {
-        super(dataSource, "users", "users types",
+    public CallTypeRepository(DataSource dataSource) {
+        super(dataSource, "calltype", "Calls types",
                 new String[] {
 
                 }
         );
     }
 
-    protected User getItemFromResultSet(ResultSet rs) throws SQLException {
-        return new User(
+    protected CallType getItemFromResultSet(ResultSet rs) throws SQLException {
+        return new CallType(
                 rs.getInt(DB_ID_COLUMN),
                 rs.getString(DB_NAME_COLUMN),
                 rs.getBoolean(DB_ACTIVE_COLUMN)

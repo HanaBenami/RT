@@ -3,12 +3,12 @@ package il.co.rtcohen.rt.app.grids;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
-import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
+import il.co.rtcohen.rt.app.UiComponents.CustomComboBoxColumn;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
 public class CustomerGrid extends AbstractFilterGrid<Customer> {
@@ -64,7 +64,7 @@ public class CustomerGrid extends AbstractFilterGrid<Customer> {
                     if (null == Customer.getId()) {
                         return null;
                     } else {
-                        int n = siteRepository.getActiveIdByCustomer(Customer.getId()).size();
+                        int n = siteRepository.getItems(Customer).size();
                         Button sitesButton = AbstractFilterGrid.countingIcon(VaadinIcons.FROWN_O, VaadinIcons.HOME_O, VaadinIcons.HOME, n);
                         sitesButton.addClickListener(clickEvent ->
                                 getUI().getNavigator().navigateTo("site/customer=" + Customer.getId()));
@@ -81,8 +81,8 @@ public class CustomerGrid extends AbstractFilterGrid<Customer> {
     private void addActiveColumn() {
         this.addBooleanColumn(
                 (ValueProvider<Customer, Component>) Customer -> UIComponents.checkBox(Customer.isActive(),true),
-                (ValueProvider<Customer, Boolean>) GeneralObject::isActive,
-                (Setter<Customer, Boolean>) GeneralObject::setActive,
+                (ValueProvider<Customer, Boolean>) AbstractTypeWithNameAndActiveFields::isActive,
+                (Setter<Customer, Boolean>) AbstractTypeWithNameAndActiveFields::setActive,
                 "activeColumn",
                 "active",
                 Boolean.TRUE
@@ -90,19 +90,19 @@ public class CustomerGrid extends AbstractFilterGrid<Customer> {
     }
 
     private void addCustomerTypeColumn() {
-        this.addComboBoxColumn(
-                customerTypeRepository,
-                customerTypeRepository.getDbTableName(),
-                (ValueProvider<Customer, String>) Customer -> {
-                    GeneralObject customerType = customerTypeRepository.getItem(Customer.getCustomerTypeID());
+        CustomComboBoxColumn.addToGrid(
+                CustomComboBox.customerTypeComboBox(customerTypeRepository),
+                CustomComboBox.customerTypeComboBox(customerTypeRepository),
+                (ValueProvider<Customer, String>) customer -> {
+                    AbstractTypeWithNameAndActiveFields customerType = customer.getCustomerType();
                     return (null == customerType ? "" : customerType.getName());
                 },
-                (ValueProvider<Integer, String>) id -> customerTypeRepository.getItem(id).getName(),
-                (ValueProvider<Customer, Integer>) Customer::getCustomerTypeID,
-                (Setter<Customer, Integer>) Customer::setCustomerTypeID,
-                70,
+                (ValueProvider<Customer, CustomerType>) Customer::getCustomerType,
+                (Setter<Customer, CustomerType>) Customer::setCustomerType,
+                230,
                 "custTypeColumn",
-                "custType"
+                "custType",
+                this
         );
     }
 

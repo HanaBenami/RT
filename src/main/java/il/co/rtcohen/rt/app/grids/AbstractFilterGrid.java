@@ -8,12 +8,9 @@ import com.vaadin.shared.ui.grid.ScrollDestination;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
-import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
-import il.co.rtcohen.rt.dal.dao.Nameable;
-import il.co.rtcohen.rt.dal.repositories.AbstractRepository;
+import il.co.rtcohen.rt.dal.repositories.AbstractTypeRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +23,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterGrid<T> {
-    private AbstractRepository<T> mainRepository;
+    private AbstractTypeRepository<T> mainRepository;
     private Supplier<T> newItemSupplier;
     private VerticalLayout verticalLayout;
     private String titleKey;
@@ -41,7 +38,7 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
     private TextField filterIdField;
     private String idFieldId = "idColumn";
 
-    public AbstractFilterGrid(AbstractRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
+    public AbstractFilterGrid(AbstractTypeRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
                               Predicate<T> itemsFilterPredicate) {
         super();
         this.setGridRepository(mainRepository);
@@ -81,7 +78,7 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
         super();
     }
 
-    private void setGridRepository(AbstractRepository<T> repository) {
+    private void setGridRepository(AbstractTypeRepository<T> repository) {
         this.mainRepository = repository;
     }
 
@@ -266,8 +263,11 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
         if (null != setter) {
             TextField numericField = UIComponents.textField(30);
             column.setEditorBinding(this.getEditor().getBinder().forField(numericField).bind(
-                    t -> valueProvider.apply(t).toString(),
-                    (Setter<T, String>) (t, s) -> setter.accept(t, Integer.parseInt(s))
+                    t -> {
+                        Integer value = valueProvider.apply(t);
+                        return (null == value ? "0" : value.toString());
+                    },
+                    (Setter<T, String>) (t, value) -> setter.accept(t, (null == value || value.isEmpty() ? 0 : Integer.parseInt(value)))
             ));
         }
 
@@ -293,6 +293,7 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
     //            "custTypeColumn",
     //            "custType"
     //        );
+    // TODO: replace all w/ CustomComboBox
     public void addComboBoxColumn(GeneralObjectRepository generalObjectRepository,
                                   String dbTableName,
                                   ValueProvider<T, String> stringValueProvider,
@@ -311,21 +312,6 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
         filterComboBox.setWidth("95%");
         column.setFilter((filterComboBox),
                 (cValue, fValue) -> fValue == null || stringValueProviderById.apply(fValue).equals(cValue));
-
-        this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
-    }
-    public void addComboBoxColumn(CustomComboBox selectionComboBox,
-                                  CustomComboBox filterComboBox,
-                                  ValueProvider<T, String> stringValueProvider,
-                                  ValueProvider<T, GeneralObject> valueProvider,
-                                  Setter<T, GeneralObject> setter,
-                                  int width, String id, String label) {
-        FilterGrid.Column<T, String> column = this.addColumn(stringValueProvider).setId(id);
-        column.setEditorBinding(this.getEditor().getBinder().forField(selectionComboBox).bind(valueProvider, setter));
-        column.setWidth(width).setExpandRatio(1).setResizable(true).setHidable(true);
-
-        filterComboBox.setWidth("95%");
-        column.setFilter((filterComboBox), (cValue, fValue) -> fValue == null || fValue.equals(cValue));
 
         this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
     }

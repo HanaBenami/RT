@@ -15,8 +15,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Panel;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.app.ui.UIPaths;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.dal.dao.User;
 import il.co.rtcohen.rt.dal.repositories.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,20 +139,20 @@ public class MainUI extends UI implements ViewDisplay {
         MenuBar.MenuItem setup = menu.addItem(LanguageSettings.getLocaleString("setupMenu"));
         setup.setIcon(VaadinIcons.COG_O);
         MenuBar.MenuItem driver = setup.addItem(LanguageSettings.getLocaleString("drivers"));
-        driver.setCommand(generateMenuBarCommand("update/table=driver"));
+        driver.setCommand(generateMenuBarCommand("drivers"));
         setup.addSeparator();
         MenuBar.MenuItem area = setup.addItem(LanguageSettings.getLocaleString("areaMenu"));
         area.setCommand(generateMenuBarCommand("areas"));
         setup.addSeparator();
         MenuBar.MenuItem custType = setup.addItem(LanguageSettings.getLocaleString("custtypeTitle"));
-        custType.setCommand(generateMenuBarCommand("update/table=custtype"));
+        custType.setCommand(generateMenuBarCommand("customerType"));
         MenuBar.MenuItem carType = setup.addItem(LanguageSettings.getLocaleString("cartypeTitle"));
-        carType.setCommand(generateMenuBarCommand("update/table=cartype"));
+        carType.setCommand(generateMenuBarCommand("vehicleType"));
         MenuBar.MenuItem callType = setup.addItem(LanguageSettings.getLocaleString("calltypeTitle"));
-        callType.setCommand(generateMenuBarCommand("update/table=calltype"));
+        callType.setCommand(generateMenuBarCommand("callType"));
         setup.addSeparator();
         MenuBar.MenuItem user = setup.addItem(LanguageSettings.getLocaleString("usersMenu"));
-        user.setCommand(generateMenuBarCommand("update/table=users"));
+        user.setCommand(generateMenuBarCommand("users"));
     }
 
     private void addCustomerMenu() {
@@ -294,7 +295,7 @@ public class MainUI extends UI implements ViewDisplay {
     void setSessionUsername(String username) {
         getSession().setAttribute("username", username);
         log.info("username: " + username);
-        int userid = usersRepository.getItem(username).getId();
+        int userid = usersRepository.getItemByName(username).getId();
         getSession().setAttribute("userid", userid);
         log.info("userid: " + userid);
     }
@@ -304,7 +305,7 @@ public class MainUI extends UI implements ViewDisplay {
         if (emptyToString(newUsername)) {
             usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("emptyUsername")));
         } else if (!usersRepository.getItems(true).stream()
-                .map(GeneralObject::getName).collect(Collectors.toList()).contains(newUsername)) {
+                .map(User::getName).collect(Collectors.toList()).contains(newUsername)) {
             usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("invalidUsername")));
         } else {
             setSessionUsername(newUsername);

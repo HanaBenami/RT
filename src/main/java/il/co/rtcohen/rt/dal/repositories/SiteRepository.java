@@ -1,9 +1,8 @@
 package il.co.rtcohen.rt.dal.repositories;
 import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.Site;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,56 +11,53 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class SiteRepository extends AbstractRepository<Site> {
+public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Site> implements RepositoryInterface<Site> {
+    static protected final String DB_CUSTOMER_ID_COLUMN = "custid";
+    static protected final String DB_AREA_ID_COLUMN = "areaid";
+    static protected final String DB_ADDRESS_COLUMN = "address";
+    static protected final String DB_NOTES_COLUMN = "notes";
+
+    final private AreasRepository areasRepository;
+    final private CustomerRepository customerRepository;
+
     @Autowired
-    public SiteRepository(DataSource dataSource) {
-        super(dataSource, "SITE", "Sites", null);
+    public SiteRepository(DataSource dataSource, AreasRepository areasRepository, CustomerRepository customerRepository) {
+        super(
+                dataSource, "SITE", "Sites",
+                new String[]{
+                        DB_CUSTOMER_ID_COLUMN,
+                        DB_AREA_ID_COLUMN,
+                        DB_ADDRESS_COLUMN,
+                        DB_NOTES_COLUMN
+                }
+        );
+        this.areasRepository = areasRepository;
+        this.customerRepository = customerRepository;
     }
 
     protected Site getItemFromResultSet(ResultSet rs) throws SQLException {
-        return new Site(rs.getInt("custid"),
-                rs.getInt("id"),
-                rs.getString("name"),
-                rs.getInt("areaID"),
-                rs.getString("address"),
-                rs.getBoolean("active"),
-                rs.getString("contact"),
-                rs.getString("phone"),
-                rs.getString("notes"));
+        return new Site(
+                this.customerRepository.getItem(rs.getInt(DB_CUSTOMER_ID_COLUMN)),
+                rs.getInt(DB_ID_COLUMN),
+                rs.getString(DB_NAME_COLUMN),
+                this.areasRepository.getItem(rs.getInt(DB_AREA_ID_COLUMN)),
+                rs.getString(DB_ADDRESS_COLUMN),
+                rs.getBoolean(DB_ACTIVE_COLUMN),
+                rs.getString(DB_NOTES_COLUMN));
     }
 
-    protected PreparedStatement generateInsertStatement(Connection connection, Site site) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "insert into " + this.DB_TABLE_NAME
-                        + " (name,areaID,address,custid,contact,phone,notes)"
-                        + " values (?,?,?,?,?,?,?)",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        stmt.setString(1, site.getName());
-        stmt.setInt(2, site.getAreaId());
-        stmt.setString(3, site.getAddress());
-        stmt.setInt(4, site.getCustomerId());
-        stmt.setString(5, site.getContact()); // TODO: delete
-        stmt.setString(6, site.getPhone()); // TODO: delete
-        stmt.setString(7, site.getNotes());
-        return stmt;
-    }
-
-    protected PreparedStatement generateUpdateStatement(Connection connection, Site site) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "update " + this.DB_TABLE_NAME + " set name=?, areaID=?, address=?, custid=?, contact=?, phone=?, notes=?, active=? where id=?",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        stmt.setString(1, site.getName());
-        stmt.setInt(2, site.getAreaId());
-        stmt.setString(3, site.getAddress());
-        stmt.setInt(4, site.getCustomerId());
-        stmt.setString(5, site.getContact()); // TODO: delete
-        stmt.setString(6, site.getPhone()); // TODO: delete
-        stmt.setString(7, site.getNotes());
-        stmt.setBoolean(8, site.isActive());
-        stmt.setInt(9, site.getId());
-        return stmt;
+    @Override
+    protected int updateItemDetailsInStatement(PreparedStatement stmt, Site site) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(stmt, site);
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, site.getCustomer().getId());
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, site.getArea().getId());
+        fieldsCounter++;
+        stmt.setString(fieldsCounter, site.getAddress());
+        fieldsCounter++;
+        stmt.setString(fieldsCounter, site.getNotes());
+        return fieldsCounter;
     }
 
     public List<Site> getItems(boolean onlyActiveItems) {
@@ -72,9 +68,15 @@ public class SiteRepository extends AbstractRepository<Site> {
 
     public List<Site> getItems(Customer customer) {
         List<Site> list = this.getItems();
-        list.removeIf(site -> site.getCustomerId() != customer.getId());
+        list.removeIf(site -> (null == site.getCustomer() || !site.getCustomer().getId().equals(customer.getId())));
         return list;
     }
+
+
+
+
+
+
 
     @Deprecated
     public List<Site> getSitesByCustomer(Integer customerId) {
@@ -105,20 +107,20 @@ public class SiteRepository extends AbstractRepository<Site> {
     @Deprecated
     private List<Integer> getByCustomer(Integer customerId) {
         List<Site> list = this.getItems();
-        list.removeIf(site -> !site.getCustomerId().equals(customerId));
-        return list.stream().map(GeneralObject::getId).collect(Collectors.toList());
+        list.removeIf(site -> null == site.getCustomer() || !site.getCustomer().getId().equals(customerId));
+        return list.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
     }
 
     @Deprecated
     private List<Integer> getActiveByCustomer(Integer customerId) {
         List<Site> list = this.getItems();
-        list.removeIf(site -> site.getCustomerId() != customerId && site.isActive());
-        return list.stream().map(GeneralObject::getId).collect(Collectors.toList());
+        list.removeIf(site -> null == site.getCustomer() || !site.getCustomer().getId().equals(customerId) && site.isActive());
+        return list.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
     }
 
     @Deprecated
     private List<Integer> getActive() {
-        return getItems(true).stream().map(GeneralObject::getId).collect(Collectors.toList());
+        return getItems(true).stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
     }
 
     @Deprecated
@@ -128,7 +130,7 @@ public class SiteRepository extends AbstractRepository<Site> {
 
     @Deprecated
     public long insertSite (String name,Integer areaId,String address, Integer customerId, String contact, String phone, String notes) {
-        return insertItem(new Site(customerId, 0, name, areaId, address, true, contact, phone, notes));
+        return insertItem(new Site(this.customerRepository.getItem(customerId), 0, name, this.areasRepository.getItem(areaId), address, true, notes));
     }
 
     @Deprecated

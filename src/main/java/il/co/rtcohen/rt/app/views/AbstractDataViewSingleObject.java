@@ -8,7 +8,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.app.grids.AbstractFilterGrid;
 import il.co.rtcohen.rt.app.grids.CustomGrid;
 import il.co.rtcohen.rt.dal.dao.AbstractType;

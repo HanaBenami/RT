@@ -1,12 +1,12 @@
 package il.co.rtcohen.rt.dal.dao;
 
-public class Contact extends GeneralObject {
+public class Contact extends AbstractTypeWithNameAndActiveFields implements Nameable {
     static {
         setDbTableName("contact");
         setObjectName("contact");
     }
 
-    private Integer siteId;
+    private Site site;
     private String phone;
     private String notes;
 
@@ -14,24 +14,34 @@ public class Contact extends GeneralObject {
         super();
     }
 
-    public Contact(Integer id, String name, boolean active, int siteId, String phone, String notes) {
+    public Contact(Integer id, String name, boolean active, Site site, String phone, String notes) {
         super(id, name, active);
-        this.siteId = siteId;
-        this.phone=phone;
-        this.notes=notes;
+        this.site = site;
+        this.phone = phone;
+        this.notes = notes;
     }
 
-    public Integer getSiteId() {return this.siteId;}
-    public String getPhone () {return this.phone;}
-    public String getNotes () {return this.notes;}
-
-    public void setSiteId(Integer siteId) {
-        this.siteId = siteId;
+    public Site getSite() {
+        return this.site;
     }
-    public void setPhone (String phone) {
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public String getNotes() {
+        return this.notes;
+    }
+
+    public void setSite(Site site) {
+        this.site = site;
+    }
+
+    public void setPhone(String phone) {
         this.phone = phone;
     }
-    public void setNotes (String notes) {
+
+    public void setNotes(String notes) {
         this.notes = notes;
     }
 }

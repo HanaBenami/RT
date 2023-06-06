@@ -2,34 +2,34 @@ package il.co.rtcohen.rt.dal.dao;
 
 import il.co.rtcohen.rt.app.LanguageSettings;
 
-public class Customer extends GeneralObject {
+public class Customer extends AbstractTypeWithNameAndActiveFields {
     static {
         setDbTableName("cust");
         setObjectName("customer");
     }
 
-    private Integer customerTypeID;
+    private CustomerType customerType;
 
     public Customer() {
         super();
     }
 
-    public Customer(Integer id, String name, int customerTypeID, boolean active) {
+    public Customer(Integer id, String name, CustomerType customerType, boolean active) {
         super(id, name, active);
-        this.customerTypeID = customerTypeID;
+        this.customerType = customerType;
     }
 
-    public Integer getCustomerTypeID() {
-        return customerTypeID;
+    public CustomerType getCustomerType() {
+        return customerType;
     }
 
-    public void setCustomerTypeID(Integer customerTypeID) {
-        this.customerTypeID = customerTypeID;
+    public void setCustomerType(CustomerType customerType) {
+        this.customerType = customerType;
     }
 
     @Override
     public boolean isItemValid() {
-        return super.isItemValid() && (null != this.getCustomerTypeID());
+        return super.isItemValid() && (null != this.getCustomerType());
     }
 
     @Override

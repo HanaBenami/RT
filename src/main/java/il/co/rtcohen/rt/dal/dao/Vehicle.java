@@ -2,7 +2,7 @@ package il.co.rtcohen.rt.dal.dao;
 
 import java.time.LocalDate;
 
-public class Vehicle extends GeneralObject {
+public class Vehicle extends AbstractTypeWithNameAndActiveFields {
     static {
         setDbTableName("vehicle");
         setObjectName("vehicle");

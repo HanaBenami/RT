@@ -1,9 +1,8 @@
 package il.co.rtcohen.rt.dal.dao;
 
-public class Area extends GeneralObject {
-
-    private boolean here;
-    private Integer displayOrder;
+public class Area extends AbstractTypeWithNameAndActiveFields implements BindRepository<Area> {
+    private boolean here = false;
+    private int displayOrder = 0;
 
     public Area() {
         super();
@@ -19,20 +18,19 @@ public class Area extends GeneralObject {
         this.displayOrder = displayOrder;
     }
 
-    public boolean getHere () {
+    public boolean getHere() {
         return here;
     }
 
-    public void setHere (boolean here) {
-        this.here=here;
+    public void setHere(boolean here) {
+        this.here = here;
     }
 
-    public Integer getDisplayOrder () {
+    public int getDisplayOrder() {
         return displayOrder;
     }
 
-    public void setDisplayOrder (Integer displayOrder) {
-        this.displayOrder=displayOrder;
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
     }
-
 }

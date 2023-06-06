@@ -8,50 +8,46 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @Repository
-public class CustomerRepository extends AbstractRepository<Customer> {
+public class CustomerRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Customer> implements RepositoryInterface<Customer> {
+    static protected final String DB_CUST_TYPE_ID_COLUMN = "custtype";
+
+    private final CustomerTypeRepository customerTypeRepository;
+
     @Autowired
-    public CustomerRepository(DataSource dataSource) {
-        super(dataSource, "CUST", "Customers", null);
+    public CustomerRepository(DataSource dataSource, CustomerTypeRepository customerTypeRepository) {
+        super(
+            dataSource, "CUST", "Customers",
+            new String[] {
+                DB_CUST_TYPE_ID_COLUMN
+            }
+        );
+        this.customerTypeRepository = customerTypeRepository;
     }
 
     protected Customer getItemFromResultSet(ResultSet rs) throws SQLException {
-        return new Customer(rs.getInt("id"),
-                rs.getString("name"),
-                rs.getInt("custtype"),
-                rs.getBoolean("active"));
-    }
-
-    protected PreparedStatement generateInsertStatement(Connection connection, Customer customer) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "insert into " + this.DB_TABLE_NAME + " (name, custtype, active) values (?, ?, ?)",
-                Statement.RETURN_GENERATED_KEYS
+        return new Customer(
+                rs.getInt(DB_ID_COLUMN),
+                rs.getString(DB_NAME_COLUMN),
+                this.customerTypeRepository.getItem(rs.getInt(DB_CUST_TYPE_ID_COLUMN)),
+                rs.getBoolean(DB_ACTIVE_COLUMN)
         );
-        stmt.setString(1, customer.getName());
-        stmt.setInt(2, customer.getCustomerTypeID());
-        stmt.setBoolean(3, customer.isActive());
-        return stmt;
     }
 
-    protected PreparedStatement generateUpdateStatement(Connection connection, Customer customer) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "update " + this.DB_TABLE_NAME + " set name=?, custtype=?, active=? where id=?",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        stmt.setString(1, customer.getName());
-        stmt.setInt(2, customer.getCustomerTypeID());
-        stmt.setBoolean(3, customer.isActive());
-        stmt.setInt(4, customer.getId());
-        return stmt;
+    @Override
+    protected int updateItemDetailsInStatement(PreparedStatement stmt, Customer customer) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(stmt, customer);
+        fieldsCounter++;
+        stmt.setInt( fieldsCounter, customer.getCustomerType().getId());
+        return fieldsCounter;
     }
 
-    // TODO: Delete
     @Deprecated
     public List<Customer> getCustomers() {
         return getItems();
     }
     @Deprecated
     public long insertCustomer(String name, Integer custTupeId) {
-        return insertItem(new Customer(null, name, custTupeId, true));
+        return insertItem(new Customer(null, name, this.customerTypeRepository.getItem(custTupeId), true));
     }
     @Deprecated
     public void updateCustomerType(Customer customer) {

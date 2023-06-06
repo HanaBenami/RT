@@ -1,67 +1,62 @@
 package il.co.rtcohen.rt.dal.dao;
 
-public class Site extends GeneralObject {
+public class Site extends AbstractTypeWithNameAndActiveFields {
     static {
         setDbTableName("site");
         setObjectName("site");
     }
 
-    private Integer customerId;
-    private Integer areaId;
+    private Customer customer;
+    private Area area;
     private String address;
-    private String contact;
-    private String phone;
     private String notes;
 
     public Site() {
-        this(0,null,"",0,"",true,"","","");
+
     }
 
-    public Site(int customerId, Integer id, String name, int areaId, String address, boolean active, String contact, String phone, String notes) {
+    public Site(Customer customer, Integer id, String name, Area area, String address, boolean active, String notes) {
         super(id, name, active);
-        this.customerId = customerId;
-        this.areaId = areaId;
+        this.customer = customer;
+        this.area = area;
         this.address = address;
-        this.contact = contact;
-        this.phone = phone;
         this.notes = notes;
     }
 
-    public Integer getAreaId() {
-        return areaId;
-    }
-    public void setAreaId(Integer areaId) {
-        this.areaId = areaId;
+    public Area getArea() {
+        return area;
     }
 
-    public String getAddress () {
-        if (this.address==null) return "";
-        else
-            return this.address;
+    public void setArea(Area area) {
+        this.area = area;
     }
-    public String getContact () {return this.contact;}
-    public String getPhone () {return this.phone;}
-    public String getNotes () {return this.notes;}
-    public Integer getCustomerId() {return this.customerId;}
 
-    public void setAddress (String address) {
-        this.address=address;
+    public String getAddress() {
+        return (null == this.address ? "" : this.address);
     }
-    public void setContact (String contact) {
-        this.contact=contact;
+
+    public String getNotes() {
+        return (null == this.notes ? "" : this.notes);
     }
-    public void setPhone (String phone) {
-        this.phone=phone;
+
+    public Customer getCustomer() {
+        return this.customer;
     }
-    public void setNotes (String notes) {
-        this.notes=notes;
+
+    public void setAddress(String address) {
+        this.address = address;
     }
-    public void setCustomerId(Integer customerId) {
-        this.customerId = customerId;
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     @Override
     public boolean isItemValid() {
-        return super.isItemValid() && (null != this.getAreaId()) && (null != this.getCustomerId());
+        return super.isItemValid() && (null != this.getArea()) && (null != this.getCustomer());
     }
 }

@@ -8,10 +8,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @Repository
-public class VehicleRepository extends AbstractRepository<Vehicle> implements RepositoryInterface<Vehicle> {
-    static private final String DB_ID_COLUMN ="id";
-    static private final String DB_NAME_COLUMN ="name";
-    static private final String DB_ACTIVE_COLUMN ="active";
+public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Vehicle> implements RepositoryInterface<Vehicle> {
     static private final String DB_SITE_ID_COLUMN ="siteId";
     static private final String DB_VEHICLE_TYPE_ID_COLUMN ="typeId";
     static private final String DB_MODEL_COLUMN ="model";
@@ -27,8 +24,13 @@ public class VehicleRepository extends AbstractRepository<Vehicle> implements Re
     public VehicleRepository(DataSource dataSource, VehicleTypeRepository vehicleTypeRepository) {
         super(dataSource, "vehicle", "vehicle",
                 new String[] {
-                        DB_NAME_COLUMN, DB_ACTIVE_COLUMN, DB_SITE_ID_COLUMN, DB_VEHICLE_TYPE_ID_COLUMN, DB_MODEL_COLUMN,
-                        DB_SERIES_COLUMN, DB_ZAMA_COLUMN, DB_LICENSE_COLUMN, DB_ENGINE_HOURS_COLUMN, DB_LAST_UPDATE_COLUMN
+                        DB_SITE_ID_COLUMN,
+                        DB_VEHICLE_TYPE_ID_COLUMN,
+                        DB_MODEL_COLUMN,
+                        DB_SERIES_COLUMN,
+                        DB_ZAMA_COLUMN, DB_LICENSE_COLUMN,
+                        DB_ENGINE_HOURS_COLUMN,
+                        DB_LAST_UPDATE_COLUMN
                 });
         this.vehicleTypeRepository = vehicleTypeRepository;
     }
@@ -49,12 +51,9 @@ public class VehicleRepository extends AbstractRepository<Vehicle> implements Re
         );
     }
 
-    protected void updateItemDetailsInStatement(PreparedStatement stmt, Vehicle vehicle) throws SQLException {
+    protected int updateItemDetailsInStatement(PreparedStatement stmt, Vehicle vehicle) throws SQLException {
         vehicle.setLastUpdate();
-        int fieldsCounter = 1;
-        stmt.setString(fieldsCounter, vehicle.getName());
-        fieldsCounter++;
-        stmt.setBoolean(fieldsCounter, vehicle.isActive());
+        int fieldsCounter = super.updateItemDetailsInStatement(stmt, vehicle);
         fieldsCounter++;
         stmt.setInt(fieldsCounter, vehicle.getSiteId());
         fieldsCounter++;
@@ -71,5 +70,6 @@ public class VehicleRepository extends AbstractRepository<Vehicle> implements Re
         stmt.setInt(fieldsCounter, vehicle.getEngineHours());
         fieldsCounter++;
         stmt.setString(fieldsCounter, dateToString(vehicle.getLastUpdate()));
+        return fieldsCounter;
     }
 }

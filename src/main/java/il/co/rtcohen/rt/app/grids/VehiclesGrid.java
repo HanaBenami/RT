@@ -4,17 +4,16 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
 import il.co.rtcohen.rt.app.UiComponents.CustomComboBoxColumn;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import il.co.rtcohen.rt.dal.dao.VehicleType;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
-import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import java.time.LocalDate;
 
@@ -149,7 +148,7 @@ public class VehiclesGrid extends AbstractFilterGrid<Vehicle> {
                 CustomComboBox.vehiclesTypeComboBox(vehicleTypeRepository),
                 CustomComboBox.vehiclesTypeComboBox(vehicleTypeRepository),
                 (ValueProvider<Vehicle, String>) vehicle -> {
-                    GeneralObject vehicleType = vehicle.getVehicleType();
+                    AbstractTypeWithNameAndActiveFields vehicleType = vehicle.getVehicleType();
                     return (null == vehicleType ? "" : vehicleType.getName());
                 },
                 (ValueProvider<Vehicle, VehicleType>) Vehicle::getVehicleType,

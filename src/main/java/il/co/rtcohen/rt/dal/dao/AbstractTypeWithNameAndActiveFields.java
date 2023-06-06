@@ -3,30 +3,22 @@ package il.co.rtcohen.rt.dal.dao;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GeneralObject extends AbstractType implements Nameable {
-
+public class AbstractTypeWithNameAndActiveFields extends AbstractType implements Nameable {
     private String name;
     private boolean active;
 
-    public GeneralObject() {
+    public AbstractTypeWithNameAndActiveFields() {
         super(null);
         this.active = true;
     }
 
-    public GeneralObject(String name) {
+    public AbstractTypeWithNameAndActiveFields(String name) {
         super(null);
         this.name = name;
         this.active = true;
     }
 
-    public GeneralObject(Integer id, String name, boolean active) {
-        super(id);
-        this.name = name;
-        this.active = active;
-    }
-
-    @Deprecated
-    public GeneralObject(Integer id, String name, boolean active, String dbTableName) {
+    public AbstractTypeWithNameAndActiveFields(Integer id, String name, boolean active) {
         super(id);
         this.name = name;
         this.active = active;
@@ -52,11 +44,11 @@ public class GeneralObject extends AbstractType implements Nameable {
         return (null != this.getName()) && (!this.getName().isEmpty());
     }
 
-    public static List<Integer> generateListOfIds(List<GeneralObject> listOfObjects) {
-        return listOfObjects.stream().map(GeneralObject::getId).collect(Collectors.toList());
+    public static List<Integer> generateListOfIds(List<AbstractTypeWithNameAndActiveFields> listOfObjects) {
+        return listOfObjects.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
     }
 
-    public static List<String> generateListOfNames(List<GeneralObject> listOfObjects) {
-        return listOfObjects.stream().map(GeneralObject::getName).collect(Collectors.toList());
+    public static List<String> generateListOfNames(List<AbstractTypeWithNameAndActiveFields> listOfObjects) {
+        return listOfObjects.stream().map(AbstractTypeWithNameAndActiveFields::getName).collect(Collectors.toList());
     }
 }

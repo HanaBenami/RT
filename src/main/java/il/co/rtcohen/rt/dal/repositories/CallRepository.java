@@ -1,7 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import il.co.rtcohen.rt.dal.dao.Call;
-import il.co.rtcohen.rt.dal.DeleteException;
 import il.co.rtcohen.rt.dal.UpdateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -383,6 +382,4 @@ public class CallRepository {   // TODO: extends AbstractRepository
                 + " where id=" + call.getId();
         updateQuery(sql);
     }
-
 }
-

@@ -9,20 +9,20 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
-import il.co.rtcohen.rt.dal.repositories.CallRepository;
-import il.co.rtcohen.rt.dal.repositories.ContactRepository;
-import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
-import il.co.rtcohen.rt.dal.repositories.SiteRepository;
+import il.co.rtcohen.rt.dal.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 
+@Deprecated
 @SpringComponent
 @SpringUI(path="/editSite")
 public class EditSiteUI extends AbstractEditUI {
 
+    private final AreasRepository areasRepository;
+    private final CustomerRepository customerRepository;
     private Site site;
     private ComboBox<Integer> areaCombo;
     private TextField name;
@@ -31,8 +31,10 @@ public class EditSiteUI extends AbstractEditUI {
 
     @Autowired
     private EditSiteUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository,
-                       SiteRepository siteRepository, ContactRepository contactRepository) {
+                       SiteRepository siteRepository, ContactRepository contactRepository, AreasRepository areasRepository, CustomerRepository customerRepository) {
         super(siteRepository, errorHandler, callRepository, generalRepository, contactRepository);
+        this.areasRepository = areasRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -83,7 +85,7 @@ public class EditSiteUI extends AbstractEditUI {
     private void addAreaField() {
         areaCombo = new UIComponents().areaComboBox(generalRepository,120,40);
         areaCombo.setEmptySelectionAllowed(false);
-        areaCombo.setValue(site.getAreaId());
+        areaCombo.setValue(site.getArea().getId());
         areaCombo.addValueChangeListener(valueChangeEvent -> areaChange());
         layout.addComponent(areaCombo,1,0);
     }
@@ -91,7 +93,7 @@ public class EditSiteUI extends AbstractEditUI {
     private void addCustomerField() {
         customerCombo = new UIComponents().customerComboBox(generalRepository,400,30);
         customerCombo.setEmptySelectionAllowed(false);
-        customerCombo.setValue(site.getCustomerId());
+        customerCombo.setValue(site.getCustomer().getId());
         customerCombo.addValueChangeListener( valueChangeEvent -> customerChange());
         layout.addComponent(customerCombo,1,1,3,1);
     }
@@ -211,7 +213,7 @@ public class EditSiteUI extends AbstractEditUI {
     }
 
     private void addCall() {
-        long n = callRepository.insertCall(site.getCustomerId(),
+        long n = callRepository.insertCall(site.getCustomer().getId(),
                 LocalDate.now(),site.getId());
         Page.getCurrent().open(UIPaths.EDITCALL.getPath()+String.valueOf(n),"_new3",
                 750,770,
@@ -222,13 +224,13 @@ public class EditSiteUI extends AbstractEditUI {
 
     private void areaChange() {
         if ((areaCombo.getValue()==0)||(areaCombo.isEmpty())) {
-            site.setAreaId(0);
+            site.setArea(null);
             name.setEnabled(false);
             areaCombo.setComponentError(new UserError
                     (LanguageSettings.getLocaleString("pleaseSelectArea")));
         } else {
             try {
-                site.setAreaId(areaCombo.getValue());
+                site.setArea(areasRepository.getItem(areaCombo.getValue()));
                 areaCombo.setComponentError(null);
             } catch (RuntimeException e) {
                 areaCombo.setComponentError(new UserError
@@ -248,13 +250,13 @@ public class EditSiteUI extends AbstractEditUI {
     private void customerChange() {
         if ((customerCombo.getValue()==0)||(customerCombo.isEmpty())) {
             name.setEnabled(false);
-            site.setCustomerId(0);
+            site.setCustomer(null);
             customerCombo.setComponentError(new UserError
                     (LanguageSettings.getLocaleString("pleaseSelectCustomer")));
         }
         else {
             try {
-                site.setCustomerId(customerCombo.getValue());
+                site.setCustomer(customerRepository.getItem(customerCombo.getValue()));
                 customerCombo.setEnabled(false);
                 customerCombo.setComponentError(null);
             }

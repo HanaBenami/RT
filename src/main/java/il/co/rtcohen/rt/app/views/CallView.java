@@ -11,7 +11,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.DetailsGenerator;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
@@ -493,31 +493,6 @@ public class CallView extends AbstractDataViewSingleObject<Call> {
         } else
             siteCombo.setItems(new ArrayList<>());
     }
-    private void addPhoneColumn() {
-        FilterGrid.Column<Call, String> phoneColumn = grid.addColumn(call -> {
-            if (call.getSiteId() == 0) return "";
-            else return siteRepository.getSiteById(call.getSiteId()).getPhone();
-        }).setId("phoneColumn").setWidth(110);
-        phoneColumn.setHidable(true);
-        phoneColumn.setHidden(true);
-        TextField filterPhone = UIComponents.textField(30);
-        phoneColumn.setFilter(filterPhone, UIComponents.stringFilter());
-        filterPhone.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("phoneColumn").setText(LanguageSettings.getLocaleString("phone"));
-    }
-    private void addContactColumn() {
-        FilterGrid.Column<Call, String> contactColumn = grid.addColumn(call -> {
-            if (call.getSiteId() == 0) return "";
-            else return siteRepository.getSiteById(call.getSiteId()).getContact();
-        })
-                .setId("contactColumn").setWidth(110);
-        contactColumn.setHidable(true);
-        contactColumn.setHidden(true);
-        TextField filterContact = UIComponents.textField(30);
-        contactColumn.setFilter(filterContact, UIComponents.stringFilter());
-        filterContact.setWidth("95%");
-        grid.getDefaultHeaderRow().getCell("contactColumn").setText(LanguageSettings.getLocaleString("contactShort"));
-    }
     private void addAddressColumn() {
         FilterGrid.Column<Call, String> addressColumn = grid.addColumn(call -> {
             if (call.getSiteId() == 0) return "";
@@ -536,7 +511,7 @@ public class CallView extends AbstractDataViewSingleObject<Call> {
             if (call.getSiteId() == 0) return "";
             else
                 return generalRepository.getNameById(siteRepository.getSiteById
-                        (call.getSiteId()).getAreaId(), "area");
+                        (call.getSiteId()).getArea().getId(), "area");
         }).setId("areaColumn").setWidth(110).setExpandRatio(1).setResizable(true);
         areaColumn.setHidable(true);
         areaColumn.setHidden(true);
@@ -677,8 +652,6 @@ public class CallView extends AbstractDataViewSingleObject<Call> {
         addDate1Column();
         addStartDateColumn();
         addSiteColumn();
-        addPhoneColumn();
-        addContactColumn();
         addAddressColumn();
         addAreaColumn();
         addHereColumn();

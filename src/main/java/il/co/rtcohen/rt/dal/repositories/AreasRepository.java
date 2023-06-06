@@ -10,47 +10,37 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class AreasRepository extends AbstractRepository<Area> {
+public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Area> implements RepositoryInterface<Area> {
+    static protected final String DB_HERE_COLUMN = "here";
+    static protected final String DB_DISPLAY_ORDER_COLUMN = "displayOrder";
+
     @Autowired
     public AreasRepository(DataSource dataSource) {
-        super(dataSource, "area", "Areas", null);
+        super(dataSource, "area", "Areas",
+                new String[]{
+                        DB_HERE_COLUMN,
+                        DB_DISPLAY_ORDER_COLUMN
+                });
     }
 
     protected Area getItemFromResultSet(ResultSet rs) throws SQLException {
         return new Area(
-                rs.getInt("id"),
-                rs.getString("name"),
-                rs.getBoolean("here"),
-                rs.getBoolean("active"),
-                rs.getInt("displayOrder")
+                rs.getInt(DB_ID_COLUMN),
+                rs.getString(DB_NAME_COLUMN),
+                rs.getBoolean(DB_HERE_COLUMN),
+                rs.getBoolean(DB_ACTIVE_COLUMN),
+                rs.getInt(DB_DISPLAY_ORDER_COLUMN)
         );
     }
 
-    protected PreparedStatement generateInsertStatement(Connection connection, Area area) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "insert into " + this.DB_TABLE_NAME
-                        + " (name, here, displayOrder)"
-                        + " values (?, ?, ?)",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        updateAreaDetailsInStatement(stmt, area);
-        return stmt;
-    }
-
-    protected PreparedStatement generateUpdateStatement(Connection connection, Area area) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "update " + this.DB_TABLE_NAME + " set name=?, here=?, displayOrder=? where id=?",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        updateAreaDetailsInStatement(stmt, area);
-        stmt.setInt( 4, area.getId());
-        return stmt;
-    }
-
-    private void updateAreaDetailsInStatement(PreparedStatement stmt, Area area) throws SQLException {
-        stmt.setString(1, area.getName());
-        stmt.setBoolean(2, area.getHere());
-        stmt.setInt( 3, area.getDisplayOrder());
+    @Override
+    protected int updateItemDetailsInStatement(PreparedStatement stmt, Area area) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(stmt, area);
+        fieldsCounter++;
+        stmt.setBoolean(fieldsCounter, area.getHere());
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, area.getDisplayOrder());
+        return fieldsCounter;
     }
 
     @Deprecated

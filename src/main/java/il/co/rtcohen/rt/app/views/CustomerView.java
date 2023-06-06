@@ -13,13 +13,10 @@ import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
-import il.co.rtcohen.rt.dal.repositories.CallRepository;
-import il.co.rtcohen.rt.dal.repositories.CustomerRepository;
-import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
-import il.co.rtcohen.rt.dal.repositories.SiteRepository;
+import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.app.ui.UIPaths;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
@@ -31,17 +28,22 @@ public class CustomerView extends AbstractDataViewSingleObject<Customer> {
     private TextField filterName;
     private ComboBox<Integer> newCustomerType;
     private TextField newName;
-    private CallRepository callRepository;
-    private SiteRepository siteRepository;
-    private CustomerRepository customerRepository;
+    private final CallRepository callRepository;
+    private final SiteRepository siteRepository;
+    private final CustomerRepository customerRepository;
+    private final CustomerTypeRepository customerTypeRepository;
     private HorizontalLayout newCustomerLayout;
 
     @Autowired
-    private CustomerView(ErrorHandler errorHandler, CallRepository callRepository, SiteRepository siteRepository, GeneralRepository generalRepository, CustomerRepository customerRepository) {
+    private CustomerView(ErrorHandler errorHandler, CallRepository callRepository,
+                         SiteRepository siteRepository, GeneralRepository generalRepository,
+                         CustomerRepository customerRepository,
+                         CustomerTypeRepository customerTypeRepository) {
         super(errorHandler,generalRepository);
         this.callRepository=callRepository;
         this.siteRepository=siteRepository;
         this.customerRepository=customerRepository;
+        this.customerTypeRepository=customerTypeRepository;
     }
 
     @Override
@@ -97,7 +99,7 @@ public class CustomerView extends AbstractDataViewSingleObject<Customer> {
                         UIComponents.checkBox(Customer.isActive(),true));
         activeColumn.setId("activeColumn").setExpandRatio(1).setResizable(false).setWidth(70).setSortable(false);
         activeColumn.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(
-                (ValueProvider<Customer, Boolean>) GeneralObject::isActive,
+                (ValueProvider<Customer, Boolean>) AbstractTypeWithNameAndActiveFields::isActive,
                 (Setter<Customer, Boolean>) (Customer, Boolean) -> {
                     Customer.setActive(Boolean);
                     generalRepository.update(Customer);
@@ -112,12 +114,12 @@ public class CustomerView extends AbstractDataViewSingleObject<Customer> {
         ComboBox<Integer> customerTypeCombo = new UIComponents().custTypeComboBox(generalRepository,130,30);
         customerTypeCombo.setEmptySelectionAllowed(false);
         FilterGrid.Column<Customer, String> customerTypeColumn = grid.addColumn(
-                Customer -> generalRepository.getNameById(Customer.getCustomerTypeID(),"custType"))
+                Customer -> generalRepository.getNameById(Customer.getId(),"custType"))
                 .setId("custTypeColumn")
                 .setWidth(200).setEditorBinding(grid.getEditor().getBinder().forField(customerTypeCombo).bind(
-                        (ValueProvider<Customer, Integer>) Customer::getCustomerTypeID,
+                        (ValueProvider<Customer, Integer>) customer -> customer.getCustomerType().getId(),
                         (Setter<Customer, Integer>) (Customer, integer) -> {
-                            Customer.setCustomerTypeID(integer);
+                            Customer.setCustomerType(this.customerTypeRepository.getItem(integer));
                             customerRepository.updateCustomerType(Customer);
                         }
                 )).setExpandRatio(1).setResizable(false);
@@ -168,7 +170,7 @@ public class CustomerView extends AbstractDataViewSingleObject<Customer> {
         grid.getEditor().setEnabled(true);
         grid.sort("nameColumn", SortDirection.ASCENDING);
         grid.setStyleGenerator((StyleGenerator<Customer>) Customer -> {
-            if (generalRepository.getNameById(Customer.getCustomerTypeID(), "custType")
+            if (generalRepository.getNameById(Customer.getCustomerType().getId(), "custType")
                     .equals(LanguageSettings.getLocaleString("privateCustomerType")))
                 return "yellow";
             return null;

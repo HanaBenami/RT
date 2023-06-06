@@ -107,7 +107,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addSitesGrid(Customer customer) {
         removeSitesGrid();
-        this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository, areasRepository, generalObjectRepository);
+        this.sitesGrid = new SitesGrid(customer, contactRepository, siteRepository, callRepository, areasRepository);
         this.sitesGrid.setSelected(selectedSiteId);
         this.selectedSiteId = 0;
         this.sitesGrid.addItemClickListener(listener -> {

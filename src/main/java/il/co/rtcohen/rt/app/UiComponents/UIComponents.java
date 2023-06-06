@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app;
+package il.co.rtcohen.rt.app.UiComponents;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
@@ -6,10 +6,8 @@ import com.vaadin.server.SerializableBiPredicate;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.LocalDateRenderer;
 import com.vaadin.ui.themes.ValoTheme;
-import il.co.rtcohen.rt.dal.dao.AbstractType;
 import il.co.rtcohen.rt.dal.dao.Call;
-import il.co.rtcohen.rt.dal.dao.GeneralObject;
-import il.co.rtcohen.rt.dal.dao.Nameable;
+import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
@@ -18,9 +16,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Deprecated
+// TODO: Rewrite
 public class UIComponents {
 
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -104,9 +103,9 @@ public class UIComponents {
     }
 
     public ComboBox<Integer> generalObjectComboBox(GeneralObjectRepository generalObjectRepository, String dbTableName, int w, int h) {
-        generalObjectRepository.setDbTableName(dbTableName);
+//        generalObjectRepository.setDbTableName(dbTableName); // TODO fix related issues
         List<Integer> list = generalObjectRepository.getItems(true).stream()
-                .map(GeneralObject::getId).collect(Collectors.toList());
+                .map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
         ItemCaptionGenerator<Integer> caption = (ItemCaptionGenerator<Integer>) item ->
                 (0 == item ? "" : generalObjectRepository.getItem(item).getName());
         return UIComponents.comboBox(list, caption, w, h);

@@ -1,11 +1,9 @@
 package il.co.rtcohen.rt.app.views;
 
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
-import il.co.rtcohen.rt.app.UIComponents;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;

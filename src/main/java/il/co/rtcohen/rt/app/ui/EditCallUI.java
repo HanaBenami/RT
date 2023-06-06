@@ -7,7 +7,7 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.repositories.*;
@@ -379,7 +379,7 @@ public class EditCallUI extends AbstractEditUI {
     private void refreshData() {
         siteNotes.setValue(siteRepository.getSiteById(call.getSiteId()).getNotes());
         address.setValue(siteRepository.getSiteById(call.getSiteId()).getAddress());
-        area.setValue(generalRepository.getNameById(siteRepository.getSiteById(call.getSiteId()).getAreaId(),"area"));
+        area.setValue(generalRepository.getNameById(siteRepository.getSiteById(call.getSiteId()).getArea().getId(),"area"));
         contactsGrid.setItems(contactRepository.getContactsBySite(call.getSiteId(), true));
         driverCombo.setValue(call.getDriverId());
         openByCombo.setValue(call.getUserId());

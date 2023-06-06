@@ -1,0 +1,52 @@
+package il.co.rtcohen.rt.dal.repositories;
+
+import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+@Repository
+public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends AbstractTypeWithNameAndActiveFields>
+        extends AbstractTypeRepository<T> implements RepositoryInterface<T> {
+    static protected final String DB_NAME_COLUMN = "name";
+    static protected final String DB_ACTIVE_COLUMN = "active";
+
+    @Autowired
+    public AbstractTypeWithNameAndActiveFieldsRepository(DataSource dataSource, String dbTableName, String repositoryName,
+                                                         String[] additionalDbColumns) {
+        super(dataSource, dbTableName, repositoryName,
+                new String[]{
+                        DB_NAME_COLUMN,
+                        DB_ACTIVE_COLUMN
+                },
+                additionalDbColumns);
+    }
+
+    public List<T> getItems(boolean onlyActiveItems) {
+        List<T> list = this.getItems();
+        list.removeIf(user -> !user.isActive());
+        return list;
+    }
+
+    public T getItemByName(String name) {
+        if (null == name || name.isEmpty()) {
+            return null;
+        }
+        return super.getItem("CAST(name as varchar(100))='" + name + "'");
+    }
+
+    abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
+
+    protected int updateItemDetailsInStatement(PreparedStatement stmt, T t) throws SQLException {
+        int fieldsCounter = 1;
+        stmt.setString(fieldsCounter, t.getName());
+        fieldsCounter++;
+        stmt.setBoolean(fieldsCounter, t.isActive());
+        return fieldsCounter;
+    }
+}

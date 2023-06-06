@@ -1,21 +1,18 @@
 package il.co.rtcohen.rt.app.ui;
 
 import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.Page;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.BorderStyle;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
-import com.vaadin.ui.components.grid.DetailsGenerator;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UIComponents;
+import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
@@ -301,7 +298,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         FilterGrid.Column<Call, String> areaColumn = grid.addColumn(call -> {
             if (call.getSiteId() == 0) return "";
             else return
-                    generalRepository.getNameById(siteRepository.getSiteById(call.getSiteId()).getAreaId(), "area");
+                    generalRepository.getNameById(siteRepository.getSiteById(call.getSiteId()).getArea().getId(), "area");
         }).setId("areaColumn").setWidth(100).setExpandRatio(1).setResizable(true);
         areaColumn.setHidable(true);
         areaColumn.setHidden(!condition.equals("open") && (!condition.equals("here")));
