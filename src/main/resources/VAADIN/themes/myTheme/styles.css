@@ -15083,12 +15083,35 @@ div.v-layout.v-horizontal.v-widget {
 	padding-bottom: 5px;
 }
 
+.myTheme .custom-grid-margins.v-margin-left {
+	padding-left: 20px;
+}
+
+.myTheme .custom-grid-margins.v-margin-right {
+	padding-right: 20px;
+}
+
+.myTheme .custom-grid-margins.v-margin-top {
+	padding-top: 20px;
+}
+
+.myTheme .custom-grid-margins.v-margin-bottom {
+	padding-bottom: 20px;
+}
+
 .myTheme .LABEL {
 	color: black;
 	float: center;
 	font-size: 30px;
 	font-weight: bold;
 	line-height: 150%;
+}
+
+.myTheme .LABEL-SMALL-HEADER {
+	font-size: 22px !important;
+	font-weight: bold;
+	float: center;
+	line-height: 100%;
 }
 
 .myTheme .LABEL-RIGHT {
@@ -15098,6 +15121,22 @@ div.v-layout.v-horizontal.v-widget {
 	font-size: 30px;
 	font-weight: bold;
 	line-height: 150%;
+}
+
+.myTheme .LABEL-SMALL {
+	float: right;
+	font-size: 16px;
+	line-height: 100%;
+}
+
+.myTheme .SMALL-TEXT {
+	font-size: 14px !important;
+}
+
+.myTheme .LABEL-ERROR {
+	color: red !important;
+	text-align: center !important;
+	font-weight: bold;
 }
 
 .myTheme .LABEL-RIGHT-RED {
@@ -15227,6 +15266,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .myTheme .v-grid-cell {
 	padding-left: 5px !important;
+	font-size: 14px;
 }
 
 .myTheme .sort-asc, .myTheme .sort-desc {
@@ -15384,4 +15424,8 @@ div.v-layout.v-horizontal.v-widget {
 	float: right !important;
 	text-align: right !important;
 	align: right !important;
+}
+
+.myTheme .scrollable {
+	overflow: auto;
 }

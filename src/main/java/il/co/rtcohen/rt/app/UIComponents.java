@@ -9,6 +9,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.dal.dao.Nameable;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class UIComponents {
@@ -190,13 +192,16 @@ public class UIComponents {
     }
 
     public static Label smallHeader(String title) {
-        if (LanguageSettings.isHebrew())
-            return UIComponents.label(title,"LABEL-RIGHT");
-        else
-            return UIComponents.label(title,"LABEL-LEFT");
+        return UIComponents.label(title,"LABEL-SMALL-HEADER");
     }
 
-    public static Label label(String value,String style) {
+    public static Label errorMessage(String errorMessage) {
+        Label label = smallHeader(errorMessage);
+        label.setStyleName("LABEL-ERROR");
+        return label;
+    }
+
+    public static Label label(String value, String style) {
         Label label = UIComponents.label(style);
         label.setValue(value);
         return label;
@@ -206,6 +211,15 @@ public class UIComponents {
         Label label = new Label("");
         label.addStyleName(style);
         return label;
+    }
+
+    public HorizontalLayout titleHorizontalLayout(String title, Button button) {
+        HorizontalLayout titleLayout = new HorizontalLayout();
+        titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        titleLayout.addComponent(button);
+        titleLayout.addComponent(UIComponents.header(title));
+        titleLayout.setWidth("70%");
+        return titleLayout;
     }
 
     public static Button editButton() {
@@ -238,6 +252,15 @@ public class UIComponents {
 
     public static Button refreshButton() {
         return bigButton(VaadinIcons.REFRESH);
+    }
+
+    public static Button showHideButton(Layout layout) {
+        Button showHideButton = UIComponents.bigButton(VaadinIcons.EYE_SLASH);
+        showHideButton.addClickListener(clickEvent -> {
+            layout.setVisible(!layout.isVisible());
+            showHideButton.setIcon(VaadinIcons.EYE);
+        });
+        return showHideButton;
     }
 
     public static Button truckButton() {

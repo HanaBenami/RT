@@ -11,7 +11,7 @@ import java.sql.*;
 public class CustomerRepository extends AbstractRepository<Customer> {
     @Autowired
     public CustomerRepository(DataSource dataSource) {
-        super(dataSource, "CUST", "Customers");
+        super(dataSource, "CUST", "Customers", null);
     }
 
     protected Customer getItemFromResultSet(ResultSet rs) throws SQLException {

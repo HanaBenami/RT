@@ -2,7 +2,7 @@ package il.co.rtcohen.rt.app.views;
 
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.spring.annotation.SpringView;
-import il.co.rtcohen.rt.app.ui.grids.AreasGrid;
+import il.co.rtcohen.rt.app.grids.AreasGrid;
 import il.co.rtcohen.rt.dal.dao.GeneralObject;
 import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 import org.slf4j.Logger;

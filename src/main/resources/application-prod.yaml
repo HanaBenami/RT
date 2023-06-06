@@ -5,9 +5,9 @@ server:
   port: 8084
 
 sqlserver:
-  url: jdbc:sqlserver://zeev-asus:1433;databaseName=RT;integratedSecurity=true
+  url: jdbc:sqlserver://localhost:1433;databaseName=RT;user=RT_user;password=RTrt123!;trustServerCertificate=true
 log:
-  path: c:\\rt\\logs\\prod
+  path: /home/hana/RT/logs/
 
 settings:
   multiLanguage: false

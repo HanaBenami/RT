@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app.ui.grids;
+package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
@@ -24,10 +24,6 @@ public class AreasGrid extends AbstractFilterGrid<Area> {
         addDisplayOrderColumn();
         addNameColumn();
         addIdColumn();
-    }
-
-    protected void sort() {
-        this.sort("nameColumn", SortDirection.ASCENDING);
     }
 
     private void addActiveColumn() {
@@ -69,16 +65,6 @@ public class AreasGrid extends AbstractFilterGrid<Area> {
                 230,
                 "nameColumn",
                 "name"
-        );
-    }
-
-    private void addIdColumn() {
-        this.addNumericColumn(
-                Area::getId,
-                null,
-                80,
-                "idColumn",
-                "id"
         );
     }
 }

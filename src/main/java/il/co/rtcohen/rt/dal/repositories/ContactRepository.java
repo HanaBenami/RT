@@ -13,7 +13,7 @@ import java.util.List;
 public class ContactRepository extends AbstractRepository<Contact> {
     @Autowired
     public ContactRepository(DataSource dataSource) {
-        super(dataSource, "CONTACT", "Contacts");
+        super(dataSource, "CONTACT", "Contacts", null);
     }
 
     protected Contact getItemFromResultSet(ResultSet rs) throws SQLException {

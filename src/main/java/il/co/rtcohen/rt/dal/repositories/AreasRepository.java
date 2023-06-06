@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class AreasRepository extends AbstractRepository<Area> {
     @Autowired
     public AreasRepository(DataSource dataSource) {
-        super(dataSource, "area", "Areas");
+        super(dataSource, "area", "Areas", null);
     }
 
     protected Area getItemFromResultSet(ResultSet rs) throws SQLException {

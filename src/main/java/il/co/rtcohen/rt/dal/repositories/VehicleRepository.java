@@ -1,96 +1,72 @@
 package il.co.rtcohen.rt.dal.repositories;
 
-import il.co.rtcohen.rt.dal.dao.Area;
+import il.co.rtcohen.rt.dal.dao.Vehicle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
-public class AreasRepository extends AbstractRepository<Area> {
+public class VehicleRepository extends AbstractRepository<Vehicle> {
+    static private final String DB_ID_COLUMN ="id";
+    static private final String DB_NAME_COLUMN ="name";
+    static private final String DB_ACTIVE_COLUMN ="active";
+    static private final String DB_SITE_ID_COLUMN ="siteId";
+    static private final String DB_CAR_TYPE_ID_COLUMN ="typeId";
+    static private final String DB_MODEL_COLUMN ="model";
+    static private final String DB_SERIES_COLUMN = "series";
+    static private final String DB_ZAMA_COLUMN = "zama";
+    static private final String DB_LICENSE_COLUMN = "license";
+    static private final String DB_ENGINE_HOURS_COLUMN = "engineHours";
+    static private final String DB_LAST_UPDATE_COLUMN = "lastUpdate";
+
     @Autowired
-    public AreasRepository(DataSource dataSource) {
-        super(dataSource, "area", "Areas");
+    public VehicleRepository(DataSource dataSource) {
+        super(dataSource, "vehicle", "vehicle",
+                new String[] {
+                        DB_NAME_COLUMN, DB_ACTIVE_COLUMN, DB_SITE_ID_COLUMN, DB_CAR_TYPE_ID_COLUMN, DB_MODEL_COLUMN,
+                        DB_SERIES_COLUMN, DB_ZAMA_COLUMN, DB_LICENSE_COLUMN, DB_ENGINE_HOURS_COLUMN, DB_LAST_UPDATE_COLUMN
+                });
     }
 
-    protected Area getItemFromResultSet(ResultSet rs) throws SQLException {
-        return new Area(
-                rs.getInt("id"),
-                rs.getString("name"),
-                rs.getBoolean("here"),
-                rs.getBoolean("active"),
-                rs.getInt("displayOrder")
+    protected Vehicle getItemFromResultSet(ResultSet rs) throws SQLException {
+        return new Vehicle(
+                rs.getInt(DB_ID_COLUMN),
+                rs.getString(DB_NAME_COLUMN),
+                rs.getBoolean(DB_ACTIVE_COLUMN),
+                rs.getInt(DB_SITE_ID_COLUMN),
+                rs.getInt(DB_CAR_TYPE_ID_COLUMN),
+                rs.getString(DB_MODEL_COLUMN),
+                rs.getString(DB_SERIES_COLUMN),
+                rs.getInt(DB_ZAMA_COLUMN),
+                rs.getInt(DB_LICENSE_COLUMN),
+                rs.getInt(DB_ENGINE_HOURS_COLUMN),
+                stringToDate(rs.getString(DB_LAST_UPDATE_COLUMN))
         );
     }
 
-    protected PreparedStatement generateInsertStatement(Connection connection, Area area) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "insert into " + this.DB_TABLE_NAME
-                        + " (name, here, displayOrder)"
-                        + " values (?, ?, ?)",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        updateAreaDetailsInStatement(stmt, area);
-        return stmt;
-    }
-
-    protected PreparedStatement generateUpdateStatement(Connection connection, Area area) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
-                "update " + this.DB_TABLE_NAME + " set name=?, here=?, displayOrder=? where id=?",
-                Statement.RETURN_GENERATED_KEYS
-        );
-        updateAreaDetailsInStatement(stmt, area);
-        stmt.setInt( 4, area.getId());
-        return stmt;
-    }
-
-    private void updateAreaDetailsInStatement(PreparedStatement stmt, Area area) throws SQLException {
-        stmt.setString(1, area.getName());
-        stmt.setBoolean(2, area.getHere());
-        stmt.setInt( 3, area.getDisplayOrder());
-    }
-
-    @Deprecated
-    public List<Area> getAreas() {
-        return getItems();
-    }
-
-    @Deprecated
-    public Area getAreaById(int id) {
-        return getItem(id);
-    }
-
-    @Deprecated
-    public List<Integer> getOutAreaId() {
-        return getActiveId(false);
-    }
-
-    @Deprecated
-    public List<Integer> getHereAreaId() {
-        return getActiveId(true);
-    }
-
-    @Deprecated
-    private List<Integer> getActiveId(Boolean here) {
-        List<Area> areas = getItems();
-        areas.removeIf(area -> !area.isActive());
-        areas.removeIf(area -> area.getHere() != here);
-        return areas.stream().map(Area::getId).collect(Collectors.toList());
-    }
-
-    @Deprecated
-    public long insertArea(String name) {
-        insertItem(new Area(name));
-        return 1; // TODO: change to real value, if needed
-    }
-
-    @Deprecated
-    public int updateArea(Area area) {
-        updateItem(area);
-        return 1; // TODO: change to real value, if needed
+    protected void updateItemDetailsInStatement(PreparedStatement stmt, Vehicle vehicle) throws SQLException {
+        vehicle.setLastUpdate();
+        int fieldsCounter = 1;
+        stmt.setString(fieldsCounter, vehicle.getName());
+        fieldsCounter++;
+        stmt.setBoolean(fieldsCounter, vehicle.isActive());
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, vehicle.getSiteId());
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, vehicle.getVehicleTypeId());
+        fieldsCounter++;
+        stmt.setString(fieldsCounter, vehicle.getModel());
+        fieldsCounter++;
+        stmt.setString(fieldsCounter, vehicle.getSeries());
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, vehicle.getZama());
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, vehicle.getLicense());
+        fieldsCounter++;
+        stmt.setInt(fieldsCounter, vehicle.getEngineHours());
+        fieldsCounter++;
+        stmt.setString(fieldsCounter, dateToString(vehicle.getLastUpdate()));
     }
 }
-

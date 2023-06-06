@@ -3,7 +3,7 @@ package il.co.rtcohen.rt.dal.dao;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GeneralObject extends AbstractType {
+public class GeneralObject extends AbstractType implements Nameable {
 
     private String name;
     private boolean active;

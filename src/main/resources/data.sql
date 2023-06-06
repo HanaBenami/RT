@@ -33,3 +33,5 @@ INSERT INTO driver (NAME, active) VALUES (N'נהג2', 1);
 INSERT INTO driver (NAME, active) VALUES (N'יוסי', 1);
 
 INSERT INTO site (NAME, areaID, custID, active, contact, address) VALUES (N'אתר לדוגמה', 1, 1, 1, N'חנה', N'מעלות');
+
+INSERT INTO vehicle (name, siteId) VALUES ('xxx', 1);

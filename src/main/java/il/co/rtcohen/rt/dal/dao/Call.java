@@ -4,10 +4,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Call extends AbstractType {
-
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     final static public String nullDateString = "1901-01-01";
     final static public LocalDate nullDate = LocalDate.parse(nullDateString, dateFormatter);
+
     private int customerId;
     private int siteId;
     private String description;

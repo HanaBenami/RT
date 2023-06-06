@@ -1,3 +1,22 @@
 java.exe -jar d:\rt\rt.jar --spring.profiles.active=rt_prod --spring.config.name=./RT_prod --spring.config.location=D:\RT\
 
 java -jar target/RT-3.jar --spring.profiles.active=demo --spring.config.name=application-demo --spring.config.location=./src/main/resources/
+
+sqlcmd -S localhost -U sa -P ******
+create database RT ON PRIMARY (NAME=N'RT_data', FILENAME=N'/home/hana/RT/RT.mdf') LOG ON (NAME=N'RT_log', FILENAME=N'/home/hana/RT/RT.ldf');
+restore database RT from disk=N'/home/hana/Desktop/RT/RT_prod_20230531.bak' WITH replace, MOVE 'RT_prod' TO '/home/hana/RT/RT.mdf', MOVE 'RT_prod_log' TO '/home/hana/RT/RT.ldf';
+go
+use rt
+select * from cust where id=3
+go
+create login RT_user with password='RTrt123!'
+create user RT_user for login RT_user
+ALTER ROLE db_owner ADD MEMBER RT_user
+go
+
+sqlcmd -S localhost -U RT_user -P RTrt123!
+use rt
+select * from cust where id=3
+go
+
+

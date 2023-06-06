@@ -1,8 +1,7 @@
-package il.co.rtcohen.rt.app.ui.grids;
+package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
-import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Contact;
@@ -19,10 +18,31 @@ public class ContactsGrid extends AbstractFilterGrid<Contact> {
                     contact.setSiteId(site.getId());
                     return contact;
                 },
-                "contacts",
+                "contactsOfSites",
                 contact -> null == site || !contact.getSiteId().equals(site.getId()));
         this.site = site;
         this.initGrid();
+    }
+
+    @Override
+    protected void setTitle() {
+        super.setTitle();
+        if (null != this.site) {
+            this.title += " " + site.getName();
+        }
+    }
+
+    @Override
+    protected void changeErrorMessage() {
+        String errorMessageKey = null;
+        String warningMessageKey = null;
+        if (null == site) {
+            errorMessageKey = "noSite";
+        } else if (0 == this.getItemsCounter()) {
+            warningMessageKey = "noContactsToSite";
+        }
+        this.setErrorMessage(errorMessageKey);
+        this.setWarningMessage(warningMessageKey);
     }
 
     protected void addColumns() {
@@ -31,10 +51,6 @@ public class ContactsGrid extends AbstractFilterGrid<Contact> {
         addPhoneColumn();
         addNameColumn();
         addIdColumn();
-    }
-
-    protected void sort() {
-        this.sort("nameColumn", SortDirection.ASCENDING);
     }
 
     private void addActiveColumn() {
@@ -75,16 +91,6 @@ public class ContactsGrid extends AbstractFilterGrid<Contact> {
                 230,
                 "nameColumn",
                 "name"
-        );
-    }
-
-    private void addIdColumn() {
-        this.addNumericColumn(
-                Contact::getId,
-                null,
-                80,
-                "idColumn",
-                "id"
         );
     }
 }

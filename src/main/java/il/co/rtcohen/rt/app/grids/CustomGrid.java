@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app.ui.grids;
+package il.co.rtcohen.rt.app.grids;
 
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 

@@ -19,6 +19,6 @@ public class UsersRepository extends GeneralObjectRepository {
         if (null == name || name.isEmpty()) {
             return null;
         }
-        return super.getItem("name='" + name + "'");
+        return super.getItem("CAST(name as varchar(100))='" + name + "'");
     }
 }

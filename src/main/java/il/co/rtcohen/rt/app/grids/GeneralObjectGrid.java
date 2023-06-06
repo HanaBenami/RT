@@ -1,8 +1,7 @@
-package il.co.rtcohen.rt.app.ui.grids;
+package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
-import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.GeneralObject;
@@ -19,10 +18,6 @@ public class GeneralObjectGrid extends AbstractFilterGrid<GeneralObject> {
         addActiveColumn();
         addNameColumn();
         addIdColumn();
-    }
-
-    protected void sort() {
-        this.sort("nameColumn", SortDirection.ASCENDING);
     }
 
     private void addActiveColumn() {
@@ -43,16 +38,6 @@ public class GeneralObjectGrid extends AbstractFilterGrid<GeneralObject> {
                 230,
                 "nameColumn",
                 "name"
-        );
-    }
-
-    private void addIdColumn() {
-        this.addNumericColumn(
-                GeneralObject::getId,
-                null,
-                80,
-                "idColumn",
-                "id"
         );
     }
 }

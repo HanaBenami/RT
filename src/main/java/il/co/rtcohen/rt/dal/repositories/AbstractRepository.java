@@ -7,36 +7,75 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
-public abstract class AbstractRepository<T extends AbstractType> {
+public abstract class AbstractRepository<T extends AbstractType> implements RepositoryInterface<T> {
 
-    private final Logger logger ;
+    protected final Logger logger ;
     private final DataSource dataSource;
+
+    final static private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    final static private String nullDateString = "1901-01-01";
+
     protected String DB_TABLE_NAME; // TODO: final?
     protected String REPOSITORY_NAME; // TODO: final?
+    protected String[] DB_COLUMNS;
 
-    public AbstractRepository(DataSource dataSource, String dbTableName, String repositoryName) {
+    public AbstractRepository(DataSource dataSource, String dbTableName, String repositoryName, String[] dbColumns ) {
         this.logger = LoggerFactory.getLogger(this.getClass());
         this.dataSource = dataSource;
         this.DB_TABLE_NAME = dbTableName;
         this.REPOSITORY_NAME = repositoryName;
+        this.DB_COLUMNS = dbColumns;
     }
 
     public String getDbTableName() {
         return this.DB_TABLE_NAME;
     }
 
+    protected String getDbColumnsStringForInsertStatement() {
+        return " (" + String.join(", ", this.DB_COLUMNS) + ") values ("
+                + Arrays.stream(DB_COLUMNS).map(dbColumn -> "?").collect(Collectors.joining(", ")) + ")";
+    }
+
+    protected String getDbColumnsStringForUpdateStatement() {
+        return " " + String.join("=?, ", this.DB_COLUMNS) + "=? ";
+    }
+
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
 
-    abstract protected PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException;
+    // TODO: use in all the interfaces and change to abstract
+    protected void updateItemDetailsInStatement(PreparedStatement stmt, T t) throws SQLException {}
 
-    abstract protected PreparedStatement generateUpdateStatement(Connection connection, T t) throws SQLException;
+    protected PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement(
+                "insert into " + this.DB_TABLE_NAME + getDbColumnsStringForInsertStatement(),
+                Statement.RETURN_GENERATED_KEYS
+        );
+        updateItemDetailsInStatement(stmt, t);
+        return stmt;
+    }
+
+    protected PreparedStatement generateUpdateStatement(Connection connection, T t) throws SQLException {
+        String query = "update " + this.DB_TABLE_NAME + " set " + getDbColumnsStringForUpdateStatement() + " where id=?";
+        PreparedStatement stmt = connection.prepareStatement(
+                query,
+                Statement.RETURN_GENERATED_KEYS
+        );
+        updateItemDetailsInStatement(stmt, t);
+        stmt.setInt(StringUtils.countOccurrencesOf(query, "?"), t.getId());
+        return stmt;
+    }
 
     public List<T> getItems() {
         List<T> list = new ArrayList<>();
@@ -64,9 +103,9 @@ public abstract class AbstractRepository<T extends AbstractType> {
 
     public T getItem(String whereClause) {
         List<T> list = new ArrayList<>();
-        String sql = "SELECT * FROM " + this.DB_TABLE_NAME + " WHERE " + whereClause;
-        this.logger.info(sql);
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+        String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME + " WHERE " + whereClause;
+        this.logger.info(sqlQuery);
+        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sqlQuery)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 list.add(this.getItemFromResultSet(rs));
@@ -161,5 +200,13 @@ public abstract class AbstractRepository<T extends AbstractType> {
         else if (n > 1) {
             throw new SQLException(getMessagesPrefix() + "More than one record has been " + verb);
         }
+    }
+
+    static public String dateToString(LocalDate date) {
+        return (null == date ? nullDateString : date.format(dateFormatter));
+    }
+
+    static public LocalDate stringToDate(String s) {
+        return LocalDate.parse(s, dateFormatter);
     }
 }

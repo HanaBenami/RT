@@ -17,7 +17,6 @@ public class GeneralErrorHandler implements ErrorHandler {
     }
 
     private static void doDefault(ErrorEvent event) {
-        getLogger().info("***** doDefault"); // TODO delete
         Throwable t = event.getThrowable();
         if (t instanceof SocketException) {
             getLogger().info("SocketException in CommunicationManager. Most likely client (browser) closed socket.");
@@ -28,7 +27,8 @@ public class GeneralErrorHandler implements ErrorHandler {
                 ErrorMessage errorMessage = new UserError(LanguageSettings.getLocaleString("error"));
                 component.setComponentError(errorMessage);
             }
-            getLogger().log(Level.SEVERE, "", Arrays.copyOfRange(t.getStackTrace(), 0, 5)); // TODO: Make it works
+            getLogger().log(Level.SEVERE, "", t);
+//            getLogger().log(Level.SEVERE, "", Arrays.copyOfRange(t.getStackTrace(), 0, 5)); // TODO: Make it works
         }
     }
 

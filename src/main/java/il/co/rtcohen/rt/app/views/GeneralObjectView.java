@@ -3,7 +3,7 @@ package il.co.rtcohen.rt.app.views;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.spring.annotation.SpringView;
-import il.co.rtcohen.rt.app.ui.grids.GeneralObjectGrid;
+import il.co.rtcohen.rt.app.grids.GeneralObjectGrid;
 import il.co.rtcohen.rt.dal.dao.GeneralObject;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import org.slf4j.Logger;

@@ -6,7 +6,6 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
@@ -46,8 +45,8 @@ public abstract class AbstractDataView<T extends AbstractType> extends AbstractV
         HorizontalLayout titleLayout = new HorizontalLayout();
         titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         titleLayout.addComponent(getRefreshButton());
-        titleLayout.addComponents(UIComponents.header(this.title));
-        titleLayout.setWidth("80%");
+        titleLayout.addComponent(UIComponents.header(this.title));
+        titleLayout.setWidth("70%");
         this.addComponent(titleLayout);
     }
 
@@ -67,5 +66,14 @@ public abstract class AbstractDataView<T extends AbstractType> extends AbstractV
         removeGrids();
         addGrids();
         setTabIndexes();
+    }
+
+    protected void setScrollable(boolean scrollable) {
+        String style = "scrollable";
+        if (scrollable) {
+            this.addStyleName(style);
+        } else {
+            this.removeStyleName(style);
+        }
     }
 }

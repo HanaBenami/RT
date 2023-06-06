@@ -1,9 +1,8 @@
-package il.co.rtcohen.rt.app.ui.grids;
+package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
-import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.UIComponents;
@@ -13,7 +12,7 @@ import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
 
 public class SitesGrid extends AbstractFilterGrid<Site> {
-    private final Customer customer;
+    private final Customer selectedCustomer;
     private final CustomerRepository customerRepository;
     private final ContactRepository contactRepository;
     private final SiteRepository siteRepository;
@@ -21,7 +20,7 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
     private final AreasRepository areasRepository;
     private final GeneralObjectRepository generalObjectRepository;
 
-    public SitesGrid(Customer customer,
+    public SitesGrid(Customer selectedCustomer,
                      CustomerRepository customerRepository,
                      ContactRepository contactRepository,
                      SiteRepository siteRepository,
@@ -30,12 +29,12 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                      GeneralObjectRepository generalObjectRepository) {
         super(siteRepository, () -> {
                     Site site = new Site();
-                    site.setCustomerId(customer.getId());
+                    site.setCustomerId(selectedCustomer.getId());
                     return site;
                 },
-                "sites",
-                site -> null == customer || !site.getCustomerId().equals(customer.getId()));
-        this.customer = customer;
+                "sitesOfCustomers",
+                site -> null == selectedCustomer || !site.getCustomerId().equals(selectedCustomer.getId()));
+        this.selectedCustomer = selectedCustomer;
         this.customerRepository = customerRepository;
         this.contactRepository = contactRepository;
         this.siteRepository = siteRepository;
@@ -45,10 +44,31 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
         this.initGrid();
     }
 
+    @Override
+    protected void setTitle() {
+        super.setTitle();
+        if (null != this.selectedCustomer) {
+            this.title += " " + selectedCustomer.getName();
+        }
+    }
+
+    @Override
+    protected void changeErrorMessage() {
+        String errorMessageKey = null;
+        String warningMessageKey = null;
+        if (null == selectedCustomer) {
+            errorMessageKey = "noCustomer";
+        } else if (0 == this.getItemsCounter()) {
+            warningMessageKey = "noSitesToCustomer";
+        }
+        this.setErrorMessage(errorMessageKey);
+        this.setWarningMessage(warningMessageKey);
+    }
+
     protected void addColumns() {
+        addActiveColumn();
         addContactsColumn();
         addCallsColumn();
-        addActiveColumn();
         addNotesColumn();
         addAreaColumn();
         addAddressColumn();
@@ -56,12 +76,8 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
         addIdColumn();
     }
 
-    protected void sort() {
-        this.sort("nameColumn", SortDirection.ASCENDING);
-    }
-
     private void addContactsColumn() {
-        this.addComponentColumn(
+        Column<Site, Component> column = this.addComponentColumn(
                 (ValueProvider<Site, Component>) site -> {
                     if (null == site.getId()) {
                         return null;
@@ -74,10 +90,11 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                 "contactsColumn",
                 "contacts"
         );
+        column.setHidden(true);
     }
 
     private void addCallsColumn() {
-        this.addComponentColumn(
+        Column<Site, Component> column = this.addComponentColumn(
                 (ValueProvider<Site, Component>) site -> {
                     if (null == site.getId()) {
                         return null;
@@ -93,6 +110,7 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                 "callsColumn",
                 "calls"
         );
+        column.setHidden(true);
     }
 
     private void addActiveColumn() {
@@ -150,16 +168,6 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                 230,
                 "nameColumn",
                 "name"
-        );
-    }
-
-    private void addIdColumn() {
-        this.addNumericColumn(
-                Site::getId,
-                null,
-                80,
-                "idColumn",
-                "id"
         );
     }
 }

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class SiteRepository extends AbstractRepository<Site> {
     @Autowired
     public SiteRepository(DataSource dataSource) {
-        super(dataSource, "SITE", "Sites");
+        super(dataSource, "SITE", "Sites", null);
     }
 
     protected Site getItemFromResultSet(ResultSet rs) throws SQLException {
