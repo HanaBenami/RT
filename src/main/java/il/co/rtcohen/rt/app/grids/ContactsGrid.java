@@ -8,7 +8,7 @@ import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
 
-public class ContactsGrid extends AbstractFilterGrid<Contact> {
+public class ContactsGrid extends AbstractTypeFilterGrid<Contact> {
     private final Site site;
 
     public ContactsGrid(Site site,

@@ -1,8 +1,5 @@
 package il.co.rtcohen.rt.dal.dao;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class AbstractTypeWithNameAndActiveFields extends AbstractType implements Nameable {
     private String name;
     private boolean active;
@@ -42,13 +39,5 @@ public class AbstractTypeWithNameAndActiveFields extends AbstractType implements
 
     public boolean isItemValid() {
         return (null != this.getName()) && (!this.getName().isEmpty());
-    }
-
-    public static List<Integer> generateListOfIds(List<AbstractTypeWithNameAndActiveFields> listOfObjects) {
-        return listOfObjects.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
-    }
-
-    public static List<String> generateListOfNames(List<AbstractTypeWithNameAndActiveFields> listOfObjects) {
-        return listOfObjects.stream().map(AbstractTypeWithNameAndActiveFields::getName).collect(Collectors.toList());
     }
 }

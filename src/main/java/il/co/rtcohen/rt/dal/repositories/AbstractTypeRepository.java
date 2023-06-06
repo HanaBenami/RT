@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,8 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     final protected String DB_TABLE_NAME;
     final protected String REPOSITORY_NAME;
     final private ArrayList<String> dbColumnsList;
+
+    final private HashMap<Integer, T> cache = new HashMap<>();
 
     public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName, String[]... additionalDbColumnsLists) {
         this.logger = LoggerFactory.getLogger(this.getClass());
@@ -62,11 +65,9 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
 
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
 
-    // TODO: use in all the interfaces and change to abstract
     abstract protected int updateItemDetailsInStatement(PreparedStatement stmt, T t) throws SQLException;
 
-    // TODO: use in all the interfaces and change to private
-    protected PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException {
+    private PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement(
                 "insert into " + this.DB_TABLE_NAME + getDbColumnsStringForInsertStatement(),
                 Statement.RETURN_GENERATED_KEYS
@@ -75,8 +76,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         return stmt;
     }
 
-    // TODO: use in all the interfaces and change to private
-    protected PreparedStatement generateUpdateStatement(Connection connection, T t) throws SQLException {
+    private PreparedStatement generateUpdateStatement(Connection connection, T t) throws SQLException {
         String query = "update " + this.DB_TABLE_NAME + " set " + getDbColumnsStringForUpdateStatement() + " where " + DB_ID_COLUMN + "=?";
         PreparedStatement stmt = connection.prepareStatement(
                 query,
@@ -87,6 +87,10 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         return stmt;
     }
 
+    private void addToCache(T t) {
+        cache.put(t.getId(), t);
+    }
+
     public List<T> getItems() {
         List<T> list = new ArrayList<>();
         String sql = "SELECT * FROM " + this.DB_TABLE_NAME;
@@ -94,7 +98,9 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                list.add(this.getItemFromResultSet(rs));
+                T item = this.getItemFromResultSet(rs);
+                this.addToCache(item);
+                list.add(item);
             }
             return list;
         } catch (SQLException e) {
@@ -104,10 +110,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         }
     }
 
-    @Cacheable  // TODO: Cache
     public T getItem(Integer id) {
         if (null == id || 0 == id) {
             return null;
+        } else if (cache.containsKey(id)) {
+            return cache.get(id);
         }
         return getItem(DB_ID_COLUMN + "=" + id);
     }
@@ -122,7 +129,9 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
                 list.add(this.getItemFromResultSet(rs));
             }
             oneRecordOnlyValidation(list.size(), "getItem");
-            return list.get(0);
+            T t = list.get(0);
+            this.addToCache(t);
+            return t;
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItem (" + whereClause + ")";
             this.logger.error(error, e);
@@ -141,6 +150,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
                 if (generatedKeys.next()) {
                     long id = generatedKeys.getLong(1);
                     t.setId(id);
+                    this.addToCache(t);
                     this.logger.info(getMessagesPrefix()
                             + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\" (id=" + id + ")");
                     return id;

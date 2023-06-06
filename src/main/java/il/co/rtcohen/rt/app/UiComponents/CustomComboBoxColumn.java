@@ -4,7 +4,7 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.grids.AbstractFilterGrid;
+import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 import il.co.rtcohen.rt.dal.dao.BindRepository;
 import il.co.rtcohen.rt.dal.dao.Nameable;
@@ -26,18 +26,16 @@ public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T exte
             int width,
             String id,
             String label,
-            AbstractFilterGrid<T> abstractFilterGrid) {
-        FilterGrid.Column<T, String> column = abstractFilterGrid.addColumn(stringValueProvider).setId(id);
-        column.setEditorBinding(abstractFilterGrid.getEditor().getBinder().forField(selectionComboBox).bind(valueProvider, setter));
+            AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
+        FilterGrid.Column<T, String> column = abstractTypeFilterGrid.addColumn(stringValueProvider).setId(id);
+        column.setEditorBinding(abstractTypeFilterGrid.getEditor().getBinder().forField(selectionComboBox).bind(valueProvider, setter));
         column.setWidth(width).setExpandRatio(1).setResizable(true).setHidable(true);
 
         filterComboBox.setWidth("95%");
-        column.setFilter((filterComboBox), (cValue, fValue) -> {
-            getLogger().info("cValue=" + cValue + ", fValue=" + fValue);
-            return (fValue == null || fValue.equals(cValue));
-        });
+        column.setFilter((filterComboBox), (currentValueString, filterValueObject) ->
+                (null == filterValueObject || null == currentValueString || filterValueObject.getName().equals(currentValueString)));
 
-        abstractFilterGrid.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
+        abstractTypeFilterGrid.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
 
         return column;
     }

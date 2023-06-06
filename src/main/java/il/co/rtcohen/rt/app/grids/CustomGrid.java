@@ -3,7 +3,7 @@ package il.co.rtcohen.rt.app.grids;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 
 @Deprecated
-public class CustomGrid<T extends AbstractType> extends AbstractFilterGrid<T> {
+public class CustomGrid<T extends AbstractType> extends AbstractTypeFilterGrid<T> {
 
     public CustomGrid() {
         super();

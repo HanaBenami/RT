@@ -9,7 +9,7 @@ import il.co.rtcohen.rt.dal.repositories.*;
 
 import java.util.function.Supplier;
 
-public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields> extends AbstractFilterGrid<T> {
+public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields> extends AbstractTypeFilterGrid<T> {
 
     public AbstractTypeWithNameAndActiveFieldsGrid(
             AbstractTypeWithNameAndActiveFieldsRepository<T> abstractTypeWithNameAndActiveFieldsRepository,

@@ -5,14 +5,13 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.GridLayout;
 import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
 import il.co.rtcohen.rt.app.UiComponents.CustomComboBoxColumn;
 import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
-public class SitesGrid extends AbstractFilterGrid<Site> {
+public class SitesGrid extends AbstractTypeFilterGrid<Site> {
     private final Customer selectedCustomer;
     private final ContactRepository contactRepository;
     private final CallRepository callRepository;
@@ -76,7 +75,7 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                         return null;
                     } else {
                         int activeContactsCounter = contactRepository.getContactsBySite(site.getId(), true).size();
-                        return AbstractFilterGrid.countingIcon(VaadinIcons.ENVELOPE_OPEN_O, VaadinIcons.ENVELOPE_OPEN, VaadinIcons.ENVELOPE_OPEN, activeContactsCounter);
+                        return AbstractTypeFilterGrid.countingIcon(VaadinIcons.ENVELOPE_OPEN_O, VaadinIcons.ENVELOPE_OPEN, VaadinIcons.ENVELOPE_OPEN, activeContactsCounter);
                     }
                 },
                 85,
@@ -93,7 +92,7 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                         return null;
                     } else {
                         int openCallsCounter = callRepository.getCallsBySite(site.getId()).size();
-                        Button callsButton = AbstractFilterGrid.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
+                        Button callsButton = AbstractTypeFilterGrid.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
                         callsButton.addClickListener(clickEvent ->
                                 getUI().getNavigator().navigateTo("call/customer=" + site.getCustomer().getId()));    // TODO: Change to call/site=
                         return callsButton;
@@ -132,7 +131,7 @@ public class SitesGrid extends AbstractFilterGrid<Site> {
                 CustomComboBox.areaComboBox(areasRepository),
                 CustomComboBox.areaComboBox(areasRepository),
                 (ValueProvider<Site, String>) site -> {
-                    AbstractTypeWithNameAndActiveFields area = site.getArea();
+                    Area area = site.getArea();
                     return (null == area ? "" : area.getName());
                 },
                 (ValueProvider<Site, Area>) Site::getArea,

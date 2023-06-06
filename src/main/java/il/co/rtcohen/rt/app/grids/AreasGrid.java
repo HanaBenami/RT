@@ -7,7 +7,7 @@ import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Area;
 import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 
-public class AreasGrid extends AbstractFilterGrid<Area> {
+public class AreasGrid extends AbstractTypeFilterGrid<Area> {
     public AreasGrid(AreasRepository areasRepository) {
         super(areasRepository,
                 Area::new,

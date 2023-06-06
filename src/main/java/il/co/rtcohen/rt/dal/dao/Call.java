@@ -3,7 +3,7 @@ package il.co.rtcohen.rt.dal.dao;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Call extends AbstractType {
+public class Call extends AbstractType implements BindRepository<Call> {
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     final static public String nullDateString = "1901-01-01";
     final static public LocalDate nullDate = LocalDate.parse(nullDateString, dateFormatter);

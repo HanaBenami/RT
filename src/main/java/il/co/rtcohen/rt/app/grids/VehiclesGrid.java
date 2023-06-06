@@ -11,20 +11,17 @@ import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import il.co.rtcohen.rt.dal.dao.VehicleType;
-import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
 
 import java.time.LocalDate;
 
-public class VehiclesGrid extends AbstractFilterGrid<Vehicle> {
+public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     private final Site site;
     private final VehicleTypeRepository vehicleTypeRepository;
-    private final GeneralObjectRepository generalObjectRepository;
 
     public VehiclesGrid(Site site,
                         VehicleRepository vehicleRepository,
-                        GeneralObjectRepository generalObjectRepository,
                         VehicleTypeRepository vehicleTypeRepository) {
         super(vehicleRepository, () -> {
                     Vehicle vehicle = new Vehicle();
@@ -35,7 +32,6 @@ public class VehiclesGrid extends AbstractFilterGrid<Vehicle> {
                 vehicle -> null == site || !vehicle.getSiteId().equals(site.getId()));
         this.site = site;
         this.vehicleTypeRepository = vehicleTypeRepository;
-        this.generalObjectRepository = generalObjectRepository;
         this.initGrid();
     }
 

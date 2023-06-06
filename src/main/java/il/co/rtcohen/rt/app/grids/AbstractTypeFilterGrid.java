@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterGrid<T> {
+abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends FilterGrid<T> {
     private AbstractTypeRepository<T> mainRepository;
     private Supplier<T> newItemSupplier;
     private VerticalLayout verticalLayout;
@@ -31,15 +31,15 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
     private String errorMessage;
     private String warningMessage;
     private Predicate<T> itemsFilterPredicate;
-    private static final Logger logger = LoggerFactory.getLogger(AbstractFilterGrid.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractTypeFilterGrid.class);
 
     private int itemsCounter;
     private List<T> gridItems;
     private TextField filterIdField;
     private String idFieldId = "idColumn";
 
-    public AbstractFilterGrid(AbstractTypeRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
-                              Predicate<T> itemsFilterPredicate) {
+    public AbstractTypeFilterGrid(AbstractTypeRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
+                                  Predicate<T> itemsFilterPredicate) {
         super();
         this.setGridRepository(mainRepository);
         this.setNewItemSupplier(newItemSupplier);
@@ -74,7 +74,7 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
     }
 
     @Deprecated
-    public AbstractFilterGrid() {
+    public AbstractTypeFilterGrid() {
         super();
     }
 
@@ -434,9 +434,9 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
                 filterIdField.setValue(String.valueOf(selectedItemId));
             }
             T item = mainRepository.getItem(selectedItemId);
-            if (null != item){
+            if (null != item && gridItems.contains(item)) {
                 this.getSelectionModel().select(item);
-                this.scrollTo(gridItems.indexOf(item), ScrollDestination.START);
+//                this.scrollTo(gridItems.indexOf(item), ScrollDestination.START); // TODO: Make it works. Currently the index in the list isn't the index in he grid, so it causes an error: Row outside dataProvider size
             }
         }
     }

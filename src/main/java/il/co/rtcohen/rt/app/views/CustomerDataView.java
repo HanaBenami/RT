@@ -19,18 +19,16 @@ import java.util.Map;
 public class CustomerDataView extends AbstractDataView<Customer> {
     static final String VIEW_NAME = "customers";
     private static final Logger logger = LoggerFactory.getLogger(CustomerDataView.class);
-    private Map<String,String> parametersMap;
 
     // Repositories
-    private GeneralObjectRepository generalObjectRepository;
-    private CustomerRepository customerRepository;
-    private CustomerTypeRepository customerTypeRepository;
-    private SiteRepository siteRepository;
-    private ContactRepository contactRepository;
-    private CallRepository callRepository;
-    private AreasRepository areasRepository;
-    private VehicleRepository vehicleRepository;
-    private VehicleTypeRepository vehicleTypeRepository;
+    private final CustomerRepository customerRepository;
+    private final CustomerTypeRepository customerTypeRepository;
+    private final SiteRepository siteRepository;
+    private final ContactRepository contactRepository;
+    private final CallRepository callRepository;
+    private final AreasRepository areasRepository;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleTypeRepository vehicleTypeRepository;
 
     // Grids
     GridLayout gridLayout;  // TODO
@@ -44,7 +42,6 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     @Autowired
     private CustomerDataView(ErrorHandler errorHandler,
-                             GeneralObjectRepository generalObjectRepository,
                              CustomerRepository customerRepository,
                              CustomerTypeRepository customerTypeRepository,
                              SiteRepository siteRepository,
@@ -54,7 +51,6 @@ public class CustomerDataView extends AbstractDataView<Customer> {
                              VehicleRepository vehicleRepository,
                              VehicleTypeRepository vehicleTypeRepository) {
         super(errorHandler, "customersList");
-        this.generalObjectRepository = generalObjectRepository;
         this.customerRepository = customerRepository;
         this.customerTypeRepository = customerTypeRepository;
         this.contactRepository = contactRepository;
@@ -127,7 +123,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addVehicleGrid(Site site) {
         removeVehiclesGrid();
-        this.vehiclesGrid = new VehiclesGrid(site, vehicleRepository, generalObjectRepository, vehicleTypeRepository);
+        this.vehiclesGrid = new VehiclesGrid(site, vehicleRepository, vehicleTypeRepository);
         this.vehiclesGrid.setSelected(selectedVehicleId);
         this.selectedVehicleId = 0;
         this.gridLayout.addComponent(vehiclesGrid.getVerticalLayout(true, true), 0, 4, 5, 5);

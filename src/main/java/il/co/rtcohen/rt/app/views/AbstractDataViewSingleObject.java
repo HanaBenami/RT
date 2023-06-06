@@ -9,7 +9,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UiComponents.UIComponents;
-import il.co.rtcohen.rt.app.grids.AbstractFilterGrid;
+import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.app.grids.CustomGrid;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
@@ -18,7 +18,7 @@ import org.vaadin.addons.filteringgrid.FilterGrid;
 @Deprecated
 public abstract class AbstractDataViewSingleObject<T extends AbstractType> extends AbstractView implements View {
     String title;
-    AbstractFilterGrid<T> grid;
+    AbstractTypeFilterGrid<T> grid;
     GeneralRepository generalRepository;
     Button addButton;
 

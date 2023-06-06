@@ -11,7 +11,7 @@ import il.co.rtcohen.rt.app.UiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
-public class CustomerGrid extends AbstractFilterGrid<Customer> {
+public class CustomerGrid extends AbstractTypeFilterGrid<Customer> {
     private final Customer selectedCustomer;
     private final CustomerTypeRepository customerTypeRepository;
     private final SiteRepository siteRepository;
@@ -65,7 +65,7 @@ public class CustomerGrid extends AbstractFilterGrid<Customer> {
                         return null;
                     } else {
                         int n = siteRepository.getItems(Customer).size();
-                        Button sitesButton = AbstractFilterGrid.countingIcon(VaadinIcons.FROWN_O, VaadinIcons.HOME_O, VaadinIcons.HOME, n);
+                        Button sitesButton = AbstractTypeFilterGrid.countingIcon(VaadinIcons.FROWN_O, VaadinIcons.HOME_O, VaadinIcons.HOME, n);
                         sitesButton.addClickListener(clickEvent ->
                                 getUI().getNavigator().navigateTo("site/customer=" + Customer.getId()));
                         return sitesButton;
