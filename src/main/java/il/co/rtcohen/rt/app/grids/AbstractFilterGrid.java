@@ -12,6 +12,7 @@ import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.AbstractType;
 import il.co.rtcohen.rt.dal.dao.GeneralObject;
+import il.co.rtcohen.rt.dal.dao.Nameable;
 import il.co.rtcohen.rt.dal.repositories.AbstractRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import org.slf4j.Logger;
@@ -316,7 +317,6 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
     public void addComboBoxColumn(CustomComboBox selectionComboBox,
                                   CustomComboBox filterComboBox,
                                   ValueProvider<T, String> stringValueProvider,
-                                  ValueProvider<Integer, String> stringValueProviderById,
                                   ValueProvider<T, GeneralObject> valueProvider,
                                   Setter<T, GeneralObject> setter,
                                   int width, String id, String label) {
@@ -325,8 +325,7 @@ abstract public class AbstractFilterGrid<T extends AbstractType> extends FilterG
         column.setWidth(width).setExpandRatio(1).setResizable(true).setHidable(true);
 
         filterComboBox.setWidth("95%");
-//        column.setFilter((filterComboBox),
-//                (cValue, fValue) -> fValue == null || stringValueProviderById.apply(fValue).equals(cValue));
+        column.setFilter((filterComboBox), (cValue, fValue) -> fValue == null || fValue.equals(cValue));
 
         this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
     }

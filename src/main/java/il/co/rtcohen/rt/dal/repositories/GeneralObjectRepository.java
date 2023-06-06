@@ -31,22 +31,6 @@ public class GeneralObjectRepository extends AbstractRepository<GeneralObject> {
                 });
     }
 
-    public void setDbTableName(String dbTableName) {
-        this.DB_TABLE_NAME = dbTableName;
-    }
-
-    public String getDbTableName() {
-        return this.DB_TABLE_NAME;
-    }
-
-    public void setRepositoryName(String repositoryName) {
-        this.REPOSITORY_NAME = repositoryName;
-    }
-
-    public String getRepositoryName() {
-        return this.REPOSITORY_NAME;
-    }
-
     public List<GeneralObject> getItems(boolean onlyActiveItems) {
         List<GeneralObject> list = this.getItems();
         list.removeIf(generalObject -> !generalObject.isActive());

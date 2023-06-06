@@ -6,9 +6,11 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
+import il.co.rtcohen.rt.app.UiComponents.CustomComboBoxColumn;
 import il.co.rtcohen.rt.dal.dao.GeneralObject;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
+import il.co.rtcohen.rt.dal.dao.VehicleType;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
@@ -143,34 +145,20 @@ public class VehiclesGrid extends AbstractFilterGrid<Vehicle> {
     }
 
     private void addVehicleTypeColumn() {
-        this.addComboBoxColumn(
+        CustomComboBoxColumn.addToGrid(
                 CustomComboBox.vehiclesTypeComboBox(vehicleTypeRepository),
                 CustomComboBox.vehiclesTypeComboBox(vehicleTypeRepository),
                 (ValueProvider<Vehicle, String>) vehicle -> {
-                    GeneralObject vehicleType = vehicleTypeRepository.getItem(vehicle.getVehicleTypeId());
+                    GeneralObject vehicleType = vehicle.getVehicleType();
                     return (null == vehicleType ? "" : vehicleType.getName());
                 },
-                (ValueProvider<Integer, String>) id -> vehicleTypeRepository.getItem(id).getName(),
-                (ValueProvider<Vehicle, GeneralObject>) vehicle -> vehicleTypeRepository.getItem(vehicle.getVehicleTypeId()),
-                (Setter<Vehicle, GeneralObject>) Vehicle::setVehicleType,
+                (ValueProvider<Vehicle, VehicleType>) Vehicle::getVehicleType,
+                (Setter<Vehicle, VehicleType>) Vehicle::setVehicleType,
                 230,
                 "vehicleTypeColumn",
-                "carType"
+                "carType",
+                this
         );
-//        this.addComboBoxColumn(
-//                generalObjectRepository,
-//                vehicleTypeRepository.getDbTableName(),
-//                (ValueProvider<Vehicle, String>) vehicle -> {
-//                    GeneralObject vehicleType = vehicleTypeRepository.getItem(vehicle.getVehicleTypeId());
-//                    return (null == vehicleType ? "" : vehicleType.getName());
-//                },
-//                (ValueProvider<Integer, String>) id -> vehicleTypeRepository.getItem(id).getName(),
-//                (ValueProvider<Vehicle, Integer>) Vehicle::getVehicleTypeId,
-//                (Setter<Vehicle, Integer>) Vehicle::setVehicleTypeId,
-//                230,
-//                "vehicleTypeColumn",
-//                "carType"
-//        );
     }
 
     @Override

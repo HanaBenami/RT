@@ -12,6 +12,7 @@ public class Call extends AbstractType {
     private int siteId;
     private String description;
     private int carTypeId;
+    private int vehicleId;
     private int callTypeId;
     private String notes;
     private String startDate, date1, date2, endDate, preDate2;
@@ -31,13 +32,13 @@ public class Call extends AbstractType {
                 false,false,false,false,0,0, userId);
     }
 
-    public Call(int id, int customerId, int siteId, String description, int carTypeId, int callTypeId, String notes, String startDate, String date1,
+    public Call(int id, int customerId, int siteId, String description, int vehicleId, int callTypeId, String notes, String startDate, String date1,
                 String date2, String endDate, boolean meeting, boolean done, boolean deleted, boolean here, int driverID, int order, int userId) {
         super(id);
         this.customerId = customerId;
         this.siteId = siteId;
         this.description = description;
-        this.carTypeId = carTypeId;
+        this.vehicleId = vehicleId;
         this.callTypeId = callTypeId;
         this.notes = notes;
         this.startDate = startDate;
@@ -118,8 +119,8 @@ public class Call extends AbstractType {
         this.preDriverId = driver;
     }
 
-    public void setCarTypeId(int newCarType) {
-        this.carTypeId = newCarType;
+    public void setVehicleId(int vehicleId) {
+        this.vehicleId = vehicleId;
     }
 
     public void setCallTypeId(int newCallType) {
@@ -164,6 +165,10 @@ public class Call extends AbstractType {
 
     public int getCarTypeId() {
         return carTypeId;
+    }
+
+    public int getVehicleId() {
+        return this.vehicleId;
     }
 
     public int getCallTypeId() {

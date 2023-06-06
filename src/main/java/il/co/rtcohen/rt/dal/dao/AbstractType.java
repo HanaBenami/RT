@@ -6,7 +6,7 @@ import il.co.rtcohen.rt.dal.repositories.RepositoryInterface;
 
 import java.util.logging.Logger;
 
-abstract public class AbstractType implements BindRepository {
+abstract public class AbstractType {
     private static String dbTableName;
     private static String objectName;
 

@@ -579,9 +579,9 @@ public class CallView extends AbstractDataViewSingleObject<Call> {
                         (ValueProvider<Call, Integer>) Call::getCarTypeId,
                         (Setter<Call, Integer>) (call, integer) -> {
                             if (carCombo.getValue() == null) {
-                                call.setCarTypeId(0);
+//                                call.setCarTypeId(0); // TODO
                             } else {
-                                call.setCarTypeId(carCombo.getValue());
+//                                call.setCarTypeId(carCombo.getValue()); // TODO
                             }
                             callService.updateCall(call);
                             grid.setItems(getCalls());

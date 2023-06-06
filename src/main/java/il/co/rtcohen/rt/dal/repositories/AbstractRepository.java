@@ -43,6 +43,18 @@ public abstract class AbstractRepository<T extends AbstractType> implements Repo
         return this.DB_TABLE_NAME;
     }
 
+    public void setDbTableName(String dbTableName) {
+        this.DB_TABLE_NAME = dbTableName;
+    }
+
+    public void setRepositoryName(String repositoryName) {
+        this.REPOSITORY_NAME = repositoryName;
+    }
+
+    public String getRepositoryName() {
+        return this.REPOSITORY_NAME;
+    }
+
     protected String getDbColumnsStringForInsertStatement() {
         return " (" + String.join(", ", this.DB_COLUMNS) + ") values ("
                 + Arrays.stream(DB_COLUMNS).map(dbColumn -> "?").collect(Collectors.joining(", ")) + ")";

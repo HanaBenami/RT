@@ -1,7 +1,5 @@
 package il.co.rtcohen.rt.dal.dao;
 
-import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
-
 import java.time.LocalDate;
 
 public class Vehicle extends GeneralObject {
@@ -11,7 +9,7 @@ public class Vehicle extends GeneralObject {
     }
 
     private Integer siteId;
-    private Integer vehicleTypeId;
+    private VehicleType vehicleType;
     private String model = "";
     private String series = "";
     private int zama = 0;
@@ -23,11 +21,11 @@ public class Vehicle extends GeneralObject {
         super();
     }
 
-    public Vehicle(Integer id, String name, boolean active, Integer siteId, Integer VehicleTypeId, String model,
+    public Vehicle(Integer id, String name, boolean active, Integer siteId, VehicleType vehicleType, String model,
                    String series, Integer zama, Integer license, Integer engineHours, LocalDate lastUpdate) {
         super(id, name, active);
         this.siteId = siteId;
-        this.vehicleTypeId = VehicleTypeId;
+        this.vehicleType = vehicleType;
         this.model = model;
         this.series = series;
         this.zama = zama;
@@ -44,21 +42,12 @@ public class Vehicle extends GeneralObject {
         this.siteId = siteId;
     }
 
-    public Integer getVehicleTypeId() {
-        return vehicleTypeId;
+    public VehicleType getVehicleType() {
+        return this.vehicleType;
     }
 
-    public void setVehicleTypeId(Integer VehicleTypeId) {
-        this.vehicleTypeId = VehicleTypeId;
-    }
-
-    public GeneralObject getVehicleType(VehicleTypeRepository vehicleTypeRepository) {
-        return vehicleTypeRepository.getItem(this.getVehicleTypeId());
-    }
-
-
-    public void setVehicleType(GeneralObject generalObject) {
-        this.vehicleTypeId = generalObject.getId();
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
     }
 
     public String getModel() {
@@ -115,6 +104,6 @@ public class Vehicle extends GeneralObject {
 
     @Override
     public boolean isItemValid() {
-        return (null != this.getVehicleTypeId()) && (null != this.getSiteId());
+        return (null != this.getVehicleType()) && (null != this.getSiteId());
     }
 }

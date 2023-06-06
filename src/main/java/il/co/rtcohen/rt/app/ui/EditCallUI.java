@@ -10,10 +10,7 @@ import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Contact;
-import il.co.rtcohen.rt.dal.repositories.CallRepository;
-import il.co.rtcohen.rt.dal.repositories.ContactRepository;
-import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
-import il.co.rtcohen.rt.dal.repositories.SiteRepository;
+import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.dal.services.CallService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.ui.NumberField;
@@ -45,7 +42,8 @@ public class EditCallUI extends AbstractEditUI {
 
     @Autowired
     private EditCallUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository,
-                       SiteRepository siteRepository, CallService callService, ContactRepository contactRepository) {
+                       SiteRepository siteRepository, CallService callService, ContactRepository contactRepository,
+                       VehicleTypeRepository vehicleTypeRepository) {
         super(siteRepository, errorHandler, callRepository, generalRepository, contactRepository);
         this.callService = callService;
     }
@@ -150,11 +148,12 @@ public class EditCallUI extends AbstractEditUI {
         carCombo.setEmptySelectionAllowed(true);
         carCombo.setValue(call.getCarTypeId());
         carCombo.addValueChangeListener(valueChangeEvent -> {
-            if(carCombo.getValue()==null) {
-                call.setCarTypeId(0);
+            if (carCombo.getValue()==null) {
+//                call.setCarTypeId(0); // TODO
             }
             else {
-                call.setCarTypeId(carCombo.getValue()); }
+//                call.setCarTypeId(carCombo.getValue()); // TODO
+            }
             callService.updateCall(call);
         });
         layout.addComponent(carCombo,2,2);

@@ -8,12 +8,12 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @Repository
-public class VehicleRepository extends AbstractRepository<Vehicle> {
+public class VehicleRepository extends AbstractRepository<Vehicle> implements RepositoryInterface<Vehicle> {
     static private final String DB_ID_COLUMN ="id";
     static private final String DB_NAME_COLUMN ="name";
     static private final String DB_ACTIVE_COLUMN ="active";
     static private final String DB_SITE_ID_COLUMN ="siteId";
-    static private final String DB_CAR_TYPE_ID_COLUMN ="typeId";
+    static private final String DB_VEHICLE_TYPE_ID_COLUMN ="typeId";
     static private final String DB_MODEL_COLUMN ="model";
     static private final String DB_SERIES_COLUMN = "series";
     static private final String DB_ZAMA_COLUMN = "zama";
@@ -21,13 +21,16 @@ public class VehicleRepository extends AbstractRepository<Vehicle> {
     static private final String DB_ENGINE_HOURS_COLUMN = "engineHours";
     static private final String DB_LAST_UPDATE_COLUMN = "lastUpdate";
 
+    private final VehicleTypeRepository vehicleTypeRepository;
+
     @Autowired
-    public VehicleRepository(DataSource dataSource) {
+    public VehicleRepository(DataSource dataSource, VehicleTypeRepository vehicleTypeRepository) {
         super(dataSource, "vehicle", "vehicle",
                 new String[] {
-                        DB_NAME_COLUMN, DB_ACTIVE_COLUMN, DB_SITE_ID_COLUMN, DB_CAR_TYPE_ID_COLUMN, DB_MODEL_COLUMN,
+                        DB_NAME_COLUMN, DB_ACTIVE_COLUMN, DB_SITE_ID_COLUMN, DB_VEHICLE_TYPE_ID_COLUMN, DB_MODEL_COLUMN,
                         DB_SERIES_COLUMN, DB_ZAMA_COLUMN, DB_LICENSE_COLUMN, DB_ENGINE_HOURS_COLUMN, DB_LAST_UPDATE_COLUMN
                 });
+        this.vehicleTypeRepository = vehicleTypeRepository;
     }
 
     protected Vehicle getItemFromResultSet(ResultSet rs) throws SQLException {
@@ -36,7 +39,7 @@ public class VehicleRepository extends AbstractRepository<Vehicle> {
                 rs.getString(DB_NAME_COLUMN),
                 rs.getBoolean(DB_ACTIVE_COLUMN),
                 rs.getInt(DB_SITE_ID_COLUMN),
-                rs.getInt(DB_CAR_TYPE_ID_COLUMN),
+                this.vehicleTypeRepository.getItem(rs.getInt(DB_VEHICLE_TYPE_ID_COLUMN)),
                 rs.getString(DB_MODEL_COLUMN),
                 rs.getString(DB_SERIES_COLUMN),
                 rs.getInt(DB_ZAMA_COLUMN),
@@ -55,7 +58,7 @@ public class VehicleRepository extends AbstractRepository<Vehicle> {
         fieldsCounter++;
         stmt.setInt(fieldsCounter, vehicle.getSiteId());
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, vehicle.getVehicleTypeId());
+        stmt.setInt(fieldsCounter, vehicle.getVehicleType().getId());
         fieldsCounter++;
         stmt.setString(fieldsCounter, vehicle.getModel());
         fieldsCounter++;
