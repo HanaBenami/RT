@@ -2,7 +2,7 @@ package il.co.rtcohen.rt.dal.dao.interfaces;
 
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.dal.repositories.RepositoryInterface;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
 import java.util.logging.Logger;
 

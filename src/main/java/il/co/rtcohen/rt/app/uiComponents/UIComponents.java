@@ -5,33 +5,20 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.SerializableBiPredicate;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import il.co.rtcohen.rt.dal.dao.Call;
-import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
-import il.co.rtcohen.rt.utils.Date;
-import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 import org.vaadin.ui.NumberField;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Deprecated
 // TODO: Rewrite
 public class UIComponents {
 
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-
-    public static String boldNumberStyle(Integer n) {
-        if (n==0)
-            return "null";
-        else
-            return "bold" ;
-    }
 
     @Deprecated
     public ComboBox<Integer> driverComboBox(GeneralRepository generalRepository, int w, int h) {
@@ -80,38 +67,12 @@ public class UIComponents {
     }
 
     @Deprecated
-    public ComboBox<Integer> generalObjectComboBox(GeneralObjectRepository generalObjectRepository, String dbTableName, int w, int h) {
-//        generalObjectRepository.setDbTableName(dbTableName); // TODO fix related issues
-        List<Integer> list = null;
-        try {
-            list = generalObjectRepository.getItems(true).stream()
-                    .map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        ItemCaptionGenerator<Integer> caption = (ItemCaptionGenerator<Integer>) item ->
-                (0 == item ? "" : generalObjectRepository.getItem(item).getName());
-        return UIComponents.comboBox(list, caption, w, h);
-    }
-
-    @Deprecated
     public ComboBox<Integer> siteComboBox(GeneralRepository generalRepository, int w, int h) {
         ItemCaptionGenerator<Integer> siteCaption =(ItemCaptionGenerator<Integer>) item -> {
             if (item==0) return "";
             return generalRepository.getNameById(item,"site");
         };
         return comboBox(new ArrayList<>(),siteCaption,w,h);
-    }
-
-    @Deprecated
-    public ComboBox<Integer> custSiteComboBox(GeneralRepository generalRepository, int w, int h, int custId) {
-        List<Integer> siteList = generalRepository.getIds("site", false, "custId=" + custId);
-        ItemCaptionGenerator<Integer> siteCaption =(ItemCaptionGenerator<Integer>) item -> {
-            if (item==0)
-                return "";
-            return generalRepository.getNameById(item,"site", "custId=" + custId);
-        };
-        return comboBox(siteList, siteCaption, w, h);
     }
 
     @Deprecated
@@ -129,13 +90,6 @@ public class UIComponents {
             return(0 == item ? "" : generalRepository.getNameById(item,"users"));
         };
         return comboBox(new ArrayList<>(),usersCaption,w,h);
-    }
-
-    @Deprecated
-    public ComboBox<Integer> emptyComboBox(int w, int h) {
-        List<Integer> emptyList = new ArrayList<>();
-        ItemCaptionGenerator<Integer> caption =(ItemCaptionGenerator<Integer>) item -> "";
-        return UIComponents.comboBox(emptyList, caption, w, h);
     }
 
     @Deprecated
@@ -205,23 +159,6 @@ public class UIComponents {
         return label;
     }
 
-    public HorizontalLayout titleHorizontalLayout(String title, Button button) {
-        HorizontalLayout titleLayout = new HorizontalLayout();
-        titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
-        titleLayout.addComponent(button);
-        titleLayout.addComponent(UIComponents.header(title));
-        titleLayout.setWidth("70%");
-        return titleLayout;
-    }
-
-    public static Button editButton() {
-        return gridSmallButton(VaadinIcons.EDIT);
-    }
-
-    public static Button gridSmallButton(VaadinIcons icon) {
-        return button(icon,"noBorderButton");
-    }
-
     public static Button addButton() {
         return bigButton(VaadinIcons.PLUS);
     }
@@ -236,27 +173,6 @@ public class UIComponents {
 
     public static Button closeButton() {
         return bigButton(VaadinIcons.CLOSE);
-    }
-
-    public static Button searchButton() {
-        return bigButton(VaadinIcons.SEARCH);
-    }
-
-    public static Button refreshButton() {
-        return bigButton(VaadinIcons.REFRESH);
-    }
-
-    public static Button showHideButton(Layout layout) {
-        Button showHideButton = UIComponents.bigButton(VaadinIcons.EYE_SLASH);
-        showHideButton.addClickListener(clickEvent -> {
-            layout.setVisible(!layout.isVisible());
-            showHideButton.setIcon(VaadinIcons.EYE);
-        });
-        return showHideButton;
-    }
-
-    public static Button truckButton() {
-        return bigButton(VaadinIcons.TRUCK);
     }
 
     public static Button bigButton(VaadinIcons icon) {
@@ -298,14 +214,6 @@ public class UIComponents {
         TextField textField = new TextField();
         textField.setHeight(h);
         return textField;
-    }
-
-    public static TextArea textArea(String caption,String w,String h) {
-        TextArea textArea = new TextArea(caption);
-        textArea.setStyleName("v-textarea");
-        textArea.setWidth(w);
-        textArea.setHeight(h);
-        return textArea;
     }
 
     public static NumberField numberField(String w, String h) {

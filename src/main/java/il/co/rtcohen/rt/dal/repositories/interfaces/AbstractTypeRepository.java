@@ -1,6 +1,5 @@
 package il.co.rtcohen.rt.dal.repositories.interfaces;
 
-import il.co.rtcohen.rt.dal.repositories.RepositoryInterface;
 import il.co.rtcohen.rt.dal.repositories.exceptions.InsertException;
 import il.co.rtcohen.rt.dal.repositories.exceptions.UpdateException;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
@@ -12,7 +11,6 @@ import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

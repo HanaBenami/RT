@@ -3,6 +3,7 @@ package il.co.rtcohen.rt.dal.repositories;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

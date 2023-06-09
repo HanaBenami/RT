@@ -100,7 +100,7 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
                     } else {
                         int openCallsCounter = 0;
                         try {
-                            openCallsCounter = callRepository.getCallsBySite(site.getId()).size();
+                            openCallsCounter = callRepository.getItems(site).size();
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
                         }

@@ -12,7 +12,7 @@ log:
 settings:
   multiLanguage: false
   bigScreen:
-    rowHeight: 65
-    rowsPerColumn: 14
+    rowHeight: 55
+    rowsPerColumn: 20
     interval: 60000
   workOrderWidth: 1400

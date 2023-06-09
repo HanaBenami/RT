@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.exceptions.UpdateException;
@@ -209,14 +210,10 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         return list;
     }
 
-    @Deprecated
-    public List<Call> getCalls() throws SQLException {
-        return getItems();
-    }
-
-    @Deprecated
-    public List<Call> getCallsBySite(Integer siteId) throws SQLException {
-        return getItems(siteRepository.getItem(siteId));
+    public List<Call> getItems(Area area, Boolean isDone) throws SQLException {
+        List<Call> calls = getItems(isDone, false, null);
+        calls.removeIf(call -> (null == call.getSite() || null == call.getSite().getArea() || call.getSite().getArea().equals(area)));
+        return calls;
     }
 
     @Deprecated
@@ -241,20 +238,6 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     public List<Call> getCalls(Boolean isDone, Boolean isDeleted) throws SQLException {
         List<Call> calls = getItems();
         calls.removeIf(call -> (call.isDone() != isDone || call.isDeleted() != isDeleted));
-        return calls;
-    }
-
-    @Deprecated
-    public List<Call> getCalls(LocalDate date, Boolean isDone, Boolean isDeleted) throws SQLException {
-        List<Call> calls = getCalls(date);
-        calls.removeIf(call -> (call.isDone() != isDone || call.isDeleted() != isDeleted));
-        return calls;
-    }
-
-    @Deprecated
-    public List<Call> getOpenCallsPerArea(int area) throws SQLException {
-        List<Call> calls = getItems();
-        calls.removeIf(call -> (null == call.getSite() || null == call.getSite().getArea() || call.getSite().getArea().getId() != area));
         return calls;
     }
 

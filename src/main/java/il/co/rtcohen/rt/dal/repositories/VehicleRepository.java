@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -13,11 +13,15 @@ import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
+import il.co.rtcohen.rt.app.views.CustomerDataView;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
+import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -30,6 +34,7 @@ import java.util.List;
 @SpringComponent
 @SpringUI(path="/bigScreen")
 public class BigScreenUI extends AbstractUI<HorizontalLayout> {
+    private static final Logger logger = LoggerFactory.getLogger(CustomerDataView.class);
 
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM");
     private Integer intervalTime;
@@ -91,7 +96,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     }
 
     private GridLayout initAreaLayout(int area) throws SQLException {
-        List<Call> list = callRepository.getOpenCallsPerArea(area);
+        List<Call> list = callRepository.getItems(areasRepository.getItem(area), false);
         int datesCounter = 1;
         for (Call call : list)
             if ((list.indexOf(call)>0)&&(!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call)-1).getCurrentScheduledDate()))))
@@ -108,6 +113,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         LocalDate nullDate = new Date(Date.nullDateString).getLocalDate();
         int x = columns-1;
         int y = 1;
+        // TODO - Fix to avoid GridLayout$OutOfBoundsException, regardless the value of rowsPerColumn in the .yaml file
         for (Call call : list){
             if ((list.indexOf(call)==0) || (y==1) || (y==rowsPerColumn) ||
                     (!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call)-1).getCurrentScheduledDate())))) {
@@ -124,7 +130,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
                     y=1;
                     x--;
                 }
-                areaLayout.addComponent(dateTitle,x,y);
+                areaLayout.addComponent(dateTitle, x, y);
                 areaLayout.setComponentAlignment(dateTitle,Alignment.BOTTOM_RIGHT);
                 y = y + 1;
             }
@@ -164,17 +170,19 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     }
 
     private String getCallData(Call call){
-            String dataString =
-                    "<div align=right dir=\"rtl\"><b>"
-                            +(call.getStartDate().toString())+"</b> <B>/</B> "
-                            +call.getCustomer().getName();
-//            if (!(generalRepository.getNameById(call.getSiteId(),"site").equals("")))
-                dataString+=" <B>/</B> "+ call.getSite().getName();
-//            if (!(generalRepository.getNameById(call.getVehicle().getVehicleType().getId(),"vehicleType").equals("")))
-                dataString+=" <B>/</B> <b><u>" + call.getVehicle().getVehicleType().getName()+"</u></b>";
-            if (!(call.getDescription().equals("")))
-                dataString+=" <B>/</B> "+(call.getDescription());
-            dataString+="</div>";
+            String dataString = "<div align=right dir=\"rtl\"><b>"
+                    + NullPointerExceptionWrapper.getWrapper(call, c -> c.getStartDate().toString(), "")
+                    + "</b> <B>/</B> "
+                    + NullPointerExceptionWrapper.getWrapper(call, c -> c.getCustomer().getName(), "")
+                    + " <B>/</B> "
+                    + NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getName(), "")
+                    + " <B>/</B> <b><u>"
+                    + NullPointerExceptionWrapper.getWrapper(call, c -> c.getVehicle().getVehicleType().getName(), "")
+                    + "</u></b>";
+            if (!call.getDescription().isEmpty()) {
+                dataString += " <B>/</B> " + call.getDescription();
+            }
+            dataString += "</div>";
             return dataString;
     }
 

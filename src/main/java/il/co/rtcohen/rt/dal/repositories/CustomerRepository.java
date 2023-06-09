@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.util.List;

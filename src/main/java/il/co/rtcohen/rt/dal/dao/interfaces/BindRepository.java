@@ -1,6 +1,6 @@
 package il.co.rtcohen.rt.dal.dao.interfaces;
 
-import il.co.rtcohen.rt.dal.repositories.RepositoryInterface;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
 public interface BindRepository<T> {
     abstract public RepositoryInterface<T> getBindRepository();
