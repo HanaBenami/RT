@@ -1,5 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,9 +21,10 @@ public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsReposi
     static private final String DB_LAST_UPDATE_COLUMN = "lastUpdate";
 
     private final VehicleTypeRepository vehicleTypeRepository;
+    private final SiteRepository siteRepository;
 
     @Autowired
-    public VehicleRepository(DataSource dataSource, VehicleTypeRepository vehicleTypeRepository) {
+    public VehicleRepository(DataSource dataSource, VehicleTypeRepository vehicleTypeRepository, SiteRepository siteRepository) {
         super(dataSource, "vehicle", "vehicle",
                 new String[] {
                         DB_SITE_ID_COLUMN,
@@ -33,6 +36,7 @@ public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsReposi
                         DB_LAST_UPDATE_COLUMN
                 });
         this.vehicleTypeRepository = vehicleTypeRepository;
+        this.siteRepository = siteRepository;
     }
 
     protected Vehicle getItemFromResultSet(ResultSet rs) throws SQLException {
@@ -40,36 +44,36 @@ public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsReposi
                 rs.getInt(DB_ID_COLUMN),
                 rs.getString(DB_NAME_COLUMN),
                 rs.getBoolean(DB_ACTIVE_COLUMN),
-                rs.getInt(DB_SITE_ID_COLUMN),
+                siteRepository.getItem(rs.getInt(DB_SITE_ID_COLUMN)),
                 this.vehicleTypeRepository.getItem(rs.getInt(DB_VEHICLE_TYPE_ID_COLUMN)),
                 rs.getString(DB_MODEL_COLUMN),
                 rs.getString(DB_SERIES_COLUMN),
                 rs.getInt(DB_ZAMA_COLUMN),
                 rs.getInt(DB_LICENSE_COLUMN),
                 rs.getInt(DB_ENGINE_HOURS_COLUMN),
-                stringToDate(rs.getString(DB_LAST_UPDATE_COLUMN))
+                new Date(rs.getString(DB_LAST_UPDATE_COLUMN))
         );
     }
 
-    protected int updateItemDetailsInStatement(PreparedStatement stmt, Vehicle vehicle) throws SQLException {
+    protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Vehicle vehicle) throws SQLException {
         vehicle.setLastUpdate();
-        int fieldsCounter = super.updateItemDetailsInStatement(stmt, vehicle);
+        int fieldsCounter = super.updateItemDetailsInStatement(preparedStatement, vehicle);
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, vehicle.getSiteId());
+        preparedStatement.setInt(fieldsCounter, vehicle.getSite().getId());
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, vehicle.getVehicleType().getId());
+        preparedStatement.setInt(fieldsCounter, vehicle.getVehicleType().getId());
         fieldsCounter++;
-        stmt.setString(fieldsCounter, vehicle.getModel());
+        preparedStatement.setString(fieldsCounter, vehicle.getModel());
         fieldsCounter++;
-        stmt.setString(fieldsCounter, vehicle.getSeries());
+        preparedStatement.setString(fieldsCounter, vehicle.getSeries());
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, vehicle.getZama());
+        preparedStatement.setInt(fieldsCounter, vehicle.getZama());
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, vehicle.getLicense());
+        preparedStatement.setInt(fieldsCounter, vehicle.getLicense());
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, vehicle.getEngineHours());
+        preparedStatement.setInt(fieldsCounter, vehicle.getEngineHours());
         fieldsCounter++;
-        stmt.setString(fieldsCounter, dateToString(vehicle.getLastUpdate()));
+        preparedStatement.setString(fieldsCounter, vehicle.getLastUpdate().toString());
         return fieldsCounter;
     }
 }

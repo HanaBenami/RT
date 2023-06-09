@@ -1,5 +1,8 @@
 package il.co.rtcohen.rt.dal.dao;
 
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.utils.Date;
+
 import java.time.LocalDate;
 
 public class Vehicle extends AbstractTypeWithNameAndActiveFields {
@@ -8,23 +11,23 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields {
         setObjectName("vehicle");
     }
 
-    private Integer siteId;
+    private Site site;
     private VehicleType vehicleType;
     private String model = "";
     private String series = "";
     private int zama = 0;
     private int license = 0;
     private int engineHours = 0;
-    private LocalDate lastUpdate;
+    private Date lastUpdate;
 
     public Vehicle() {
         super();
     }
 
-    public Vehicle(Integer id, String name, boolean active, Integer siteId, VehicleType vehicleType, String model,
-                   String series, Integer zama, Integer license, Integer engineHours, LocalDate lastUpdate) {
+    public Vehicle(Integer id, String name, boolean active, Site site, VehicleType vehicleType, String model,
+                   String series, Integer zama, Integer license, Integer engineHours, Date lastUpdate) {
         super(id, name, active);
-        this.siteId = siteId;
+        this.site = site;
         this.vehicleType = vehicleType;
         this.model = model;
         this.series = series;
@@ -34,12 +37,12 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields {
         this.lastUpdate = lastUpdate;
     }
 
-    public Integer getSiteId() {
-        return siteId;
+    public Site getSite() {
+        return site;
     }
 
-    public void setSiteId(Integer siteId) {
-        this.siteId = siteId;
+    public void setSite(Site site) {
+        this.site = site;
     }
 
     public VehicleType getVehicleType() {
@@ -90,7 +93,7 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields {
         this.engineHours = engineHours;
     }
 
-    public LocalDate getLastUpdate() {
+    public Date getLastUpdate() {
         return this.lastUpdate;
     }
 
@@ -99,11 +102,20 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields {
     }
 
     public void setLastUpdate(LocalDate lastUpdate) {
-        this.lastUpdate = lastUpdate;
+        this.lastUpdate = new Date(lastUpdate);
     }
 
     @Override
     public boolean isItemValid() {
-        return (null != this.getVehicleType()) && (null != this.getSiteId());
+        return (null != this.getVehicleType()) && (null != this.getSite());
+    }
+
+    @Override
+    public String getName() {
+        if (!isItemValid()) {
+            return super.toString();
+        } else {
+            return (getVehicleType().getName() + " / " + getSite().getName());
+        }
     }
 }

@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.function.Supplier;
 
 import il.co.rtcohen.rt.app.grids.AbstractTypeWithNameAndActiveFieldsGrid;
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
-import il.co.rtcohen.rt.dal.repositories.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 
 @SpringView(name = AbstractTypeWithNameAndActiveFieldsView.VIEW_NAME)
-abstract public class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWithNameAndActiveFields>
+abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWithNameAndActiveFields>
         extends AbstractDataView<AbstractTypeWithNameAndActiveFields> {
 
     static final String VIEW_NAME = "update";

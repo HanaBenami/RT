@@ -1,5 +1,8 @@
 package il.co.rtcohen.rt.dal.dao;
 
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
+
 public class Area extends AbstractTypeWithNameAndActiveFields implements BindRepository<Area> {
     private boolean here = false;
     private int displayOrder = 0;

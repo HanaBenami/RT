@@ -12,17 +12,21 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.app.uiComponents.CustomDateField;
+import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.ContactRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
+import il.co.rtcohen.rt.utils.Date;
+import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.ui.NumberField;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -31,6 +35,7 @@ import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
+// TODO - Refactor and deprecate
 @SpringComponent
 @SpringUI(path="/print")
 public class PrintUI extends AbstractUI<VerticalLayout> {
@@ -53,7 +58,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         this.contactRepository = contactRepository;
     }
 
-    private List<Call> getCallListByDriver(Integer driver) {
+    private List<Call> getCallListByDriver(Integer driver) throws SQLException {
         List<Call> list;
         switch (condition) {
             case "here": {
@@ -65,12 +70,12 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                 break;
             }
             default:
-                list = callRepository.getCalls(LocalDate.parse(condition, UIComponents.dateFormatter), driver);
+                list = callRepository.getCalls(LocalDate.parse(condition, Date.dateFormatterForUrls), driver);
         }
         return list;
     }
 
-    private void loadDriversData(Boolean printOneDriver) {
+    private void loadDriversData(Boolean printOneDriver) throws SQLException {
         if (currentDriver != null)
             loadDataForCurrentDriver(currentDriver);
         else {
@@ -91,7 +96,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         }
     }
 
-    private void loadDataForCurrentDriver(Integer driver) {
+    private void loadDataForCurrentDriver(Integer driver) throws SQLException {
         String style;
         if (LanguageSettings.isHebrew())
             style="LABEL-RIGHT-PRINT";
@@ -135,12 +140,12 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void addEndDateColumn() {
-        FilterGrid.Column<Call, LocalDate> endDateColumn = grid.addColumn(Call::getEndDate, UIComponents.dateRenderer())
+        FilterGrid.Column<Call, LocalDate> endDateColumn = grid.addColumn(call -> call.getEndDate().getLocalDate(), CustomDateField.dateRenderer())
                 .setId("endDateColumn").setWidth(120).setSortable(true)
                 .setExpandRatio(1).setResizable(true).setHidable(true).setHidden(true);
         endDateColumn.setStyleGenerator(call ->
         {
-            if (Call.nullDate.equals(call.getEndDate())) return "null";
+            if (null == call.getEndDate()) return "null";
             else return null;
         });
         DateField filterEndDate = UIComponents.dateField("95%","30");
@@ -150,8 +155,8 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
 
     private void addDriverColumn() {
         FilterGrid.Column<Call, String> driverColumn = grid.addColumn(call ->
-                generalRepository.getNameById(call.getDriverId(), "driver"))
-                .setId("driverColumn")
+                NullPointerExceptionWrapper.getWrapper(call, c-> c.getCurrentDriver().getName(), ""));
+        driverColumn.setId("driverColumn")
                 .setWidth(90)
                 .setExpandRatio(1).setResizable(true);
         driverColumn.setHidable(true);
@@ -177,11 +182,14 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void addDate2Column() {
-        FilterGrid.Column<Call, LocalDate> date2Column = grid.addColumn(Call::getDate2, UIComponents.dateRenderer())
+        FilterGrid.Column<Call, LocalDate> date2Column = grid.addColumn(
+                call -> call.getCurrentScheduledDate().getLocalDate(),
+                CustomDateField.dateRenderer()
+        )
                 .setId("date2Column").setWidth(120).setSortable(true)
                 .setExpandRatio(1).setResizable(true);
         date2Column.setStyleGenerator(call -> {
-            if (Call.nullDate.equals(call.getDate2())) return "null";
+            if (null == call.getCurrentScheduledDate()) return "null";
             else return "bold";
         });
         date2Column.setHidable(true);
@@ -198,7 +206,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             if (call.isDone())
                 return 0;
             else
-                return ((int) (DAYS.between(call.getStartDate(), LocalDate.now())));
+                return ((int) (DAYS.between(call.getStartDate().getLocalDate(), LocalDate.now())));
         });
         daysColumn.setId("daysColumn").setWidth(80).setResizable(true);
         daysColumn.setHidable(true);
@@ -210,10 +218,10 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         grid.getDefaultHeaderRow().getCell("daysColumn").setText(LanguageSettings.getLocaleString("days"));
     }
     private void addDate1Column() {
-        FilterGrid.Column<Call, LocalDate> date1Column = grid.addColumn(Call::getDate1, UIComponents.dateRenderer())
+        FilterGrid.Column<Call, LocalDate> date1Column = grid.addColumn(call -> call.getPlanningDate().getLocalDate(), CustomDateField.dateRenderer())
                 .setId("date1Column").setWidth(120).setSortable(true).setExpandRatio(1).setResizable(true);
         date1Column.setStyleGenerator(call -> {
-            if (Call.nullDate.equals(call.getDate1())) return "null";
+            if (null == call.getPlanningDate()) return "null";
             else return null;
         });
         date1Column.setHidable(true);
@@ -224,12 +232,12 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void addStartDateColumn() {
-        FilterGrid.Column<Call, LocalDate> startDateColumn = grid.addColumn(Call::getStartDate, UIComponents.dateRenderer())
+        FilterGrid.Column<Call, LocalDate> startDateColumn = grid.addColumn(call -> call.getStartDate().getLocalDate(), CustomDateField.dateRenderer())
                 .setId("startDateColumn").setWidth(120).setSortable(true)
                 .setExpandRatio(1).setResizable(true);
         startDateColumn.setStyleGenerator(call ->
         {
-            if (Call.nullDate.equals(call.getStartDate())) return "null";
+            if (null == call.getStartDate()) return "null";
             else return null;
         });
         startDateColumn.setHidable(true);
@@ -243,13 +251,19 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
     private void addPhoneColumn() {
         FilterGrid.Column<Call, String> phoneColumn = grid.addColumn(call -> {
-            if (call.getSiteId() == 0) {
+            if (call.getSite() == null) {
                 return "";
             } else {
-                List<Contact> contacts = contactRepository.getContactsBySite(call.getSiteId(), true);
+                List<Contact> contacts = null;
+                try {
+                    contacts = contactRepository.getItems(call.getSite());
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
                 StringBuilder res = new StringBuilder();
                 for (Contact contact : contacts) {
-                    res.append(contact.getPhone()).append("<br>");
+                    if (contact.isActive())
+                        res.append(contact.getPhone()).append("<br>");
                 }
                 return res.toString();
             }
@@ -263,13 +277,19 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
 
     private void addContactColumn() {
         FilterGrid.Column<Call, String> contactColumn = grid.addColumn(call -> {
-            if (call.getSiteId() == 0) {
+            if (call.getSite() == null) {
                 return "";
             } else {
-                List<Contact> contacts = contactRepository.getContactsBySite(call.getSiteId(), true);
+                List<Contact> contacts = null;
+                try {
+                    contacts = contactRepository.getItems(call.getSite());
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
                 StringBuilder res = new StringBuilder();
                 for (Contact contact : contacts) {
-                    res.append(contact.getName()).append("<br>");
+                    if (contact.isActive())
+                        res.append(contact.getName()).append("<br>");
                 }
                 return res.toString();
             }
@@ -283,10 +303,9 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void addAddressColumn() {
-        FilterGrid.Column<Call, String> addressColumn = grid.addColumn(call -> {
-            if (call.getSiteId() == 0) return "";
-            else return shorterString(siteRepository.getSiteById(call.getSiteId()).getAddress(),15);
-        }).setId("addressColumn").setWidth(190);
+        FilterGrid.Column<Call, String> addressColumn = grid.addColumn(call ->
+                NullPointerExceptionWrapper.getWrapper(call, c -> shorterString(c.getSite().getAddress(),15), ""));
+        addressColumn.setId("addressColumn").setWidth(190);
         addressColumn.setHidable(true);
         addressColumn.setHidden(true);
         TextField filterAddress = UIComponents.textField("95%","30");
@@ -295,11 +314,9 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void addAreaColumn() {
-        FilterGrid.Column<Call, String> areaColumn = grid.addColumn(call -> {
-            if (call.getSiteId() == 0) return "";
-            else return
-                    generalRepository.getNameById(siteRepository.getSiteById(call.getSiteId()).getArea().getId(), "area");
-        }).setId("areaColumn").setWidth(100).setExpandRatio(1).setResizable(true);
+        FilterGrid.Column<Call, String> areaColumn = grid.addColumn(call ->
+                NullPointerExceptionWrapper.getWrapper(call, c -> shorterString(c.getSite().getArea().getName(),15), ""));
+        areaColumn.setId("areaColumn").setWidth(100).setExpandRatio(1).setResizable(true);
         areaColumn.setHidable(true);
         areaColumn.setHidden(!condition.equals("open") && (!condition.equals("here")));
         ComboBox<Integer> filterArea = new UIComponents().areaComboBox(generalRepository,120,30);
@@ -310,7 +327,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
     private void addSiteColumn() {
     FilterGrid.Column<Call, String> siteColumn = grid.addColumn(call ->
-            shorterString(generalRepository.getNameById(call.getSiteId(), "site"),15));
+            NullPointerExceptionWrapper.getWrapper(call, c -> shorterString(c.getSite().getName(),15), ""));
         siteColumn.setId("siteColumn").setWidth(190).setExpandRatio(1).setResizable(true);
         siteColumn.setHidable(true);
         siteColumn.setHidden(false);
@@ -339,22 +356,22 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
 
     private void addCarColumn() {
         FilterGrid.Column<Call, String> carColumn = grid.addColumn(call ->
-                generalRepository.getNameById(call.getCarTypeId(), "cartype"))
-                .setId("carColumn")
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getVehicle().getVehicleType().getName(), ""));
+        carColumn.setId("carColumn")
                 .setWidth(200).setExpandRatio(1).setResizable(true);
         carColumn.setHidable(true);
         carColumn.setHidden(false);
         ComboBox<Integer> filterCar = new UIComponents().carComboBox(generalRepository,200,30);
         filterCar.setWidth("95%");
         carColumn.setFilter((filterCar),
-                (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"cartype").equals(cValue));
+                (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"carType").equals(cValue));
         grid.getDefaultHeaderRow().getCell("carColumn").setText(LanguageSettings.getLocaleString("carTypeShort"));
     }
 
     private void addCallTypeColumn() {
         FilterGrid.Column<Call, String> callTypeColumn = grid.addColumn(call ->
-                generalRepository.getNameById(call.getCallTypeId(), "calltype"))
-                .setId("callTypeColumn")
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getCallType().getName(), ""));
+        callTypeColumn.setId("callTypeColumn")
                 .setWidth(150)
                 .setExpandRatio(1).setResizable(true);
         callTypeColumn.setHidable(true);
@@ -368,10 +385,8 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
     private void addCustomerColumn() {
         FilterGrid.Column<Call, String> customerColumn = grid.addColumn(call -> {
-            String res = "";
-            if (call.getSiteId() != 0) {
-                res += shorterString(generalRepository.getNameById(call.getCustomerId(), "cust"), 15);
-            }
+            String res = NullPointerExceptionWrapper.getWrapper(call,
+                    c -> shorterString(c.getCustomer().getName(), 15), "");
             res += "<br>" + call.getDescription();
             return res;
         }, new HtmlRenderer());
@@ -397,45 +412,16 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     private void addOrderColumn() {
-        FilterGrid.Column<Call, Integer> orderColumn = grid.addColumn(Call::getOrder);
+        FilterGrid.Column<Call, Integer> orderColumn = grid.addColumn(Call::getCurrentScheduledOrder);
         orderColumn.setId("orderColumn").setWidth(60).setResizable(true);
         orderColumn.setStyleGenerator(call -> {
-            if (call.getOrder() == 0) return "null";
+            if (call.getCurrentScheduledOrder() == 0) return "null";
             else return "bold";
         });
         orderColumn.setHidable(true);
         orderColumn.setHidden(condition.equals("open") || (condition.equals("here")));
         orderColumn.setFilter(UIComponents.textField("95%","30"), UIComponents.integerFilter());
         grid.getDefaultHeaderRow().getCell("orderColumn").setText(LanguageSettings.getLocaleString("order"));
-    }
-
-//    private void addDescriptionColumn() {
-//        grid.setDetailsGenerator((DetailsGenerator<Call>) this::getCallDetails);
-//        FilterGrid.Column descriptionColumn =
-//                grid.addComponentColumn((ValueProvider<Call, Component>) call -> {
-//                    Button descriptionButton = new Button();
-//                    if (call.getDescription().equals(""))
-//                        descriptionButton.setIcon(VaadinIcons.COMMENT_O);
-//                    else
-//                        descriptionButton.setIcon(VaadinIcons.COMMENT);
-//                    descriptionButton.setStyleName("noBorderButton");
-//                    descriptionButton.addClickListener(clickEvent ->
-//                            grid.setDetailsVisible(call, !grid.isDetailsVisible(call)));
-//                    return descriptionButton;
-//                }).setId("descriptionColumn");
-//        descriptionColumn.setWidth(60).setHidable(true).setHidden(false).setSortable(false);
-//        grid.getDefaultHeaderRow().getCell("descriptionColumn").setText(LanguageSettings.getLocaleString("description"));
-//    }
-
-    private VerticalLayout getCallDetails(Call call) {
-        TextField bigDescr = UIComponents.textField("100%","30");
-        bigDescr.setValue(call.getDescription());
-        bigDescr.setReadOnly(true);
-        VerticalLayout layout = new VerticalLayout(bigDescr);
-        layout.setComponentAlignment(bigDescr, Alignment.MIDDLE_CENTER);
-        layout.setSpacing(false);
-        layout.setMargin(false);
-        return layout;
     }
 
     private FilterGrid<Call> loadData(List<Call> calls) {
@@ -463,13 +449,13 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     private void sortGrid() {
         FilterGrid.Column<Call, String> sortColumn = grid.addColumn(call-> {
             String sort="";
-            sort += call.getDate2();
-            if (call.getDriverId() < 10)
+            sort += call.getCurrentScheduledDate();
+            if (null == call.getCurrentDriver() || call.getCurrentDriver().getId() < 10)
+                sort += "0";
+            sort += (null == call.getCurrentDriver() ? "0" : String.valueOf(call.getCurrentDriver().getId()));
+            if (call.getCurrentScheduledOrder() < 10)
                 sort+="0";
-            sort += String.valueOf(call.getDriverId());
-            if (call.getOrder() < 10)
-                sort+="0";
-            sort += String.valueOf(call.getOrder());
+            sort += String.valueOf(call.getCurrentScheduledOrder());
             sort += call.getStartDate();
             return sort;
         });
@@ -480,7 +466,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             grid.sort(sortColumn,SortDirection.ASCENDING);
     }
 
-    private void addGridPerDriver(Integer driver) {
+    private void addGridPerDriver(Integer driver) throws SQLException {
         VerticalLayout dataLayout = new VerticalLayout();
         dataLayout.setWidth("100%");
         dataLayout.setSpacing(false);
@@ -507,14 +493,19 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             if((condition.equals("open"))||(condition.equals("here"))||(currentDriver !=null))
                 JavaScript.getCurrent().execute(
                         "setTimeout(function() {print();self.close();}, 0);");
-            else
-                loadDriversData(true);
+            else {
+                try {
+                    loadDriversData(true);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
         });
         return print;
     }
 
 
-    private void uploadWorkOrder() {
+    private void uploadWorkOrder() throws SQLException {
         if((condition.matches("^\\d{4}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"))) {
             title.setValue(LanguageSettings.getLocaleString("workScheduleTitle"));
             DateField date = UIComponents.dateField(150, 40);
@@ -523,7 +514,11 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                 condition = date.getValue().format(UIComponents.dateFormatter);
                 layout.removeAllComponents();
                 layout.addComponents(titleLayout);
-                loadDriversData(false);
+                try {
+                    loadDriversData(false);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
             });
             if(LanguageSettings.isHebrew())
                 titleLayout.addComponents(date, title);
@@ -544,7 +539,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         condition="error";
     }
 
-    private void uploadOpenCalls () {
+    private void uploadOpenCalls () throws SQLException {
         title.setValue(LanguageSettings.getLocaleString("openCallsReportTitle"));
         NumberField x = UIComponents.numberField("60","40");
         x.setValue("6");
@@ -565,7 +560,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         addGridPerDriver(null);
     }
 
-    private void uploadHere() {
+    private void uploadHere() throws SQLException {
         title.setValue(LanguageSettings.getLocaleString("currentlyHere"));
         addHeader();
         titleLayout.addComponents(title);
@@ -594,7 +589,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     }
 
     @Override
-    protected void setupLayout() {
+    protected void setupLayout() throws SQLException {
         titleLayout = new HorizontalLayout();
         titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         Label space = new Label(" ");

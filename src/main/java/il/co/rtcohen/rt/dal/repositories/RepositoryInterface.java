@@ -1,9 +1,10 @@
 package il.co.rtcohen.rt.dal.repositories;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface RepositoryInterface<T> {
-    abstract public List<T> getItems();
+    abstract public List<T> getItems() throws SQLException;
 
     abstract public T getItem(Integer id);
 

@@ -5,7 +5,6 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.AbstractComponent;
 
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

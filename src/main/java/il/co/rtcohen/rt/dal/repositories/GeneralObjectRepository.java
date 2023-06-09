@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -32,7 +33,7 @@ public class GeneralObjectRepository extends AbstractTypeRepository<AbstractType
                 });
     }
 
-    public List<AbstractTypeWithNameAndActiveFields> getItems(boolean onlyActiveItems) {
+    public List<AbstractTypeWithNameAndActiveFields> getItems(boolean onlyActiveItems) throws SQLException {
         List<AbstractTypeWithNameAndActiveFields> list = this.getItems();
         list.removeIf(generalObject -> !generalObject.isActive());
         return list;
@@ -46,11 +47,11 @@ public class GeneralObjectRepository extends AbstractTypeRepository<AbstractType
         );
     }
 
-    protected int updateItemDetailsInStatement(PreparedStatement stmt, AbstractTypeWithNameAndActiveFields abstractTypeWithNameAndActiveFields) throws SQLException {
+    protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, AbstractTypeWithNameAndActiveFields abstractTypeWithNameAndActiveFields) throws SQLException {
         int fieldsCounter = 1;
-        stmt.setString(fieldsCounter, abstractTypeWithNameAndActiveFields.getName());
+        preparedStatement.setString(fieldsCounter, abstractTypeWithNameAndActiveFields.getName());
         fieldsCounter++;
-        stmt.setBoolean(fieldsCounter, abstractTypeWithNameAndActiveFields.isActive());
+        preparedStatement.setBoolean(fieldsCounter, abstractTypeWithNameAndActiveFields.isActive());
         return fieldsCounter;
     }
 }

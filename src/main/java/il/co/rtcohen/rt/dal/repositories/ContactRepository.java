@@ -1,6 +1,8 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import il.co.rtcohen.rt.dal.dao.Contact;
+import il.co.rtcohen.rt.dal.dao.Site;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -39,24 +41,28 @@ public class ContactRepository extends AbstractTypeWithNameAndActiveFieldsReposi
     }
 
     @Override
-    protected int updateItemDetailsInStatement(PreparedStatement stmt, Contact contact) throws SQLException {
-        int fieldsCounter = super.updateItemDetailsInStatement(stmt, contact);
+    protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Contact contact) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(preparedStatement, contact);
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, contact.getSite().getId());
+        preparedStatement.setInt(fieldsCounter, contact.getSite().getId());
         fieldsCounter++;
-        stmt.setString( fieldsCounter, contact.getPhone());
+        preparedStatement.setString( fieldsCounter, contact.getPhone());
         fieldsCounter++;
-        stmt.setString( fieldsCounter, contact.getNotes());
+        preparedStatement.setString( fieldsCounter, contact.getNotes());
         return fieldsCounter;
     }
 
+    public List<Contact> getItems(Site site) throws SQLException {
+        return getItems(DB_SITE_ID_COLUMN + "=" + site.getId());
+    }
+
     @Deprecated
-    public List<Contact> getContactsBySite(Integer siteId) {
+    public List<Contact> getContactsBySite(Integer siteId) throws SQLException {
         return getContactsBySite(siteId, false);
     }
 
     @Deprecated
-    public List<Contact> getContactsBySite(Integer siteId, boolean onlyActive) {
+    public List<Contact> getContactsBySite(Integer siteId, boolean onlyActive) throws SQLException {
         List<Contact> list = this.getItems();
         list.removeIf(contact -> contact.getSite().getId() != siteId || (onlyActive && !contact.isActive()));
         return list;

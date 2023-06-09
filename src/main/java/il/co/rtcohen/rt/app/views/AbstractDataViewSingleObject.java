@@ -8,10 +8,10 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.app.grids.CustomGrid;
-import il.co.rtcohen.rt.dal.dao.AbstractType;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 

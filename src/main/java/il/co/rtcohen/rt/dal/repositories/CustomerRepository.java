@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 import il.co.rtcohen.rt.dal.dao.Customer;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -34,15 +35,15 @@ public class CustomerRepository extends AbstractTypeWithNameAndActiveFieldsRepos
     }
 
     @Override
-    protected int updateItemDetailsInStatement(PreparedStatement stmt, Customer customer) throws SQLException {
-        int fieldsCounter = super.updateItemDetailsInStatement(stmt, customer);
+    protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Customer customer) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(preparedStatement, customer);
         fieldsCounter++;
-        stmt.setInt( fieldsCounter, customer.getCustomerType().getId());
+        preparedStatement.setInt( fieldsCounter, customer.getCustomerType().getId());
         return fieldsCounter;
     }
 
     @Deprecated
-    public List<Customer> getCustomers() {
+    public List<Customer> getCustomers() throws SQLException {
         return getItems();
     }
     @Deprecated

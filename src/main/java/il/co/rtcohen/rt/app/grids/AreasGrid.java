@@ -1,13 +1,13 @@
 package il.co.rtcohen.rt.app.grids;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.server.Setter;
-import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.CustomNumericColumn;
 import il.co.rtcohen.rt.dal.dao.Area;
 import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 
 public class AreasGrid extends AbstractTypeFilterGrid<Area> {
+    private final String NAME_COLUMN_ID = "nameColumn";
+
     public AreasGrid(AreasRepository areasRepository) {
         super(areasRepository,
                 Area::new,
@@ -15,6 +15,7 @@ public class AreasGrid extends AbstractTypeFilterGrid<Area> {
                 null
         );
         this.initGrid();
+        this.setCustomSortColumnId(NAME_COLUMN_ID);
     }
 
     protected void addColumns() {
@@ -26,34 +27,38 @@ public class AreasGrid extends AbstractTypeFilterGrid<Area> {
     }
 
     private void addActiveColumn() {
-        this.addBooleanColumn(
-                (ValueProvider<Area, Component>) area -> UIComponents.checkBox(area.isActive(),true),
-                (ValueProvider<Area, Boolean>) Area::isActive,
-                (Setter<Area, Boolean>) Area::setActive,
+        CustomCheckBoxColumn.addToGrid(
+                Area::isActive,
+                Area::setActive,
                 "activeColumn",
                 "active",
-                Boolean.TRUE
+                Boolean.TRUE,
+                this
         );
     }
 
     private void addHereColumn() {
-        this.addBooleanColumn(
-                (ValueProvider<Area, Component>) area -> UIComponents.checkBox(area.getHere(),true),
-                (ValueProvider<Area, Boolean>) Area::getHere,
-                (Setter<Area, Boolean>) Area::setHere,
+        CustomCheckBoxColumn.addToGrid(
+                Area::getHere,
+                Area::setHere,
                 "hereColumn",
                 "here",
-                null
+                null,
+                this
         );
     }
 
     private void addDisplayOrderColumn() {
-        this.addNumericColumn(
+        CustomNumericColumn.addToGrid(
                 Area::getDisplayOrder,
                 Area::setDisplayOrder,
                 80,
                 "displayOrderColumn",
-                "order"
+                "order",
+                false,
+                false,
+                true,
+                this
         );
     }
 
@@ -62,7 +67,7 @@ public class AreasGrid extends AbstractTypeFilterGrid<Area> {
                 Area::getName,
                 Area::setName,
                 230,
-                "nameColumn",
+                NAME_COLUMN_ID,
                 "name"
         );
     }

@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.dal;
+package il.co.rtcohen.rt.dal.repositories.exceptions;
 
 import java.sql.SQLException;
 

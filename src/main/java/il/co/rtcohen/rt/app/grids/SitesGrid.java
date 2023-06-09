@@ -2,14 +2,16 @@ package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Setter;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
-import il.co.rtcohen.rt.app.UiComponents.CustomComboBoxColumn;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.app.uiComponents.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.CustomComboBox;
+import il.co.rtcohen.rt.app.uiComponents.CustomComboBoxColumn;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
+
+import java.sql.SQLException;
 
 public class SitesGrid extends AbstractTypeFilterGrid<Site> {
     private final Customer selectedCustomer;
@@ -74,8 +76,13 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
                     if (null == site.getId()) {
                         return null;
                     } else {
-                        int activeContactsCounter = contactRepository.getContactsBySite(site.getId(), true).size();
-                        return AbstractTypeFilterGrid.countingIcon(VaadinIcons.ENVELOPE_OPEN_O, VaadinIcons.ENVELOPE_OPEN, VaadinIcons.ENVELOPE_OPEN, activeContactsCounter);
+                        int activeContactsCounter = 0;
+                        try {
+                            activeContactsCounter = contactRepository.getContactsBySite(site.getId(), true).size();
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+                        return CustomButton.countingIcon(VaadinIcons.ENVELOPE_OPEN_O, VaadinIcons.ENVELOPE_OPEN, VaadinIcons.ENVELOPE_OPEN, activeContactsCounter);
                     }
                 },
                 85,
@@ -91,8 +98,13 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
                     if (null == site.getId()) {
                         return null;
                     } else {
-                        int openCallsCounter = callRepository.getCallsBySite(site.getId()).size();
-                        Button callsButton = AbstractTypeFilterGrid.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
+                        int openCallsCounter = 0;
+                        try {
+                            openCallsCounter = callRepository.getCallsBySite(site.getId()).size();
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+                        Button callsButton = CustomButton.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
                         callsButton.addClickListener(clickEvent ->
                                 getUI().getNavigator().navigateTo("call/customer=" + site.getCustomer().getId()));    // TODO: Change to call/site=
                         return callsButton;
@@ -106,13 +118,13 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
     }
 
     private void addActiveColumn() {
-        this.addBooleanColumn(
-                (ValueProvider<Site, Component>) site -> UIComponents.checkBox(site.isActive(),true),
-                (ValueProvider<Site, Boolean>) Site::isActive,
-                (Setter<Site, Boolean>) Site::setActive,
+        CustomCheckBoxColumn.addToGrid(
+                Site::isActive,
+                Site::setActive,
                 "activeColumn",
                 "active",
-                Boolean.TRUE
+                Boolean.TRUE,
+                this
         );
     }
 
@@ -128,14 +140,10 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
 
     private void addAreaColumn() {
         CustomComboBoxColumn.addToGrid(
-                CustomComboBox.areaComboBox(areasRepository),
-                CustomComboBox.areaComboBox(areasRepository),
-                (ValueProvider<Site, String>) site -> {
-                    Area area = site.getArea();
-                    return (null == area ? "" : area.getName());
-                },
-                (ValueProvider<Site, Area>) Site::getArea,
-                (Setter<Site, Area>) Site::setArea,
+                CustomComboBox.getComboBox(areasRepository),
+                CustomComboBox.getComboBox(areasRepository),
+                Site::getArea,
+                Site::setArea,
                 130,
                 "areaColumn",
                 "area",

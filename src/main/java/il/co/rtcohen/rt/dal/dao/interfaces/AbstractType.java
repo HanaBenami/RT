@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.dal.dao;
+package il.co.rtcohen.rt.dal.dao.interfaces;
 
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
@@ -65,7 +65,15 @@ abstract public class AbstractType {
                 + (null == getId() ? "" : (" #" + getId()));
     }
 
+    public boolean equals(AbstractType other) {
+        return (null != other) && this.getId().equals(other.getId());
+    }
+
     static Logger getLogger() {
         return Logger.getLogger(GeneralErrorHandler.class.getName());
+    }
+
+    // Used post record update in the DB
+    public void postSave() {
     }
 }

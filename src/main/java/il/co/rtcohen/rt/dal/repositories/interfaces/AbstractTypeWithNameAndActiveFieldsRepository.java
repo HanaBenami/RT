@@ -1,6 +1,7 @@
-package il.co.rtcohen.rt.dal.repositories;
+package il.co.rtcohen.rt.dal.repositories.interfaces;
 
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.repositories.RepositoryInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -27,9 +28,9 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
                 additionalDbColumns);
     }
 
-    public List<T> getItems(boolean onlyActiveItems) {
+    public List<T> getItems(boolean onlyActiveItems) throws SQLException {
         List<T> list = this.getItems();
-        list.removeIf(user -> !user.isActive());
+        list.removeIf(t -> !t.isActive());
         return list;
     }
 
@@ -42,11 +43,11 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
 
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
 
-    protected int updateItemDetailsInStatement(PreparedStatement stmt, T t) throws SQLException {
+    protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, T t) throws SQLException {
         int fieldsCounter = 1;
-        stmt.setString(fieldsCounter, t.getName());
+        preparedStatement.setString(fieldsCounter, t.getName());
         fieldsCounter++;
-        stmt.setBoolean(fieldsCounter, t.isActive());
+        preparedStatement.setBoolean(fieldsCounter, t.isActive());
         return fieldsCounter;
     }
 }

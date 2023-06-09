@@ -1,18 +1,17 @@
-package il.co.rtcohen.rt.dal.repositories;
+package il.co.rtcohen.rt.dal.repositories.interfaces;
 
-import il.co.rtcohen.rt.dal.InsertException;
-import il.co.rtcohen.rt.dal.UpdateException;
-import il.co.rtcohen.rt.dal.dao.AbstractType;
+import il.co.rtcohen.rt.dal.repositories.RepositoryInterface;
+import il.co.rtcohen.rt.dal.repositories.exceptions.InsertException;
+import il.co.rtcohen.rt.dal.repositories.exceptions.UpdateException;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,15 +21,13 @@ import java.util.stream.Collectors;
 
 @Repository
 public abstract class AbstractTypeRepository<T extends AbstractType> implements RepositoryInterface<T> {
+    final static protected String DB_ID_COLUMN = "id";
+
     final protected Logger logger;
     final private DataSource dataSource;
 
-    final static private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    final static private String nullDateString = "1901-01-01";
-    final static protected String DB_ID_COLUMN = "id";
-
-    final protected String DB_TABLE_NAME;
     final protected String REPOSITORY_NAME;
+    final protected String DB_TABLE_NAME;
     final private ArrayList<String> dbColumnsList;
 
     final private HashMap<Integer, T> cache = new HashMap<>();
@@ -54,6 +51,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         return this.REPOSITORY_NAME;
     }
 
+    // The connection must be closed later on
+    protected Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
+
     protected String getDbColumnsStringForInsertStatement() {
         return " (" + String.join(", ", this.dbColumnsList) + ") values ("
                 + dbColumnsList.stream().map(dbColumn -> "?").collect(Collectors.joining(", ")) + ")";
@@ -65,48 +67,64 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
 
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
 
-    abstract protected int updateItemDetailsInStatement(PreparedStatement stmt, T t) throws SQLException;
+    abstract protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, T t) throws SQLException;
 
     private PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
+        PreparedStatement preparedStatement = connection.prepareStatement(
                 "insert into " + this.DB_TABLE_NAME + getDbColumnsStringForInsertStatement(),
                 Statement.RETURN_GENERATED_KEYS
         );
-        updateItemDetailsInStatement(stmt, t);
-        return stmt;
+        updateItemDetailsInStatement(preparedStatement, t);
+        return preparedStatement;
     }
 
     private PreparedStatement generateUpdateStatement(Connection connection, T t) throws SQLException {
         String query = "update " + this.DB_TABLE_NAME + " set " + getDbColumnsStringForUpdateStatement() + " where " + DB_ID_COLUMN + "=?";
-        PreparedStatement stmt = connection.prepareStatement(
+        PreparedStatement preparedStatement = connection.prepareStatement(
                 query,
                 Statement.RETURN_GENERATED_KEYS
         );
-        updateItemDetailsInStatement(stmt, t);
-        stmt.setInt(StringUtils.countOccurrencesOf(query, "?"), t.getId());
-        return stmt;
+        updateItemDetailsInStatement(preparedStatement, t);
+        preparedStatement.setInt(StringUtils.countOccurrencesOf(query, "?"), t.getId());
+        return preparedStatement;
     }
 
     private void addToCache(T t) {
         cache.put(t.getId(), t);
     }
 
-    public List<T> getItems() {
+    public List<T> getItems() throws SQLException {
+        return getItems(null);
+    }
+
+    public List<T> getItems(String whereClause) throws SQLException {
+        String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME;
+        if (null != whereClause) {
+            sqlQuery += " where " + whereClause;
+        }
+        this.logger.info(sqlQuery);
+        Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+        return getItems(connection, preparedStatement);
+    }
+
+    public List<T> getItems(Connection connection, PreparedStatement preparedStatement) throws SQLException {
         List<T> list = new ArrayList<>();
-        String sql = "SELECT * FROM " + this.DB_TABLE_NAME;
-        this.logger.info(sql);
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try {
+            ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 T item = this.getItemFromResultSet(rs);
                 this.addToCache(item);
                 list.add(item);
             }
+            logger.info(list.size() + " records have been retrieved");
             return list;
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItems";
             this.logger.error(error, e);
             throw new DataRetrievalFailureException(error, e);
+        } finally {
+            connection.close();
         }
     }
 
@@ -123,15 +141,19 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         List<T> list = new ArrayList<>();
         String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME + " WHERE " + whereClause;
         this.logger.info(sqlQuery);
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sqlQuery)) {
-            ResultSet rs = stmt.executeQuery();
+        try (Connection con = dataSource.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sqlQuery)) {
+            ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 list.add(this.getItemFromResultSet(rs));
             }
             oneRecordOnlyValidation(list.size(), "getItem");
-            T t = list.get(0);
-            this.addToCache(t);
-            return t;
+            if (list.isEmpty()) {
+                return null;
+            } else {
+                T t = list.get(0);
+                this.addToCache(t);
+                return t;
+            }
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItem (" + whereClause + ")";
             this.logger.error(error, e);
@@ -142,17 +164,18 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     public long insertItem(T t) {
         try {
             Connection connection = this.dataSource.getConnection();
-            PreparedStatement stmt = generateInsertStatement(connection, t);
-            this.logger.info(stmt.toString());
-            int n = stmt.executeUpdate();
+            PreparedStatement preparedStatement = generateInsertStatement(connection, t);
+            this.logger.info(preparedStatement.toString());
+            int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "created");
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     long id = generatedKeys.getLong(1);
                     t.setId(id);
                     this.addToCache(t);
                     this.logger.info(getMessagesPrefix()
                             + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\" (id=" + id + ")");
+                    t.postSave();
                     return id;
                 }
                 throw new SQLException("error getting the new key");
@@ -173,11 +196,12 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
 
         try {
             Connection connection = this.dataSource.getConnection();
-            PreparedStatement stmt = generateUpdateStatement(connection, t);
-            this.logger.info(stmt.toString());
-            int n = stmt.executeUpdate();
+            PreparedStatement preparedStatement = generateUpdateStatement(connection, t);
+            this.logger.info(preparedStatement.toString());
+            int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
             this.logger.info(getMessagesPrefix() + "data was updated (" + t + ")");
+            t.postSave();
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in updateItem";
@@ -189,8 +213,8 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     public void deleteItem(T t) {
         try {
             Connection connection = this.dataSource.getConnection();
-            PreparedStatement stmt = generateDeleteStatement(connection, t);
-            int n = stmt.executeUpdate();
+            PreparedStatement preparedStatement = generateDeleteStatement(connection, t);
+            int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
             this.logger.info(getMessagesPrefix() + " data was deleted (" + t + ")");
         }
@@ -202,12 +226,12 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     }
 
     private PreparedStatement generateDeleteStatement(Connection connection, T t) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(
+        PreparedStatement preparedStatement = connection.prepareStatement(
                 "delete from " + this.DB_TABLE_NAME + " where " + DB_ID_COLUMN + "=?",
                 Statement.RETURN_GENERATED_KEYS
         );
-        stmt.setInt(1, t.getId());
-        return stmt;
+        preparedStatement.setInt(1, t.getId());
+        return preparedStatement;
     }
 
     private String getMessagesPrefix() {
@@ -216,18 +240,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
 
     private void oneRecordOnlyValidation(int n, String verb) throws SQLException {
         if (n == 0) {
-            throw new SQLException(getMessagesPrefix() + "No record has been " + verb);
+            logger.warn(getMessagesPrefix() + "No record has been found (" + verb + ")");
+//            throw new SQLException(getMessagesPrefix() + "No record has been " + verb);   // TODO?
         }
         else if (n > 1) {
             throw new SQLException(getMessagesPrefix() + "More than one record has been " + verb);
         }
-    }
-
-    static public String dateToString(LocalDate date) {
-        return (null == date ? nullDateString : date.format(dateFormatter));
-    }
-
-    static public LocalDate stringToDate(String s) {
-        return LocalDate.parse(s, dateFormatter);
     }
 }

@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import il.co.rtcohen.rt.dal.dao.Area;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -34,17 +35,17 @@ public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsReposito
     }
 
     @Override
-    protected int updateItemDetailsInStatement(PreparedStatement stmt, Area area) throws SQLException {
-        int fieldsCounter = super.updateItemDetailsInStatement(stmt, area);
+    protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Area area) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(preparedStatement, area);
         fieldsCounter++;
-        stmt.setBoolean(fieldsCounter, area.getHere());
+        preparedStatement.setBoolean(fieldsCounter, area.getHere());
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, area.getDisplayOrder());
+        preparedStatement.setInt(fieldsCounter, area.getDisplayOrder());
         return fieldsCounter;
     }
 
     @Deprecated
-    public List<Area> getAreas() {
+    public List<Area> getAreas() throws SQLException {
         return getItems();
     }
 
@@ -54,17 +55,17 @@ public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsReposito
     }
 
     @Deprecated
-    public List<Integer> getOutAreaId() {
+    public List<Integer> getOutAreaId() throws SQLException {
         return getActiveId(false);
     }
 
     @Deprecated
-    public List<Integer> getHereAreaId() {
+    public List<Integer> getHereAreaId() throws SQLException {
         return getActiveId(true);
     }
 
     @Deprecated
-    private List<Integer> getActiveId(Boolean here) {
+    private List<Integer> getActiveId(Boolean here) throws SQLException {
         List<Area> areas = getItems();
         areas.removeIf(area -> !area.isActive());
         areas.removeIf(area -> area.getHere() != here);

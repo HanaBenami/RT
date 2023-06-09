@@ -2,13 +2,15 @@ package il.co.rtcohen.rt.app.ui;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.ErrorHandler;
-import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
+
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
+
+import java.sql.SQLException;
 
 @Theme("myTheme")
 public abstract class AbstractUI<T extends Layout> extends UI {
@@ -23,14 +25,19 @@ public abstract class AbstractUI<T extends Layout> extends UI {
         this.generalRepository = generalRepository;
     }
 
-    protected abstract void setupLayout();
+    protected abstract void setupLayout() throws SQLException;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        setupLayout();
-        getUI().setLocale(LanguageSettings.locale);
+        try {
+            setupLayout();
+            getUI().setLocale(LanguageSettings.locale);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
+    // TODO: get user repo. and change to user object, not only ID
     int getSessionUsernameId() {
         return (int) getSession().getAttribute("userid");
     }

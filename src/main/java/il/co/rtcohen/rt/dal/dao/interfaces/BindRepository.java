@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.dal.dao;
+package il.co.rtcohen.rt.dal.dao.interfaces;
 
 import il.co.rtcohen.rt.dal.repositories.RepositoryInterface;
 

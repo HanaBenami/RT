@@ -1,9 +1,6 @@
 package il.co.rtcohen.rt.app.grids;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.server.Setter;
-import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
@@ -53,14 +50,14 @@ public class ContactsGrid extends AbstractTypeFilterGrid<Contact> {
         addIdColumn();
     }
 
-    private void addActiveColumn() {
-        this.addBooleanColumn(
-                (ValueProvider<Contact, Component>) contact -> UIComponents.checkBox(contact.isActive(),true),
-                (ValueProvider<Contact, Boolean>) Contact::isActive,
-                (Setter<Contact, Boolean>) Contact::setActive,
+    protected void addActiveColumn() {
+        CustomCheckBoxColumn.addToGrid(
+                Contact::isActive,
+                Contact::setActive,
                 "activeColumn",
                 "active",
-                Boolean.TRUE
+                Boolean.TRUE,
+                this
         );
     }
 

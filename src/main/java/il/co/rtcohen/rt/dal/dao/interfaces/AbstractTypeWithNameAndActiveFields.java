@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.dal.dao;
+package il.co.rtcohen.rt.dal.dao.interfaces;
 
 public class AbstractTypeWithNameAndActiveFields extends AbstractType implements Nameable {
     private String name;

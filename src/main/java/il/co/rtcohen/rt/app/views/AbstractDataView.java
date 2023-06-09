@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.app.views;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
@@ -7,10 +8,11 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
-import il.co.rtcohen.rt.dal.dao.AbstractType;
+import il.co.rtcohen.rt.app.uiComponents.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.UIComponents;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 
-public abstract class AbstractDataView<T extends AbstractType> extends AbstractView implements View {
+abstract class AbstractDataView<T extends AbstractType> extends AbstractView implements View {
     String title;
 
     @Deprecated
@@ -41,7 +43,7 @@ public abstract class AbstractDataView<T extends AbstractType> extends AbstractV
         getUI().setLocale(LanguageSettings.locale);
     }
 
-    private void addTitle() {
+    protected void addTitle() {
         HorizontalLayout titleLayout = new HorizontalLayout();
         titleLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         titleLayout.addComponent(getRefreshButton());
@@ -50,10 +52,12 @@ public abstract class AbstractDataView<T extends AbstractType> extends AbstractV
         this.addComponent(titleLayout);
     }
 
-    private Button getRefreshButton() {
-        Button refreshButton = UIComponents.refreshButton();
-        refreshButton.addClickListener(clickEvent -> refreshData());
-        return refreshButton;
+    protected Button getRefreshButton() {
+        return getButton(VaadinIcons.REFRESH, clickEvent -> refreshData());
+    }
+
+    protected CustomButton getButton(VaadinIcons vaadinIcons, Button.ClickListener clickListener) {
+        return new CustomButton(vaadinIcons, true, clickListener);
     }
 
     abstract void addGrids();

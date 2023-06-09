@@ -1,20 +1,11 @@
 package il.co.rtcohen.rt.app.grids;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.server.Setter;
 import com.vaadin.shared.data.sort.SortDirection;
-import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
-import il.co.rtcohen.rt.app.UiComponents.CustomComboBox;
-import il.co.rtcohen.rt.app.UiComponents.CustomComboBoxColumn;
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
-import il.co.rtcohen.rt.dal.dao.VehicleType;
 import il.co.rtcohen.rt.dal.repositories.VehicleRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
-
-import java.time.LocalDate;
 
 public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     private final Site site;
@@ -25,11 +16,11 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                         VehicleTypeRepository vehicleTypeRepository) {
         super(vehicleRepository, () -> {
                     Vehicle vehicle = new Vehicle();
-                    vehicle.setSiteId(site.getId());
+                    vehicle.setSite(site);
                     return vehicle;
                 },
                 "vehiclesOfSites",
-                vehicle -> null == site || !vehicle.getSiteId().equals(site.getId()));
+                vehicle -> null == site || null == vehicle.getSite() || !vehicle.getSite().equals(site));
         this.site = site;
         this.vehicleTypeRepository = vehicleTypeRepository;
         this.initGrid();
@@ -69,53 +60,66 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     }
 
     private void addActiveColumn() {
-        this.addBooleanColumn(
-                (ValueProvider<Vehicle, Component>) vehicle -> UIComponents.checkBox(vehicle.isActive(),true),
-                (ValueProvider<Vehicle, Boolean>) Vehicle::isActive,
-                (Setter<Vehicle, Boolean>) Vehicle::setActive,
+        CustomCheckBoxColumn.addToGrid(
+                Vehicle::isActive,
+                Vehicle::setActive,
                 "activeColumn",
                 "active",
-                Boolean.TRUE
+                Boolean.TRUE,
+                this
         );
     }
 
     private void addLastUpdateColumn() {
-        this.addDateColumn(
-                (ValueProvider<Vehicle, LocalDate>) Vehicle::getLastUpdate,
-                (Setter<Vehicle, LocalDate>) Vehicle::setLastUpdate,
+        CustomDateColumn.addToGrid(
+                Vehicle::getLastUpdate,
+                null,
                 "lastUpdateColumn",
                 "lastUpdate",
-                false
+                false,
+                this
         );
     }
 
     private void addEngineHoursColumn() {
-        this.addNumericColumn(
-                Vehicle::getZama,
-                Vehicle::setZama,
+        CustomNumericColumn.addToGrid(
+                Vehicle::getEngineHours,
+                Vehicle::setEngineHours,
                 140,
                 "engineHoursColumn",
-                "engineHours"
+                "engineHours",
+                false,
+                false,
+                true,
+                this
         );
     }
 
     private void addLicenseColumn() {
-        this.addNumericColumn(
-                Vehicle::getZama,
-                Vehicle::setZama,
+        CustomNumericColumn.addToGrid(
+                Vehicle::getLicense,
+                Vehicle::setLicense,
                 140,
                 "licenseColumn",
-                "license"
+                "license",
+                false,
+                true,
+                false,
+                this
         );
     }
 
     private void addZamaColumn() {
-        this.addNumericColumn(
+        CustomNumericColumn.addToGrid(
                 Vehicle::getZama,
                 Vehicle::setZama,
                 140,
                 "zamaColumn",
-                "zama"
+                "zama",
+                false,
+                true,
+                false,
+                this
         );
     }
 
@@ -141,17 +145,13 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
 
     private void addVehicleTypeColumn() {
         CustomComboBoxColumn.addToGrid(
-                CustomComboBox.vehiclesTypeComboBox(vehicleTypeRepository),
-                CustomComboBox.vehiclesTypeComboBox(vehicleTypeRepository),
-                (ValueProvider<Vehicle, String>) vehicle -> {
-                    AbstractTypeWithNameAndActiveFields vehicleType = vehicle.getVehicleType();
-                    return (null == vehicleType ? "" : vehicleType.getName());
-                },
-                (ValueProvider<Vehicle, VehicleType>) Vehicle::getVehicleType,
-                (Setter<Vehicle, VehicleType>) Vehicle::setVehicleType,
+                CustomComboBox.getComboBox(vehicleTypeRepository),
+                CustomComboBox.getComboBox(vehicleTypeRepository),
+                Vehicle::getVehicleType,
+                Vehicle::setVehicleType,
                 230,
                 "vehicleTypeColumn",
-                "carType",
+                "vehicleType",
                 this
         );
     }

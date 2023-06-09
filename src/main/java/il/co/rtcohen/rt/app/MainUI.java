@@ -15,7 +15,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Panel;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.dal.dao.User;
 import il.co.rtcohen.rt.dal.repositories.UsersRepository;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
@@ -40,9 +41,11 @@ public class MainUI extends UI implements ViewDisplay {
     private HorizontalLayout navigationLayout;
     Image language;
 
-    @Value("${settings.multiLanguage}") Boolean multiLanguage;
+    @Value("${settings.multiLanguage}")
+    Boolean multiLanguage;
 
-    @Value("${settings.workOrderWidth}") int workOrderWidth;
+    @Value("${settings.workOrderWidth}")
+    int workOrderWidth;
 
     final static private Logger log = LoggerFactory.getLogger(MainUI.class);
 
@@ -87,7 +90,8 @@ public class MainUI extends UI implements ViewDisplay {
     private void addLanguageButton() {
         try {
             topLayout.removeComponent(language);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         language = LanguageSettings.getFlag();
         language.setStyleName("noBorderButton");
         language.setHeight("40");
@@ -107,7 +111,8 @@ public class MainUI extends UI implements ViewDisplay {
     private void addOrRefreshNavigationLayout() {
         try {
             topLayout.removeComponent(navigationLayout);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         Component navigationBar = createNavigationBar();
         navigationBar.addStyleName(LanguageSettings.isHebrew() ? "menu_right" : "menu_left");
         navigationLayout = new HorizontalLayout();
@@ -121,7 +126,7 @@ public class MainUI extends UI implements ViewDisplay {
 
     @Override
     public void showView(View view) {
-        if(springViewDisplay!=null)
+        if (springViewDisplay != null)
             springViewDisplay.setContent((Component) view);
     }
 
@@ -161,32 +166,19 @@ public class MainUI extends UI implements ViewDisplay {
         customerMenu.setCommand(generateMenuBarCommand("customers"));
     }
 
-    @Deprecated
-    private void addCustomerMenuOld() {
-        MenuBar.MenuItem customerMenu = menu.addItem(LanguageSettings.getLocaleString("customers-old"));
-        customerMenu.setIcon(VaadinIcons.GROUP);
-        MenuBar.MenuItem customer = customerMenu.addItem(LanguageSettings.getLocaleString("customers"));
-        customer.setCommand(generateMenuBarCommand("customer"));
-        customerMenu.addSeparator();
-        MenuBar.MenuItem site = customerMenu.addItem(LanguageSettings.getLocaleString("sites"));
-        site.setCommand(generateMenuBarCommand("site"));
-        customerMenu.addItem(LanguageSettings.getLocaleString("addSite"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.EDITSITE.getPath(), "_new2",700,500, BorderStyle.NONE));
-    }
-
     private void addReportsMenu() {
-        MenuBar.MenuItem reports = menu.addItem (LanguageSettings.getLocaleString("reportsMenu"));
+        MenuBar.MenuItem reports = menu.addItem(LanguageSettings.getLocaleString("reportsMenu"));
         reports.setIcon(VaadinIcons.PRINT);
         reports.addItem(LanguageSettings.getLocaleString("workSchedule"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.PRINT.getPath()+ LocalDate.now().format(UIComponents.dateFormatter), "_blank",
+                .open(UIPaths.PRINT.getPath() + LocalDate.now().format(UIComponents.dateFormatter), "_blank",
                         workOrderWidth,
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
         reports.addItem(LanguageSettings.getLocaleString("openCalls"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.PRINT.getPath()+"open", "_blank",
+                .open(UIPaths.PRINT.getPath() + "open", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
         reports.addItem(LanguageSettings.getLocaleString("currentlyHereReport"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.PRINT.getPath()+"here", "_blank",
+                .open(UIPaths.PRINT.getPath() + "here", "_blank",
                         getPage().getBrowserWindowWidth(),
                         getPage().getBrowserWindowHeight(), BorderStyle.MINIMAL));
     }
@@ -195,32 +187,31 @@ public class MainUI extends UI implements ViewDisplay {
         MenuBar.MenuItem bigScreen = menu.addItem(LanguageSettings.getLocaleString("bigScreenMenu"));
         bigScreen.setIcon(VaadinIcons.EYE);
         bigScreen.addItem(LanguageSettings.getLocaleString("outsideBigScreen"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.BIGSCREEN.getPath()+"out", "_blank",getPage().getBrowserWindowWidth(),
-                        getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
+                .open(UIPaths.BIGSCREEN.getPath() + "out", "_blank", getPage().getBrowserWindowWidth(),
+                        getPage().getBrowserWindowHeight() - 10, BorderStyle.NONE));
         bigScreen.addItem(LanguageSettings.getLocaleString("garageBigScreen"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.BIGSCREEN.getPath()+"here", "_blank",
+                .open(UIPaths.BIGSCREEN.getPath() + "here", "_blank",
                         getPage().getBrowserWindowWidth(),
-                        getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
+                        getPage().getBrowserWindowHeight() - 10, BorderStyle.NONE));
         bigScreen.addItem(LanguageSettings.getLocaleString("allCalls"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.BIGSCREEN.getPath()+"all", "_blank",
+                .open(UIPaths.BIGSCREEN.getPath() + "all", "_blank",
                         getPage().getBrowserWindowWidth(),
-                        getPage().getBrowserWindowHeight()-10, BorderStyle.NONE));
+                        getPage().getBrowserWindowHeight() - 10, BorderStyle.NONE));
     }
 
     private void addCallsMenu() {
         MenuBar.MenuItem call = menu.addItem(LanguageSettings.getLocaleString("calls"));
         call.setIcon(VaadinIcons.BELL_O);
         MenuBar.MenuItem calls = call.addItem(LanguageSettings.getLocaleString("callsTable"));
-        calls.setCommand(generateMenuBarCommand("call"));
+        calls.setCommand(generateMenuBarCommand("calls"));
         call.addItem(LanguageSettings.getLocaleString("addCall"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.EDITCALL.getPath(), "_new3",750,770, BorderStyle.NONE));
+                .open(UIPaths.EDITCALL.getPath(), "_new3", 750, 770, BorderStyle.NONE));
     }
 
     private Component createNavigationBar() {
         menu = new MenuBar();
         addHomeMenu();
         addSetupMenu();
-        addCustomerMenuOld();
         addCustomerMenu();
         addReportsMenu();
         addBigScreenMenu();
@@ -235,7 +226,8 @@ public class MainUI extends UI implements ViewDisplay {
     private void addOrRefreshUsernameLayout() {
         try {
             topLayout.removeComponent(loginLayout);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         loginLayout = new HorizontalLayout();
         loginLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         if (null == getSessionUsername()) {
@@ -258,7 +250,7 @@ public class MainUI extends UI implements ViewDisplay {
         usernameTextbox.setWidth("200");
         usernameTextbox.focus();
         usernameTextbox.addFocusListener(
-            focusEvent -> loginBtn.setClickShortcut(ShortcutAction.KeyCode.ENTER)
+                focusEvent -> loginBtn.setClickShortcut(ShortcutAction.KeyCode.ENTER)
         );
         usernameTextbox.addBlurListener(event -> loginBtn.removeClickShortcut());
         usernameTextbox.addValueChangeListener(valueChangeEvent -> {
@@ -304,12 +296,18 @@ public class MainUI extends UI implements ViewDisplay {
         String newUsername = usernameTextbox.getValue();
         if (emptyToString(newUsername)) {
             usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("emptyUsername")));
-        } else if (!usersRepository.getItems(true).stream()
-                .map(User::getName).collect(Collectors.toList()).contains(newUsername)) {
-            usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("invalidUsername")));
         } else {
-            setSessionUsername(newUsername);
-            addOrRefreshUsernameLayout();
+            try {
+                if (!usersRepository.getItems(true).stream()
+                        .map(User::getName).collect(Collectors.toList()).contains(newUsername)) {
+                    usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("invalidUsername")));
+                } else {
+                    setSessionUsername(newUsername);
+                    addOrRefreshUsernameLayout();
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
         }
     }
 

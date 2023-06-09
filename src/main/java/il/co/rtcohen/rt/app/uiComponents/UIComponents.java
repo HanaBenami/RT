@@ -1,17 +1,19 @@
-package il.co.rtcohen.rt.app.UiComponents;
+package il.co.rtcohen.rt.app.uiComponents;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.SerializableBiPredicate;
 import com.vaadin.ui.*;
-import com.vaadin.ui.renderers.LocalDateRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import il.co.rtcohen.rt.dal.dao.Call;
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 import org.vaadin.ui.NumberField;
+
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,32 +26,6 @@ public class UIComponents {
 
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    public static String callStyle(Call call) {
-        if (call.getDate2().equals(LocalDate.now()))
-            return "green";
-        if (call.getDate2().equals(LocalDate.now().plusDays(1)))
-            return "yellow";
-        if ((call.getDate2().equals(Call.nullDate))&&(call.getStartDate().isBefore(LocalDate.now().minusDays(6))))
-            return "darkred";
-        if ((call.getDate2().equals(Call.nullDate))&&(call.getStartDate().isBefore(LocalDate.now().minusDays(2))))
-            return "red";
-        return null;
-    }
-
-    public static String regularDateStyle(LocalDate localDate) {
-        if (Call.nullDate.equals(localDate))
-            return "null";
-        else
-            return null ;
-    }
-
-    public static String boldDateStyle(LocalDate localDate) {
-        if (Call.nullDate.equals(localDate))
-            return "null";
-        else
-            return "bold" ;
-    }
-
     public static String boldNumberStyle(Integer n) {
         if (n==0)
             return "null";
@@ -57,10 +33,7 @@ public class UIComponents {
             return "bold" ;
     }
 
-    public static LocalDateRenderer dateRenderer() {
-        return new LocalDateRenderer("dd/MM/yy");
-    }
-
+    @Deprecated
     public ComboBox<Integer> driverComboBox(GeneralRepository generalRepository, int w, int h) {
         List<Integer> driverList = generalRepository.getActiveId("driver");
         ItemCaptionGenerator<Integer> caption =(ItemCaptionGenerator<Integer>) item -> {
@@ -69,6 +42,7 @@ public class UIComponents {
         return comboBox(driverList,caption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> callTypeComboBox(GeneralRepository generalRepository, int w, int h) {
         List<Integer> callTypeList = generalRepository.getActiveId("calltype");
         ItemCaptionGenerator<Integer> caption =(ItemCaptionGenerator<Integer>) item -> {
@@ -77,14 +51,16 @@ public class UIComponents {
         return comboBox(callTypeList,caption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> carComboBox(GeneralRepository generalRepository, int w, int h) {
-        List<Integer> carList = generalRepository.getActiveId("cartype");
+        List<Integer> carList = generalRepository.getActiveId("carType");
         ItemCaptionGenerator<Integer> caption =(ItemCaptionGenerator<Integer>) item -> {
             if (item==0) return "";
-            return generalRepository.getNameById(item,"cartype"); };
+            return generalRepository.getNameById(item,"carType"); };
         return comboBox(carList,caption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> customerComboBox(GeneralRepository generalRepository, int w, int h) {
         List<Integer> customers = generalRepository.getActiveId("cust");
         ItemCaptionGenerator<Integer> custCaption =(ItemCaptionGenerator<Integer>) item -> {
@@ -93,6 +69,7 @@ public class UIComponents {
         return comboBox(customers,custCaption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> custTypeComboBox(GeneralRepository generalRepository, int w, int h) {
         List<Integer> custTypeList = generalRepository.getActiveId("custType");
         ItemCaptionGenerator<Integer> custTypeCaption =(ItemCaptionGenerator<Integer>) item -> {
@@ -102,15 +79,22 @@ public class UIComponents {
         return UIComponents.comboBox(custTypeList,custTypeCaption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> generalObjectComboBox(GeneralObjectRepository generalObjectRepository, String dbTableName, int w, int h) {
 //        generalObjectRepository.setDbTableName(dbTableName); // TODO fix related issues
-        List<Integer> list = generalObjectRepository.getItems(true).stream()
-                .map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
+        List<Integer> list = null;
+        try {
+            list = generalObjectRepository.getItems(true).stream()
+                    .map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         ItemCaptionGenerator<Integer> caption = (ItemCaptionGenerator<Integer>) item ->
                 (0 == item ? "" : generalObjectRepository.getItem(item).getName());
         return UIComponents.comboBox(list, caption, w, h);
     }
 
+    @Deprecated
     public ComboBox<Integer> siteComboBox(GeneralRepository generalRepository, int w, int h) {
         ItemCaptionGenerator<Integer> siteCaption =(ItemCaptionGenerator<Integer>) item -> {
             if (item==0) return "";
@@ -119,6 +103,7 @@ public class UIComponents {
         return comboBox(new ArrayList<>(),siteCaption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> custSiteComboBox(GeneralRepository generalRepository, int w, int h, int custId) {
         List<Integer> siteList = generalRepository.getIds("site", false, "custId=" + custId);
         ItemCaptionGenerator<Integer> siteCaption =(ItemCaptionGenerator<Integer>) item -> {
@@ -129,6 +114,7 @@ public class UIComponents {
         return comboBox(siteList, siteCaption, w, h);
     }
 
+    @Deprecated
     public ComboBox<Integer> areaComboBox(GeneralRepository generalRepository, int w, int h) {
         List<Integer> areaList = generalRepository.getActiveId("area");
         ItemCaptionGenerator<Integer> areaCaption =(ItemCaptionGenerator<Integer>) item -> {
@@ -137,6 +123,7 @@ public class UIComponents {
         return UIComponents.comboBox(areaList,areaCaption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> userComboBox(GeneralRepository generalRepository, int w, int h) {
         ItemCaptionGenerator<Integer> usersCaption =(ItemCaptionGenerator<Integer>) item -> {
             return(0 == item ? "" : generalRepository.getNameById(item,"users"));
@@ -144,12 +131,14 @@ public class UIComponents {
         return comboBox(new ArrayList<>(),usersCaption,w,h);
     }
 
+    @Deprecated
     public ComboBox<Integer> emptyComboBox(int w, int h) {
         List<Integer> emptyList = new ArrayList<>();
         ItemCaptionGenerator<Integer> caption =(ItemCaptionGenerator<Integer>) item -> "";
         return UIComponents.comboBox(emptyList, caption, w, h);
     }
 
+    @Deprecated
     private static ComboBox<Integer> comboBox(List<Integer> items,
                                               ItemCaptionGenerator<Integer> caption,
                                               Integer w, Integer h) {
@@ -161,6 +150,7 @@ public class UIComponents {
         return comboBox;
     }
 
+    @Deprecated
     public static CheckBox checkBox(Boolean value, String caption, Boolean isReadOnly){
         CheckBox checkBox = checkBox(value);
         checkBox.setReadOnly(isReadOnly);
@@ -168,18 +158,21 @@ public class UIComponents {
         return checkBox;
     }
 
+    @Deprecated
     public static CheckBox checkBox(Boolean value, String caption){
         CheckBox checkBox = checkBox(value);
         checkBox.setCaption(caption);
         return checkBox;
     }
 
+    @Deprecated
     public static CheckBox checkBox(Boolean value, Boolean isReadOnly){
         CheckBox checkBox = checkBox(value);
         checkBox.setReadOnly(isReadOnly);
         return checkBox;
     }
 
+    @Deprecated
     public static CheckBox checkBox(Boolean value) {
         CheckBox checkBox = new CheckBox();
         checkBox.setValue(value);
@@ -315,10 +308,6 @@ public class UIComponents {
         return textArea;
     }
 
-    public static TextArea textArea(int w, int h) {
-        return textArea("", Integer.toString(w), Integer.toString(h));
-    }
-
     public static NumberField numberField(String w, String h) {
         NumberField numberField = new NumberField();
         numberField.setHeight(h);
@@ -326,44 +315,43 @@ public class UIComponents {
         return numberField;
     }
 
-    public static DateField dateField() {
-        DateField dateField = new DateField();
+    public static CustomDateField dateField() {
+        CustomDateField dateField = new CustomDateField();
         dateField.setDateFormat("dd/MM/yy");
         return dateField;
     }
 
-    public static DateField dateField(int w, int h) {
+    public static CustomDateField dateField(int w, int h) {
         return dateField(String.valueOf(w),String.valueOf(h));
     }
 
-    public static DateField dateField(String w, String h) {
-        DateField dateField = dateField();
+    public static CustomDateField dateField(String w, String h) {
+        CustomDateField dateField = dateField();
         dateField.setHeight(h);
         dateField.setWidth(w);
         return dateField;
     }
 
-    public static DateField dateField(int h) {
-        return dateField(String.valueOf(h));
-    }
-
-    private static DateField dateField(String h) {
-        DateField dateField = dateField();
+    private static CustomDateField dateField(String h) {
+        CustomDateField dateField = dateField();
         dateField.setHeight(h);
         return dateField;
     }
 
+    @Deprecated
     public static ValueProvider<Component, Boolean> BooleanValueProvider() {
-        return(ValueProvider<Component, Boolean>) component -> {
+        return component -> {
             CheckBox checkBox =(CheckBox) component;
             return checkBox.getValue();
         };
     }
 
+    @Deprecated
     public static SerializableBiPredicate<Boolean,Boolean> BooleanPredicate() {
         return(SerializableBiPredicate<Boolean, Boolean>) Boolean::equals;
     }
 
+    @Deprecated
     public static SerializableBiPredicate<Boolean,Boolean> BooleanPredicateWithShowAll() {
         return(SerializableBiPredicate<Boolean, Boolean>)(aBoolean, aBoolean2) -> {
             if (!aBoolean2)
@@ -373,14 +361,17 @@ public class UIComponents {
         };
     }
 
+    @Deprecated
     public static SerializableBiPredicate<LocalDate,LocalDate> dateFilter() {
         return((v, fv) -> fv == null || v.isEqual(fv));
     }
 
+    @Deprecated
     public static SerializableBiPredicate<String,String> stringFilter() {
         return(InMemoryFilter.StringComparator.containsIgnoreCase());
     }
 
+    @Deprecated
     public static SerializableBiPredicate<Integer, String> integerFilter() {
         return(InMemoryFilter.StringComparator.containsIgnoreCase());
     }

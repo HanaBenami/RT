@@ -103,3 +103,10 @@ CREATE VIEW v_opencall AS SELECT TOP 1000 call.ID, call.custID, call.siteID, cal
 DROP TABLE IF EXISTS vehicle;
 CREATE TABLE vehicle (id int IDENTITY(1, 1) NOT NULL, name text NOT NULL DEFAULT '', active bit NOT NULL DEFAULT 1, siteID int DEFAULT 0, typeID int DEFAULT 0, model text NOT NULL DEFAULT '', series text NOT NULL DEFAULT '', zama int DEFAULT 0, license int DEFAULT 0, engineHours int DEFAULT 0, lastUpdate date DEFAULT '1901-01-01');
 insert into vehicle (name, typeID, siteId) select distinct cast(carType.name as varchar(200)), carType.id, siteId from call join carType on carType.id=call.carTypeID
+
+
+DROP VIEW v_opencall;
+ALTER TABLE call ADD vehicleId int DEFAULT 0;
+CREATE VIEW v_opencall AS SELECT TOP 1000 call.ID, call.custID, call.siteID, call.contactID, call.carTypeID, call.vehicleId, call.callTypeID, call.Notes, call.startdate, call.date1, call.date2, call.enddate, call.meeting, call.done, call.here, call.driverID, call.workOrder, call.descr, site.areaID, call.deleted, call.userId FROM call INNER JOIN site ON call.siteID = site.ID WHERE call.done = 0 AND call.deleted = 0 ORDER BY call.date2;
+SET ANSI_NULLS, QUOTED_IDENTIFIER ON
+update call set call.vehicleId=vehicle.id from call join vehicle on vehicle.typeID=call.carTypeID and vehicle.siteID=call.siteID

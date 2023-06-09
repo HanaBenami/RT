@@ -1,8 +1,10 @@
 package il.co.rtcohen.rt.dal.dao;
 
 import il.co.rtcohen.rt.app.LanguageSettings;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 
-public class Customer extends AbstractTypeWithNameAndActiveFields {
+public class Customer extends AbstractTypeWithNameAndActiveFields implements BindRepository<Customer> {
     static {
         setDbTableName("cust");
         setObjectName("customer");

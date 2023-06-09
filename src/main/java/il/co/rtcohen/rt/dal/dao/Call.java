@@ -1,238 +1,234 @@
 package il.co.rtcohen.rt.dal.dao;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
+import il.co.rtcohen.rt.utils.Date;
 
 public class Call extends AbstractType implements BindRepository<Call> {
-    final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    final static public String nullDateString = "1901-01-01";
-    final static public LocalDate nullDate = LocalDate.parse(nullDateString, dateFormatter);
-
-    private int customerId;
-    private int siteId;
-    private String description;
-    private int carTypeId;
-    private int vehicleId;
-    private int callTypeId;
-    private String notes;
-    private String startDate, date1, date2, endDate, preDate2;
-    private boolean meeting, done, here, deleted;
-    private int driverID, order, preDriverId, preOrder;
-    private int userId;
+    private Customer customer;
+    private Site site;
+    private Vehicle vehicle;
+    private CallType callType;
+    private String description = "";
+    private String notes = "";
+    private Date startDate, planningDate, currentScheduledDate, previousScheduledDate, endDate;
+    private int currentScheduledOrder, previousScheduledOrder;
+    private Driver currentDriver, previousDriver;
+    private boolean meeting, isDone, isHere, isDeleted;
+    private User user;
 
     public Call() {
-        this(0,0,0,"",0,0,"",
-                nullDateString,nullDateString,nullDateString,nullDateString,
-                false,false,false,false,0,0, 0);
+        super(0);
     }
 
-    public Call(int userId) {
-        this(0,0,0,"",0,0,"",
-                nullDateString,nullDateString,nullDateString,nullDateString,
-                false,false,false,false,0,0, userId);
-    }
-
-    public Call(int id, int customerId, int siteId, String description, int vehicleId, int callTypeId, String notes, String startDate, String date1,
-                String date2, String endDate, boolean meeting, boolean done, boolean deleted, boolean here, int driverID, int order, int userId) {
+    public Call(
+            Integer id,
+            Customer customer,
+            Site site,
+            Vehicle vehicle,
+            CallType callType,
+            String description,
+            String notes,
+            Date startDate,
+            Date planningDate,
+            Date currentScheduledDate,
+            Date endDate,
+            int currentScheduledOrder,
+            Driver currentDriver,
+            boolean isMeeting,
+            boolean isDone,
+            boolean isHere,
+            boolean isDeleted,
+            User user
+    ) {
         super(id);
-        this.customerId = customerId;
-        this.siteId = siteId;
+        this.customer = customer;
+        this.site = site;
+        this.vehicle = vehicle;
+        this.callType = callType;
         this.description = description;
-        this.vehicleId = vehicleId;
-        this.callTypeId = callTypeId;
         this.notes = notes;
         this.startDate = startDate;
-        this.date1 = date1;
-        this.date2 = date2;
+        this.planningDate = planningDate;
+        this.currentScheduledDate = currentScheduledDate;
+        this.previousScheduledDate = currentScheduledDate;
         this.endDate = endDate;
-        this.meeting = meeting;
-        this.done = done;
-        this.deleted = deleted;
-        this.here = here;
-        this.driverID = driverID;
-        this.order = order;
-        this.preDate2 = this.date2;
-        this.preDriverId = this.driverID;
-        this.preOrder = this.order;
-        this.userId = userId;
+        this.currentScheduledOrder = currentScheduledOrder;
+        this.previousScheduledOrder = currentScheduledOrder;
+        this.currentDriver = currentDriver;
+        this.previousDriver = currentDriver;
+        this.meeting = isMeeting;
+        this.isDone = isDone;
+        this.isHere = isHere;
+        this.isDeleted = isDeleted;
+        this.user = user;
     }
 
-    public void setCustomerId(Integer newCustomerId) {
-        if (newCustomerId != this.customerId) {
-            this.customerId = newCustomerId;
-            this.siteId = 0;
-        }
+    public Customer getCustomer() {
+        return this.customer;
     }
 
-    private String dateCheck(LocalDate date) {
-        if (date == null)
-            return nullDateString;
-        else
-            return date.format(dateFormatter);
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
-    public void setDate2(LocalDate date) {
-        this.date2 = dateCheck(date);
+    public Site getSite() {
+        return site;
     }
 
-    public void setPreDate2(LocalDate date) {
-        this.preDate2 = dateCheck(date);
+    public void setSite(Site site) {
+        this.site = site;
     }
 
-    public void setDate1(LocalDate date) {
-        this.date1 = dateCheck(date);
+    public Vehicle getVehicle() {
+        return vehicle;
     }
 
-    public void setStartDate(LocalDate date) {
-        this.startDate = dateCheck(date);
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 
-    public void setEndDate(LocalDate date) {
-        this.endDate = dateCheck(date);
-        this.done = !nullDateString.equals(this.endDate);
+    public CallType getCallType() {
+        return callType;
     }
 
-    public void setDeleted() {
-        setDeleted(true);
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-        if (deleted) {
-            setEndDate(LocalDate.now());
-        }
-    }
-
-    public void setDescription(String newDescription) {
-        this.description = newDescription;
-    }
-
-    public void setSiteId(int newSite) {
-        this.siteId = newSite;
-    }
-
-    public void setDriverID(int newDriver) {
-        this.driverID = newDriver;
-    }
-
-    public void setPreDriverId(int driver) {
-        this.preDriverId = driver;
-    }
-
-    public void setVehicleId(int vehicleId) {
-        this.vehicleId = vehicleId;
-    }
-
-    public void setCallTypeId(int newCallType) {
-        this.callTypeId = newCallType;
-    }
-
-    public void setHere(boolean here) {
-        this.here = here;
-    }
-
-    public void setMeeting(boolean meeting) {
-        this.meeting = meeting;
-    }
-
-    public void setOrder(int newOrder) {
-        this.order = newOrder;
-    }
-
-    public void setPreOrder(int order) {
-        this.preOrder = order;
-    }
-
-    public void setNotes(String newNotes) {
-        this.notes = newNotes;
-    }
-
-    public void setUserId(int newUser) {
-        this.userId = newUser;
-    }
-
-    public int getCustomerId() {
-        return customerId;
-    }
-
-    public int getSiteId() {
-        return siteId;
+    public void setCallType(CallType callType) {
+        this.callType = callType;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public int getCarTypeId() {
-        return carTypeId;
-    }
-
-    public int getVehicleId() {
-        return this.vehicleId;
-    }
-
-    public int getCallTypeId() {
-        return callTypeId;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getNotes() {
         return notes;
     }
 
-    public LocalDate getStartDate() {
-        return LocalDate.parse(startDate, dateFormatter);
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
-    public LocalDate getDate1() {
-        return LocalDate.parse(date1, dateFormatter);
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public LocalDate getDate2() {
-        return LocalDate.parse(date2, dateFormatter);
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public LocalDate getPreDate2() {
-        return LocalDate.parse(preDate2, dateFormatter);
+    public Date getPlanningDate() {
+        return planningDate;
     }
 
-    public LocalDate getEndDate() {
-        return LocalDate.parse(endDate, dateFormatter);
+    public void setPlanningDate(Date planningDate) {
+        this.planningDate = planningDate;
+    }
+
+    public Date getCurrentScheduledDate() {
+        return currentScheduledDate;
+    }
+
+    public void setCurrentScheduledDate(Date currentScheduledDate) {
+        this.currentScheduledDate = currentScheduledDate;
+    }
+
+    public Date getPreviousScheduledDate() {
+        return previousScheduledDate;
+    }
+
+    public void setPreviousScheduledDate(Date previousScheduledDate) {
+        this.previousScheduledDate = previousScheduledDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public int getCurrentScheduledOrder() {
+        return currentScheduledOrder;
+    }
+
+    public void setCurrentScheduledOrder(int currentScheduledOrder) {
+        this.currentScheduledOrder = currentScheduledOrder;
+    }
+
+    public int getPreviousScheduledOrder() {
+        return previousScheduledOrder;
+    }
+
+    public void setPreviousScheduledOrder(int previousScheduledOrder) {
+        this.previousScheduledOrder = previousScheduledOrder;
+    }
+
+    public Driver getCurrentDriver() {
+        return currentDriver;
+    }
+
+    public void setCurrentDriver(Driver currentDriver) {
+        this.currentDriver = currentDriver;
+    }
+
+    public Driver getPreviousDriver() {
+        return previousDriver;
+    }
+
+    public void setPreviousDriver(Driver previousDriver) {
+        this.previousDriver = previousDriver;
     }
 
     public boolean isMeeting() {
         return meeting;
     }
 
-    public boolean isDone() {
-        return done;
+    public void setMeeting(boolean meeting) {
+        this.meeting = meeting;
     }
 
-    public boolean isDeleted() {
-        return deleted;
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone(boolean done) {
+        isDone = done;
     }
 
     public boolean isHere() {
-        return here;
+        return isHere;
     }
 
-    public int getDriverId() {
-        return driverID;
+    public void setHere(boolean isHere) {
+        if (isHere && !this.isHere) {
+            this.setCurrentDriver(null);
+            this.setCurrentScheduledDate(null);
+        }
+        this.isHere = isHere;
     }
 
-    public int getPreDriverId() {
-        return preDriverId;
+    public boolean isDeleted() {
+        return isDeleted;
     }
 
-    public int getOrder() {
-        return order;
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
-    public int getPreOrder() {
-        return preOrder;
+    public User getUser() {
+        return user;
     }
 
-    public int getUserId() {
-        return userId;
+    public void setUser(User user) {
+        this.user = user;
     }
+
+    @Override
+    public void postSave() {}; // TODO instead of call service
 
 }

@@ -1,15 +1,13 @@
 package il.co.rtcohen.rt.app.grids;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.server.Setter;
-import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
-import il.co.rtcohen.rt.dal.repositories.*;
-
 import java.util.function.Supplier;
 
+import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+
 public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields> extends AbstractTypeFilterGrid<T> {
+    private final String NAME_COLUMN_ID = "nameColumn";
 
     public AbstractTypeWithNameAndActiveFieldsGrid(
             AbstractTypeWithNameAndActiveFieldsRepository<T> abstractTypeWithNameAndActiveFieldsRepository,
@@ -23,6 +21,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
                 null
         );
         this.initGrid();
+        this.setCustomSortColumnId(NAME_COLUMN_ID);
     }
 
     protected void addColumns() {
@@ -31,14 +30,14 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
         addIdColumn();
     }
 
-    private void addActiveColumn() {
-        this.addBooleanColumn(
-                (ValueProvider<T, Component>) GeneralObject -> UIComponents.checkBox(GeneralObject.isActive(),true),
-                (ValueProvider<T, Boolean>) T::isActive,
-                (Setter<T, Boolean>) T::setActive,
+    protected void addActiveColumn() {
+        CustomCheckBoxColumn.addToGrid(
+                T::isActive,
+                T::setActive,
                 "activeColumn",
                 "active",
-                Boolean.TRUE
+                Boolean.TRUE,
+                this
         );
     }
 
@@ -47,7 +46,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
                 T::getName,
                 T::setName,
                 230,
-                "nameColumn",
+                NAME_COLUMN_ID,
                 "name"
         );
     }

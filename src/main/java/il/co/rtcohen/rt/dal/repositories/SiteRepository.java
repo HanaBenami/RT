@@ -1,7 +1,8 @@
 package il.co.rtcohen.rt.dal.repositories;
 import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.Site;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
@@ -47,26 +48,26 @@ public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepositor
     }
 
     @Override
-    protected int updateItemDetailsInStatement(PreparedStatement stmt, Site site) throws SQLException {
-        int fieldsCounter = super.updateItemDetailsInStatement(stmt, site);
+    protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Site site) throws SQLException {
+        int fieldsCounter = super.updateItemDetailsInStatement(preparedStatement, site);
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, site.getCustomer().getId());
+        preparedStatement.setInt(fieldsCounter, site.getCustomer().getId());
         fieldsCounter++;
-        stmt.setInt(fieldsCounter, site.getArea().getId());
+        preparedStatement.setInt(fieldsCounter, site.getArea().getId());
         fieldsCounter++;
-        stmt.setString(fieldsCounter, site.getAddress());
+        preparedStatement.setString(fieldsCounter, site.getAddress());
         fieldsCounter++;
-        stmt.setString(fieldsCounter, site.getNotes());
+        preparedStatement.setString(fieldsCounter, site.getNotes());
         return fieldsCounter;
     }
 
-    public List<Site> getItems(boolean onlyActiveItems) {
+    public List<Site> getItems(boolean onlyActiveItems) throws SQLException {
         List<Site> list = this.getItems();
         list.removeIf(generalObject -> !generalObject.isActive());
         return list;
     }
 
-    public List<Site> getItems(Customer customer) {
+    public List<Site> getItems(Customer customer) throws SQLException {
         List<Site> list = this.getItems();
         list.removeIf(site -> (null == site.getCustomer() || !site.getCustomer().getId().equals(customer.getId())));
         return list;
@@ -79,7 +80,7 @@ public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepositor
 
 
     @Deprecated
-    public List<Site> getSitesByCustomer(Integer customerId) {
+    public List<Site> getSitesByCustomer(Integer customerId) throws SQLException {
         List<Site> list = new ArrayList<>();
         List<Integer> id = getIdByCustomer(customerId,false);
         for (Integer i : id)
@@ -88,12 +89,12 @@ public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepositor
     }
 
     @Deprecated
-    public List<Integer> getActiveIdByCustomer(Integer customerId) {
+    public List<Integer> getActiveIdByCustomer(Integer customerId) throws SQLException {
         return getIdByCustomer(customerId,true);
     }
 
     @Deprecated
-    private List<Integer> getIdByCustomer(Integer customerId, boolean active) {
+    private List<Integer> getIdByCustomer(Integer customerId, boolean active) throws SQLException {
         if (customerId>0) {
             if (active)
                 return getActiveByCustomer(customerId);
@@ -105,21 +106,21 @@ public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepositor
     }
 
     @Deprecated
-    private List<Integer> getByCustomer(Integer customerId) {
+    private List<Integer> getByCustomer(Integer customerId) throws SQLException {
         List<Site> list = this.getItems();
         list.removeIf(site -> null == site.getCustomer() || !site.getCustomer().getId().equals(customerId));
         return list.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
     }
 
     @Deprecated
-    private List<Integer> getActiveByCustomer(Integer customerId) {
+    private List<Integer> getActiveByCustomer(Integer customerId) throws SQLException {
         List<Site> list = this.getItems();
         list.removeIf(site -> null == site.getCustomer() || !site.getCustomer().getId().equals(customerId) && site.isActive());
         return list.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
     }
 
     @Deprecated
-    private List<Integer> getActive() {
+    private List<Integer> getActive() throws SQLException {
         return getItems(true).stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
     }
 

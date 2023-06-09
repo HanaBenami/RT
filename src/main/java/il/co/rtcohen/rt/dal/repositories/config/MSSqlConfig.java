@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.dal;
+package il.co.rtcohen.rt.dal.repositories.config;
 
 import org.apache.commons.dbcp2.*;
 import org.apache.commons.pool2.ObjectPool;

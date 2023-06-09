@@ -1,7 +1,5 @@
 package il.co.rtcohen.rt.dal.repositories;
-import il.co.rtcohen.rt.dal.dao.AbstractTypeWithNameAndActiveFields;
-import il.co.rtcohen.rt.dal.InsertException;
-import il.co.rtcohen.rt.dal.UpdateException;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +32,8 @@ public class GeneralRepository {
         List<AbstractTypeWithNameAndActiveFields> list = new ArrayList<>();
         String sql = "SELECT * FROM " + table + (activeOnly ? " WHERE active=1" : "");
         try (Connection con = dataSource.getConnection();
-            PreparedStatement stmt = con.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 list.add(new AbstractTypeWithNameAndActiveFields(rs.getInt("id"),
                         rs.getString("name"),
@@ -51,22 +49,8 @@ public class GeneralRepository {
         }
     }
 
-    public int getIdByName(String table, String name) {
-        List<AbstractTypeWithNameAndActiveFields> list = getNames(table);
-        for (AbstractTypeWithNameAndActiveFields obj : list) {
-            if (obj.getName().equals(name)) {
-                return obj.getId();
-            }
-        }
-        return -1;
-    }
-
     public List<Integer> getActiveId(String table) {
         return getIds(table, true);
-    }
-
-    public List<Integer> getIds(String table) {
-        return getIds(table, false);
     }
 
     public List<Integer> getIds(String table, boolean onlyActive) {
@@ -78,8 +62,8 @@ public class GeneralRepository {
         String sql = "SELECT * FROM " + table
                 + (onlyActive ? " where active=1" : "")
                 + (null != additionalWhere ? (onlyActive ? " and " : " where ") + additionalWhere : "");
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (Connection con = dataSource.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 list.add(rs.getInt("id"));
             }
@@ -102,8 +86,8 @@ public class GeneralRepository {
                 + (null != additionalWhere ? " and " + additionalWhere : "");
         if (id==0)
             return "";
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (Connection con = dataSource.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+            ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
                 return rs.getString("name");
             }
@@ -116,51 +100,5 @@ public class GeneralRepository {
             throw new DataRetrievalFailureException("error in getNameById: ",e);
         }
     }
-
-    public long insertName (String name,String table) {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement stmt = con.prepareStatement("insert into "+table+" (name,active) values (?,1)",
-                     Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1,name);
-            int n=stmt.executeUpdate();
-            if (n == 0) {
-                throw new SQLException("no record has been created");
-            }
-            else if (n > 1) {
-                throw new SQLException("more than one record has been created");
-            }
-            else {
-                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        long id = generatedKeys.getLong(1);
-                        log.info("new record has been insert to table "+table+" (id="+id+")");
-                        return id;
-                    }
-                    throw new SQLException("error getting the new key");
-                }
-            }
-        }
-        catch (SQLException e) {
-            log.error("error in insertName (\""+name+"\") to table + "+table+": ",e);
-            throw new InsertException("error in insertName (\""+name+"\") to table + "+table+":",e);
-        }
-    }
-
-    public int update(AbstractTypeWithNameAndActiveFields x) {
-        try (Connection con = dataSource.getConnection(); PreparedStatement stmt = con.prepareStatement
-                ("update "+x.getDbTableName()+" set name=?, active=? where id=?")) {
-            stmt.setString(1,x.getName());
-            stmt.setBoolean(2,x.isActive());
-            stmt.setInt(3,x.getId());
-            int n=stmt.executeUpdate();
-            log.info("Update "+x.getDbTableName()+" where id="+x.getId()+" > "+n+" records has been updated");
-            return n;
-        }
-        catch (SQLException e) {
-            log.error("error in update generalType (\"id=\"+x.getId()+\", table=\"+x.getTable())",e);
-            throw new UpdateException("error in update generalType (\"id=\"+x.getId()+\", table=\"+x.getTable())",e);
-        }
-    }
-
 }
 

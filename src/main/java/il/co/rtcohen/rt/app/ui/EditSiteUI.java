@@ -9,11 +9,13 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
+import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 @Deprecated
@@ -125,7 +127,11 @@ public class EditSiteUI extends AbstractEditUI {
         contactsGrid.setColumns("notes", "phone", "name");
         contactsGrid.setWidth("400");
         contactsGrid.setHeightByRows(3);
-        contactsGrid.setItems(contactRepository.getContactsBySite(selectedId));
+        try {
+            contactsGrid.setItems(contactRepository.getContactsBySite(selectedId));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         layout.addComponent(contactsGrid,0,4, 2,4);
     }
 
@@ -189,16 +195,20 @@ public class EditSiteUI extends AbstractEditUI {
 
     @Override
     void deleteCurrentId() {
-        if (callRepository.getCallsBySite(site.getId()).size()>0) {
-            Notification.show(LanguageSettings.getLocaleString("siteWithCallsDeleteError"),
-                    "", Notification.Type.ERROR_MESSAGE);
-        } else {
-            int n = siteRepository.deleteSite(site.getId());
-            if (n == 1) {
-                Notification.show(LanguageSettings.getLocaleString("siteDeleted"),
-                        "", Notification.Type.WARNING_MESSAGE);
-                closeWindow();
+        try {
+            if (callRepository.getCallsBySite(site.getId()).size()>0) {
+                Notification.show(LanguageSettings.getLocaleString("siteWithCallsDeleteError"),
+                        "", Notification.Type.ERROR_MESSAGE);
+            } else {
+                int n = siteRepository.deleteSite(site.getId());
+                if (n == 1) {
+                    Notification.show(LanguageSettings.getLocaleString("siteDeleted"),
+                            "", Notification.Type.WARNING_MESSAGE);
+                    closeWindow();
+                }
             }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 

@@ -1,23 +1,21 @@
 package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
 import com.vaadin.shared.data.sort.SortDirection;
-import com.vaadin.shared.ui.grid.ScrollDestination;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.UiComponents.UIComponents;
-import il.co.rtcohen.rt.dal.dao.AbstractType;
-import il.co.rtcohen.rt.dal.repositories.AbstractTypeRepository;
-import il.co.rtcohen.rt.dal.repositories.GeneralObjectRepository;
+import il.co.rtcohen.rt.app.uiComponents.CustomNumericColumn;
+import il.co.rtcohen.rt.app.uiComponents.UIComponents;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.ui.NumberField;
 
-import java.time.LocalDate;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -35,8 +33,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
 
     private int itemsCounter;
     private List<T> gridItems;
-    private TextField filterIdField;
-    private String idFieldId = "idColumn";
+    private String customSortColumnId = null;
+    private final HashMap<String, TextField> filterFields = new HashMap<>();
+    public final String idColumnId = "idColumn";
 
     public AbstractTypeFilterGrid(AbstractTypeRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
                                   Predicate<T> itemsFilterPredicate) {
@@ -59,7 +58,19 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
     abstract protected void addColumns();
 
     protected void sort() {
-        this.sort("nameColumn", SortDirection.ASCENDING);
+        this.sort((null == getCustomSortColumnId() ? idColumnId : getCustomSortColumnId()), SortDirection.ASCENDING);
+    }
+
+    public void setFilterField(String columnId, TextField filterField) {
+        this.filterFields.put(columnId, filterField);
+    }
+
+    public String getCustomSortColumnId() {
+        return customSortColumnId;
+    }
+
+    public void setCustomSortColumnId(String customSortColumnId) {
+        this.customSortColumnId = customSortColumnId;
     }
 
     protected void setStyle() {
@@ -86,7 +97,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         this.newItemSupplier = newItemSupplier;
     }
 
-    private void setTitleKey(String titleKey) {
+    protected void setTitleKey(String titleKey) {
         this.titleKey = titleKey;
     }
 
@@ -147,12 +158,21 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         editor.setCancelCaption(LanguageSettings.getLocaleString("cancel"));
     }
 
+    protected List<T> getItems() {
+        try {
+            return mainRepository.getItems();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
     public void populateGrid() {
         populateGrid(0);
     }
 
     private void populateGrid(int numOfEmptyLines) {
-        gridItems = mainRepository.getItems();
+        gridItems = getItems();
         if (null != this.itemsFilterPredicate) {
             gridItems.removeIf(itemsFilterPredicate);
         }
@@ -174,62 +194,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         }
     }
 
-    // Usage:
-    //         customerGrid.addBooleanColumn(
-    //                 (ValueProvider<Customer, Component>) Customer -> UIComponents.checkBox(Customer.isActive(),true),
-    //            (ValueProvider<Customer, Boolean>) GeneralObject::isActive,
-    //            (Setter<Customer, Boolean>) GeneralObject::setActive,
-    //            "activeColumn",
-    //            "active",
-    //            Boolean.TRUE
-    //         );
-    public void addBooleanColumn(ValueProvider<T, Component> componentProvider,
-                                 ValueProvider<T, Boolean> valueProvider,
-                                 Setter<T, Boolean> setter,
-                                 String id, String label, Boolean defaultFilter) {
-        FilterGrid.Column<T, Component> column = this.addComponentColumn(componentProvider);
-        column.setId(id).setExpandRatio(1).setWidth(50).setResizable(true).setSortable(false).setHidable(true);
-        column.setEditorBinding(this.getEditor().getBinder().forField(new CheckBox()).bind(valueProvider, setter));
-        if (null != defaultFilter) {
-            CheckBox filterCheckBox = new CheckBox();
-            filterCheckBox.setValue(defaultFilter);
-            column.setFilter(UIComponents.BooleanValueProvider(), filterCheckBox, UIComponents.BooleanPredicate());
-        }
-        this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
-    }
-
-    // Usage:
-    //        this.addDateColumn(
-    //            (ValueProvider<Vehicle, LocalDate>) Vehicle::getLastUpdate,
-    //            (Setter<Vehicle, Boolean>) Vehicle::setLastUpdate,
-    //            "lastUpdateColumn",
-    //            "lastUpdate",
-    //            false
-    //        );
-    public void addDateColumn(ValueProvider<T, LocalDate> valueProvider,
-                              Setter<T, LocalDate> setter,
-                              String id, String label,
-                              boolean editable) {
-        FilterGrid.Column<T, LocalDate> column = this.addColumn(
-                valueProvider,
-                UIComponents.dateRenderer()
-        );
-        column.setEditorBinding(this.getEditor().getBinder().forField(UIComponents.dateField()).bind(valueProvider, setter));
-        column.setId(id).setExpandRatio(1).setWidth(130).setResizable(true).setSortable(true).setEditable(editable).setHidable(true);
-        DateField filterField = UIComponents.dateField(30);
-        filterField.setWidth("95%");
-        column.setFilter(filterField, UIComponents.dateFilter());
-        this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
-    }
-
-    // Usage:
-    //    customerGrid.addTextColumn(
-    //        Customer::getName,
-    //        Customer::setName,
-    //        230,
-    //        "nameColumn",
-    //        "name"
-    //    );
+    // TODO: Move to UiComponents
     public Column<T, String> addTextColumn(ValueProvider<T, String> valueProvider,
                                            Setter<T, String> setter,
                                            int width, String id, String label) {
@@ -237,8 +202,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         column.setId(id).setExpandRatio(1).setResizable(true).setMinimumWidth(width).setHidable(true);
         TextField textField = new TextField();
         textField.setWidth(2 * width, Unit.PIXELS);
-        column.setEditorComponent(textField, setter);
-
+        if (null != setter) {
+            column.setEditorComponent(textField, setter);
+        }
         TextField filterField = UIComponents.textField(30);
         filterField.setWidth("95%");
         column.setFilter(filterField, UIComponents.stringFilter());
@@ -247,92 +213,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         return column;
     }
 
-    // Usage:
-    //    customerGrid.addTextColumn(
-    //        Customer::getName,
-    //        Customer::setName,
-    //        80,
-    //        "nameColumn",
-    //        "name"
-    //    );
-    public void addNumericColumn(ValueProvider<T, Integer> valueProvider,
-                                 Setter<T, Integer> setter,
-                                 int width, String id, String label) {
-        FilterGrid.Column<T, Integer> column = this.addColumn(valueProvider);
-        column.setId(id).setExpandRatio(1).setResizable(true).setWidth(width).setHidable(true);
-        if (null != setter) {
-            TextField numericField = UIComponents.textField(30);
-            column.setEditorBinding(this.getEditor().getBinder().forField(numericField).bind(
-                    t -> {
-                        Integer value = valueProvider.apply(t);
-                        return (null == value ? "0" : value.toString());
-                    },
-                    (Setter<T, String>) (t, value) -> setter.accept(t, (null == value || value.isEmpty() ? 0 : Integer.parseInt(value)))
-            ));
-        }
-
-        TextField filterField = UIComponents.textField(30);
-        filterField.setWidth("95%");
-        column.setFilter(filterField, UIComponents.integerFilter());
-        if (idFieldId.equals(id)) {
-            filterIdField = filterField;
-        }
-
-        this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
-    }
-
-    // Usage:
-    //        customerGrid.addComboBoxColumn(
-    //            customerTypeRepository,
-    //            "custType",
-    //            (ValueProvider<Customer, String>) Customer -> customerTypeRepository.getItem(Customer.getCustomerTypeID()).getName(),
-    //                (ValueProvider<Integer, String>) id -> customerTypeRepository.getItem(id).getName(),
-    //                (ValueProvider<Customer, Integer>) Customer::getCustomerTypeID,
-    //            (Setter<Customer, Integer>) Customer::setCustomerTypeID,
-    //            130,
-    //            "custTypeColumn",
-    //            "custType"
-    //        );
-    // TODO: replace all w/ CustomComboBox
-    public void addComboBoxColumn(GeneralObjectRepository generalObjectRepository,
-                                  String dbTableName,
-                                  ValueProvider<T, String> stringValueProvider,
-                                  ValueProvider<Integer, String> stringValueProviderById,
-                                  ValueProvider<T, Integer> idValueProvider,
-                                  Setter<T, Integer> setter,
-                                  int width, String id, String label) {
-        ComboBox<Integer> comboBox = new UIComponents().generalObjectComboBox(generalObjectRepository, dbTableName, width,30);
-        comboBox.setEmptySelectionAllowed(false);
-
-        FilterGrid.Column<T, String> column = this.addColumn(stringValueProvider).setId(id);
-        column.setEditorBinding(this.getEditor().getBinder().forField(comboBox).bind(idValueProvider, setter));
-        column.setWidth(width).setExpandRatio(1).setResizable(true).setHidable(true);
-
-        ComboBox<Integer> filterComboBox = new UIComponents().generalObjectComboBox(generalObjectRepository, dbTableName, 2 * width,30);
-        filterComboBox.setWidth("95%");
-        column.setFilter((filterComboBox),
-                (cValue, fValue) -> fValue == null || stringValueProviderById.apply(fValue).equals(cValue));
-
-        this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
-    }
-
-    // Usage:
-    //         customerGrid.addComponentColumn(
-    //                (ValueProvider<Customer, Component>) Customer -> {
-    //                    if (null == Customer.getId()) {
-    //                        return null;
-    //                    } else {
-    //                        int openCallsCounter = callRepository.countActiveCallsByCustomer(Customer.getId());
-    //                        Button callsButton = CustomFilterGrid.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
-    //                        callsButton.addClickListener(clickEvent ->
-    //                                getUI().getNavigator().navigateTo("call/customer=" + Customer.getId()));
-    //                        return callsButton;
-    //                    }
-    //                },
-    //                85,
-    //                "callsColumn",
-    //                "calls"
-    //        );
+    // TODO: Move to UiComponents
     public FilterGrid.Column<T, Component> addComponentColumn(ValueProvider<T, Component> componentProvider,
                                    int width, String id, String label) {
         FilterGrid.Column<T, Component> column = this.addComponentColumn(componentProvider);
@@ -342,25 +223,17 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
     }
 
     protected void addIdColumn() {
-        this.addNumericColumn(
+        CustomNumericColumn.addToGrid(
                 T::getId,
                 null,
                 70,
-                idFieldId,
-                "id"
+                idColumnId,
+                "id",
+                false,
+                true,
+                true,
+                this
         );
-    }
-
-    public static Button countingIcon(VaadinIcons zeroIcon, VaadinIcons oneIcon, VaadinIcons multipleIcon, int n) {
-        Button button = UIComponents.gridSmallButton(zeroIcon);
-        if (1 == n) {
-            button.setCaption(String.valueOf((n)));
-            button.setIcon(oneIcon);
-        } else if (1 < n) {
-            button.setCaption(String.valueOf((n)));
-            button.setIcon(multipleIcon);
-        }
-        return button;
     }
 
     public VerticalLayout getVerticalLayout() {
@@ -430,13 +303,12 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
 
     public void setSelected(int selectedItemId) {
         if (0 != selectedItemId) {
-            if (null != filterIdField) {
-                filterIdField.setValue(String.valueOf(selectedItemId));
+            if (null != filterFields.get(idColumnId)) {
+                filterFields.get(idColumnId).setValue(String.valueOf(selectedItemId));
             }
             T item = mainRepository.getItem(selectedItemId);
             if (null != item && gridItems.contains(item)) {
                 this.getSelectionModel().select(item);
-//                this.scrollTo(gridItems.indexOf(item), ScrollDestination.START); // TODO: Make it works. Currently the index in the list isn't the index in he grid, so it causes an error: Row outside dataProvider size
             }
         }
     }
