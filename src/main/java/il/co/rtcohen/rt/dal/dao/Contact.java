@@ -5,7 +5,6 @@ import il.co.rtcohen.rt.dal.dao.interfaces.Nameable;
 
 public class Contact extends AbstractTypeWithNameAndActiveFields implements Nameable {
     static {
-        setDbTableName("contact");
         setObjectName("contact");
     }
 

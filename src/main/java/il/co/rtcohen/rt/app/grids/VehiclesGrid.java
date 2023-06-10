@@ -1,19 +1,26 @@
 package il.co.rtcohen.rt.app.grids;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.ui.Component;
+import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
+import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
 
 public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     private final Site site;
     private final VehicleTypeRepository vehicleTypeRepository;
+    private final CallRepository callRepository;
 
     public VehiclesGrid(Site site,
                         VehicleRepository vehicleRepository,
-                        VehicleTypeRepository vehicleTypeRepository) {
+                        VehicleTypeRepository vehicleTypeRepository,
+                        CallRepository callRepository) {
         super(vehicleRepository, () -> {
                     Vehicle vehicle = new Vehicle();
                     vehicle.setSite(site);
@@ -23,6 +30,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 vehicle -> null == site || null == vehicle.getSite() || !vehicle.getSite().equals(site));
         this.site = site;
         this.vehicleTypeRepository = vehicleTypeRepository;
+        this.callRepository = callRepository;
         this.initGrid();
     }
 
@@ -49,6 +57,8 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
 
     protected void addColumns() {
         addActiveColumn();
+        addAddingCallColumn();
+        addCallsColumn();
         addLastUpdateColumn();
         addLicenseColumn();
         addZamaColumn();
@@ -67,6 +77,30 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 "active",
                 Boolean.TRUE,
                 this
+        );
+    }
+
+    private void addAddingCallColumn() {
+        Column<Vehicle, Component> column = this.addComponentColumn(
+                vehicle -> new CustomButton(
+                        VaadinIcons.PLUS,
+                        false,
+                        UIPaths.EDITCALL.getEditCallPath(null, null, vehicle),
+                        UIPaths.EDITCALL.getWindowHeight(),
+                        UIPaths.EDITCALL.getWindowWidth()
+                ),
+                60,
+                "addCallColumn",
+                "addCall"
+        );
+        column.setHidable(false);
+        column.setHidden(false);
+    }
+
+    private void addCallsColumn() {
+        addCallsColumn(
+                vehicle -> callRepository.getItems(null, null, vehicle, false).size(),
+                "vehicle"
         );
     }
 

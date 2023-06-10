@@ -16,10 +16,7 @@ import il.co.rtcohen.rt.app.uiComponents.CustomDateField;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Contact;
-import il.co.rtcohen.rt.dal.repositories.CallRepository;
-import il.co.rtcohen.rt.dal.repositories.ContactRepository;
-import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
-import il.co.rtcohen.rt.dal.repositories.SiteRepository;
+import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +49,9 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
 
     @Autowired
     private PrintUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository,
+                    UsersRepository usersRepository,
                     SiteRepository siteRepository, ContactRepository contactRepository) {
-        super(errorHandler, callRepository, generalRepository);
+        super(errorHandler, callRepository, generalRepository, usersRepository);
         this.siteRepository = siteRepository;
         this.contactRepository = contactRepository;
     }

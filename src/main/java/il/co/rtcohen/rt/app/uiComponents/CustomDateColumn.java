@@ -24,7 +24,10 @@ public class CustomDateColumn<T extends AbstractType> {
             AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
         // Basic column
         FilterGrid.Column<T, LocalDate> column = abstractTypeFilterGrid.addColumn(
-                T -> valueProvider.apply(T).getLocalDate(),
+                T -> {
+                    Date date = valueProvider.apply(T);
+                    return (null == date ? null : date.getLocalDate());
+                },
                 CustomDateField.dateRenderer()
         );
         column.setId(id).setExpandRatio(1).setWidth(130).setResizable(true).setSortable(true).setHidable(true);

@@ -7,6 +7,7 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
+import il.co.rtcohen.rt.dal.repositories.UsersRepository;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -18,8 +19,8 @@ public class PrintUINew extends AbstractUI<VerticalLayout> {
 
     static public HashMap<String, AvailableReport> urlFragmentToReport = new HashMap<>();
 
-    PrintUINew(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository) {
-        super(errorHandler, callRepository, generalRepository);
+    PrintUINew(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository, UsersRepository usersRepository) {
+        super(errorHandler, callRepository, generalRepository, usersRepository);
     }
 
     @Override

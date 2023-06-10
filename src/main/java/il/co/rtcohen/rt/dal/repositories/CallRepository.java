@@ -139,9 +139,55 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         fieldsCounter++;
         preparedStatement.setBoolean(fieldsCounter, call.isDeleted());
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getUser().getId(), 0));
+        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getOpenedByUser().getId(), 0));
         return fieldsCounter;
     }
+
+    public List<Call> getItems(Customer customer, Site site, Vehicle vehicle, Boolean isDone) {
+        List<Call> list = null;
+        try {
+            Connection connection = getConnection();
+            String sqlQuery = "select * from " + DB_TABLE_NAME;
+            if (null != isDone) {
+                sqlQuery += " and " + DB_IS_DONE_COLUMN + "=?";
+            }
+            if (null != customer) {
+                sqlQuery += " and " + DB_CUSTOMER_ID_COLUMN + "=?";
+            }
+            if (null != site) {
+                sqlQuery += " and " + DB_SITE_ID_COLUMN + "=?";
+            }
+            if (null != vehicle) {
+                sqlQuery += " and " + DB_VEHICLE_ID_COLUMN + "=?";
+            }
+            assert sqlQuery.contains("and");
+            sqlQuery = sqlQuery.replaceFirst("and", "where");
+            logger.info(sqlQuery);
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            int fieldsCounter = 1;
+            if (null != isDone) {
+                preparedStatement.setBoolean(fieldsCounter, isDone);
+                fieldsCounter++;
+            }
+            if (null != customer) {
+                preparedStatement.setInt(fieldsCounter, customer.getId());
+                fieldsCounter++;
+            }
+            if (null != site) {
+                preparedStatement.setInt(fieldsCounter, site.getId());
+                fieldsCounter++;
+            }
+            if (null != vehicle) {
+                preparedStatement.setInt(fieldsCounter, vehicle.getId());
+                fieldsCounter++;
+            }
+            list = getItems(connection, preparedStatement);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
+
 
     public List<Call> getItems(Site site) throws SQLException {
         return getItems(DB_SITE_ID_COLUMN + "=" + site.getId());
@@ -260,7 +306,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     public long insertCall(int customerId, LocalDate startDate, int userId) {
         Call call = new Call();
         call.setStartDate(new Date(startDate));
-        call.setUser(usersRepository.getItem(userId));
+        call.setOpenedByUser(usersRepository.getItem(userId));
         return insertItem(call);
     }
 

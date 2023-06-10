@@ -167,14 +167,6 @@ public class UIComponents {
         return bigButton(VaadinIcons.PRINT);
     }
 
-    public static Button trashButton() {
-        return bigButton(VaadinIcons.TRASH);
-    }
-
-    public static Button closeButton() {
-        return bigButton(VaadinIcons.CLOSE);
-    }
-
     public static Button bigButton(VaadinIcons icon) {
         return button(icon,ValoTheme.BUTTON_PRIMARY);
     }
@@ -184,12 +176,6 @@ public class UIComponents {
         button.addStyleName(style);
         button.setIcon(icon);
         return button;
-    }
-
-    public static TextField textField(String value, Boolean enabled, int w, int h) {
-        TextField textField = textField(enabled,w,h);
-        textField.setValue(value);
-        return textField;
     }
 
     public static TextField textField(Boolean enabled, int w, int h) {
@@ -240,23 +226,12 @@ public class UIComponents {
         return dateField;
     }
 
-    private static CustomDateField dateField(String h) {
-        CustomDateField dateField = dateField();
-        dateField.setHeight(h);
-        return dateField;
-    }
-
     @Deprecated
     public static ValueProvider<Component, Boolean> BooleanValueProvider() {
         return component -> {
             CheckBox checkBox =(CheckBox) component;
             return checkBox.getValue();
         };
-    }
-
-    @Deprecated
-    public static SerializableBiPredicate<Boolean,Boolean> BooleanPredicate() {
-        return(SerializableBiPredicate<Boolean, Boolean>) Boolean::equals;
     }
 
     @Deprecated

@@ -7,7 +7,6 @@ import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import java.util.logging.Logger;
 
 abstract public class AbstractType {
-    private static String dbTableName;
     private static String objectName;
 
     private Integer id;
@@ -40,14 +39,6 @@ abstract public class AbstractType {
 
     public boolean isItemValid() {
         return true;
-    }
-
-    public static void setDbTableName(String dbTableName) {
-        AbstractType.dbTableName = dbTableName;
-    }
-
-    public static String getDbTableName() {
-        return dbTableName;
     }
 
     public static void setObjectName(String objectName) {

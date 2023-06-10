@@ -24,6 +24,13 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
         this.setCustomSortColumnId(NAME_COLUMN_ID);
     }
 
+    @Override
+    protected T getNewItem() {
+        T t = super.getNewItem();
+//        t.setName(); // TODO: according to name filter
+        return t;
+    }
+
     protected void addColumns() {
         addActiveColumn();
         addNameColumn();

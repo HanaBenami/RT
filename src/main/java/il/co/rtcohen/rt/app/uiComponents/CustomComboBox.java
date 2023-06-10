@@ -1,6 +1,12 @@
 package il.co.rtcohen.rt.app.uiComponents;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 import com.vaadin.ui.ComboBox;
+
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
@@ -9,14 +15,10 @@ import il.co.rtcohen.rt.dal.dao.interfaces.Nameable;
 import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
+import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.COMBO_BOX_HEIGHT;
 
-public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBox<T> {
-    public CustomComboBox(List<T> items, Supplier<T> newItemSupplier, Integer w, Integer h, boolean allowNewItems) {
+public class CustomComboBox<T extends Nameable & BindRepository<T>> extends ComboBox<T> {
+    public CustomComboBox(List<T> items, Supplier<T> newItemSupplier, Integer width, boolean allowNewItems) {
         super();
         this.setItems(items);
         this.setItemCaptionGenerator(Nameable::getName);
@@ -33,22 +35,35 @@ public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBo
                 return Optional.of(newItem);
             });
         }
-        this.setHeight(String.valueOf(h));
-        this.setWidth(String.valueOf(w));
+        this.setHeight(COMBO_BOX_HEIGHT);
+        this.setWidth(String.valueOf(width));
     }
 
     public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T>> CustomComboBox<T> getComboBox(
                         AbstractTypeWithNameAndActiveFieldsRepository<T> repository,
-                        Supplier<T> newItemSupplier, Integer w, Integer h, boolean allowNewItems
+                        Supplier<T> newItemSupplier, Integer width, boolean allowNewItems
     ) {
         try {
             return new CustomComboBox<>(
                     repository.getItems(true),
                     newItemSupplier,
-                    w,
-                    h,
+                    width,
                     allowNewItems
             );
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+    }
+
+    public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T>> CustomComboBox<T>
+            getComboBox(AbstractTypeWithNameAndActiveFieldsRepository<T> repository) {
+        try {
+            return new CustomComboBox<>(
+                    repository.getItems(true),
+                    null,
+                    130,
+                    false);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return null;
@@ -65,7 +80,6 @@ public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBo
                         return newItem;
                     },
                  130,
-                    30,
                     true);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -74,11 +88,11 @@ public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBo
     }
 
     public static CustomComboBox<Site> getComboBox(SiteRepository siteRepository) {
-        return getComboBox(siteRepository, null, 100, 30, false);
+        return getComboBox(siteRepository, null, 100, false);
     }
 
     public static CustomComboBox<Customer> getComboBox(CustomerRepository customerRepository) {
-        return getComboBox(customerRepository, null, 100, 30, false);
+        return getComboBox(customerRepository, null, 100, false);
     }
 
     public static CustomComboBox<CustomerType> getComboBox(CustomerTypeRepository customerTypeRepository) {
@@ -91,7 +105,6 @@ public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBo
                         return newItem;
                     },
                     70,
-                    30,
                     false);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -109,7 +122,6 @@ public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBo
                         return newItem;
                     },
                     70,
-                    30,
                     false);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -127,7 +139,6 @@ public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBo
                         return newItem;
                     },
                     70,
-                    30,
                     false);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -145,7 +156,6 @@ public class CustomComboBox<T extends Nameable & BindRepository> extends ComboBo
                         return newItem;
                     },
                     70,
-                    30,
                     false);
         } catch (SQLException throwables) {
             throwables.printStackTrace();

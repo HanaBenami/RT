@@ -7,20 +7,23 @@ import java.time.LocalDate;
 public class StyleSettings {
     private StyleSettings() {}
 
-    public static final String FILTER_FIELD_HEIGHT = "30px";
+    public static final String FORMS_FIELD_HEIGHT = "30px";
+    public static final String FILTER_FIELD_HEIGHT = FORMS_FIELD_HEIGHT;
+    public static final String COMBO_BOX_HEIGHT = FORMS_FIELD_HEIGHT;
     public static final String FILTER_FIELD_WIDTH = "95%";
 
     public static String callStyle(Call call) {
-        if (call.getCurrentScheduledDate().getLocalDate().equals(LocalDate.now())) {
+        LocalDate scheduledDate = (null == call.getCurrentScheduledDate() ? null : call.getCurrentScheduledDate().getLocalDate());
+        if (LocalDate.now().equals(scheduledDate)) {
             return "green";
         }
-        if (call.getCurrentScheduledDate().getLocalDate().equals(LocalDate.now().plusDays(1))) {
+        if (LocalDate.now().plusDays(1).equals(scheduledDate)) {
             return "yellow";
         }
-        if ((call.getCurrentScheduledDate()==null)&&(call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(6)))) {
+        if (null == scheduledDate && call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(6))) {
             return "darkred";
         }
-        if ((call.getCurrentScheduledDate()==null)&&(call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(2)))) {
+        if (null == call.getCurrentScheduledDate() && call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(2))) {
             return "red";
         }
         return null;

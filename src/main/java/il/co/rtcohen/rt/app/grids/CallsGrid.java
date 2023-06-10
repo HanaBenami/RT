@@ -81,6 +81,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
         this.callTypeRepository = callTypeRepository;
+        this.setEmptyLinesAllow(false);
         this.initGrid();
     }
 
@@ -202,12 +203,15 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         super.setTitle();
         if (null != this.selectedVehicle) {
             super.setTitleKey("callsOfVehicle");
+            super.setTitle();
             this.title += " " + selectedVehicle.getName();
         } else if (null != this.selectedSite) {
             super.setTitleKey("callsOfSite");
+            super.setTitle();
             this.title += " " + selectedSite.getName();
         } else if (null != this.selectedCustomer) {
             super.setTitleKey("callsOfCustomer");
+            super.setTitle();
             this.title += " " + selectedCustomer.getName();
         }
     }
@@ -220,13 +224,11 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     private VerticalLayout getCallDetails(Call call) {
-        TextArea description = new CustomTextArea("description","100%","55");
-        description.setValue(call.getDescription());
+        TextArea description = new CustomTextArea("description", call.getDescription(), "100%","55");
         description.addValueChangeListener(valueChangeEvent -> {
             call.setDescription(description.getValue());
         });
-        TextArea notes =  new CustomTextArea("notes","100%","55");
-        notes.setValue(call.getNotes());
+        TextArea notes =  new CustomTextArea("notes", call.getNotes(), "100%","55");
         notes.addValueChangeListener(valueChangeEvent -> {
             call.setNotes(notes.getValue());
         });
@@ -238,7 +240,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     protected void addColumns() {
-        addSetOrderColumn();
+        addSetScheduledOrderColumn();
         addEditColumn();
         addNotesColumn();
         addDescriptionColumn();
@@ -262,7 +264,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         addIdColumn();
     }
 
-    private void addSetOrderColumn() {
+    private void addSetScheduledOrderColumn() {
         Predicate<Call> isScheduled = call -> (null != call.getCurrentScheduledDate() && null != call.getCurrentDriver());
         Column<Call, Component> column = this.addComponentColumn(
                 call -> new CustomButton(
@@ -272,7 +274,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                         {
                             if (isScheduled.test(call)) {
                                 call.setCurrentDriver(null);
-                                call.setCurrentScheduledDate(null);
+                                call.setCurrentScheduledDate(Date.nullDate());
                             } else {
                                 if (null != nextScheduleDriver) {
                                     call.setCurrentDriver(nextScheduleDriver);
@@ -298,9 +300,9 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 call -> new CustomButton(
                         VaadinIcons.EDIT,
                         false,
-                        UIPaths.EDITCALL.getPath() + call.getId(),
-                        770,
-                        750
+                        UIPaths.EDITCALL.getEditCallPath(call),
+                        UIPaths.EDITCALL.getWindowHeight(),
+                        UIPaths.EDITCALL.getWindowWidth()
                 ),
                 60,
                 "editColumn",
@@ -342,8 +344,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 null,
                 "deletedColumn",
                 "deleted",
-                null, // TODO
-                // TODO
+                null,
                 this
         );
         column.setHidable(true);
@@ -353,7 +354,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     private void addIsDoneColumn() {
         Column<Call, Component> column = CustomCheckBoxColumn.addToGrid(
                 Call::isDone,
-                Call::setDone,
+                null,
                 "doneColumn",
                 "done",
                 null,
@@ -581,7 +582,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
             super.sort(getCustomSortColumnId(), SortDirection.ASCENDING);
         } else {
             FilterGrid.Column<Call, String> sortColumn = this.addColumn(call -> {
-                String sortKey = call.getCurrentScheduledDate().toString();
+                String sortKey = ((null == call.getCurrentScheduledDate()) ? Date.nullDate() : call.getCurrentScheduledDate()).toString();
                 if (null == call.getCurrentDriver() || call.getCurrentDriver().getId() < 10) {
                     sortKey += "0";
                 }

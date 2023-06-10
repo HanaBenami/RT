@@ -3,9 +3,8 @@ package il.co.rtcohen.rt.dal.dao;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 
-public class Site extends AbstractTypeWithNameAndActiveFields implements BindRepository {
+public class Site extends AbstractTypeWithNameAndActiveFields implements BindRepository<Site> {
     static {
-        setDbTableName("site");
         setObjectName("site");
     }
 

@@ -37,6 +37,10 @@ public class LanguageSettings {
         return locale != Locale.ENGLISH;
     }
 
+    public static boolean containsLocaleString(String key) {
+        return language.containsKey(key);
+    }
+
     public static String getLocaleString(String key) {
         return new String(language.getString(key).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
     }

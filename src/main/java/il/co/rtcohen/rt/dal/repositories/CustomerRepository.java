@@ -12,6 +12,7 @@ import java.sql.*;
 @Repository
 public class CustomerRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Customer> implements RepositoryInterface<Customer> {
     static protected final String DB_CUST_TYPE_ID_COLUMN = "custtype";
+    static protected final String DB_HASK_KEY_COLUMN = "hashkey";
 
     private final CustomerTypeRepository customerTypeRepository;
 
@@ -20,7 +21,8 @@ public class CustomerRepository extends AbstractTypeWithNameAndActiveFieldsRepos
         super(
             dataSource, "CUST", "Customers",
             new String[] {
-                DB_CUST_TYPE_ID_COLUMN
+                DB_CUST_TYPE_ID_COLUMN,
+                DB_HASK_KEY_COLUMN
             }
         );
         this.customerTypeRepository = customerTypeRepository;
@@ -31,6 +33,7 @@ public class CustomerRepository extends AbstractTypeWithNameAndActiveFieldsRepos
                 rs.getInt(DB_ID_COLUMN),
                 rs.getString(DB_NAME_COLUMN),
                 this.customerTypeRepository.getItem(rs.getInt(DB_CUST_TYPE_ID_COLUMN)),
+                rs.getInt(DB_HASK_KEY_COLUMN),
                 rs.getBoolean(DB_ACTIVE_COLUMN)
         );
     }
@@ -39,21 +42,10 @@ public class CustomerRepository extends AbstractTypeWithNameAndActiveFieldsRepos
     protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Customer customer) throws SQLException {
         int fieldsCounter = super.updateItemDetailsInStatement(preparedStatement, customer);
         fieldsCounter++;
-        preparedStatement.setInt( fieldsCounter, customer.getCustomerType().getId());
+        preparedStatement.setInt(fieldsCounter, customer.getCustomerType().getId());
+        fieldsCounter++;
+        preparedStatement.setInt(fieldsCounter, customer.getHashavshevetId());
         return fieldsCounter;
-    }
-
-    @Deprecated
-    public List<Customer> getCustomers() throws SQLException {
-        return getItems();
-    }
-    @Deprecated
-    public long insertCustomer(String name, Integer custTupeId) {
-        return insertItem(new Customer(null, name, this.customerTypeRepository.getItem(custTupeId), true));
-    }
-    @Deprecated
-    public void updateCustomerType(Customer customer) {
-        this.updateItem(customer);
     }
 }
 

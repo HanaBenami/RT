@@ -5,6 +5,7 @@ import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.themes.ValoTheme;
+import il.co.rtcohen.rt.app.LanguageSettings;
 
 public class CustomButton extends Button {
     public CustomButton(VaadinIcons vaadinIcons, boolean withBorder, ClickListener clickListener) {
@@ -37,5 +38,10 @@ public class CustomButton extends Button {
             button.setIcon(multipleIcon);
         }
         return button;
+    }
+
+    @Override
+    public void setCaption(String caption) {
+        super.setCaption(LanguageSettings.containsLocaleString(caption) ? LanguageSettings.getLocaleString(caption) : caption);
     }
 }

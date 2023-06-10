@@ -34,4 +34,8 @@ public class Date {
     static public Date nullDate() {
         return new Date(nullDateString);
     }
+
+    public boolean equals(Date other) {
+        return (null != other) && this.getLocalDate().equals(other.getLocalDate());
+    }
 }

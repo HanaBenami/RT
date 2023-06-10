@@ -6,19 +6,20 @@ import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 
 public class Customer extends AbstractTypeWithNameAndActiveFields implements BindRepository<Customer> {
     static {
-        setDbTableName("cust");
         setObjectName("customer");
     }
 
     private CustomerType customerType;
+    private Integer hashavshevetId;
 
     public Customer() {
         super();
     }
 
-    public Customer(Integer id, String name, CustomerType customerType, boolean active) {
+    public Customer(Integer id, String name, CustomerType customerType, Integer hashavshevetId, boolean active) {
         super(id, name, active);
         this.customerType = customerType;
+        this.hashavshevetId = hashavshevetId;
     }
 
     public CustomerType getCustomerType() {
@@ -27,6 +28,14 @@ public class Customer extends AbstractTypeWithNameAndActiveFields implements Bin
 
     public void setCustomerType(CustomerType customerType) {
         this.customerType = customerType;
+    }
+
+    public Integer getHashavshevetId() {
+        return hashavshevetId;
+    }
+
+    public void setHashavshevetId(Integer hashavshevetId) {
+        this.hashavshevetId = hashavshevetId;
     }
 
     @Override

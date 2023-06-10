@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.dal.dao;
 
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.utils.Date;
 
@@ -7,7 +8,6 @@ import java.time.LocalDate;
 
 public class Vehicle extends AbstractTypeWithNameAndActiveFields {
     static {
-        setDbTableName("vehicle");
         setObjectName("vehicle");
     }
 
@@ -115,7 +115,7 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields {
         if (!isItemValid()) {
             return super.toString();
         } else {
-            return (getVehicleType().getName() + " / " + getSite().getName());
+            return (getVehicleType().getName() + " (" + LanguageSettings.getLocaleString("site") + ": " + getSite().getName() + ")");
         }
     }
 }

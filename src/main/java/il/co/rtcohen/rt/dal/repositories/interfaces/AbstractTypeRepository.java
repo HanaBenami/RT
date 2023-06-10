@@ -187,7 +187,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     }
 
     public void updateItem(T t) {
-        if (null == t.getId()) {
+        if (null == t.getId() || 0 == t.getId()) {
             insertItem(t);
             return;
         }

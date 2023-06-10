@@ -1,14 +1,19 @@
 package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
 import il.co.rtcohen.rt.app.LanguageSettings;
+import il.co.rtcohen.rt.app.ui.UIPaths;
+import il.co.rtcohen.rt.app.uiComponents.CustomButton;
 import il.co.rtcohen.rt.app.uiComponents.CustomNumericColumn;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
+import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +41,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
     private String customSortColumnId = null;
     private final HashMap<String, TextField> filterFields = new HashMap<>();
     public final String idColumnId = "idColumn";
+    private boolean emptyLinesAllow = true;
 
     public AbstractTypeFilterGrid(AbstractTypeRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
                                   Predicate<T> itemsFilterPredicate) {
@@ -59,6 +65,10 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
 
     protected void sort() {
         this.sort((null == getCustomSortColumnId() ? idColumnId : getCustomSortColumnId()), SortDirection.ASCENDING);
+    }
+
+    public void setEmptyLinesAllow(boolean emptyLinesAllow) {
+        this.emptyLinesAllow = emptyLinesAllow;
     }
 
     public void setFilterField(String columnId, TextField filterField) {
@@ -172,18 +182,21 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
     }
 
     private void populateGrid(int numOfEmptyLines) {
-        gridItems = getItems();
+        this.gridItems = getItems();
         if (null != this.itemsFilterPredicate) {
-            gridItems.removeIf(itemsFilterPredicate);
+            this.gridItems.removeIf(itemsFilterPredicate);
+        }
+        this.itemsCounter = gridItems.size();
+        if (this.gridItems.isEmpty() && (0 == numOfEmptyLines) && emptyLinesAllow) {
+            numOfEmptyLines = 1;
         }
         if (0 < numOfEmptyLines) {
             assert null != newItemSupplier;
             for (int i = 0; i < numOfEmptyLines; ++i) {
-                gridItems.add(0, this.newItemSupplier.get());
+                gridItems.add(0, this.getNewItem());
             }
         }
         this.setItems(gridItems);
-        this.itemsCounter = gridItems.size();
     }
 
     private void addEmptyLines(NumberField numOfEmptyLinesFields) {
@@ -192,6 +205,10 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         } else {
             this.populateGrid(Integer.parseInt(numOfEmptyLinesFields.getValue()));
         }
+    }
+
+    protected T getNewItem() {
+        return this.newItemSupplier.get();
     }
 
     // TODO: Move to UiComponents
@@ -265,7 +282,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
                 this.verticalLayout.addComponent(UIComponents.errorMessage(this.warningMessage));
             }
             this.verticalLayout.addComponentsAndExpand(this);
-            this.verticalLayout.addComponent(this.emptyLinesLayout());
+            if (this.emptyLinesAllow) {
+                this.verticalLayout.addComponent(this.emptyLinesLayout());
+            }
         }
     }
 
@@ -301,15 +320,47 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         return newLinesLayout;
     }
 
-    public void setSelected(int selectedItemId) {
+    public void setFilterToSelectedItem(int selectedItemId) {
         if (0 != selectedItemId) {
             if (null != filterFields.get(idColumnId)) {
                 filterFields.get(idColumnId).setValue(String.valueOf(selectedItemId));
             }
+        }
+    }
+
+    public void setSelectedItem(int selectedItemId) {
+        if (0 != selectedItemId) {
+            setFilterToSelectedItem(selectedItemId);
             T item = mainRepository.getItem(selectedItemId);
             if (null != item && gridItems.contains(item)) {
                 this.getSelectionModel().select(item);
             }
         }
+    }
+
+    public void hideFilterRow() {
+        // Will work only in the first call
+        try {
+            this.removeHeaderRow(this.getHeaderRow(1));
+        } catch (Exception ignored) {}
+    }
+
+    protected void addCallsColumn(ValueProvider<T, Integer> callsCounterProvider, String urlAddition) {
+        this.addComponentColumn(
+                (ValueProvider<T, Component>) t -> {
+                    if (null == t.getId()) {
+                        return null;
+                    } else {
+                        int openCallsCounter = callsCounterProvider.apply(t);
+                        Button callsButton = CustomButton.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
+                        callsButton.addClickListener(clickEvent ->
+                                getUI().getNavigator().navigateTo(UIPaths.CALLS.getPath() + urlAddition + "=" + t.getId()));
+                        return callsButton;
+                    }
+                },
+                60,
+                "callsColumn",
+                "calls"
+        );
     }
 }

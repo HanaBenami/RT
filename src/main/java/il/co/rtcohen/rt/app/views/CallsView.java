@@ -8,8 +8,7 @@ import com.vaadin.icons.VaadinIcons;
 import il.co.rtcohen.rt.app.uiComponents.CustomButton;
 import il.co.rtcohen.rt.app.uiComponents.CustomComboBox;
 import il.co.rtcohen.rt.app.uiComponents.CustomDateField;
-import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.Driver;
+import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.utils.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.CallsGrid;
 import il.co.rtcohen.rt.app.ui.UIPaths;
-import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.repositories.*;
 
 
@@ -33,9 +31,6 @@ import il.co.rtcohen.rt.dal.repositories.*;
 public class CallsView extends AbstractDataView<Call> {
     static final String VIEW_NAME = "calls";
     private static final Logger logger = LoggerFactory.getLogger(CallsView.class);
-
-    // Parameters
-    private Map<String, String> parametersMap;
 
     // Repositories
     private final CallRepository callRepository;
@@ -58,6 +53,8 @@ public class CallsView extends AbstractDataView<Call> {
     private ComboBox<CallsGrid.CallsFilterOptions> callsFilterComboBox;
     private ComboBox<Customer> customerFilterComboBox;
     private Customer selectedCustomer;
+    private Site selectedSite;
+    private Vehicle selectedVehicle;
     private final String SCHEDULE_FIELDS_WIDTH = "150";
     private final String SCHEDULE_FIELDS_HEIGHT = "30";
     private CustomDateField nextScheduleDateField;
@@ -99,8 +96,17 @@ public class CallsView extends AbstractDataView<Call> {
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         Map<String, String> parametersMap = event.getParameterMap();
         logger.info("Parameters map " + Arrays.toString(parametersMap.entrySet().toArray()));
+        int selectedVehicleId = Integer.parseInt(parametersMap.getOrDefault("vehicle", "0"));
         int selectedCustomerId = Integer.parseInt(parametersMap.getOrDefault("customer", "0"));
-        if (0 != selectedCustomerId) {
+        int selectedSiteId = Integer.parseInt(parametersMap.getOrDefault("site", "0"));
+        if (0 != selectedVehicleId) {
+            this.selectedVehicle = vehicleRepository.getItem(selectedVehicleId);
+            this.selectedSite = this.selectedVehicle.getSite();
+            this.selectedCustomer = this.selectedSite.getCustomer();
+        } else if (0 != selectedSiteId) {
+            this.selectedSite = siteRepository.getItem(selectedSiteId);
+            this.selectedCustomer = this.selectedSite.getCustomer();
+        } else if (0 != selectedCustomerId) {
             this.selectedCustomer = customerRepository.getItem(selectedCustomerId);
         }
         super.enter(event);
@@ -165,6 +171,9 @@ public class CallsView extends AbstractDataView<Call> {
         customerFilterComboBox.setEnabled(true);
         customerFilterComboBox.setHeight(addButton.getHeight(), addButton.getHeightUnits());
         customerFilterComboBox.setWidth(COMBOBOX_WIDTH);
+        if (null != this.selectedCustomer) {
+            this.customerFilterComboBox.setSelectedItem(selectedCustomer);
+        }
         customerFilterComboBox.addValueChangeListener(valueChangeEvent -> {
             this.selectedCustomer = customerFilterComboBox.getValue();
             callsGrid.setSelectedCustomer(this.selectedCustomer);
@@ -222,13 +231,14 @@ public class CallsView extends AbstractDataView<Call> {
         callsGrid = new CallsGrid(
                 this.callsFilterComboBox.getValue(),
                 this.customerFilterComboBox.getValue(),
-                null,
-                null,
+                this.selectedSite,
+                this.selectedVehicle,
                 null,
                 callRepository, customerRepository, customerTypeRepository, siteRepository, areasRepository,
                 vehicleRepository, vehicleTypeRepository, usersRepository, driverRepository, callTypeRepository
         );
         callsGrid.setWidth("100%");
+        callsGrid.setNextScheduleDate(new Date(nextScheduleDateField.getValue()));
         addComponentsAndExpand(callsGrid.getVerticalLayout(true, true));
     }
 
@@ -257,9 +267,8 @@ public class CallsView extends AbstractDataView<Call> {
 
     private void addCall() {
         if (null != selectedCustomer) {
-            // TODO: Make this path works
-            Page.getCurrent().open(UIPaths.EDITCALL.getPath() + "/customer=" + selectedCustomer.getId(),
-                    "_new3", 750, 770, BorderStyle.NONE);
+            Page.getCurrent().open(UIPaths.EDITCALL.getEditCallPath(selectedCustomer, selectedSite, selectedVehicle),
+                    UIPaths.EDITCALL.getWindowName(), UIPaths.EDITCALL.getWindowWidth(), UIPaths.EDITCALL.getWindowHeight(), BorderStyle.NONE);
         }
     }
 

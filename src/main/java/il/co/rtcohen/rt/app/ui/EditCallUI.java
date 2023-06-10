@@ -1,479 +1,477 @@
 package il.co.rtcohen.rt.app.ui;
 
-import com.vaadin.server.ErrorHandler;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
-import com.vaadin.server.UserError;
+import com.vaadin.server.Setter;
+import il.co.rtcohen.rt.app.grids.*;
+import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.dal.dao.*;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
+import il.co.rtcohen.rt.dal.repositories.*;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.utils.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Arrays;
+import java.util.Map;
+import com.vaadin.server.ErrorHandler;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
-import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.uiComponents.UIComponents;
-import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
-import il.co.rtcohen.rt.dal.dao.Call;
-import il.co.rtcohen.rt.dal.dao.Contact;
-import il.co.rtcohen.rt.utils.Date;
-import il.co.rtcohen.rt.dal.repositories.*;
-import il.co.rtcohen.rt.dal.services.CallService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.ui.NumberField;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
+import il.co.rtcohen.rt.app.LanguageSettings;
+import il.co.rtcohen.rt.app.views.CallsView;
 
 @SpringComponent
 @SpringUI(path="/editCall")
-public class EditCallUI extends AbstractEditUI {
+public class EditCallUI extends AbstractUI<GridLayout> {
+    private static final Logger logger = LoggerFactory.getLogger(CallsView.class);
+    private static final String BUTTON_WIDTH = "100px";
+    private static final String FIELDS_WIDTH = "200px";
 
-    private final DriverRepository driverRepository;
+    // Repositories
+    private final CustomerRepository customerRepository;
+    private final CustomerTypeRepository customerTypeRepository;
+    private final SiteRepository siteRepository;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleTypeRepository vehicleTypeRepository;
+    private final CallRepository callRepository;
     private final CallTypeRepository callTypeRepository;
+    private final ContactRepository contactRepository;
+    private final AreasRepository areasRepository;
+    private final UsersRepository usersRepository;
+    private final DriverRepository driverRepository;
+
+    // Pre-selected items
     private Call call;
-    private ComboBox<Integer> driverCombo;
-    private NumberField order;
-    private CheckBox done;
-    private TextField area;
-    private ComboBox<Integer> siteCombo;
-    private ComboBox<Integer> carCombo;
-    private ComboBox<Integer> callTypeCombo;
-    private ComboBox<Integer> openByCombo;
-    private DateField startDate;
-    private DateField date1;
-    private DateField date2;
-    private DateField endDate;
-    private TextField description;
-    private TextField notes;
-    private CheckBox here;
-    private CheckBox meeting;
-    private final CallService callService;
-    private Grid<Contact> contactsGrid;
+    private Customer selectedCustomer;
+    private Site selectedSite;
+    private Vehicle selectedVehicle;
+
+    // Inner grids
+    private CustomerGrid customerGrid;
+    private SitesGrid sitesGrid;
+    private ContactsGrid contactsGrid;
+    private VehiclesGrid vehiclesGrid;
 
     @Autowired
-    private EditCallUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository,
-                       SiteRepository siteRepository, CallService callService, ContactRepository contactRepository,
-                       VehicleTypeRepository vehicleTypeRepository, DriverRepository driverRepository, CallTypeRepository callTypeRepository) {
-        super(siteRepository, errorHandler, callRepository, generalRepository, contactRepository);
-        this.callService = callService;
-        this.driverRepository = driverRepository;
+    private EditCallUI(
+           ErrorHandler errorHandler,
+           GeneralRepository generalRepository,
+           CustomerRepository customerRepository,
+           CustomerTypeRepository customerTypeRepository,
+           SiteRepository siteRepository,
+           VehicleRepository vehicleRepository,
+           VehicleTypeRepository vehicleTypeRepository,
+           CallRepository callRepository,
+           CallTypeRepository callTypeRepository,
+           ContactRepository contactRepository,
+           AreasRepository areasRepository,
+           UsersRepository usersRepository,
+           DriverRepository driverRepository
+    ) {
+        super(errorHandler, callRepository, generalRepository, usersRepository);
+        this.customerRepository = customerRepository;
+        this.customerTypeRepository = customerTypeRepository;
+        this.siteRepository = siteRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.vehicleTypeRepository = vehicleTypeRepository;
+        this.callRepository = callRepository;
         this.callTypeRepository = callTypeRepository;
+        this.contactRepository = contactRepository;
+        this.areasRepository = areasRepository;
+        this.usersRepository = usersRepository;
+        this.driverRepository = driverRepository;
+    }
+
+    public void getUrlParameters() {
+        Map<String, String> parametersMap = this.getParametersMap();
+        logger.info("Parameters map " + Arrays.toString(parametersMap.entrySet().toArray()));
+        int selectedCallId = Integer.parseInt(parametersMap.getOrDefault("call", "0"));
+        int selectedCustomerId = Integer.parseInt(parametersMap.getOrDefault("customer", "0"));
+        int selectedSiteId = Integer.parseInt(parametersMap.getOrDefault("site", "0"));
+        int selectedVehicleId = Integer.parseInt(parametersMap.getOrDefault("vehicle", "0"));
+        if (0 != selectedCallId) {
+            this.call = callRepository.getItem(selectedCallId);
+            this.selectedCustomer = this.call.getCustomer();
+            this.selectedSite = this.call.getSite();
+            this.selectedVehicle = this.call.getVehicle();
+        } else {
+            this.call = new Call();
+            this.call.setOpenedByUser(getSessionUsername());
+            if (0 != selectedVehicleId) {
+                this.selectedVehicle = vehicleRepository.getItem(selectedVehicleId);
+                call.setVehicle(this.selectedVehicle);
+                this.selectedSite = this.selectedVehicle.getSite();
+                call.setSite(this.selectedSite);
+                this.selectedCustomer = this.selectedSite.getCustomer();
+                call.setCustomer(this.selectedCustomer);
+            } else if (0 != selectedSiteId) {
+                this.selectedSite = siteRepository.getItem(selectedSiteId);
+                call.setSite(this.selectedSite);
+                this.selectedCustomer = this.selectedSite.getCustomer();
+                call.setCustomer(this.selectedCustomer);
+            } else if (0 != selectedCustomerId) {
+                this.selectedCustomer = customerRepository.getItem(selectedCustomerId);
+                call.setCustomer(this.selectedCustomer);
+            }
+        }
+    }
+
+    @Override
+    protected void init(VaadinRequest vaadinRequest) {
+        getUrlParameters();
+        super.init(vaadinRequest);
     }
 
     @Override
     protected void setupLayout() {
-        getSelectedId();
-        if (call.getId() == 0) {
-            Notification.show(LanguageSettings.getLocaleString("error"),
-                    LanguageSettings.getLocaleString("call#") + getPage().getUriFragment()
-                            + LanguageSettings.getLocaleString("notExistF"),
-                    Notification.Type.WARNING_MESSAGE);
-            closeWindow();
-        } else {
-            initLayout(LanguageSettings.getLocaleString("callDetails"));
-            addLayoutComponents();
-            refreshData();
-        }
-    }
-
-    @Override
-    void getSelectedId() {
-        if(hasParameter())
-            if (selectedId().isPresent())
-                selectedId = Integer.parseInt(selectedId().get().toString());
-            else
-                selectedId = 0;
-            call = callRepository.getCallById(selectedId);
-    }
-
-    @Override
-    void createNew() {
-        selectedId = (int) (callRepository.insertCall(0,LocalDate.now(), getSessionUsernameId()));
-        reloadNew();
-    }
-
-    @Override
-    void reloadNew() {
-        Page.getCurrent().open(UIPaths.EDITCALL.getPath()+String.valueOf(selectedId), "_new3");
-    }
-
-    private void addIdField() {
-        TextField id = UIComponents.textField(Integer.toString(call.getId()),
-                false,130,40);
-        layout.addComponent(id,2,0);
-    }
-    private void addSiteNotesField() {
-        siteNotes = UIComponents.textField(false,470,30);
-        layout.addComponent(siteNotes,0,4, 2, 4);
-    }
-    private void addContactsGrid() {
-        Label contactLabel = new Label(LanguageSettings.getLocaleString("contacts"));
-        layout.addComponent(contactLabel,3,5);
-        contactsGrid = new Grid<>(Contact.class);
-        contactsGrid.setHeaderVisible(false);
-        contactsGrid.setColumns("notes", "phone", "name");
-        contactsGrid.setWidth("470");
-        contactsGrid.setHeightByRows(3);
-        layout.addComponent(contactsGrid,0,5, 2,5);
-    }
-    private void addAddressField() {
-        address = UIComponents.textField(false,130,30);
-        layout.addComponent(address,1,3);
-    }
-    private void addAreaField() {
-        area = UIComponents.textField(false,130,30);
-        layout.addComponent(area,0,3);
-    }
-    private void addSiteField() {
-        Label siteLabel = new Label(LanguageSettings.getLocaleString("site"));
-        layout.addComponent(siteLabel,3,3);
-        siteCombo = new UIComponents().siteComboBox(generalRepository,130,30);
-        if (null != call.getCustomer()) {
-            try {
-                siteCombo.setItems(siteRepository.getActiveIdByCustomer(call.getCustomer().getId()));
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-            if(call.getSite().getId()==0) {
-                try {
-                    siteCombo.setValue(siteRepository.getActiveIdByCustomer(call.getCustomer().getId()).get(0));
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-            }
-        }
-        siteCombo.setValue(NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getId(), 0));
-        siteCombo.setEmptySelectionAllowed(false);
-        siteCombo.addValueChangeListener(valueChangeEvent -> siteChange());
-        layout.addComponent(siteCombo,2,3);
-    }
-    private void addHereField() {
-        here = new CheckBox();
-        here.setValue(call.isHere());
-        here.setCaption(LanguageSettings.getLocaleString("currentlyHere"));
-        here.addValueChangeListener(valueChangeEvent -> {
-            if((!call.isHere())&&(here.getValue())) {
-                call.setCurrentDriver(null);
-                call.setCurrentScheduledDate(null);
-            }
-            call.setHere(here.getValue());
-            callService.updateCall(call);
-            refreshData();
-        });
-        layout.addComponent(here,1,2);
-    }
-    private void addCarTypeField() {
-        Label carLabel = new Label(LanguageSettings.getLocaleString("vehicleType"));
-        layout.addComponent(carLabel,3,2);
-        carCombo = new UIComponents().carComboBox(generalRepository,130,30);
-        carCombo.setEmptySelectionAllowed(true);
-        carCombo.setValue(NullPointerExceptionWrapper.getWrapper(call, c -> c.getVehicle().getVehicleType().getId(), 0));
-        carCombo.addValueChangeListener(valueChangeEvent -> {
-            if (carCombo.getValue()==null) {
-//                call.setCarTypeId(0); // TODO
-            }
-            else {
-//                call.setCarTypeId(carCombo.getValue()); // TODO
-            }
-            callService.updateCall(call);
-        });
-        layout.addComponent(carCombo,2,2);
-    }
-    private void addCallTypeField() {
-        callTypeCombo = new UIComponents().callTypeComboBox(generalRepository,130,40);
-        callTypeCombo.setEmptySelectionAllowed(true);
-        callTypeCombo.setValue(NullPointerExceptionWrapper.getWrapper(call, c -> c.getCallType().getId(), 0));
-        callTypeCombo.addValueChangeListener(valueChangeEvent -> {
-            if(callTypeCombo.getValue()==null) {
-                call.setCallType(null);
-            }
-            else {
-                call.setCallType(callTypeRepository.getItem(callTypeCombo.getValue())); }
-            callService.updateCall(call);
-        });
-        layout.addComponent(callTypeCombo,1,0);
-    }
-    private void addCustomerField() {
-        customerCombo = new UIComponents().customerComboBox(generalRepository,470,30);
-        customerCombo.setEmptySelectionAllowed(false);
-        customerCombo.setValue(NullPointerExceptionWrapper.getWrapper(call, c -> c.getCustomer().getId(), 0));
-        if(customerCombo.getValue()==0)
-            customerCombo.setComponentError(
-                    new UserError(LanguageSettings.getLocaleString("pleaseSelectCustomer")));
-        customerCombo.addValueChangeListener( valueChangeEvent -> customerChange());
-        layout.addComponent(customerCombo,1,1,3,1);
-    }
-    private void addStartDateField() {
-        Label start = new Label(LanguageSettings.getLocaleString("startDate"));
-        layout.addComponent(start,3,6);
-        startDate = UIComponents.dateField(130,30);
-        if(null == call.getStartDate())
-            startDate.setValue(null);
-        else
-            startDate.setValue(call.getStartDate().getLocalDate());
-        startDate.addValueChangeListener(valueChangeEvent -> {
-            call.setStartDate(new Date(startDate.getValue()));
-            callService.updateCall(call);
-        });
-        layout.addComponent(startDate,2,6);
-    }
-    private void addDate1Field() {
-        Label date1Label = new Label(LanguageSettings.getLocaleString("date1"));
-        layout.addComponent(date1Label,1,6);
-        date1 = UIComponents.dateField(130,30);
-        if(null == call.getPlanningDate())
-            date1.setValue(null);
-        else
-            date1.setValue(call.getPlanningDate().getLocalDate());
-        date1.addValueChangeListener(valueChangeEvent -> {
-            call.setPlanningDate(new Date(date1.getValue()));
-            callService.updateCall(call);
-        });
-        layout.addComponent(date1,0,6);
-    }
-    private void addDescriptionField() {
-        Label descriptionLabel = new Label(LanguageSettings.getLocaleString("description"));
-        layout.addComponent(descriptionLabel,3,7);
-        description = UIComponents.textField(true,470,50);
-        description.setValue(call.getDescription());
-        description.addValueChangeListener(valueChangeEvent -> {
-            call.setDescription(description.getValue());
-            callService.updateCall(call);
-        });
-        layout.addComponent(description,0,7,2,7);
-    }
-    private void addNotesField() {
-        Label notesLabel = new Label(LanguageSettings.getLocaleString("notes"));
-        layout.addComponent(notesLabel,3,8);
-        notes = UIComponents.textField(true,470,50);
-        notes.setValue(call.getNotes());
-        notes.addValueChangeListener(valueChangeEvent -> {
-            call.setNotes(notes.getValue());
-            callService.updateCall(call);
-        });
-        layout.addComponent(notes,0,8,2,8);
-    }
-
-    private void addOpenByField() {
-        Label openByLabel = new Label(LanguageSettings.getLocaleString("openBy"));
-        layout.addComponent(openByLabel,3,9);
-        openByCombo = new UIComponents().userComboBox(generalRepository, 130, 30);
-        openByCombo.setValue(call.getUser().getId());
-        openByCombo.setEnabled(false);
-        layout.addComponent(openByCombo,2,9);
-    }
-
-    private void addDate2Field() {
-        Label date2Label = new Label(LanguageSettings.getLocaleString("date2"));
-        layout.addComponent(date2Label,3,11);
-        date2 = UIComponents.dateField(130,30);
-        if(null == call.getCurrentScheduledDate())
-            date2.setValue(null);
-        else
-            date2.setValue(call.getCurrentScheduledDate().getLocalDate());
-        date2.addValueChangeListener(valueChangeEvent -> {
-            call.setCurrentScheduledDate(new Date(date2.getValue()));
-            callService.updateCall(call);
-            refreshData();
-        });
-        layout.addComponent(date2,2,11);
-    }
-
-    private void addDriverField() {
-        driverCombo = new UIComponents().driverComboBox(generalRepository,130,30);
-        driverCombo.setValue(NullPointerExceptionWrapper.getWrapper(call, c->c.getCurrentDriver().getId(), 0));
-        driverCombo.addValueChangeListener(valueChangeEvent -> {
-            if(driverCombo.getValue()==0)
-                call.setCurrentDriver(null);
-            else
-                call.setCurrentDriver(driverRepository.getItem(driverCombo.getValue()));
-            callService.updateCall(call);
-            refreshData();
-        });
-        layout.addComponent(driverCombo,1,11);
-    }
-    private void addOrderField() {
-        order = UIComponents.numberField("130","30");
-        order.setValue(String.valueOf(call.getCurrentScheduledOrder()));
-        order.addValueChangeListener(valueChangeEvent -> {
-            if (order.getValue().matches("\\d+")) {
-                call.setCurrentScheduledOrder(Integer.parseInt(order.getValue()));
-                callService.updateCall(call);
-                refreshData();
-            }
-        });
-        layout.addComponent(order,0,11);
-    }
-
-    private void addMeetingField() {
-        meeting = UIComponents.checkBox(call.isMeeting(),LanguageSettings.getLocaleString("meeting"));
-        meeting.addValueChangeListener(valueChangeEvent -> {
-            call.setMeeting(meeting.getValue());
-            callService.updateCall(call);
-        });
-        layout.addComponent(meeting,1,12);
-    }
-
-    private void addEndDateField() {
-        Label endDateLabel = new Label(LanguageSettings.getLocaleString("endDate"));
-        layout.addComponent(endDateLabel,3,12);
-        endDate = UIComponents.dateField(130,30);
-        if(null == call.getEndDate())
-            endDate.setValue(null);
-        else
-            endDate.setValue(call.getEndDate().getLocalDate());
-        endDate.addValueChangeListener(valueChangeEvent -> {
-            call.setEndDate(new Date(endDate.getValue()));
-            callService.updateCall(call);
-            refreshData();
-        });
-        layout.addComponent(endDate,2,12);
-    }
-
-    private void addDoneField() {
-        done = UIComponents.checkBox(call.isDone(),LanguageSettings.getLocaleString("done"),true);
-        layout.addComponent(done,0,12);
-    }
-
-    @Override
-    void addFields() {
-        addIdField();
-        addSiteNotesField();
+        initLayout();
+        addOrRefreshTitle();
+        addCustomerGrid();
+        addSiteGrid();
+        addVehicleGrid();
         addContactsGrid();
-        addAddressField();
-        addAreaField();
-        addSiteField();
-        addHereField();
-        addCarTypeField();
-        addCallTypeField();
-        addCustomerField();
-        addStartDateField();
-        addDate1Field();
-        addDescriptionField();
-        addOpenByField();
-        layout.addComponent(UIComponents.smallHeader(LanguageSettings.getLocaleString("scheduleDetails")),3,10);
-        addNotesField();
-        addMeetingField();
-        addDate2Field();
-        addDriverField();
-        addOrderField();
-        addEndDateField();
-        addDoneField();
+        addPrintButton();
+        addDeleteButton();
+        addOrRefreshCallData();
+        setContent(layout);
+
     }
 
-    @Override
-    void setTabIndexes() {
-        callTypeCombo.focus();
-        callTypeCombo.setTabIndex(1);
-        customerCombo.setTabIndex(2);
-        carCombo.setTabIndex(3);
-        here.setTabIndex(4);
-        siteCombo.setTabIndex(5);
-        startDate.setTabIndex(6);
-        date1.setTabIndex(7);
-        description.setTabIndex(9);
-        notes.setTabIndex(10);
-        date2.setTabIndex(11);
-        driverCombo.setTabIndex(12);
-        endDate.setTabIndex(13);
-        meeting.setTabIndex(14);
-    }
-
-    void disableAll() {
-        callTypeCombo.setEnabled(false);
-        callTypeCombo.setEnabled(false);
-        customerCombo.setEnabled(false);
-        carCombo.setEnabled(false);
-        here.setEnabled(false);
-        siteCombo.setEnabled(false);
-        startDate.setEnabled(false);
-        date1.setEnabled(false);
-        description.setEnabled(false);
-        notes.setEnabled(false);
-        date2.setEnabled(false);
-        driverCombo.setEnabled(false);
-        endDate.setEnabled(false);
-        meeting.setEnabled(false);
-        deleteBtn.setEnabled(false);
-    }
-
-    private void refreshData() {
-        siteNotes.setValue(NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getNotes(), ""));
-        address.setValue(siteRepository.getSiteById(call.getSite().getId()).getAddress());
-        area.setValue(generalRepository.getNameById(siteRepository.getSiteById(call.getSite().getId()).getArea().getId(),"area"));
-        try {
-            contactsGrid.setItems(contactRepository.getContactsBySite(call.getSite().getId(), true));
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+    private void initLayout() {
+        layout = new GridLayout(5, 21);
+        for (int i = 0; i < 5; ++i) {
+            layout.setColumnExpandRatio(i, 0);
         }
-        driverCombo.setValue(call.getCurrentDriver().getId());
-        openByCombo.setValue(call.getUser().getId());
-        order.setValue(String.valueOf(call.getCurrentScheduledOrder()));
-        done.setValue(call.isDone());
+        layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+        layout.setSpacing(true);
+        layout.setMargin(true);
+    }
+
+    private void addOrRefreshTitle() {
+        String title = ((null == call || null == call.getId() || 0 == call.getId())
+                ? LanguageSettings.getLocaleString("addingCall")
+                : LanguageSettings.getLocaleString("callDetails") + call.getId()
+        );
+        int column = 4;
+        int row = 0;
+        layout.removeComponent(column, row);
+        layout.addComponent(new CustomLabel(title, null, CustomLabel.LabelStyle.TITLE), column, row);
+
         if (call.isDeleted()) {
-            Label deleteLabel = new Label(LanguageSettings.getLocaleString("callDeleted"));
-            deleteLabel.setStyleName("LABEL-RIGHT-RED");
-            layout.addComponent(deleteLabel, 0, 9, 1, 9);
-            disableAll();
+            column = 1;
+            row = 0;
+            layout.removeComponent(column, row);
+            layout.addComponent(new CustomLabel("callDeleted", null, CustomLabel.LabelStyle.ERROR), column, row);
         }
     }
 
-    @Override
-    void deleteCurrentId() {
-        if (call.getCurrentScheduledOrder() > 0) {
-            Notification.show(LanguageSettings.getLocaleString("scheduledCallDeleteError"),
-                    "", Notification.Type.ERROR_MESSAGE);
+    private void addOrRefreshScheduleTitle() {
+        int row = 17;
+        int column = 4;
+        layout.removeComponent(column, row);
+        layout.addComponent(new CustomLabel("scheduleDetails", null, CustomLabel.LabelStyle.TITLE), column, row);
+    }
+
+    private void addCustomerGrid() {
+        if (null != this.selectedCustomer) {
+            this.customerGrid = new CustomerGrid(
+                    this.selectedCustomer,
+                    customerRepository,
+                    customerTypeRepository,
+                    siteRepository,
+                    callRepository
+            );
+            this.addGridToLayout(this.customerGrid, this.selectedCustomer, 1,1, 2, 4, 2);
         } else {
-            call.setDeleted(true);
-            callService.updateCall(call);
-            refreshData();
-//            int n = callRepository.deleteCall(call.getId());
-//            if (n == 1) {
-//                Notification.show(LanguageSettings.getLocaleString("callDeleted"),
-//                        "", Notification.Type.WARNING_MESSAGE);
-//                closeWindow();
-//            }
+            // TODO: selection combobox
         }
     }
 
-    private void customerChange() {
-        // TODO
-//        if(customerCombo.getValue()==null) {
-//            call.setCustomerId(0);
-//        }
-//        else {
-//            try {
-//                call.setCustomerId(customerCombo.getValue());
-//                customerCombo.setComponentError(null);
-//            }
-//            catch (RuntimeException e) {
-//                customerCombo.setComponentError(
-//                        new UserError(LanguageSettings.getLocaleString("pleaseSelectCustomer")));
-//            }
-//        }
-//        callService.updateCall(call);
-//        siteCombo.setValue(0);
-//        try {
-//            siteCombo.setItems(siteRepository.getActiveIdByCustomer(customerCombo.getValue()));
-//            if(call.getSiteId()==0)
-//                siteCombo.setValue(siteRepository.getActiveIdByCustomer(call.getCustomerId()).get(0));
-//            else
-//                siteCombo.setValue(call.getSiteId());
-//            customerCombo.setComponentError(null);
-//        }
-//        catch (RuntimeException e) {
-//            customerCombo.setComponentError(
-//                    new UserError(LanguageSettings.getLocaleString("pleaseSelectCustomer")));
-//        }
-//        refreshData();
+    private void addSiteGrid() {
+        if (null != this.selectedSite) {
+            sitesGrid = new SitesGrid(
+                    this.selectedCustomer, contactRepository, siteRepository, callRepository, areasRepository
+            );
+            this.addGridToLayout(this.sitesGrid, this.selectedSite, 1,1, 3, 4, 3);
+        } else {
+            // TODO: selection combobox
+        }
     }
 
-    private void siteChange() {
-        // TODO
-//        if(siteCombo.getValue()==null) {
-//            call.setSiteId(0);
-//        }
-//        else {
-//            call.setSiteId(siteCombo.getValue());
-//        }
-//        callService.updateCall(call);
-//        refreshData();
+    private void addVehicleGrid() {
+        if (null != this.selectedVehicle) {
+            this.vehiclesGrid = new VehiclesGrid(
+                    this.selectedSite, vehicleRepository, vehicleTypeRepository, callRepository
+            );
+            addGridToLayout(this.vehiclesGrid, this.selectedVehicle, 1,1, 4, 4, 4);
+        } else {
+            // TODO: selection combobox
+        }
     }
 
+    private void addContactsGrid() {
+        if (null != this.selectedSite) {
+            this.contactsGrid = new ContactsGrid(
+                    this.selectedSite, contactRepository
+            );
+            this.addGridToLayout(this.contactsGrid, null, 3,1, 5, 4, 5);
+        } else {
+            // TODO: selection combobox
+        }
+    }
+
+    private <T extends AbstractType> void addGridToLayout(
+            AbstractTypeFilterGrid<T> abstractTypeFilterGrid,
+            T selectedItem,
+            Integer setHeightByRows,
+            int column1, int row1, int column2, int row2
+    ) {
+        abstractTypeFilterGrid.setWidth("100%");
+        abstractTypeFilterGrid.hideFilterRow();
+        if (null != selectedItem) {
+            abstractTypeFilterGrid.setFilterToSelectedItem(selectedItem.getId());
+        }
+        if (null != setHeightByRows) {
+            abstractTypeFilterGrid.setHeightByRows(setHeightByRows);
+        }
+        layout.addComponent(abstractTypeFilterGrid, column1, row1, column2, row2);
+    }
+
+    private void saveData() {
+        Integer previousId = call.getId();
+        callRepository.updateItem(call);
+        addOrRefreshTitle();
+        addOrRefreshCallData();
+    }
+
+    private void addPrintButton() {
+        CustomButton button = addButtonToLayout("print", VaadinIcons.PRINT,
+                clickEvent -> JavaScript.getCurrent().execute("print();"),
+                0, 0);
+    }
+
+    private void addDeleteButton() {
+        CustomButton button = addButtonToLayout("delete", VaadinIcons.TRASH, clickEvent -> deleteCall(), 1, 0);
+    }
+
+    void deleteCall() {
+        if (this.call.getCurrentScheduledOrder() > 0) {
+            Notification.show(LanguageSettings.getLocaleString(
+                    "scheduledCallDeleteError"),
+                    "",
+                    Notification.Type.ERROR_MESSAGE
+            );
+        } else {
+            // TODO: warning before ?
+            if (null != call) {
+                this.call.setDeleted(true);
+                callRepository.updateItem(call);
+            }
+            Notification.show(
+                    LanguageSettings.getLocaleString("callDeleted"),
+                    "",
+                    Notification.Type.WARNING_MESSAGE
+            );
+            refreshWindow();
+        }
+    }
+
+    private CustomButton addButtonToLayout(String caption, VaadinIcons vaadinIcons, Button.ClickListener clickListener, int row, int column) {
+        CustomButton button = new CustomButton(vaadinIcons, true, clickListener);
+        button.setCaption(caption);
+        button.setWidth(BUTTON_WIDTH);
+        layout.addComponent(button, column, row);
+        return button;
+    }
+
+    private void addOrRefreshCallData() {
+        addOrRefreshIsHereCheckBox();
+        addOrRefreshIsMeetingCheckBox();
+        addOrRefreshIsDoneCheckBox();
+        addOrRefreshStartDateField();
+        addOrRefreshPlannedDateField();
+        addOrRefreshScheduledDateField();
+        addOrRefreshEndDateField();
+        addOrRefreshDescriptionTextArea();
+        addOrRefreshNotesTextArea();
+        addOrRefreshCallTypeComboBox();
+        addOrRefreshUserComboBox();
+        addOrRefreshDriverComboBox();
+        addOrRefreshScheduledOrderField();
+        addOrRefreshScheduleTitle();
+    }
+
+    private void addOrRefreshIsHereCheckBox() {
+        addCheckBoxFieldToLayout(Call::isHere, Call::setHere, "currentlyHere", 12, 1);
+    }
+
+    private void addOrRefreshIsMeetingCheckBox() {
+        addCheckBoxFieldToLayout(Call::isMeeting, Call::setMeeting, "meeting", 11, 1);
+    }
+
+    private void addOrRefreshIsDoneCheckBox() {
+        addCheckBoxFieldToLayout(Call::isDone, null, "done", 20, 1);
+    }
+
+    private void addOrRefreshStartDateField() {
+        addDateFieldToLayout(Call::getStartDate, Call::setStartDate, "startDate", 10, 3);
+    }
+
+    private void addOrRefreshPlannedDateField() {
+        addDateFieldToLayout(Call::getPlanningDate, Call::setPlanningDate, "date1", 11, 3);
+    }
+
+    private void addOrRefreshScheduledDateField() {
+        addDateFieldToLayout(Call::getCurrentScheduledDate, Call::setCurrentScheduledDate, "date2", 18, 3);
+    }
+
+    private void addOrRefreshEndDateField() {
+        addDateFieldToLayout(Call::getEndDate, Call::setEndDate, "endDate", 20, 3);
+    }
+
+    private void addOrRefreshDescriptionTextArea() {
+        addTextAreaToLayout(Call::getDescription, Call::setDescription, "description", 13, 13, 1, 3);
+    }
+
+    private void addOrRefreshNotesTextArea() {
+        addTextAreaToLayout(Call::getNotes, Call::setNotes, "notes", 14, 15, 1, 3);
+    }
+
+    private void addOrRefreshCallTypeComboBox() {
+        addComboBoxToLayout(callTypeRepository, Call::getCallType, Call::setCallType, "callType", 0, 2);
+    }
+
+    private void addOrRefreshUserComboBox() {
+        addComboBoxToLayout(usersRepository, Call::getOpenedByUser, null, "openBy", 10, 1);
+    }
+
+    private void addOrRefreshDriverComboBox() {
+        addComboBoxToLayout(driverRepository, Call::getCurrentDriver, Call::setCurrentDriver, "driver", 18, 1);
+    }
+
+    // TODO: Generic method ?
+    private void addOrRefreshScheduledOrderField() {
+        CustomNumericField numericField = new CustomNumericField(
+            null,
+                call.getCurrentScheduledOrder(),
+                0,
+                99,
+                null
+        );
+        numericField.addValueChangeListener(listener -> {
+                call.setCurrentScheduledOrder(Integer.parseInt(numericField.getValue()));
+                saveData();
+        });
+        numericField.setWidth(FIELDS_WIDTH);
+        numericField.setEnabled(!call.isDeleted());
+        int column = 1;
+        int row = 19;
+        this.layout.removeComponent(column, row);
+        this.layout.addComponent(numericField, column, row);
+        this.layout.removeComponent(column + 1, row);
+        this.layout.addComponent(new CustomLabel("order", FIELDS_WIDTH), column + 1, row);
+    }
+
+    private void addCheckBoxFieldToLayout(
+            ValueProvider<Call, Boolean> valueProvider,
+            Setter<Call, Boolean> setter,
+            String captionKey,
+            int row, int column
+    ) {
+        CustomCheckBox checkBox = new CustomCheckBox(null, valueProvider.apply(call), null == setter);
+        if (null != setter) {
+            checkBox.addValueChangeListener(listener -> {
+                        setter.accept(call, checkBox.getValue());
+                        saveData();
+                    }
+            );
+        }
+        checkBox.setEnabled(!call.isDeleted());
+        this.layout.removeComponent(column, row);
+        this.layout.addComponent(checkBox, column, row);
+        this.layout.setComponentAlignment(checkBox, Alignment.MIDDLE_RIGHT);
+        this.layout.removeComponent(column + 1, row);
+        this.layout.addComponent(new CustomLabel(captionKey, FIELDS_WIDTH), column + 1, row);
+    }
+
+    private void addDateFieldToLayout(
+            ValueProvider<Call, Date> valueProvider,
+            Setter<Call, Date> setter,
+            String captionKey,
+            int row, int column
+    ) {
+        CustomDateField dateField = new CustomDateField(valueProvider.apply(call));
+        if (null != setter) {
+            dateField.addValueChangeListener(listener -> {
+                        setter.accept(call, new Date(dateField.getValue()));
+                        saveData();
+                    }
+            );
+        }
+        dateField.setWidth(FIELDS_WIDTH);
+        dateField.setEnabled(!call.isDeleted());
+        this.layout.removeComponent(column, row);
+        this.layout.addComponent(dateField, column, row);
+        this.layout.removeComponent(column + 1, row);
+        this.layout.addComponent(new CustomLabel(captionKey, FIELDS_WIDTH), column + 1, row);
+    }
+
+    private void addTextAreaToLayout(
+            ValueProvider<Call, String> valueProvider,
+            Setter<Call, String> setter,
+            String captionKey,
+            int row1, int row2, int column1, int column2
+    ) {
+        CustomTextArea textArea = new CustomTextArea(null, valueProvider.apply(call), null, null);
+        if (null != setter) {
+            textArea.addValueChangeListener(listener -> {
+                        setter.accept(call, textArea.getValue());
+                        saveData();
+                    }
+            );
+        }
+        textArea.setSizeFull();
+        textArea.setEnabled(!call.isDeleted());
+        textArea.setHeight("100px");
+        this.layout.removeComponent(column1, row1);
+        this.layout.addComponent(textArea, column1, row1, column2, row2);
+        this.layout.removeComponent(column2 + 1, row1);
+        this.layout.addComponent(new CustomLabel(captionKey, FIELDS_WIDTH), column2 + 1, row1);
+    }
+
+    private <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T>> void addComboBoxToLayout(
+            AbstractTypeWithNameAndActiveFieldsRepository<T> repository,
+            ValueProvider<Call, T> valueProvider,
+            Setter<Call, T> setter,
+            String captionKey,
+            int row, int column
+    ) {
+        CustomComboBox<T> comboBox = CustomComboBox.getComboBox(repository);
+        T selected = valueProvider.apply(call);
+        if (null != selected) {
+            comboBox.setSelectedItem(selected);
+        }
+        if (null != setter) {
+            comboBox.addValueChangeListener(listener -> {
+                        setter.accept(call, comboBox.getValue());
+                        saveData();
+                    }
+            );
+        } else {
+            comboBox.setReadOnly(true);
+            comboBox.setEnabled(!call.isDeleted());
+        }
+        comboBox.setWidth(FIELDS_WIDTH);
+        this.layout.removeComponent(column, row);
+        this.layout.addComponent(comboBox, column, row);
+        this.layout.removeComponent(column + 1, row);
+        this.layout.addComponent(new CustomLabel(captionKey, FIELDS_WIDTH), column + 1, row);
+    }
 }

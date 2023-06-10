@@ -4,10 +4,7 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.uiComponents.CustomButton;
-import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
-import il.co.rtcohen.rt.app.uiComponents.CustomComboBox;
-import il.co.rtcohen.rt.app.uiComponents.CustomComboBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.repositories.*;
@@ -38,34 +35,19 @@ public class CustomerGrid extends AbstractTypeFilterGrid<Customer> {
         addActiveColumn();
         addCallsColumn();
         addSitesColumn();
+        addHashKeyColumn();
         addCustomerTypeColumn();
         addNameColumn();
         addIdColumn();
     }
 
     private void addCallsColumn() {
-        this.addComponentColumn(
-                (ValueProvider<Customer, Component>) Customer -> {
-                    if (null == Customer.getId()) {
-                        return null;
-                    } else {
-                        int openCallsCounter = 0;
-                        try {
-                            openCallsCounter = callRepository.countActiveCallsByCustomer(Customer.getId());
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
-                        Button callsButton = CustomButton.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
-                        callsButton.addClickListener(clickEvent ->
-                                getUI().getNavigator().navigateTo("call/customer=" + Customer.getId()));
-                        return callsButton;
-                    }
-                },
-                60,
-                "callsColumn",
-                "calls"
+        addCallsColumn(
+                customer -> callRepository.getItems(customer, null, null, false).size(),
+                "customer"
         );
     }
+
     private void addSitesColumn() {
         Column<Customer, Component> column = this.addComponentColumn(
                 (ValueProvider<Customer, Component>) Customer -> {
@@ -99,6 +81,20 @@ public class CustomerGrid extends AbstractTypeFilterGrid<Customer> {
                 "active",
                 Boolean.TRUE,
                 this
+        );
+    }
+
+    private void addHashKeyColumn() {
+        CustomNumericColumn.addToGrid(
+                Customer::getHashavshevetId,
+                Customer::setHashavshevetId,
+                100,
+                "hashKeyColumn",
+                "hashKey",
+            false,
+            true,
+            true,
+            this
         );
     }
 

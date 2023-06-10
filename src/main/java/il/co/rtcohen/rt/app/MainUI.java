@@ -205,7 +205,10 @@ public class MainUI extends UI implements ViewDisplay {
         MenuBar.MenuItem calls = call.addItem(LanguageSettings.getLocaleString("callsTable"));
         calls.setCommand(generateMenuBarCommand("calls"));
         call.addItem(LanguageSettings.getLocaleString("addCall"), (MenuBar.Command) selectedItem -> Page.getCurrent()
-                .open(UIPaths.EDITCALL.getPath(), "_new3", 750, 770, BorderStyle.NONE));
+                .open(UIPaths.EDITCALL.getPath(), UIPaths.EDITCALL.getWindowName(),
+                        UIPaths.EDITCALL.getWindowWidth(), UIPaths.EDITCALL.getWindowHeight(),
+                        BorderStyle.NONE)
+        );
     }
 
     private Component createNavigationBar() {

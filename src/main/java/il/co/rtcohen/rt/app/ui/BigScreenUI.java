@@ -15,6 +15,7 @@ import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.app.views.CustomerDataView;
 import il.co.rtcohen.rt.dal.dao.Call;
+import il.co.rtcohen.rt.dal.repositories.UsersRepository;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
@@ -45,10 +46,11 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     @Autowired
     private BigScreenUI(ErrorHandler errorHandler, CallRepository callRepository,
                         GeneralRepository generalRepository, AreasRepository areasRepository,
+                        UsersRepository usersRepository,
                         @Value("${settings.bigScreen.interval}") Integer intervalTime,
                         @Value("${settings.bigScreen.rowHeight}") Integer rowHeight,
                         @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn) {
-        super(errorHandler,callRepository,generalRepository);
+        super(errorHandler,callRepository,generalRepository, usersRepository);
         this.areasRepository=areasRepository;
         this.intervalTime=intervalTime;
         this.rowHeight=rowHeight;
@@ -155,8 +157,9 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         grid.addStyleName("bigscreen");
         grid.addComponentColumn(this::createCallLabel);
         grid.addContextClickListener(clickEvent ->
-                Page.getCurrent().open(UIPaths.EDITCALL.getPath() + call.getId(),
-                        "_new3",750,770, BorderStyle.NONE));
+                Page.getCurrent().open(UIPaths.EDITCALL.getEditCallPath(call),
+                        UIPaths.EDITCALL.getWindowName(), UIPaths.EDITCALL.getWindowWidth(), UIPaths.EDITCALL.getWindowHeight(),
+                        BorderStyle.NONE));
         grid.addStyleName("custom-margins");
         grid.setStyleGenerator((StyleGenerator<Call>) StyleSettings::callStyle);
         return grid;

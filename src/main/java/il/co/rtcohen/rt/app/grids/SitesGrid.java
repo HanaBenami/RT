@@ -61,8 +61,8 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
 
     protected void addColumns() {
         addActiveColumn();
-        addContactsColumn();
         addCallsColumn();
+        addContactsColumn();
         addNotesColumn();
         addAreaColumn();
         addAddressColumn();
@@ -93,28 +93,10 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
     }
 
     private void addCallsColumn() {
-        Column<Site, Component> column = this.addComponentColumn(
-                (ValueProvider<Site, Component>) site -> {
-                    if (null == site.getId()) {
-                        return null;
-                    } else {
-                        int openCallsCounter = 0;
-                        try {
-                            openCallsCounter = callRepository.getItems(site).size();
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
-                        Button callsButton = CustomButton.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
-                        callsButton.addClickListener(clickEvent ->
-                                getUI().getNavigator().navigateTo("call/customer=" + site.getCustomer().getId()));    // TODO: Change to call/site=
-                        return callsButton;
-                    }
-                },
-                85,
-                "callsColumn",
-                "calls"
+        addCallsColumn(
+                site -> callRepository.getItems(null, site, null, false).size(),
+                "site"
         );
-        column.setHidden(true);
     }
 
     private void addActiveColumn() {

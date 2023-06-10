@@ -4,6 +4,8 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.utils.Date;
 
+import java.time.LocalDate;
+
 public class Call extends AbstractType implements BindRepository<Call> {
     private Customer customer;
     private Site site;
@@ -15,10 +17,11 @@ public class Call extends AbstractType implements BindRepository<Call> {
     private int currentScheduledOrder, previousScheduledOrder;
     private Driver currentDriver, previousDriver;
     private boolean meeting, isDone, isHere, isDeleted;
-    private User user;
+    private User openedByUser;
 
     public Call() {
         super(0);
+        this.setStartDate(new Date(LocalDate.now()));
     }
 
     public Call(
@@ -39,7 +42,7 @@ public class Call extends AbstractType implements BindRepository<Call> {
             boolean isDone,
             boolean isHere,
             boolean isDeleted,
-            User user
+            User openedByUser
     ) {
         super(id);
         this.customer = customer;
@@ -61,7 +64,7 @@ public class Call extends AbstractType implements BindRepository<Call> {
         this.isDone = isDone;
         this.isHere = isHere;
         this.isDeleted = isDeleted;
-        this.user = user;
+        this.openedByUser = openedByUser;
     }
 
     public Customer getCustomer() {
@@ -150,6 +153,7 @@ public class Call extends AbstractType implements BindRepository<Call> {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+        this.isDone = (null != this.endDate);
     }
 
     public int getCurrentScheduledOrder() {
@@ -197,7 +201,7 @@ public class Call extends AbstractType implements BindRepository<Call> {
     }
 
     public void setDone(boolean done) {
-        isDone = done;
+        this.isDone = done;
     }
 
     public boolean isHere() {
@@ -220,12 +224,12 @@ public class Call extends AbstractType implements BindRepository<Call> {
         isDeleted = deleted;
     }
 
-    public User getUser() {
-        return user;
+    public User getOpenedByUser() {
+        return openedByUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setOpenedByUser(User openedByUser) {
+        this.openedByUser = openedByUser;
     }
 
     @Override

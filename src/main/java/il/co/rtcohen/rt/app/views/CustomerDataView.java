@@ -89,7 +89,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
                 (0 == selectedCustomerId ? null : customerRepository.getItem(selectedCustomerId)),
                 customerRepository, customerTypeRepository, siteRepository, callRepository
         );
-        this.customerGrid.setSelected(selectedCustomerId);
+        this.customerGrid.setSelectedItem(selectedCustomerId);
         this.selectedCustomerId = 0;
         this.customerGrid.addItemClickListener(listener -> {
             int newSelectedCustomerId = listener.getItem().getId();
@@ -104,7 +104,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     void addSitesGrid(Customer customer) {
         removeSitesGrid();
         this.sitesGrid = new SitesGrid(customer, contactRepository, siteRepository, callRepository, areasRepository);
-        this.sitesGrid.setSelected(selectedSiteId);
+        this.sitesGrid.setSelectedItem(selectedSiteId);
         this.selectedSiteId = 0;
         this.sitesGrid.addItemClickListener(listener -> {
             addContactsGrid(listener.getItem());
@@ -123,8 +123,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addVehicleGrid(Site site) {
         removeVehiclesGrid();
-        this.vehiclesGrid = new VehiclesGrid(site, vehicleRepository, vehicleTypeRepository);
-        this.vehiclesGrid.setSelected(selectedVehicleId);
+        this.vehiclesGrid = new VehiclesGrid(site, vehicleRepository, vehicleTypeRepository, callRepository);
+        this.vehiclesGrid.setSelectedItem(selectedVehicleId);
         this.selectedVehicleId = 0;
         this.gridLayout.addComponent(vehiclesGrid.getVerticalLayout(true, true), 0, 4, 5, 5);
     }
