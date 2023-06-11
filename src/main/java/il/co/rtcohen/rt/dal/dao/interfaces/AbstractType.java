@@ -67,4 +67,8 @@ abstract public class AbstractType {
     // Used post record update in the DB
     public void postSave() {
     }
+
+    public boolean isDraft() {
+        return (null == this.getId() || 0 == this.getId());
+    }
 }

@@ -1,24 +1,24 @@
 package il.co.rtcohen.rt.app.grids;
 
-import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
 
-public class ContactsGrid extends AbstractTypeFilterGrid<Contact> {
+public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contact> {
     private final Site site;
 
     public ContactsGrid(Site site,
                         ContactRepository contactRepository) {
-        super(contactRepository, () -> {
+        super(
+                contactRepository, () -> {
                     Contact contact = new Contact();
                     contact.setSite(site);
                     return contact;
                 },
                 "contactsOfSites",
-                contact -> null == site || !contact.getSite().getId().equals(site.getId()));
-        this.site = site;
-        this.initGrid();
+                contact -> null == site || !contact.getSite().getId().equals(site.getId())
+        );
+        this.site = (null == site || site.isDraft() ? null : site);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ContactsGrid extends AbstractTypeFilterGrid<Contact> {
     protected void changeErrorMessage() {
         String errorMessageKey = null;
         String warningMessageKey = null;
-        if (null == site) {
+        if (null == this.site) {
             errorMessageKey = "noSite";
         } else if (0 == this.getItemsCounter()) {
             warningMessageKey = "noContactsToSite";
@@ -48,17 +48,6 @@ public class ContactsGrid extends AbstractTypeFilterGrid<Contact> {
         addPhoneColumn();
         addNameColumn();
         addIdColumn();
-    }
-
-    protected void addActiveColumn() {
-        CustomCheckBoxColumn.addToGrid(
-                Contact::isActive,
-                Contact::setActive,
-                "activeColumn",
-                "active",
-                Boolean.TRUE,
-                this
-        );
     }
 
     private void addNotesColumn() {
@@ -78,16 +67,6 @@ public class ContactsGrid extends AbstractTypeFilterGrid<Contact> {
                 230,
                 "phoneColumn",
                 "phone"
-        );
-    }
-
-    private void addNameColumn() {
-        this.addTextColumn(
-                Contact::getName,
-                Contact::setName,
-                230,
-                "nameColumn",
-                "name"
         );
     }
 }

@@ -6,31 +6,36 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.*;
-import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.repositories.*;
 
 import java.sql.SQLException;
 
-public class CustomerGrid extends AbstractTypeFilterGrid<Customer> {
+public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Customer> {
     private final Customer selectedCustomer;
     private final CustomerTypeRepository customerTypeRepository;
     private final SiteRepository siteRepository;
     private final CallRepository callRepository;
 
-    public CustomerGrid(Customer selectedCustomer,
-                        CustomerRepository customerRepository,
-                        CustomerTypeRepository customerTypeRepository,
-                        SiteRepository siteRepository,
-                        CallRepository callRepository) {
-        super(customerRepository, Customer::new, "customers",
-              customer -> null != selectedCustomer && !selectedCustomer.getId().equals(customer.getId()));
+    public CustomerGrid(
+            Customer selectedCustomer,
+            CustomerRepository customerRepository,
+            CustomerTypeRepository customerTypeRepository,
+            SiteRepository siteRepository,
+            CallRepository callRepository
+    ) {
+        super(
+                customerRepository,
+                Customer::new,
+                "customers",
+                customer -> null != selectedCustomer && !selectedCustomer.getId().equals(customer.getId())
+        );
         this.selectedCustomer = selectedCustomer;
         this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;
         this.callRepository = callRepository;
-        this.initGrid();
     }
 
+    @Override
     protected void addColumns() {
         addActiveColumn();
         addCallsColumn();
@@ -73,17 +78,6 @@ public class CustomerGrid extends AbstractTypeFilterGrid<Customer> {
         column.setHidden(true);
     }
 
-    private void addActiveColumn() {
-        CustomCheckBoxColumn.addToGrid(
-                AbstractTypeWithNameAndActiveFields::isActive,
-                AbstractTypeWithNameAndActiveFields::setActive,
-                "activeColumn",
-                "active",
-                Boolean.TRUE,
-                this
-        );
-    }
-
     private void addHashKeyColumn() {
         CustomNumericColumn.addToGrid(
                 Customer::getHashavshevetId,
@@ -108,16 +102,6 @@ public class CustomerGrid extends AbstractTypeFilterGrid<Customer> {
                 "custTypeColumn",
                 "custType",
                 this
-        );
-    }
-
-    private void addNameColumn() {
-        this.addTextColumn(
-                Customer::getName,
-                Customer::setName,
-                180,
-                "nameColumn",
-                "name"
         );
     }
 }

@@ -13,7 +13,7 @@ import il.co.rtcohen.rt.dal.repositories.*;
 
 import java.sql.SQLException;
 
-public class SitesGrid extends AbstractTypeFilterGrid<Site> {
+public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     private final Customer selectedCustomer;
     private final ContactRepository contactRepository;
     private final CallRepository callRepository;
@@ -24,18 +24,19 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
                      SiteRepository siteRepository,
                      CallRepository callRepository,
                      AreasRepository areasRepository) {
-        super(siteRepository, () -> {
+        super(
+                siteRepository, () -> {
                     Site site = new Site();
                     site.setCustomer(selectedCustomer);
                     return site;
                 },
                 "sitesOfCustomers",
-                site -> null == selectedCustomer || null == site.getCustomer() || !site.getCustomer().getId().equals(selectedCustomer.getId()));
-        this.selectedCustomer = selectedCustomer;
+                site -> null == selectedCustomer || null == site.getCustomer() || !site.getCustomer().getId().equals(selectedCustomer.getId())
+        );
+        this.selectedCustomer = (null == selectedCustomer || selectedCustomer.isDraft() ? null : selectedCustomer);
         this.contactRepository = contactRepository;
         this.callRepository = callRepository;
         this.areasRepository = areasRepository;
-        this.initGrid();
     }
 
     @Override
@@ -59,6 +60,7 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
         this.setWarningMessage(warningMessageKey);
     }
 
+    @Override
     protected void addColumns() {
         addActiveColumn();
         addCallsColumn();
@@ -99,17 +101,6 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
         );
     }
 
-    private void addActiveColumn() {
-        CustomCheckBoxColumn.addToGrid(
-                Site::isActive,
-                Site::setActive,
-                "activeColumn",
-                "active",
-                Boolean.TRUE,
-                this
-        );
-    }
-
     private void addNotesColumn() {
         this.addTextColumn(
                 Site::getNotes,
@@ -140,16 +131,6 @@ public class SitesGrid extends AbstractTypeFilterGrid<Site> {
                 230,
                 "addressColumn",
                 "address"
-        );
-    }
-
-    private void addNameColumn() {
-        this.addTextColumn(
-                Site::getName,
-                Site::setName,
-                230,
-                "nameColumn",
-                "name"
         );
     }
 }

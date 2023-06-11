@@ -188,6 +188,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
                     siteRepository,
                     callRepository
             );
+            this.customerGrid.initGrid();
             this.addGridToLayout(this.customerGrid, this.selectedCustomer, 1,1, 2, 4, 2);
         } else {
             // TODO: selection combobox
@@ -196,9 +197,10 @@ public class EditCallUI extends AbstractUI<GridLayout> {
 
     private void addSiteGrid() {
         if (null != this.selectedSite) {
-            sitesGrid = new SitesGrid(
+            this.sitesGrid = new SitesGrid(
                     this.selectedCustomer, contactRepository, siteRepository, callRepository, areasRepository
             );
+            this.sitesGrid.initGrid();
             this.addGridToLayout(this.sitesGrid, this.selectedSite, 1,1, 3, 4, 3);
         } else {
             // TODO: selection combobox
@@ -221,6 +223,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.contactsGrid = new ContactsGrid(
                     this.selectedSite, contactRepository
             );
+            this.contactsGrid.initGrid();
             this.addGridToLayout(this.contactsGrid, null, 3,1, 5, 4, 5);
         } else {
             // TODO: selection combobox

@@ -18,7 +18,7 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
     private final AbstractTypeWithNameAndActiveFieldsRepository<T> abstractTypeWithNameAndActiveFieldsRepository;
     private final Supplier<T> newItemSupplier;
     private final String titleKey;
-    private AbstractTypeWithNameAndActiveFieldsGrid<T> abstractTypeWithNameAndActiveFieldsGrid;
+    private AbstractTypeWithNameAndActiveFieldsGrid<T> grid;
 
     @Autowired
     protected AbstractTypeWithNameAndActiveFieldsView(ErrorHandler errorHandler,
@@ -38,12 +38,13 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
 
     void addGrid() {
         removeGrid();
-        abstractTypeWithNameAndActiveFieldsGrid = new AbstractTypeWithNameAndActiveFieldsGrid<T>(
+        grid = new AbstractTypeWithNameAndActiveFieldsGrid<T>(
                 this.abstractTypeWithNameAndActiveFieldsRepository,
                 this.newItemSupplier,
-                this.titleKey
-        );
-        addComponentsAndExpand(abstractTypeWithNameAndActiveFieldsGrid.getVerticalLayout(true, false));
+                this.titleKey,
+                null);
+        grid.initGrid();
+        addComponentsAndExpand(grid.getVerticalLayout(true, false));
     }
 
     @Override
@@ -52,15 +53,15 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
     }
 
     void removeGrid() {
-        if (null != abstractTypeWithNameAndActiveFieldsGrid) {
-            removeComponent(abstractTypeWithNameAndActiveFieldsGrid.getVerticalLayout(false, false));
-            abstractTypeWithNameAndActiveFieldsGrid = null;
+        if (null != grid) {
+            removeComponent(grid.getVerticalLayout(false, false));
+            grid = null;
         }
     }
 
     // TODO
     @Override
     void setTabIndexes() {
-        abstractTypeWithNameAndActiveFieldsGrid.setTabIndex(1);
+        grid.setTabIndex(1);
     }
 }

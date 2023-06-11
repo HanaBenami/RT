@@ -1,8 +1,13 @@
 package il.co.rtcohen.rt.app.grids;
 
+import com.vaadin.client.widget.grid.events.GridSelectionAllowedEvent;
 import com.vaadin.data.ValueProvider;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.event.selection.SelectionEvent;
+import com.vaadin.event.selection.SingleSelectionEvent;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
+import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
@@ -43,8 +48,11 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
     public final String idColumnId = "idColumn";
     private boolean emptyLinesAllow = true;
 
-    public AbstractTypeFilterGrid(AbstractTypeRepository<T> mainRepository, Supplier<T> newItemSupplier, String titleKey,
-                                  Predicate<T> itemsFilterPredicate) {
+    public AbstractTypeFilterGrid(
+            AbstractTypeRepository<T> mainRepository,
+            Supplier<T> newItemSupplier,
+            String titleKey,
+            Predicate<T> itemsFilterPredicate) {
         super();
         this.setGridRepository(mainRepository);
         this.setNewItemSupplier(newItemSupplier);
@@ -55,8 +63,8 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
 
     protected void initGrid() {
         this.setTitle();
-        this.populateGrid();
         this.addColumns();
+        this.populateGrid();
         this.sort();
         this.setStyle();
     }
@@ -163,6 +171,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
                 Notification.show(currentItem + " " + LanguageSettings.getLocaleString("invalidAndCannotBeSaved"),
                         Notification.Type.ERROR_MESSAGE);
             }
+            this.getDataProvider().refreshItem(currentItem);
+            this.setSelectedItem(currentItem);
+            this.fireEvent(new Grid.ItemClick<T>(this, this.getColumn(idColumnId), currentItem, null, 0));
         });
         editor.setSaveCaption(LanguageSettings.getLocaleString("save"));
         editor.setCancelCaption(LanguageSettings.getLocaleString("cancel"));
@@ -211,7 +222,8 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         return this.newItemSupplier.get();
     }
 
-    // TODO: Move to UiComponents
+    @Deprecated
+    // TODO: use uiComponents.CustomTextColumn instead
     public Column<T, String> addTextColumn(ValueProvider<T, String> valueProvider,
                                            Setter<T, String> setter,
                                            int width, String id, String label) {
@@ -328,12 +340,16 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         }
     }
 
-    public void setSelectedItem(int selectedItemId) {
-        if (0 != selectedItemId) {
+    public void setSelectedItem(T selectedItem) {
+            this.getSelectionModel().select(selectedItem);
+    }
+
+    public void setSelectedItem(Integer selectedItemId) {
+        if (null != selectedItemId && 0 != selectedItemId) {
             setFilterToSelectedItem(selectedItemId);
             T item = mainRepository.getItem(selectedItemId);
             if (null != item && gridItems.contains(item)) {
-                this.getSelectionModel().select(item);
+                this.setSelectedItem(item);
             }
         }
     }

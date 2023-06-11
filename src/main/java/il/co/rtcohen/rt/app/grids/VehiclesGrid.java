@@ -28,7 +28,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 },
                 "vehiclesOfSites",
                 vehicle -> null == site || null == vehicle.getSite() || !vehicle.getSite().equals(site));
-        this.site = site;
+        this.site = (null == site || site.isDraft() ? null : site);
         this.vehicleTypeRepository = vehicleTypeRepository;
         this.callRepository = callRepository;
         this.initGrid();
@@ -46,7 +46,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     protected void changeErrorMessage() {
         String errorMessageKey = null;
         String warningMessageKey = null;
-        if (null == site) {
+        if (null == this.site) {
             errorMessageKey = "noSite";
         } else if (0 == this.getItemsCounter()) {
             warningMessageKey = "noVehiclesToSite";
