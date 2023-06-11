@@ -1,15 +1,15 @@
 package il.co.rtcohen.rt.dal.repositories;
-import il.co.rtcohen.rt.dal.dao.Customer;
-import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
-import il.co.rtcohen.rt.dal.dao.Site;
-import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
-import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import il.co.rtcohen.rt.dal.dao.Customer;
+import il.co.rtcohen.rt.dal.dao.Site;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
 @Repository
 public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Site> implements RepositoryInterface<Site> {
@@ -68,53 +68,7 @@ public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepositor
     }
 
     public List<Site> getItems(Customer customer) throws SQLException {
-        List<Site> list = this.getItems();
-        list.removeIf(site -> (null == site.getCustomer() || !site.getCustomer().getId().equals(customer.getId())));
-        return list;
+        return this.getItems(DB_CUSTOMER_ID_COLUMN + "=" + customer.getId());
     }
-
-
-
-    @Deprecated
-    public List<Integer> getActiveIdByCustomer(Integer customerId) throws SQLException {
-        return getIdByCustomer(customerId,true);
-    }
-
-    @Deprecated
-    private List<Integer> getIdByCustomer(Integer customerId, boolean active) throws SQLException {
-        if (customerId>0) {
-            if (active)
-                return getActiveByCustomer(customerId);
-            else
-                return getByCustomer(customerId);
-        }
-        else
-            return getActive();
-    }
-
-    @Deprecated
-    private List<Integer> getByCustomer(Integer customerId) throws SQLException {
-        List<Site> list = this.getItems();
-        list.removeIf(site -> null == site.getCustomer() || !site.getCustomer().getId().equals(customerId));
-        return list.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
-    }
-
-    @Deprecated
-    private List<Integer> getActiveByCustomer(Integer customerId) throws SQLException {
-        List<Site> list = this.getItems();
-        list.removeIf(site -> null == site.getCustomer() || !site.getCustomer().getId().equals(customerId) && site.isActive());
-        return list.stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
-    }
-
-    @Deprecated
-    private List<Integer> getActive() throws SQLException {
-        return getItems(true).stream().map(AbstractTypeWithNameAndActiveFields::getId).collect(Collectors.toList());
-    }
-
-    @Deprecated
-    public Site getSiteById (int id) {
-        return getItem(id);
-    }
-
 }
 

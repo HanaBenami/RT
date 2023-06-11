@@ -96,7 +96,6 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static CustomComboBox<CustomerType> getComboBox(CustomerTypeRepository customerTypeRepository) {
-        getLogger().info("---- customerTypeRepository " + customerTypeRepository); //TODO DELETE
         try {
             return new CustomComboBox<>(
                     customerTypeRepository.getItems(true),

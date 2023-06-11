@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 
+import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import il.co.rtcohen.rt.utils.Date;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.List;
 
 @Repository
 public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Vehicle> implements RepositoryInterface<Vehicle> {
@@ -76,5 +78,9 @@ public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsReposi
         fieldsCounter++;
         preparedStatement.setString(fieldsCounter, vehicle.getLastUpdate().toString());
         return fieldsCounter;
+    }
+
+    public List<Vehicle> getItems(Site site) throws SQLException {
+        return this.getItems(DB_SITE_ID_COLUMN + "=" + site.getId());
     }
 }

@@ -6,7 +6,7 @@ import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 
 public enum UIPaths {
-    EDITCALL("/editCall#", "_edit_call_window",950, 950),
+    EDITCALL("/editCall#", "_edit_call_window",1000, 1000),
     CALLS("calls/"),
     PRINT("/print#"),
     BIGSCREEN("/bigScreen#");

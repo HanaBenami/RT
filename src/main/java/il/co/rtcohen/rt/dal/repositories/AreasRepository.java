@@ -1,15 +1,15 @@
 package il.co.rtcohen.rt.dal.repositories;
 
-import il.co.rtcohen.rt.dal.dao.Area;
-import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
-import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import il.co.rtcohen.rt.dal.dao.Area;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
 @Repository
 public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Area> implements RepositoryInterface<Area> {
@@ -46,11 +46,6 @@ public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsReposito
     }
 
     @Deprecated
-    public List<Area> getAreas() throws SQLException {
-        return getItems();
-    }
-
-    @Deprecated
     public Area getAreaById(int id) {
         return getItem(id);
     }
@@ -71,18 +66,6 @@ public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsReposito
         areas.removeIf(area -> !area.isActive());
         areas.removeIf(area -> area.getHere() != here);
         return areas.stream().map(Area::getId).collect(Collectors.toList());
-    }
-
-    @Deprecated
-    public long insertArea(String name) {
-        insertItem(new Area(name));
-        return 1; // TODO: change to real value, if needed
-    }
-
-    @Deprecated
-    public int updateArea(Area area) {
-        updateItem(area);
-        return 1; // TODO: change to real value, if needed
     }
 }
 

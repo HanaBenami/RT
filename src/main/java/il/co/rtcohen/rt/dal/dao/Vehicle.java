@@ -2,11 +2,12 @@ package il.co.rtcohen.rt.dal.dao;
 
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.utils.Date;
 
 import java.time.LocalDate;
 
-public class Vehicle extends AbstractTypeWithNameAndActiveFields {
+public class Vehicle extends AbstractTypeWithNameAndActiveFields implements BindRepository<Vehicle> {
     static {
         setObjectName("vehicle");
     }
