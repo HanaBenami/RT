@@ -6,6 +6,8 @@ import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -13,6 +15,7 @@ import java.sql.*;
 import java.util.List;
 
 @Repository
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Vehicle> implements RepositoryInterface<Vehicle> {
     static private final String DB_SITE_ID_COLUMN ="siteId";
     static private final String DB_VEHICLE_TYPE_ID_COLUMN ="typeId";
@@ -81,6 +84,6 @@ public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsReposi
     }
 
     public List<Vehicle> getItems(Site site) throws SQLException {
-        return this.getItems(DB_SITE_ID_COLUMN + "=" + site.getId());
+        return this.getItems(DB_SITE_ID_COLUMN + "=" + site.getId() + " and " + DB_ACTIVE_COLUMN + "=1");
     }
 }

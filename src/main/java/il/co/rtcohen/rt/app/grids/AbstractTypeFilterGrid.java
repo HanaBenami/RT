@@ -180,12 +180,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
     }
 
     protected List<T> getItems() {
-        try {
-            return mainRepository.getItems();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return new ArrayList<>();
+        return mainRepository.getItems();
     }
 
     public void populateGrid() {

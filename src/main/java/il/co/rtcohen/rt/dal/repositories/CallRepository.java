@@ -1,20 +1,23 @@
 package il.co.rtcohen.rt.dal.repositories;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
+import java.sql.*;
+import java.util.List;
+
+import il.co.rtcohen.rt.dal.dao.Driver;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import il.co.rtcohen.rt.dal.dao.*;
-import il.co.rtcohen.rt.dal.repositories.exceptions.UpdateException;
 import il.co.rtcohen.rt.utils.Date;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
-import java.sql.*;
-import java.time.LocalDate;
-import java.util.List;
 
 @Repository
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class CallRepository extends AbstractTypeRepository<Call> implements RepositoryInterface<Call> {
     static protected final String DB_CUSTOMER_ID_COLUMN = "custID";
     static protected final String DB_SITE_ID_COLUMN = "siteID";
@@ -45,7 +48,6 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     public CallRepository(DataSource dataSource,
                           CustomerRepository customerRepository,
                           SiteRepository siteRepository,
-                          VehicleTypeRepository vehicleTypeRepository,
                           VehicleRepository vehicleRepository,
                           CallTypeRepository callTypeRepository,
                           DriverRepository driverRepository,
@@ -145,8 +147,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
 
     public List<Call> getItems(Customer customer, Site site, Vehicle vehicle, Boolean isDone) {
         List<Call> list = null;
-        try {
-            Connection connection = getConnection();
+        try (Connection connection = getConnection()) {
             String sqlQuery = "select * from " + DB_TABLE_NAME;
             if (null != isDone) {
                 sqlQuery += " and " + DB_IS_DONE_COLUMN + "=?";
@@ -181,53 +182,51 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 preparedStatement.setInt(fieldsCounter, vehicle.getId());
                 fieldsCounter++;
             }
-            list = getItems(connection, preparedStatement);
+            list = getItems(preparedStatement);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return list;
-    }
-
-
-    public List<Call> getItems(Site site) throws SQLException {
-        return getItems(DB_SITE_ID_COLUMN + "=" + site.getId());
-    }
-
-    public List<Call> getItems(Vehicle vehicle) throws SQLException {
-        return getItems(DB_VEHICLE_ID_COLUMN + "=" + vehicle.getId());
     }
 
     public List<Call> getItems(Date scheduledDate) {
+        return getItems(scheduledDate, null);
+    }
+
+    public List<Call> getItems(@NotNull Date scheduledDate, Driver driver) {
         List<Call> list = null;
-        try {
-            Connection connection = getConnection();
+        try (Connection connection = getConnection()) {
             String sqlQuery = "select * from " + DB_TABLE_NAME;
-            if (null != scheduledDate) {
-                sqlQuery += " where " + DB_SCHEDULED_DATE_COLUMN + "=?";
+            sqlQuery += " where " + DB_SCHEDULED_DATE_COLUMN + "=?";
+            if (null != driver) {
+                sqlQuery += " and " + DB_DRIVER_ID_COLUMN + "=?";
             }
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             int fieldsCounter = 1;
-            if (null != scheduledDate) {
-                preparedStatement.setString(fieldsCounter, scheduledDate.toString());
-                fieldsCounter++;
+            preparedStatement.setString(fieldsCounter, scheduledDate.toString());
+            fieldsCounter++;
+            if (null != driver) {
+                preparedStatement.setInt(fieldsCounter, driver.getId());
             }
-            list = getItems(connection, preparedStatement);
+            list = getItems(preparedStatement);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return list;
     }
 
-    public List<Call> getItems(Boolean isDone, Boolean isDeleted, Date maximalEndDate) {
+    public List<Call> getItems(Boolean isDone, Boolean isDeleted, Boolean isHere, Date maximalEndDate, Area area) {
         List<Call> list = null;
-        try {
-            Connection connection = getConnection();
+        try (Connection connection = getConnection()) {
             String sqlQuery = "select * from " + DB_TABLE_NAME;
             if (null != isDone) {
                 sqlQuery += " and " + DB_IS_DONE_COLUMN + "=?";
             }
             if (null != isDeleted) {
                 sqlQuery += " and " + DB_IS_DELETED_COLUMN + "=?";
+            }
+            if (null != isHere) {
+                sqlQuery += " and " + DB_IS_HERE_COLUMN + "=?";
             }
             if (null != maximalEndDate) {
                 sqlQuery += " and ?<=" + DB_END_DATE_COLUMN + "";
@@ -245,161 +244,21 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 preparedStatement.setBoolean(fieldsCounter, isDeleted);
                 fieldsCounter++;
             }
+            if (null != isHere) {
+                preparedStatement.setBoolean(fieldsCounter, isHere);
+                fieldsCounter++;
+            }
             if (null != maximalEndDate) {
                 preparedStatement.setString(fieldsCounter, maximalEndDate.toString());
                 fieldsCounter++;
             }
-            list = getItems(connection, preparedStatement);
+            list = getItems(preparedStatement);
+            if (null != area) {
+                list.removeIf(call -> (null == call.getSite() || null == call.getSite().getArea() || !call.getSite().getArea().equals(area)));
+            }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return list;
     }
-
-    public List<Call> getItems(Area area, Boolean isDone) throws SQLException {
-        List<Call> calls = getItems(isDone, false, null);
-        calls.removeIf(call -> (null == call.getSite() || null == call.getSite().getArea() || call.getSite().getArea().equals(area)));
-        return calls;
-    }
-
-    @Deprecated
-    public List<Call> getCalls(LocalDate date) throws SQLException {
-        return getItems(DB_SCHEDULED_DATE_COLUMN + "='" + Date.localDateToString(date) + "'");
-    }
-
-    @Deprecated
-    public List<Call> getCalls(LocalDate date, int driver) throws SQLException {
-
-        return getItems(DB_SCHEDULED_DATE_COLUMN + "='" + Date.localDateToString(date) + "' and " + DB_DRIVER_ID_COLUMN + "=" + driver);
-    }
-
-    @Deprecated
-    public List<Call> getLocalCalls() throws SQLException {
-        List<Call> calls = getItems();
-        calls.removeIf(call -> !call.isHere());
-        return calls;
-    }
-
-    @Deprecated
-    public List<Call> getCalls(Boolean isDone, Boolean isDeleted) throws SQLException {
-        List<Call> calls = getItems();
-        calls.removeIf(call -> (call.isDone() != isDone || call.isDeleted() != isDeleted));
-        return calls;
-    }
-
-    @Deprecated
-    public int countActiveCallsByCustomer (Integer customerId) throws SQLException {
-        Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from call where done=? and custid=?");
-        preparedStatement.setBoolean(1,false);
-        preparedStatement.setInt(2,customerId);
-        ResultSet rs = preparedStatement.executeQuery();
-        return getItems(connection, preparedStatement).size();
-    }
-
-    @Deprecated
-    public Call getCallById(Integer id) {
-        return getItem(id);
-    }
-
-    @Deprecated // TODO replace all usage!!
-    public long insertCall(int customerId, LocalDate startDate, int userId) {
-        Call call = new Call();
-        call.setStartDate(new Date(startDate));
-        call.setOpenedByUser(usersRepository.getItem(userId));
-        return insertItem(call);
-    }
-
-    @Deprecated
-    public long insertCall(int customerId, LocalDate startDate, int userId, int siteId) {
-        long id = insertCall(customerId,startDate, userId);
-        Call call = getCallById((int)id);
-        call.setSite(siteRepository.getItem(siteId));
-        updateCall(call);
-        return id;
-    }
-
-    @Deprecated
-    public void updateCall(Call call) {
-        updateItem(call);
-    }
-
-    @Override
-    public void updateItem(Call call) {
-        super.updateItem(call);
-//        callService.updateCall(call); // TODO rewrite it
-    }
-
-    @Deprecated
-    public int newOrder(Call call) {
-        int newOrder = 1;
-        if (call.getCurrentDriver().getId() == 0)
-            return 0;
-        else if (null == call.getCurrentScheduledDate())
-            return 0;
-        else {
-            try (Connection con = getConnection(); PreparedStatement preparedStatement = con.prepareStatement
-                    ("select max(workorder) workorder from call where driverid=? and date2=?")) {
-                preparedStatement.setInt(1, call.getCurrentDriver().getId());
-                preparedStatement.setString(2, call.getCurrentScheduledDate().toString());
-                ResultSet rs = preparedStatement.executeQuery();
-                while (rs.next()) {
-                    newOrder = (rs.getInt("workorder")) + 1;
-                }
-                return newOrder;
-            } catch (SQLException e) {
-                logger.error("error in newOrder (call id="+call.getId()+": ",e);
-                throw new UpdateException("error in newOrder (call id="+call.getId()+": ",e);
-            }
-        }
-    }
-
-    @Deprecated
-    private void updateQuery(String sql) {
-        try (Connection con = getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sql)) {
-            preparedStatement.executeUpdate();
-            logger.info("SQL statement: "+sql);
-        } catch (SQLException e) {
-            logger.error("error in updateQuery: ",e);
-            throw new UpdateException("error in updateQuery: ",e);
-        }
-    }
-
-    @Deprecated
-    public void updateQuery(String plus, int driver, LocalDate date,
-                            String orderOperator, int order, String orderOperator2, int order2) {
-        String sql = stringUpdateQuery(plus, driver, date, orderOperator, order)
-                + " and workorder" + orderOperator2 + order2;
-        updateQuery(sql);
-    }
-
-    @Deprecated
-    public void updateQuery(String plus, int driver, LocalDate date, String orderOperator, int order) {
-        String sql = stringUpdateQuery(plus,driver,date,orderOperator,order);
-        updateQuery(sql);
-    }
-
-    @Deprecated
-    private String stringUpdateQuery(String plus, int driver, LocalDate date, String orderOperator, int order) {
-        return "update call set workorder=workorder"+plus+" where "
-                + "driverid=" + driver
-                + " and date2='" + Date.localDateToString(date)
-                + "' and workorder" + orderOperator + order;
-    }
-
-    @Deprecated
-    public void resetOrderQuery(Call call) {
-        String sql = "update call set workorder=0 where id=" + call.getId();
-        updateQuery(sql);
-    }
-
-    @Deprecated
-    public void updateOrderQuery(Call call) {
-        String sql = "update call set date2='" + call.getCurrentScheduledDate().toString()
-                + "', driverid=" + call.getCurrentDriver().getId()
-                + ", workorder=" + call.getCurrentScheduledOrder()
-                + " where id=" + call.getId();
-        updateQuery(sql);
-    }
-
-    }
+}

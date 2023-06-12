@@ -1,5 +1,7 @@
 package il.co.rtcohen.rt.dal.dao.interfaces;
 
+import il.co.rtcohen.rt.app.LanguageSettings;
+
 public class AbstractTypeWithNameAndActiveFields extends AbstractType implements Nameable {
     private String name;
     private boolean active;
@@ -39,5 +41,12 @@ public class AbstractTypeWithNameAndActiveFields extends AbstractType implements
 
     public boolean isItemValid() {
         return (null != this.getName()) && (!this.getName().isEmpty());
+    }
+
+    @Override
+    public String toString() {
+        return LanguageSettings.getLocaleString("the")
+                + LanguageSettings.getLocaleString(this.getObjectName())
+                + " \"" + getName() + "\"";
     }
 }

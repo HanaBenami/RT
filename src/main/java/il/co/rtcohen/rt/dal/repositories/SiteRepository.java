@@ -1,6 +1,8 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,6 +14,7 @@ import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiv
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
 @Repository
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Site> implements RepositoryInterface<Site> {
     static protected final String DB_CUSTOMER_ID_COLUMN = "custid";
     static protected final String DB_AREA_ID_COLUMN = "areaid";
@@ -68,7 +71,7 @@ public class SiteRepository extends AbstractTypeWithNameAndActiveFieldsRepositor
     }
 
     public List<Site> getItems(Customer customer) throws SQLException {
-        return this.getItems(DB_CUSTOMER_ID_COLUMN + "=" + customer.getId());
+        return this.getItems(DB_CUSTOMER_ID_COLUMN + "=" + customer.getId() + " and " + DB_ACTIVE_COLUMN + "=1");
     }
 }
 

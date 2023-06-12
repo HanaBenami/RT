@@ -10,5 +10,6 @@ public class User extends AbstractTypeWithNameAndActiveFields implements BindRep
 
     public User() {
         super();
+        setObjectName("user");
     }
 }

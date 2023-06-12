@@ -93,6 +93,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 "addCallColumn",
                 "addCall"
         );
+        column.setStyleGenerator(vehicle -> "red");
         column.setHidable(false);
         column.setHidden(false);
     }

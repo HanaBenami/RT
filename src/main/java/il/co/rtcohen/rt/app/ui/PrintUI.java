@@ -44,31 +44,36 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
     private FilterGrid<Call> grid;
     private SiteRepository siteRepository;
     private ContactRepository contactRepository;
+    private DriverRepository driverRepository;
     private Label title;
     private HorizontalLayout titleLayout;
 
     @Autowired
     private PrintUI(ErrorHandler errorHandler, CallRepository callRepository, GeneralRepository generalRepository,
                     UsersRepository usersRepository,
-                    SiteRepository siteRepository, ContactRepository contactRepository) {
+                    SiteRepository siteRepository, ContactRepository contactRepository, DriverRepository driverRepository) {
         super(errorHandler, callRepository, generalRepository, usersRepository);
         this.siteRepository = siteRepository;
         this.contactRepository = contactRepository;
+        this.driverRepository = driverRepository;
     }
 
     private List<Call> getCallListByDriver(Integer driver) throws SQLException {
         List<Call> list;
         switch (condition) {
             case "here": {
-                list = callRepository.getLocalCalls();
+                list = callRepository.getItems(false, false, true, null, null);
                 break;
             }
             case "open": {
-                list = callRepository.getCalls(false, false);
+                list = callRepository.getItems(false, false, null, null, null);
                 break;
             }
             default:
-                list = callRepository.getCalls(LocalDate.parse(condition, Date.dateFormatterForUrls), driver);
+                list = callRepository.getItems(
+                        new Date(LocalDate.parse(condition, Date.dateFormatterForUrls)), 
+                        driverRepository.getItem(driver)
+                );
         }
         return list;
     }

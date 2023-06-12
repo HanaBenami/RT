@@ -98,7 +98,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     }
 
     private GridLayout initAreaLayout(int area) throws SQLException {
-        List<Call> list = callRepository.getItems(areasRepository.getItem(area), false);
+        List<Call> list = callRepository.getItems(false, false, null, null, areasRepository.getItem(area));
         int datesCounter = 1;
         for (Call call : list)
             if ((list.indexOf(call)>0)&&(!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call)-1).getCurrentScheduledDate()))))

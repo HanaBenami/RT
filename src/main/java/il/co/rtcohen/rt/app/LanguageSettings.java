@@ -42,7 +42,9 @@ public class LanguageSettings {
     }
 
     public static String getLocaleString(String key) {
-        return new String(language.getString(key).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        try {
+            key = new String(language.getString(key).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        } catch (Exception ignored) {}
+        return key;
     }
-
 }

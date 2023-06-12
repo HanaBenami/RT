@@ -1,6 +1,8 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,6 +14,7 @@ import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiv
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
 @Repository
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Area> implements RepositoryInterface<Area> {
     static protected final String DB_HERE_COLUMN = "here";
     static protected final String DB_DISPLAY_ORDER_COLUMN = "displayOrder";

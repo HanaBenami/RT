@@ -8,10 +8,6 @@ import il.co.rtcohen.rt.utils.Date;
 import java.time.LocalDate;
 
 public class Vehicle extends AbstractTypeWithNameAndActiveFields implements BindRepository<Vehicle> {
-    static {
-        setObjectName("vehicle");
-    }
-
     private Site site;
     private VehicleType vehicleType;
     private String model = "";
@@ -23,6 +19,7 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields implements Bind
 
     public Vehicle() {
         super();
+        setObjectName("vehicle");
     }
 
     public Vehicle(Integer id, String name, boolean active, Site site, VehicleType vehicleType, String model,

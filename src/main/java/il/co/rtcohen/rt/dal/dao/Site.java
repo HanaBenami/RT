@@ -4,17 +4,13 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 
 public class Site extends AbstractTypeWithNameAndActiveFields implements BindRepository<Site> {
-    static {
-        setObjectName("site");
-    }
-
     private Customer customer;
     private Area area;
     private String address;
     private String notes;
 
     public Site() {
-
+        setObjectName("site");
     }
 
     public Site(Customer customer, Integer id, String name, Area area, String address, boolean active, String notes) {

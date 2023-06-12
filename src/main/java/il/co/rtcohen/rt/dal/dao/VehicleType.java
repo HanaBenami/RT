@@ -5,6 +5,7 @@ import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 
 public class VehicleType extends AbstractTypeWithNameAndActiveFields implements BindRepository<VehicleType> {
     public VehicleType() {
+        setObjectName("vehicleType");
     }
 
     public VehicleType(int id, String name, boolean active) {

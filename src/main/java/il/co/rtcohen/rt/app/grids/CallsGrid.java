@@ -29,15 +29,14 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
     private final CallTypeRepository callTypeRepository;
-
     private CallsFilterOptions selectedCallsFilterOption;
     private Customer selectedCustomer;
     private Site selectedSite;
     private Vehicle selectedVehicle;
     private Driver nextScheduleDriver;
     private Date nextScheduleDate;
-
     private String daysOpenColumnId = "daysOpenColumn";
+    List<Call> callsInGrid = null;
 
     public CallsGrid(
             CallsFilterOptions selectedCallsFilterOption,
@@ -110,44 +109,44 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
 
     @Override
     protected List<Call> getItems() {
-        List<Call> list = null;
+        callsInGrid = null;
         if (null == selectedCallsFilterOption) {
-            list = super.getItems();
+            callsInGrid = super.getItems();
         } else {
             switch (selectedCallsFilterOption) {
                 case ALL_CALLS:
-                    list = callRepository.getItems(null, false, null);
+                    callsInGrid = callRepository.getItems(null, false, null, null, null);
                     break;
                 case ONLY_OPEN_CALLS:
-                    list = callRepository.getItems(false, false, null);
+                    callsInGrid = callRepository.getItems(false, false, null, null, null);
                     break;
                 case RECENTLY_CLOSED_CALLS:
-                    list = callRepository.getItems(true, false, new Date(LocalDate.now().minusMonths(6)));
+                    callsInGrid = callRepository.getItems(true, false, null, new Date(LocalDate.now().minusMonths(6)), null);
                     break;
                 case ALL_CLOSED_CALLS:
-                    list = callRepository.getItems(true, false, null);
+                    callsInGrid = callRepository.getItems(true, false, null, null, null);
                     break;
                 case RECENTLY_DELETED_CALLS:
-                    list = callRepository.getItems(null, true, new Date(LocalDate.now().minusMonths(6)));
+                    callsInGrid = callRepository.getItems(null, true, null, new Date(LocalDate.now().minusMonths(6)), null);
                     break;
                 case ALL_DELETED_CALLS:
-                    list = callRepository.getItems(null, true, null);
+                    callsInGrid = callRepository.getItems(null, true, null, null, null);
                     break;
                 case CALLS_PLANNED_FOR_YESTERDAY:
-                    list = callRepository.getItems(new Date(LocalDate.now().minusDays(1)));
+                    callsInGrid = callRepository.getItems(new Date(LocalDate.now().minusDays(1)));
                     break;
                 case CALLS_PLANNED_FOR_TODAY:
-                    list = callRepository.getItems(new Date(LocalDate.now()));
+                    callsInGrid = callRepository.getItems(new Date(LocalDate.now()));
                     break;
                 case CALLS_PLANNED_FOR_TOMORROW:
-                    list = callRepository.getItems(new Date(LocalDate.now().plusDays(1)));
+                    callsInGrid = callRepository.getItems(new Date(LocalDate.now().plusDays(1)));
                     break;
                 case CALLS_PLANNED_FOR_THE_DAY_AFTER_TOMORROW:
-                    list = callRepository.getItems(new Date(LocalDate.now().plusDays(2)));
+                    callsInGrid = callRepository.getItems(new Date(LocalDate.now().plusDays(2)));
                     break;
             }
         }
-        return list;
+        return callsInGrid;
     }
 
     public CallsFilterOptions getSelectedCallsFilterOption() {
@@ -265,7 +264,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     private void addSetScheduledOrderColumn() {
-        Predicate<Call> isScheduled = call -> (null != call.getCurrentScheduledDate() && null != call.getCurrentDriver());
+        Predicate<Call> isScheduled = call -> (
+                null != call.getCurrentScheduledDate()
+                && !call.getCurrentScheduledDate().equals(Date.nullDate())
+                && null != call.getCurrentDriver()
+                && 0 != call.getCurrentScheduledOrder()
+        );
         Column<Call, Component> column = this.addComponentColumn(
                 call -> new CustomButton(
                         (isScheduled.test(call) ? VaadinIcons.CLOSE_SMALL : VaadinIcons.CALENDAR_USER),
@@ -284,7 +288,9 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                                 }
                             }
                             callRepository.updateItem(call);
-                            this.getDataProvider().refreshItem(call);
+                            for (Call c : callsInGrid) {
+                                this.getDataProvider().refreshItem(c);
+                            }
                         }
                 ),
                 60,
@@ -548,8 +554,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
 
     private void addSiteColumn() {
         FilterGrid.Column<Call, String> column = CustomComboBoxColumn.addToGrid(
-                CustomComboBox.getComboBox(siteRepository),
-                CustomComboBox.getComboBox(siteRepository),
+                CustomComboBox.getComboBox(siteRepository, this.selectedCustomer),
+                CustomComboBox.getComboBox(siteRepository, this.selectedCustomer),
                 Call::getSite,
                 null,
                 120,

@@ -3,6 +3,7 @@ package il.co.rtcohen.rt.dal.repositories.interfaces;
 import il.co.rtcohen.rt.dal.repositories.exceptions.InsertException;
 import il.co.rtcohen.rt.dal.repositories.exceptions.UpdateException;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.utils.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -28,10 +29,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     final protected String DB_TABLE_NAME;
     final private ArrayList<String> dbColumnsList;
 
-    final private HashMap<Integer, T> cache = new HashMap<>();
+    final private CacheManager<T> cacheManager;
 
     public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName, String[]... additionalDbColumnsLists) {
         this.logger = LoggerFactory.getLogger(this.getClass());
+        this.logger.info(this.getRepositoryName() + " repository is being initiated");
         this.dataSource = dataSource;
         this.DB_TABLE_NAME = dbTableName;
         this.REPOSITORY_NAME = repositoryName;
@@ -39,7 +41,12 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         for (String[] additionalDbColumnsList : additionalDbColumnsLists) {
             this.dbColumnsList.addAll(Arrays.asList(additionalDbColumnsList));
         }
+        this.cacheManager = new CacheManager<>(AbstractType::getId);
     }
+
+    abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
+
+    abstract protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, T t) throws SQLException;
 
     public String getDbTableName() {
         return this.DB_TABLE_NAME;
@@ -63,10 +70,6 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         return " " + String.join("=?, ", this.dbColumnsList) + "=? ";
     }
 
-    abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
-
-    abstract protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, T t) throws SQLException;
-
     private PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "insert into " + this.DB_TABLE_NAME + getDbColumnsStringForInsertStatement(),
@@ -87,52 +90,59 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
         return preparedStatement;
     }
 
-    private void addToCache(T t) {
-        cache.put(t.getId(), t);
+    public List<T> getItems() {
+        return getItems((String) null);
     }
 
-    public List<T> getItems() throws SQLException {
-        return getItems(null);
-    }
-
-    public List<T> getItems(String whereClause) throws SQLException {
+    public List<T> getItems(String whereClause)  {
         String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME;
         if (null != whereClause) {
             sqlQuery += " where " + whereClause;
         }
         this.logger.info(sqlQuery);
-        Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-        return getItems(connection, preparedStatement);
+        List<T> list;
+        try (
+            Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)
+        ) {
+            list = getItems(preparedStatement);
+        } catch (SQLException e) {
+            String error = getMessagesPrefix() + "error in getItems";
+            this.logger.error(error, e);
+            throw new DataRetrievalFailureException(error, e);
+        }
+        return list;
     }
 
-    public List<T> getItems(Connection connection, PreparedStatement preparedStatement) throws SQLException {
+    public List<T> getItems(PreparedStatement preparedStatement) {
         List<T> list = new ArrayList<>();
         try {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 T item = this.getItemFromResultSet(rs);
-                this.addToCache(item);
                 list.add(item);
             }
+            list = cacheManager.syncWithCache(list);
             logger.info(list.size() + " records have been retrieved");
             return list;
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItems";
             this.logger.error(error, e);
             throw new DataRetrievalFailureException(error, e);
-        } finally {
-            connection.close();
         }
     }
 
     public T getItem(Integer id) {
         if (null == id || 0 == id) {
             return null;
-        } else if (cache.containsKey(id)) {
-            return cache.get(id);
         }
-        return getItem(DB_ID_COLUMN + "=" + id);
+
+        T fromCache = cacheManager.getFromCache(id);
+        if (null != fromCache) {
+            return fromCache;
+        } else {
+            return getItem(DB_ID_COLUMN + "=" + id);
+        }
     }
 
     public T getItem(String whereClause) {
@@ -149,7 +159,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
                 return null;
             } else {
                 T t = list.get(0);
-                this.addToCache(t);
+                t = cacheManager.syncWithCache(t);
                 return t;
             }
         } catch (SQLException e) {
@@ -160,9 +170,10 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     }
 
     public long insertItem(T t) {
-        try {
+        try (
             Connection connection = this.dataSource.getConnection();
-            PreparedStatement preparedStatement = generateInsertStatement(connection, t);
+            PreparedStatement preparedStatement = generateInsertStatement(connection, t)
+        ){
             this.logger.info(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "created");
@@ -170,10 +181,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
                 if (generatedKeys.next()) {
                     long id = generatedKeys.getLong(1);
                     t.setId(id);
-                    this.addToCache(t);
                     this.logger.info(getMessagesPrefix()
                             + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\" (id=" + id + ")");
+                    t.setBindRepository(this);
                     t.postSave();
+                    t = cacheManager.syncWithCache(t);
                     return id;
                 }
                 throw new SQLException("error getting the new key");
@@ -191,15 +203,17 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
             insertItem(t);
             return;
         }
-
-        try {
-            Connection connection = this.dataSource.getConnection();
-            PreparedStatement preparedStatement = generateUpdateStatement(connection, t);
+        try (
+                Connection connection = this.dataSource.getConnection();
+                PreparedStatement preparedStatement = generateUpdateStatement(connection, t)
+        ) {
             this.logger.info(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
             this.logger.info(getMessagesPrefix() + "data was updated (" + t + ")");
+            t.setBindRepository(this);
             t.postSave();
+            t = cacheManager.syncWithCache(t);
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in updateItem";
@@ -209,12 +223,14 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     }
 
     public void deleteItem(T t) {
-        try {
+        try (
             Connection connection = this.dataSource.getConnection();
-            PreparedStatement preparedStatement = generateDeleteStatement(connection, t);
+            PreparedStatement preparedStatement = generateDeleteStatement(connection, t)
+        ) {
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
             this.logger.info(getMessagesPrefix() + " data was deleted (" + t + ")");
+            cacheManager.deleteFromCache(t);
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in deleteItem";
@@ -239,7 +255,6 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     private void oneRecordOnlyValidation(int n, String verb) throws SQLException {
         if (n == 0) {
             logger.warn(getMessagesPrefix() + "No record has been found (" + verb + ")");
-//            throw new SQLException(getMessagesPrefix() + "No record has been " + verb);   // TODO?
         }
         else if (n > 1) {
             throw new SQLException(getMessagesPrefix() + "More than one record has been " + verb);

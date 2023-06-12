@@ -63,7 +63,10 @@ public class CustomNumericColumn<T extends AbstractType> {
             column.setFilter(
                     filterField,
                     (filterByExactMatch
-                            ? (currentValue, filterValue) -> filterValue.isEmpty() || filterValue.equals(currentValue.toString())
+                            ? (currentValue, filterValue) ->
+                                    null == filterValue
+                                            || filterValue.isEmpty()
+                                            || ((null != currentValue) && filterValue.equals(currentValue.toString()))
                             : InMemoryFilter.StringComparator.containsIgnoreCase()
                     )
             );

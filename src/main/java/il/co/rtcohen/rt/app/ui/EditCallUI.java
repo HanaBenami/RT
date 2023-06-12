@@ -104,11 +104,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.call.setOpenedByUser(getSessionUsername());
             if (0 != selectedVehicleId) {
                 call.setVehicle(vehicleRepository.getItem(selectedVehicleId));
-                call.setSite(this.call.getVehicle().getSite());
-                call.setCustomer(this.call.getSite().getCustomer());
             } else if (0 != selectedSiteId) {
                 call.setSite(siteRepository.getItem(selectedSiteId));
-                call.setCustomer(this.call.getSite().getCustomer());
             } else if (0 != selectedCustomerId) {
                 call.setCustomer(customerRepository.getItem(selectedCustomerId));
             }
@@ -127,10 +124,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     protected void setupLayout() {
         initLayout();
         addOrRefreshTitle();
-        addCustomerGrid();
-        addSiteGrid();
-        addVehicleGrid();
-        addContactsGrid();
+        addOrRefreshAllGrids();
         addPrintButton();
         addDeleteButton();
         addOrRefreshCallData();
@@ -173,6 +167,13 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         layout.addComponent(new CustomLabel("scheduleDetails", null, CustomLabel.LabelStyle.TITLE), column, row);
     }
 
+    private void addOrRefreshAllGrids() {
+        addCustomerGrid();
+        addSiteGrid();
+        addVehicleGrid();
+        addContactsGrid();
+    }
+
     private void addCustomerGrid() {
         int column1 = 1;
         int row1 = 2;
@@ -184,8 +185,6 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.removeComponent(column2, row1);
         this.changeCustomerButton = addButtonToLayout("changeCustomer", VaadinIcons.RECYCLE, clickEvent -> {
                 this.call.setCustomer(null);
-                this.call.setSite(null);
-                this.call.setVehicle(null);
                 addCustomerGrid();
             }, 2, 0
         );
@@ -206,8 +205,6 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.customerComboBox.setSizeFull();
             this.customerComboBox.addValueChangeListener(valueChangeEvent -> {
                 this.call.setCustomer(customerComboBox.getValue());
-                this.call.setSite(null);
-                this.call.setVehicle(null);
                 this.saveData();
                 this.addCustomerGrid();
             });
@@ -228,7 +225,6 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.removeComponent(column2, row1);
         this.changeSiteButton = addButtonToLayout("changeSite", VaadinIcons.RECYCLE, clickEvent -> {
                     this.call.setSite(null);
-                    this.call.setVehicle(null);
                     addSiteGrid();
                 }, 3, 0
         );
@@ -241,16 +237,11 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.addGridToLayout(this.sitesGrid, this.call.getSite(), 1,column1, row1, column2, row2);
         } else if (null != this.call.getCustomer()) {
             this.changeSiteButton.setEnabled(false);
-            this.siteComboBox = CustomComboBox.getComboBox(siteRepository);
-            try {
-                this.siteComboBox.setItems(siteRepository.getItems(this.call.getCustomer()));
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+            this.siteComboBox = CustomComboBox.getComboBox(siteRepository, this.call.getCustomer());
+            assert this.siteComboBox != null;
             this.siteComboBox.setSizeFull();
             this.siteComboBox.addValueChangeListener(valueChangeEvent -> {
                 this.call.setSite(siteComboBox.getValue());
-                this.call.setVehicle(null);
                 this.saveData();
                 this.addSiteGrid();
             });
@@ -285,12 +276,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             addGridToLayout(this.vehiclesGrid, this.call.getVehicle(), 1,column1, row1, column2, row2);
         } else if (null != this.call.getSite()) {
             this.changeVehicleButton.setEnabled(false);
-            this.vehicleComboBox = CustomComboBox.getComboBox(vehicleRepository);
-            try {
-                this.vehicleComboBox.setItems(vehicleRepository.getItems(this.call.getSite()));
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+            this.vehicleComboBox = CustomComboBox.getComboBox(vehicleRepository, this.call.getSite());
+            assert this.vehicleComboBox != null;
             this.vehicleComboBox.setSizeFull();
             this.vehicleComboBox.addValueChangeListener(valueChangeEvent -> {
                 this.call.setVehicle(vehicleComboBox.getValue());

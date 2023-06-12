@@ -7,9 +7,8 @@ import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import java.util.logging.Logger;
 
 abstract public class AbstractType {
-    private static String objectName;
-
     private Integer id;
+    private String objectName;
     private RepositoryInterface<AbstractType> bindRepository;
 
     public AbstractType(Integer id) {
@@ -41,12 +40,12 @@ abstract public class AbstractType {
         return true;
     }
 
-    public static void setObjectName(String objectName) {
-        AbstractType.objectName = objectName;
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
     }
 
-    public static String getObjectName() {
-        return objectName;
+    public String getObjectName() {
+        return this.objectName;
     }
 
     @Override

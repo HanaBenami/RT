@@ -3,6 +3,8 @@ import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @Repository
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class CustomerRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Customer> implements RepositoryInterface<Customer> {
     static protected final String DB_CUST_TYPE_ID_COLUMN = "custtype";
     static protected final String DB_HASK_KEY_COLUMN = "hashkey";

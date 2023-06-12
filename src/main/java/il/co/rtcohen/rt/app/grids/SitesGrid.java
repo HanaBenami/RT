@@ -80,7 +80,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                     } else {
                         int activeContactsCounter = 0;
                         try {
-                            activeContactsCounter = contactRepository.getContactsBySite(site.getId(), true).size();
+                            activeContactsCounter = contactRepository.getItems(site).size();
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
                         }

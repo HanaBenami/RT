@@ -9,6 +9,7 @@ public class Area extends AbstractTypeWithNameAndActiveFields implements BindRep
 
     public Area() {
         super();
+        setObjectName("area");
     }
 
     public Area(String name) {

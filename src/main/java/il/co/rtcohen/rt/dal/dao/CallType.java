@@ -5,6 +5,7 @@ import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 
 public class CallType extends AbstractTypeWithNameAndActiveFields implements BindRepository<CallType> {
     public CallType() {
+        setObjectName("callType");
     }
 
     public CallType(int id, String name, boolean active) {

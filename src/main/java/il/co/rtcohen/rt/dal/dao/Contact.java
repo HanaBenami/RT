@@ -4,16 +4,13 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.Nameable;
 
 public class Contact extends AbstractTypeWithNameAndActiveFields implements Nameable {
-    static {
-        setObjectName("contact");
-    }
-
     private Site site;
     private String phone;
     private String notes;
 
     public Contact() {
         super();
+        setObjectName("contact");
     }
 
     public Contact(Integer id, String name, boolean active, Site site, String phone, String notes) {
