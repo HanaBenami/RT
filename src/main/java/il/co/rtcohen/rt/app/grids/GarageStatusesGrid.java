@@ -2,15 +2,15 @@ package il.co.rtcohen.rt.app.grids;
 
 import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.CustomNumericColumn;
-import il.co.rtcohen.rt.dal.dao.Area;
-import il.co.rtcohen.rt.dal.repositories.AreasRepository;
+import il.co.rtcohen.rt.dal.dao.GarageStatus;
+import il.co.rtcohen.rt.dal.repositories.GarageStatusRepository;
 
-public class AreasGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Area> {
+public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<GarageStatus> {
     private final String DISPLAY_ORDER_COLUMN_ID = "displayOrderColumn";
 
-    public AreasGrid(AreasRepository areasRepository) {
-        super(areasRepository,
-                Area::new,
+    public GarageStatusesGrid(GarageStatusRepository garageStatusRepository) {
+        super(garageStatusRepository,
+                GarageStatus::new,
                 "area",
                 null
         );
@@ -28,10 +28,10 @@ public class AreasGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Area> {
 
     private void addHereColumn() {
         CustomCheckBoxColumn.addToGrid(
-                Area::getHere,
-                Area::setHere,
-                "hereColumn",
-                "here",
+                GarageStatus::isPendingGarage,
+                GarageStatus::setPendingGarage,
+                "pendingGarageColumn",
+                "pendingGarage",
                 null,
                 this
         );
@@ -39,8 +39,8 @@ public class AreasGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Area> {
 
     private void addDisplayOrderColumn() {
         CustomNumericColumn.addToGrid(
-                Area::getDisplayOrder,
-                Area::setDisplayOrder,
+                GarageStatus::getDisplayOrder,
+                GarageStatus::setDisplayOrder,
                 80,
                 DISPLAY_ORDER_COLUMN_ID,
                 "order",

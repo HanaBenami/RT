@@ -179,6 +179,19 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
         }
     }
 
+    public static CustomComboBox<GarageStatus> getComboBox(GarageStatusRepository garageStatusRepository) {
+        try {
+            return new CustomComboBox<>(
+                    garageStatusRepository.getItems(true),
+                    null,
+                    70,
+                    false);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+    }
+
     private static Logger getLogger() {
         return Logger.getLogger(GeneralErrorHandler.class.getName());
     }

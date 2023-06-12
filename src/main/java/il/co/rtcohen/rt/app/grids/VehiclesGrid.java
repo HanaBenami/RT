@@ -5,7 +5,6 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.app.uiComponents.*;
-import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
@@ -109,7 +108,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomDateColumn.addToGrid(
                 Vehicle::getLastUpdate,
                 null,
-                "lastUpdateColumn",
+                null, "lastUpdateColumn",
                 "lastUpdate",
                 false,
                 this

@@ -25,12 +25,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
                 titleKey,
                 itemsFilterPredicate
         );
-    }
-
-    @Override
-    public void initGrid() {
         this.setCustomSortColumnId(NAME_COLUMN_ID);
-        super.initGrid();
     }
 
     @Override

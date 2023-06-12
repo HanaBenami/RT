@@ -43,6 +43,7 @@ public class CallsView extends AbstractDataView<Call> {
     private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
     private final CallTypeRepository callTypeRepository;
+    private final GarageStatusRepository garageStatusRepository;
 
     // Grids & layouts
     private GridLayout headerLayout;
@@ -78,7 +79,8 @@ public class CallsView extends AbstractDataView<Call> {
                       VehicleTypeRepository vehicleTypeRepository,
                       UsersRepository usersRepository,
                       DriverRepository driverRepository,
-                      CallTypeRepository callTypeRepository) {
+                      CallTypeRepository callTypeRepository,
+                      GarageStatusRepository garageStatusRepository) {
         super(errorHandler, "calls");
         this.callRepository = callRepository;
         this.customerRepository = customerRepository;
@@ -90,6 +92,7 @@ public class CallsView extends AbstractDataView<Call> {
         this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
         this.callTypeRepository = callTypeRepository;
+        this.garageStatusRepository = garageStatusRepository;
     }
 
     @Override
@@ -235,7 +238,8 @@ public class CallsView extends AbstractDataView<Call> {
                 this.selectedVehicle,
                 null,
                 callRepository, customerRepository, customerTypeRepository, siteRepository, areasRepository,
-                vehicleRepository, vehicleTypeRepository, usersRepository, driverRepository, callTypeRepository
+                vehicleRepository, vehicleTypeRepository, usersRepository, driverRepository, callTypeRepository,
+                garageStatusRepository
         );
         callsGrid.setWidth("100%");
         callsGrid.setNextScheduleDate(new Date(nextScheduleDateField.getValue()));

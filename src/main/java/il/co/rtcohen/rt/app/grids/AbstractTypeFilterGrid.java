@@ -1,34 +1,26 @@
 package il.co.rtcohen.rt.app.grids;
 
-import com.vaadin.client.widget.grid.events.GridSelectionAllowedEvent;
 import com.vaadin.data.ValueProvider;
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.event.selection.SelectionEvent;
-import com.vaadin.event.selection.SingleSelectionEvent;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Setter;
-import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vaadin.addons.filteringgrid.FilterGrid;
+import org.vaadin.ui.NumberField;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.app.uiComponents.CustomButton;
 import il.co.rtcohen.rt.app.uiComponents.CustomNumericColumn;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
-import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
-import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.ui.NumberField;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends FilterGrid<T> {
     private AbstractTypeRepository<T> mainRepository;
@@ -61,7 +53,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         this.setSaveAction();
     }
 
-    protected void initGrid() {
+    public void initGrid() {
         this.setTitle();
         this.addColumns();
         this.populateGrid();

@@ -149,6 +149,9 @@ public class MainUI extends UI implements ViewDisplay {
         MenuBar.MenuItem area = setup.addItem(LanguageSettings.getLocaleString("areaMenu"));
         area.setCommand(generateMenuBarCommand("areas"));
         setup.addSeparator();
+        MenuBar.MenuItem garageStatuses = setup.addItem(LanguageSettings.getLocaleString("garageStatus"));
+        garageStatuses.setCommand(generateMenuBarCommand("garageStatuses"));
+        setup.addSeparator();
         MenuBar.MenuItem custType = setup.addItem(LanguageSettings.getLocaleString("custtypeTitle"));
         custType.setCommand(generateMenuBarCommand("customerType"));
         MenuBar.MenuItem carType = setup.addItem(LanguageSettings.getLocaleString("cartypeTitle"));

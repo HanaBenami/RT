@@ -10,6 +10,7 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.utils.Date;
 
 import java.time.LocalDate;
+import java.util.function.Supplier;
 
 // T - Type of object represented by the grid
 public class CustomDateColumn<T extends AbstractType> {
@@ -18,6 +19,7 @@ public class CustomDateColumn<T extends AbstractType> {
     public static <T extends AbstractType> FilterGrid.Column<T, LocalDate> addToGrid(
             ValueProvider<T, Date> valueProvider,
             Setter<T, Date> setter,
+            Supplier<LocalDate> dateSupplierToSetOnFocusEvent,
             String id,
             String label,
             boolean isBoldText,
@@ -36,11 +38,15 @@ public class CustomDateColumn<T extends AbstractType> {
 
         // Setter
         if (null != setter) {
-            column.setEditorBinding(abstractTypeFilterGrid.getEditor().getBinder().forField(new CustomDateField()).bind(
+            CustomDateField dateField = new CustomDateField();
+            column.setEditorBinding(abstractTypeFilterGrid.getEditor().getBinder().forField(dateField).bind(
                     T -> valueProvider.apply(T).getLocalDate(),
                     (T, value) -> setter.accept(T, new Date(value))
             ));
             column.setEditable(true);
+            if (null != dateSupplierToSetOnFocusEvent) {
+                dateField.addFocusListener(focusEvent -> dateField.setValue(dateSupplierToSetOnFocusEvent.get()));
+            }
         }
 
         // Filter

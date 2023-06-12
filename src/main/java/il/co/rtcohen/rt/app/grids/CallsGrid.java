@@ -29,6 +29,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
     private final CallTypeRepository callTypeRepository;
+    private final GarageStatusRepository garageStatusRepository;
     private CallsFilterOptions selectedCallsFilterOption;
     private Customer selectedCustomer;
     private Site selectedSite;
@@ -53,7 +54,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
             VehicleTypeRepository vehicleTypeRepository,
             UsersRepository usersRepository,
             DriverRepository driverRepository,
-            CallTypeRepository callTypeRepository
+            CallTypeRepository callTypeRepository,
+            GarageStatusRepository garageStatusRepository
     ) {
         super(
                 callRepository,
@@ -80,6 +82,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
         this.callTypeRepository = callTypeRepository;
+        this.garageStatusRepository = garageStatusRepository;
         this.setEmptyLinesAllow(false);
         this.initGrid();
     }
@@ -87,6 +90,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     public enum CallsFilterOptions {
         ALL_CALLS("allCalls"),
         ONLY_OPEN_CALLS("openCalls"),
+        ONLY_OPEN_CALLS_PENDING_GARAGE("pendingGarage"),
         RECENTLY_CLOSED_CALLS("recentCloseCalls"),
         ALL_CLOSED_CALLS("closeCalls"),
         RECENTLY_DELETED_CALLS("recentDeleteCalls"),
@@ -119,6 +123,10 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                     break;
                 case ONLY_OPEN_CALLS:
                     callsInGrid = callRepository.getItems(false, false, null, null, null);
+                    break;
+                case ONLY_OPEN_CALLS_PENDING_GARAGE:
+                    callsInGrid = callRepository.getItems(false, false, null, null, null);
+                    callsInGrid.removeIf(call -> (null == call.getGarageStatus() || !call.getGarageStatus().isPendingGarage()));
                     break;
                 case RECENTLY_CLOSED_CALLS:
                     callsInGrid = callRepository.getItems(true, false, null, new Date(LocalDate.now().minusMonths(6)), null);
@@ -216,7 +224,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     @Override
-    protected void initGrid() {
+    public void initGrid() {
         super.initGrid();
         this.setDetailsGenerator((DetailsGenerator<Call>) this::getCallDetails);
         this.setStyleGenerator((StyleGenerator<Call>) StyleSettings::callStyle);
@@ -254,6 +262,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         addDaysOpenColumn();
         addStartDateColumn();
         addIsHereColumn();
+        addGarageStatusColumn();
         addVehicleTypeColumn();
         addCallTypeColumn();
         addAddressColumn();
@@ -374,6 +383,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
                 Call::getEndDate,
                 Call::setEndDate,
+                LocalDate::now,
                 "endDateColumn",
                 "endDateShort",
                 false,
@@ -431,6 +441,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
                 Call::getCurrentScheduledDate,
                 Call::setCurrentScheduledDate,
+                LocalDate::now,
                 "date2Column",
                 "date2short",
                 true,
@@ -460,6 +471,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
                 Call::getPlanningDate,
                 Call::setPlanningDate,
+                LocalDate::now,
                 "date1Column",
                 "date1short",
                 false,
@@ -473,7 +485,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
                 Call::getStartDate,
                 Call::setStartDate,
-                "startDateColumn",
+                null, "startDateColumn",
                 "startDateShort",
                 false,
                 this
@@ -489,6 +501,21 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "hereColumn",
                 "here",
                 null,
+                this
+        );
+        column.setHidable(true);
+        column.setHidden(false);
+    }
+
+    private void addGarageStatusColumn() {
+        Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+                CustomComboBox.getComboBox(garageStatusRepository),
+                CustomComboBox.getComboBox(garageStatusRepository),
+                Call::getGarageStatus,
+                Call::setGarageStatus,
+                100,
+                "garageStatusColumn",
+                "garageStatus",
                 this
         );
         column.setHidable(true);

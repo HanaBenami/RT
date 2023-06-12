@@ -36,6 +36,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     static protected final String DB_IS_HERE_COLUMN = "here";
     static protected final String DB_IS_DELETED_COLUMN = "deleted";
     static protected final String DB_USER_ID_COLUMN = "userid";
+    static protected final String DB_GARAGE_STATUS_ID_COLUMN = "garageStatusID";
 
     private final CustomerRepository customerRepository;
     private final SiteRepository siteRepository;
@@ -43,6 +44,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     private final CallTypeRepository callTypeRepository;
     private final DriverRepository driverRepository;
     private final UsersRepository usersRepository;
+    private final GarageStatusRepository garageStatusRepository;
 
     @Autowired
     public CallRepository(DataSource dataSource,
@@ -51,7 +53,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                           VehicleRepository vehicleRepository,
                           CallTypeRepository callTypeRepository,
                           DriverRepository driverRepository,
-                          UsersRepository usersRepository
+                          UsersRepository usersRepository,
+                          GarageStatusRepository garageStatusRepository
     ) {
         super(
                 dataSource, "call", "Calls",
@@ -81,6 +84,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         this.callTypeRepository = callTypeRepository;
         this.driverRepository = driverRepository;
         this.usersRepository = usersRepository;
+        this.garageStatusRepository = garageStatusRepository;
     }
 
     protected Call getItemFromResultSet(ResultSet rs) throws SQLException {
@@ -102,7 +106,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 rs.getBoolean(DB_IS_DONE_COLUMN),
                 rs.getBoolean(DB_IS_HERE_COLUMN),
                 rs.getBoolean(DB_IS_DELETED_COLUMN),
-                usersRepository.getItem(rs.getInt(DB_USER_ID_COLUMN))
+                usersRepository.getItem(rs.getInt(DB_USER_ID_COLUMN)),
+                garageStatusRepository.getItem(rs.getInt(DB_GARAGE_STATUS_ID_COLUMN))
         );
     }
 

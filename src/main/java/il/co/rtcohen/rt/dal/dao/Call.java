@@ -28,6 +28,7 @@ public class Call extends AbstractType implements BindRepository<Call> {
     private Driver currentDriver, previousDriver;
     private boolean meeting, isDone, isHere, isDeleted;
     private User openedByUser;
+    private GarageStatus garageStatus;
 
     public Call() {
         super(0);
@@ -52,7 +53,8 @@ public class Call extends AbstractType implements BindRepository<Call> {
             boolean isDone,
             boolean isHere,
             boolean isDeleted,
-            User openedByUser
+            User openedByUser,
+            GarageStatus garageStatus
     ) {
         super(id);
         this.customer = customer;
@@ -75,6 +77,7 @@ public class Call extends AbstractType implements BindRepository<Call> {
         this.isHere = isHere;
         this.isDeleted = isDeleted;
         this.openedByUser = openedByUser;
+        this.garageStatus = garageStatus;
     }
 
     public Customer getCustomer() {
@@ -175,7 +178,7 @@ public class Call extends AbstractType implements BindRepository<Call> {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
-        this.isDone = (null != this.endDate);
+        this.isDone = (null != this.endDate) && !this.endDate.equals(Date.nullDate());
     }
 
     public int getCurrentScheduledOrder() {
@@ -252,6 +255,14 @@ public class Call extends AbstractType implements BindRepository<Call> {
 
     public void setOpenedByUser(User openedByUser) {
         this.openedByUser = openedByUser;
+    }
+
+    public GarageStatus getGarageStatus() {
+        return garageStatus;
+    }
+
+    public void setGarageStatus(GarageStatus garageStatus) {
+        this.garageStatus = garageStatus;
     }
 
     // TODO: Check carefully

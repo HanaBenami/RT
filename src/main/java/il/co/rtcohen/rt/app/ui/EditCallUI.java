@@ -48,6 +48,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     private final AreasRepository areasRepository;
     private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
+    private final GarageStatusRepository garageStatusRepository;
 
     // Inner grids
     private CustomerGrid customerGrid;
@@ -75,7 +76,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
            ContactRepository contactRepository,
            AreasRepository areasRepository,
            UsersRepository usersRepository,
-           DriverRepository driverRepository
+           DriverRepository driverRepository,
+           GarageStatusRepository garageStatusRepository
     ) {
         super(errorHandler, callRepository, generalRepository, usersRepository);
         this.customerRepository = customerRepository;
@@ -89,6 +91,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.areasRepository = areasRepository;
         this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
+        this.garageStatusRepository = garageStatusRepository;
     }
 
     public void getUrlParameters() {
@@ -377,6 +380,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         addOrRefreshDescriptionTextArea();
         addOrRefreshNotesTextArea();
         addOrRefreshCallTypeComboBox();
+        addOrRefreshGarageStatusComboBox();
         addOrRefreshUserComboBox();
         addOrRefreshDriverComboBox();
         addOrRefreshScheduledOrderField();
@@ -388,7 +392,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshIsMeetingCheckBox() {
-        addCheckBoxFieldToLayout(Call::isMeeting, Call::setMeeting, "meeting", 11, 1);
+        addCheckBoxFieldToLayout(Call::isMeeting, Call::setMeeting, "meeting", 12, 3);
     }
 
     private void addOrRefreshIsDoneCheckBox() {
@@ -421,6 +425,10 @@ public class EditCallUI extends AbstractUI<GridLayout> {
 
     private void addOrRefreshCallTypeComboBox() {
         addComboBoxToLayout(callTypeRepository, Call::getCallType, Call::setCallType, "callType", 0, 2);
+    }
+
+    private void addOrRefreshGarageStatusComboBox() {
+        addComboBoxToLayout(garageStatusRepository, Call::getGarageStatus, Call::setGarageStatus, "garageStatus", 11, 1);
     }
 
     private void addOrRefreshUserComboBox() {

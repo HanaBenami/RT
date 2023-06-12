@@ -111,3 +111,10 @@ SET ANSI_NULLS, QUOTED_IDENTIFIER ON
 update call set call.vehicleId=vehicle.id from call join vehicle on vehicle.typeID=call.carTypeID and vehicle.siteID=call.siteID
 
 ALTER TABLE cust ADD hashkey int DEFAULT 0;
+
+DROP TABLE IF EXISTS garageStatus;
+CREATE TABLE garageStatus (ID int IDENTITY(1,1) NOT NULL, NAME text NOT NULL DEFAULT '', active bit NOT NULL DEFAULT 1,	pendingGarage bit NOT NULL DEFAULT 0, displayOrder int NOT NULL DEFAULT 0);
+insert into garageStatus (name, pendingGarage, displayOrder) values ('', 0, 1);
+insert into garageStatus (name, pendingGarage, displayOrder) values ('Pending garage', 1, 1);
+insert into garageStatus (name, pendingGarage, displayOrder) values ('Done', 0, 2);
+ALTER TABLE call ADD garageStatusID int DEFAULT 0;
