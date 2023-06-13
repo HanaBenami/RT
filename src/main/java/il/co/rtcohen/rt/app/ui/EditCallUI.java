@@ -8,6 +8,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -306,7 +307,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         }
     }
 
-    private <T extends AbstractType> void addGridToLayout(
+    private <T extends AbstractType & Cloneable<T>> void addGridToLayout(
             AbstractTypeFilterGrid<T> abstractTypeFilterGrid,
             T selectedItem,
             Integer setHeightByRows,
@@ -530,7 +531,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.addComponent(new CustomLabel(captionKey, FIELDS_WIDTH), column2 + 1, row1);
     }
 
-    private <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T>> void addComboBoxToLayout(
+    private <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T> & Cloneable<T>> void addComboBoxToLayout(
             AbstractTypeWithNameAndActiveFieldsRepository<T> repository,
             ValueProvider<Call, T> valueProvider,
             Setter<Call, T> setter,

@@ -12,6 +12,7 @@ import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.dal.dao.interfaces.Nameable;
 import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
@@ -42,7 +43,7 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
         this.setWidth(String.valueOf(width));
     }
 
-    public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T>> CustomComboBox<T> getComboBox(
+    public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T> & Cloneable<T>> CustomComboBox<T> getComboBox(
                         AbstractTypeWithNameAndActiveFieldsRepository<T> repository,
                         Supplier<T> newItemSupplier, Integer width, boolean allowNewItems
     ) {
@@ -59,7 +60,7 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
         }
     }
 
-    public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T>> CustomComboBox<T>
+    public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T> & Cloneable<T>> CustomComboBox<T>
             getComboBox(AbstractTypeWithNameAndActiveFieldsRepository<T> repository) {
         try {
             return new CustomComboBox<>(

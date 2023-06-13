@@ -6,6 +6,7 @@ import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
@@ -26,7 +27,7 @@ public class CustomNumericColumn<T extends AbstractType> {
     //            true,
     //            this
     //        );
-    public static <T extends AbstractType> FilterGrid.Column<T, Integer> addToGrid(
+    public static <T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, Integer> addToGrid(
             ValueProvider<T, Integer> valueProvider,
             Setter<T, Integer> setter,
             int width,

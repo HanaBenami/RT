@@ -1,16 +1,16 @@
 package il.co.rtcohen.rt.dal.dao;
 
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.dal.dao.interfaces.Nameable;
 
-public class Contact extends AbstractTypeWithNameAndActiveFields implements Nameable {
+public class Contact extends AbstractTypeWithNameAndActiveFields implements Nameable, Cloneable<Contact> {
     private Site site;
     private String phone;
     private String notes;
 
     public Contact() {
         super();
-        setObjectName("contact");
     }
 
     public Contact(Integer id, String name, boolean active, Site site, String phone, String notes) {
@@ -18,6 +18,23 @@ public class Contact extends AbstractTypeWithNameAndActiveFields implements Name
         this.site = site;
         this.phone = phone;
         this.notes = notes;
+    }
+
+    public Contact(Contact other) {
+        super(other);
+        this.site = other.site;
+        this.phone = other.phone;
+        this.notes = other.notes;
+    }
+
+    @Override
+    public Contact cloneObject() {
+        return new Contact(this);
+    }
+
+    @Override
+    public String getObjectName() {
+        return "contact";
     }
 
     public Site getSite() {

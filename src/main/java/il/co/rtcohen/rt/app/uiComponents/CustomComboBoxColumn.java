@@ -5,6 +5,7 @@ import com.vaadin.server.Setter;
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
@@ -19,7 +20,7 @@ public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T exte
     private CustomComboBoxColumn() {}
 
     // TODO: extend AbstractCustomColumn
-    public static <C extends Nameable & BindRepository<C>, T extends AbstractType> FilterGrid.Column<T, String> addToGrid(
+    public static <C extends Nameable & BindRepository<C>, T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, String> addToGrid(
             CustomComboBox<C> selectionComboBox,
             CustomComboBox<C> filterComboBox,
             ValueProvider<T, C> valueProvider,

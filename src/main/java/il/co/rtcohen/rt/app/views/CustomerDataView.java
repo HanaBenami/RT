@@ -31,13 +31,12 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     private final VehicleTypeRepository vehicleTypeRepository;
 
     // Grids
-    GridLayout gridLayout;  // TODO
+    GridLayout gridLayout;
     CustomerGrid customerGrid;
     SitesGrid sitesGrid;
     ContactsGrid contactsGrid;
     VehiclesGrid vehiclesGrid;
 
-    // TODO: Change to the relevant objects
     private int selectedCustomerId;
     private int selectedSiteId;
     private int selectedVehicleId;
@@ -63,7 +62,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         this.vehicleTypeRepository = vehicleTypeRepository;
     }
 
-    // TODO: MOve to an upper/separate generic class
+    // TODO: Move to an upper/separate generic class
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         Map<String, String> parametersMap = event.getParameterMap();

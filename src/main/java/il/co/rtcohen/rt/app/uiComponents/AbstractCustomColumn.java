@@ -4,10 +4,11 @@ import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
 // TODO: Make all custom columns use this
-class AbstractCustomColumn<T extends AbstractType, D, F extends Component> {
+class AbstractCustomColumn<T extends AbstractType & Cloneable<T>, D, F extends Component> {
     AbstractTypeFilterGrid<T> grid;
     FilterGrid.Column<T, D> column;
     F filterField;

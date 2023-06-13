@@ -272,6 +272,14 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         addIdColumn();
     }
 
+    private void refreshGridData() {
+        for (Call c : callsInGrid) {
+//            c.update(callRepository.getItem(c.getId()));
+            c = callRepository.getItem(c.getId());
+            this.getDataProvider().refreshItem(c);
+        }
+    }
+
     private void addSetScheduledOrderColumn() {
         Predicate<Call> isScheduled = call -> (
                 null != call.getCurrentScheduledDate()
@@ -297,9 +305,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                                 }
                             }
                             callRepository.updateItem(call);
-                            for (Call c : callsInGrid) {
-                                this.getDataProvider().refreshItem(c);
-                            }
+                            this.refreshGridData();
                         }
                 ),
                 60,
@@ -402,7 +408,10 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(driverRepository),
                 CustomComboBox.getComboBox(driverRepository),
                 Call::getCurrentDriver,
-                Call::setCurrentDriver,
+                (call, driver) -> {
+                    call.setCurrentDriver(driver);
+                    this.refreshGridData();
+                },
                 100,
                 "driverColumn",
                 "driver",
@@ -415,7 +424,10 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     private void addScheduledOrderColumn() {
         Column<Call, Integer> column = CustomNumericColumn.addToGrid(
                 Call::getCurrentScheduledOrder,
-                Call::setCurrentScheduledOrder,
+                (call, order) -> {
+                    call.setCurrentScheduledOrder(order);
+                    this.refreshGridData();
+                },
                 60,
                 "orderColumn",
                 "order",
@@ -444,7 +456,10 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     private void addCurrentScheduledDateColumn() {
         Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
                 Call::getCurrentScheduledDate,
-                Call::setCurrentScheduledDate,
+                (call, date) -> {
+                    call.setCurrentScheduledDate(date);
+                    this.refreshGridData();
+                },
                 LocalDate::now,
                 "date2Column",
                 "date2short",

@@ -2,6 +2,7 @@ package il.co.rtcohen.rt.app.views;
 
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.spring.annotation.SpringView;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.function.Supplier;
 
@@ -10,7 +11,7 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 
 @SpringView(name = AbstractTypeWithNameAndActiveFieldsView.VIEW_NAME)
-abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWithNameAndActiveFields>
+abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWithNameAndActiveFields & Cloneable<T>>
         extends AbstractDataView<AbstractTypeWithNameAndActiveFields> {
 
     static final String VIEW_NAME = "update";

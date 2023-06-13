@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories.interfaces;
 
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends AbstractTypeWithNameAndActiveFields>
+public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends AbstractTypeWithNameAndActiveFields & Cloneable<T>>
         extends AbstractTypeRepository<T> implements RepositoryInterface<T> {
     static protected final String DB_NAME_COLUMN = "name";
     static protected final String DB_ACTIVE_COLUMN = "active";

@@ -2,18 +2,13 @@ package il.co.rtcohen.rt.dal.dao.interfaces;
 
 import il.co.rtcohen.rt.app.LanguageSettings;
 
+// TODO: turn to abstract once generalRepository will be deprecated
 public class AbstractTypeWithNameAndActiveFields extends AbstractType implements Nameable {
     private String name;
     private boolean active;
 
     public AbstractTypeWithNameAndActiveFields() {
-        super(null);
-        this.active = true;
-    }
-
-    public AbstractTypeWithNameAndActiveFields(String name) {
-        super(null);
-        this.name = name;
+        super();
         this.active = true;
     }
 
@@ -21,6 +16,18 @@ public class AbstractTypeWithNameAndActiveFields extends AbstractType implements
         super(id);
         this.name = name;
         this.active = active;
+    }
+
+    public AbstractTypeWithNameAndActiveFields(AbstractTypeWithNameAndActiveFields other) {
+        super(other);
+        this.name = other.name;
+        this.active = other.active;
+    }
+
+    // TODO: delete once generalRepository will be deprecated
+    @Override
+    public String getObjectName() {
+        return null;
     }
 
     public Boolean isActive() {

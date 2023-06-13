@@ -3,6 +3,7 @@ package il.co.rtcohen.rt.app.uiComponents;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import il.co.rtcohen.rt.app.LanguageSettings;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
@@ -13,10 +14,10 @@ import java.time.LocalDate;
 import java.util.function.Supplier;
 
 // T - Type of object represented by the grid
-public class CustomDateColumn<T extends AbstractType> {
+public class CustomDateColumn<T extends AbstractType & Cloneable<T>> {
     private CustomDateColumn() {};
 
-    public static <T extends AbstractType> FilterGrid.Column<T, LocalDate> addToGrid(
+    public static <T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, LocalDate> addToGrid(
             ValueProvider<T, Date> valueProvider,
             Setter<T, Date> setter,
             Supplier<LocalDate> dateSupplierToSetOnFocusEvent,

@@ -9,12 +9,13 @@ import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import java.util.logging.Logger;
 
 // T - Type of object represented by the grid
-public class CustomCheckBoxColumn<T extends AbstractType> {
+public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> {
     private CustomCheckBoxColumn() {}
 
     // Usage:
@@ -27,12 +28,12 @@ public class CustomCheckBoxColumn<T extends AbstractType> {
     //            this
     //    );
     // TODO: extend AbstractCustomColumn
-    public static <T extends AbstractType> FilterGrid.Column<T, Component> addToGrid(ValueProvider<T, Boolean> valueProvider,
-                                                                                     Setter<T, Boolean> setter,
-                                                                                     String id,
-                                                                                     String label,
-                                                                                     Boolean defaultFilter,
-                                                                                     AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
+    public static <T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, Component> addToGrid(ValueProvider<T, Boolean> valueProvider,
+                                                                                                    Setter<T, Boolean> setter,
+                                                                                                    String id,
+                                                                                                    String label,
+                                                                                                    Boolean defaultFilter,
+                                                                                                    AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
         // Basic column
         FilterGrid.Column<T, Component> column = abstractTypeFilterGrid.addComponentColumn(
                 T -> new CustomCheckBox(null, valueProvider.apply(T), true)

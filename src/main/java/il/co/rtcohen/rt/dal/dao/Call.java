@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.dal.dao;
 
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.utils.Date;
 
-public class Call extends AbstractType implements BindRepository<Call> {
+public class Call extends AbstractType implements BindRepository<Call>, Cloneable<Call> {
     private static final Logger logger = LoggerFactory.getLogger(CallsView.class);
     private static boolean inTheMiddleOfBatchScheduleUpdate = false;
 
@@ -78,6 +79,44 @@ public class Call extends AbstractType implements BindRepository<Call> {
         this.isDeleted = isDeleted;
         this.openedByUser = openedByUser;
         this.garageStatus = garageStatus;
+    }
+
+    public Call(Call other) {
+        super(other);
+        this.update(other);
+    }
+
+    public void update(Call other) {
+        this.customer = other.customer;
+        this.site = other.site;
+        this.vehicle = other.vehicle;
+        this.callType = other.callType;
+        this.description = other.description;
+        this.notes = other.notes;
+        this.startDate = other.startDate;
+        this.planningDate = other.planningDate;
+        this.currentScheduledDate = other.currentScheduledDate;
+        this.previousScheduledDate = other.previousScheduledDate;
+        this.endDate = other.endDate;
+        this.currentScheduledOrder = other.currentScheduledOrder;
+        this.previousScheduledOrder = other.previousScheduledOrder;
+        this.currentDriver = other.currentDriver;
+        this.previousDriver = other.previousDriver;
+        this.meeting = other.meeting;
+        this.isDone = other.isDone;
+        this.isHere = other.isHere;
+        this.isDeleted = other.isDeleted;
+        this.openedByUser = other.openedByUser;
+        this.garageStatus = other.garageStatus;
+    }
+
+    @Override
+    public Call cloneObject() {
+        return new Call(this);
+    }
+
+    public String getObjectName() {
+        return "call";
     }
 
     public Customer getCustomer() {

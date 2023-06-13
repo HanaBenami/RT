@@ -6,6 +6,7 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
 import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.filteringgrid.FilterGrid;
@@ -19,7 +20,7 @@ import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 
-abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends FilterGrid<T> {
+abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<T>> extends FilterGrid<T> {
     private AbstractTypeRepository<T> mainRepository;
     private Supplier<T> newItemSupplier;
     private VerticalLayout verticalLayout;

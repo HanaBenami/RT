@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories.interfaces;
 
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.dal.repositories.exceptions.InsertException;
 import il.co.rtcohen.rt.dal.repositories.exceptions.UpdateException;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
@@ -14,12 +15,11 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public abstract class AbstractTypeRepository<T extends AbstractType> implements RepositoryInterface<T> {
+public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<T>> implements RepositoryInterface<T> {
     final static protected String DB_ID_COLUMN = "id";
 
     final protected Logger logger;
@@ -29,7 +29,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
     final protected String DB_TABLE_NAME;
     final private ArrayList<String> dbColumnsList;
 
-    final private CacheManager<T> cacheManager;
+    CacheManager<T> cacheManager;
 
     public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName, String[]... additionalDbColumnsLists) {
         this.logger = LoggerFactory.getLogger(this.getClass());
@@ -122,7 +122,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
                 T item = this.getItemFromResultSet(rs);
                 list.add(item);
             }
-            list = cacheManager.syncWithCache(list);
+            cacheManager.addToCache(list);
             logger.info(list.size() + " records have been retrieved");
             return list;
         } catch (SQLException e) {
@@ -159,7 +159,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
                 return null;
             } else {
                 T t = list.get(0);
-                t = cacheManager.syncWithCache(t);
+                cacheManager.addToCache(t);
                 return t;
             }
         } catch (SQLException e) {
@@ -185,7 +185,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
                             + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\" (id=" + id + ")");
                     t.setBindRepository(this);
                     t.postSave();
-                    t = cacheManager.syncWithCache(t);
+                    cacheManager.addToCache(t);
                     return id;
                 }
                 throw new SQLException("error getting the new key");
@@ -213,7 +213,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType> implements 
             this.logger.info(getMessagesPrefix() + "data was updated (" + t + ")");
             t.setBindRepository(this);
             t.postSave();
-            t = cacheManager.syncWithCache(t);
+            cacheManager.addToCache(t);
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in updateItem";

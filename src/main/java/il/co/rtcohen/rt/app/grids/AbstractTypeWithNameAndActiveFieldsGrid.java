@@ -8,9 +8,10 @@ import com.vaadin.ui.*;
 
 import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 
-public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields> extends AbstractTypeFilterGrid<T> {
+public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields & Cloneable<T>> extends AbstractTypeFilterGrid<T> {
     private final String NAME_COLUMN_ID = "nameColumn";
     private TextField nameFilterTextField;
     private boolean showNewNameField = false;

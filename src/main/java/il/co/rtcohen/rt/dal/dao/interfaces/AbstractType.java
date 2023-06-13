@@ -4,15 +4,24 @@ import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
+import java.util.Objects;
 import java.util.logging.Logger;
 
 abstract public class AbstractType {
     private Integer id;
-    private String objectName;
     private RepositoryInterface<AbstractType> bindRepository;
+
+    public AbstractType() {
+
+    }
 
     public AbstractType(Integer id) {
         this.id = id;
+    }
+
+    public AbstractType(AbstractType other) {
+        this.id = other.id;
+        this.bindRepository = other.bindRepository;
     }
 
     public Integer getId() {
@@ -40,13 +49,7 @@ abstract public class AbstractType {
         return true;
     }
 
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
-    }
-
-    public String getObjectName() {
-        return this.objectName;
-    }
+    abstract public String getObjectName();
 
     @Override
     public String toString() {
@@ -55,8 +58,17 @@ abstract public class AbstractType {
                 + (null == getId() ? "" : (" #" + getId()));
     }
 
-    public boolean equals(AbstractType other) {
-        return (null != other) && this.getId().equals(other.getId());
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractType that = (AbstractType) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getId();
     }
 
     static Logger getLogger() {

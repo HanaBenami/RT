@@ -3,11 +3,12 @@ package il.co.rtcohen.rt.dal.dao;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.utils.Date;
 
 import java.time.LocalDate;
 
-public class Vehicle extends AbstractTypeWithNameAndActiveFields implements BindRepository<Vehicle> {
+public class Vehicle extends AbstractTypeWithNameAndActiveFields implements BindRepository<Vehicle>, Cloneable<Vehicle> {
     private Site site;
     private VehicleType vehicleType;
     private String model = "";
@@ -19,7 +20,6 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields implements Bind
 
     public Vehicle() {
         super();
-        setObjectName("vehicle");
     }
 
     public Vehicle(Integer id, String name, boolean active, Site site, VehicleType vehicleType, String model,
@@ -33,6 +33,28 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields implements Bind
         this.license = license;
         this.engineHours = engineHours;
         this.lastUpdate = lastUpdate;
+    }
+
+    public Vehicle(Vehicle other) {
+        super(other);
+        this.site = other.site;
+        this.vehicleType = other.vehicleType;
+        this.model = other.model;
+        this.series = other.series;
+        this.zama = other.zama;
+        this.license = other.license;
+        this.engineHours = other.engineHours;
+        this.lastUpdate = other.lastUpdate;
+    }
+
+    @Override
+    public Vehicle cloneObject() {
+        return new Vehicle(this);
+    }
+
+    @Override
+    public String getObjectName() {
+        return "vehicle";
     }
 
     public Site getSite() {

@@ -6,13 +6,14 @@ import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
 import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.getBoldStyle;
 
 // T - Type of object represented by the grid
-public class CustomTextColumn<T extends AbstractType> extends AbstractCustomColumn<T, String, TextField> {
+public class CustomTextColumn<T extends AbstractType & Cloneable<T>> extends AbstractCustomColumn<T, String, TextField> {
     private CustomTextColumn(
             AbstractTypeFilterGrid<T> grid,
             FilterGrid.Column<T, String> column,
@@ -39,7 +40,7 @@ public class CustomTextColumn<T extends AbstractType> extends AbstractCustomColu
     //    );
     //    column.getColumn().setHidable(true);
     //    column.getColumn().setHidden(true);
-    public static <T extends AbstractType> CustomTextColumn<T> addToGrid(
+    public static <T extends AbstractType & Cloneable<T>> CustomTextColumn<T> addToGrid(
             ValueProvider<T, String> valueProvider,
             Setter<T, String> setter,
             Integer width,
