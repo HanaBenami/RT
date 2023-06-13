@@ -11,7 +11,7 @@ import com.vaadin.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.sql.SQLException;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -200,7 +200,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
                     siteRepository,
                     callRepository
             );
-            this.customerGrid.initGrid();
+            this.customerGrid.initGrid(false);
             this.addGridToLayout(this.customerGrid, call.getCustomer(), 1, column1, row1, column2, row2);
         } else {
             this.changeCustomerButton.setEnabled(false);
@@ -236,7 +236,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.sitesGrid = new SitesGrid(
                     this.call.getCustomer(), contactRepository, siteRepository, callRepository, areasRepository
             );
-            this.sitesGrid.initGrid();
+            this.sitesGrid.initGrid(false);
             this.addGridToLayout(this.sitesGrid, this.call.getSite(), 1,column1, row1, column2, row2);
         } else if (null != this.call.getCustomer()) {
             this.changeSiteButton.setEnabled(false);
@@ -276,6 +276,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.vehiclesGrid = new VehiclesGrid(
                     this.call.getSite(), vehicleRepository, vehicleTypeRepository, callRepository
             );
+            this.vehiclesGrid.initGrid(false);
             addGridToLayout(this.vehiclesGrid, this.call.getVehicle(), 1,column1, row1, column2, row2);
         } else if (null != this.call.getSite()) {
             this.changeVehicleButton.setEnabled(false);
@@ -300,7 +301,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.contactsGrid = new ContactsGrid(
                     this.call.getSite(), contactRepository
             );
-            this.contactsGrid.initGrid();
+            this.contactsGrid.initGrid(false);
             this.addGridToLayout(this.contactsGrid, null, 3,1, 5, 4, 5);
         }
     }
@@ -446,8 +447,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
                 call.getCurrentScheduledOrder(),
                 0,
                 99,
-                null
-        );
+                null,
+                null);
         numericField.addValueChangeListener(listener -> {
                 call.setCurrentScheduledOrder(Integer.parseInt(numericField.getValue()));
                 saveData();

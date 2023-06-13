@@ -10,6 +10,7 @@ import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
 // T - Type of object represented by the grid
+// TODO: extend AbstractCustomColumn
 public class CustomNumericColumn<T extends AbstractType> {
     private CustomNumericColumn() {};
 

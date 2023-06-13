@@ -33,6 +33,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
         this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;
         this.callRepository = callRepository;
+        this.setShowNewNameField(true);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
     }
 
     private void addSitesColumn() {
-        Column<Customer, Component> column = this.addComponentColumn(
+        CustomComponentColumn<Customer, Component> column = CustomComponentColumn.addToGrid(
                 (ValueProvider<Customer, Component>) Customer -> {
                     if (null == Customer.getId()) {
                         return null;
@@ -73,9 +74,10 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 },
                 85,
                 "sitesColumn",
-                "sites"
+                "sites",
+                this
         );
-        column.setHidden(true);
+        column.getColumn().setHidden(true);
     }
 
     private void addHashKeyColumn() {
@@ -103,5 +105,19 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 "custType",
                 this
         );
+    }
+
+    @Override
+    protected Column<Customer, Component> addActiveColumn() {
+        Column<Customer, Component> column = super.addActiveColumn();
+        column.setHidden(true);
+        return column;
+    }
+
+    @Override
+    protected Column<Customer, Integer> addIdColumn() {
+        Column<Customer, Integer>  column = super.addIdColumn();
+        column.setHidden(true);
+        return column;
     }
 }

@@ -14,7 +14,7 @@ public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<
                 "area",
                 null
         );
-        this.initGrid();
+        this.initGrid(true);
         this.setCustomSortColumnId(DISPLAY_ORDER_COLUMN_ID);
     }
 

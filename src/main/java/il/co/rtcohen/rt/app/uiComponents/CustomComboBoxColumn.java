@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T extends AbstractType> {
     private CustomComboBoxColumn() {}
 
+    // TODO: extend AbstractCustomColumn
     public static <C extends Nameable & BindRepository<C>, T extends AbstractType> FilterGrid.Column<T, String> addToGrid(
             CustomComboBox<C> selectionComboBox,
             CustomComboBox<C> filterComboBox,

@@ -2,10 +2,10 @@ package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Setter;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
+import il.co.rtcohen.rt.app.uiComponents.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.filteringgrid.FilterGrid;
@@ -16,9 +16,6 @@ import java.util.function.Supplier;
 
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.ui.UIPaths;
-import il.co.rtcohen.rt.app.uiComponents.CustomButton;
-import il.co.rtcohen.rt.app.uiComponents.CustomNumericColumn;
-import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 
@@ -44,7 +41,8 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
             AbstractTypeRepository<T> mainRepository,
             Supplier<T> newItemSupplier,
             String titleKey,
-            Predicate<T> itemsFilterPredicate) {
+            Predicate<T> itemsFilterPredicate
+    ) {
         super();
         this.setGridRepository(mainRepository);
         this.setNewItemSupplier(newItemSupplier);
@@ -53,12 +51,15 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         this.setSaveAction();
     }
 
-    public void initGrid() {
+    public void initGrid(boolean fullSize) {
         this.setTitle();
         this.addColumns();
         this.populateGrid();
         this.sort();
         this.setStyle();
+        if (fullSize) {
+            this.setSizeFull();
+        }
     }
 
     abstract protected void addColumns();
@@ -201,45 +202,20 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         if (numOfEmptyLinesFields.isEmpty()) {
             numOfEmptyLinesFields.focus();
         } else {
-            this.populateGrid(Integer.parseInt(numOfEmptyLinesFields.getValue()));
+            this.addEmptyLines(Integer.parseInt(numOfEmptyLinesFields.getValue()));
         }
+    }
+
+    protected void addEmptyLines(int numOfEmptyLines) {
+        this.populateGrid(numOfEmptyLines);
     }
 
     protected T getNewItem() {
         return this.newItemSupplier.get();
     }
 
-    @Deprecated
-    // TODO: use uiComponents.CustomTextColumn instead
-    public Column<T, String> addTextColumn(ValueProvider<T, String> valueProvider,
-                                           Setter<T, String> setter,
-                                           int width, String id, String label) {
-        FilterGrid.Column<T, String> column = this.addColumn(valueProvider);
-        column.setId(id).setExpandRatio(1).setResizable(true).setMinimumWidth(width).setHidable(true);
-        TextField textField = new TextField();
-        textField.setWidth(2 * width, Unit.PIXELS);
-        if (null != setter) {
-            column.setEditorComponent(textField, setter);
-        }
-        TextField filterField = UIComponents.textField(30);
-        filterField.setWidth("95%");
-        column.setFilter(filterField, UIComponents.stringFilter());
-
-        this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
-        return column;
-    }
-
-    // TODO: Move to UiComponents
-    public FilterGrid.Column<T, Component> addComponentColumn(ValueProvider<T, Component> componentProvider,
-                                   int width, String id, String label) {
-        FilterGrid.Column<T, Component> column = this.addComponentColumn(componentProvider);
-        column.setId(id).setExpandRatio(1).setResizable(true).setWidth(width).setSortable(false).setHidable(true);
-        this.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
-        return column;
-    }
-
-    protected void addIdColumn() {
-        CustomNumericColumn.addToGrid(
+    protected Column<T, Integer> addIdColumn() {
+        return CustomNumericColumn.addToGrid(
                 T::getId,
                 null,
                 70,
@@ -271,14 +247,18 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         this.verticalLayout.setWidth("100%");
         this.setWidth("100%");
         if (withTitle) {
-            this.verticalLayout.addComponent(UIComponents.smallHeader(this.title));
+            this.verticalLayout.addComponent(new CustomLabel(this.title, null, CustomLabel.LabelStyle.TITLE));
         }
         this.changeErrorMessage();
         if (null != errorMessage) {
-            this.verticalLayout.addComponent(UIComponents.errorMessage(this.errorMessage));
+            this.verticalLayout.addComponent(new CustomLabel(this.errorMessage, null, CustomLabel.LabelStyle.ERROR));
         } else {
             if (null != warningMessage) {
-                this.verticalLayout.addComponent(UIComponents.errorMessage(this.warningMessage));
+                this.verticalLayout.addComponent(new CustomLabel(this.warningMessage, null, CustomLabel.LabelStyle.ERROR));
+            }
+            RtlHorizontalLayout additionalLayout = customAdditionalLayout();
+            if (null != additionalLayout) {
+                this.verticalLayout.addComponent(additionalLayout);
             }
             this.verticalLayout.addComponentsAndExpand(this);
             if (this.emptyLinesAllow) {
@@ -287,34 +267,25 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
         }
     }
 
-    private HorizontalLayout emptyLinesLayout() {
-        HorizontalLayout newLinesLayout = new HorizontalLayout();
-        newLinesLayout.setWidth(this.getWidth(), this.getWidthUnits());
-        newLinesLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+    protected RtlHorizontalLayout customAdditionalLayout() {
+        return null;
+    }
 
-        Label before = new Label(LanguageSettings.getLocaleString("add"));
-        before.setStyleName("SMALL-TEXT");
+    private RtlHorizontalLayout emptyLinesLayout() {
+        RtlHorizontalLayout newLinesLayout = new RtlHorizontalLayout();
 
-        NumberField numOfNewLinesFields = new NumberField();
-        numOfNewLinesFields.setDecimalPrecision(0);
-        numOfNewLinesFields.setDecimalAllowed(false);
-        numOfNewLinesFields.setMinValue(1);
-        numOfNewLinesFields.setValue("1");
-        numOfNewLinesFields.setWidth(50, Unit.PIXELS);
+        Label before = new CustomLabel("add", null, CustomLabel.LabelStyle.SMALL_TEXT);
+        Label after = new CustomLabel("emptyLines", null, CustomLabel.LabelStyle.SMALL_TEXT);
+        CustomNumericField numOfNewLinesFields = new CustomNumericField(
+                null, 1, 1, 10,
+                null,
+                "50px");
+        Button addButton = new CustomButton(VaadinIcons.PLUS, true, clickEvent -> addEmptyLines(numOfNewLinesFields));
+        addButton.setEnabled(false);
+        numOfNewLinesFields.addValueChangeListener(listener -> addButton.setEnabled(!numOfNewLinesFields.isEmpty()));
 
-        Label after = new Label(LanguageSettings.getLocaleString("emptyLines"));
-        after.setStyleName("SMALL-TEXT");
-
-        Button addButton = UIComponents.addButton();
-        addButton.setEnabled(true);
-        addButton.addClickListener(clickEvent -> addEmptyLines(numOfNewLinesFields));
-
-        ArrayList<Component> components = new ArrayList<>(Arrays.asList(before, numOfNewLinesFields, after, addButton));
-        if (LanguageSettings.isHebrew()) {
-            Collections.reverse(components);
-        }
-        newLinesLayout.addComponents(components.toArray(new Component[0]));
         newLinesLayout.addComponentsAndExpand(new Label());
+        newLinesLayout.addComponents(before, numOfNewLinesFields, after, addButton);
 
         return newLinesLayout;
     }
@@ -349,7 +320,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
     }
 
     protected void addCallsColumn(ValueProvider<T, Integer> callsCounterProvider, String urlAddition) {
-        this.addComponentColumn(
+        CustomComponentColumn.addToGrid(
                 (ValueProvider<T, Component>) t -> {
                     if (null == t.getId()) {
                         return null;
@@ -363,7 +334,8 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType> extends Fil
                 },
                 60,
                 "callsColumn",
-                "calls"
+                "calls",
+                this
         );
     }
 }

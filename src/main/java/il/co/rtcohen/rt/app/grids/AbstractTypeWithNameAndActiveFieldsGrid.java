@@ -2,16 +2,18 @@ package il.co.rtcohen.rt.app.grids;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import com.vaadin.ui.TextField;
 
-import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
-import il.co.rtcohen.rt.app.uiComponents.CustomTextColumn;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.*;
+
+import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 
 public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields> extends AbstractTypeFilterGrid<T> {
     private final String NAME_COLUMN_ID = "nameColumn";
     private TextField nameFilterTextField;
+    private boolean showNewNameField = false;
 
     public AbstractTypeWithNameAndActiveFieldsGrid(
             AbstractTypeWithNameAndActiveFieldsRepository<T> abstractTypeWithNameAndActiveFieldsRepository,
@@ -43,8 +45,8 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
         addIdColumn();
     }
 
-    protected void addActiveColumn() {
-        CustomCheckBoxColumn.addToGrid(
+    protected Column<T, Component> addActiveColumn() {
+        return CustomCheckBoxColumn.addToGrid(
                 T::isActive,
                 T::setActive,
                 "activeColumn",
@@ -67,5 +69,43 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
                 this
         );
         nameFilterTextField = column.getFilterField();
+    }
+
+    public void setShowNewNameField(boolean showNewNameField) {
+        this.showNewNameField = showNewNameField;
+    }
+
+    @Override
+    protected RtlHorizontalLayout customAdditionalLayout() {
+        if (this.showNewNameField) {
+            return this.newNameLayout();
+        } else {
+            return null;
+        }
+    }
+
+    private RtlHorizontalLayout newNameLayout() {
+        RtlHorizontalLayout newNameLayout = new RtlHorizontalLayout();
+
+        Label before = new CustomLabel("add", null, CustomLabel.LabelStyle.SMALL_TEXT);
+
+        Button addButton = new CustomButton(VaadinIcons.PLUS, true, clickEvent -> addEmptyLines(1));
+        addButton.setEnabled(false);
+
+        CustomTextField newNameField = new CustomTextField(
+                null,
+                null,
+                event -> {
+                    nameFilterTextField.setValue(event.getValue());
+                    addButton.setEnabled(!event.getValue().isEmpty());
+                }
+        );
+        newNameField.setWidth("100%");
+
+        newNameLayout.addComponents(before);
+        newNameLayout.addComponentsAndExpand(newNameField);
+        newNameLayout.addComponents(addButton);
+
+        return newNameLayout;
     }
 }

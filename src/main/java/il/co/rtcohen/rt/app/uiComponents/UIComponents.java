@@ -137,15 +137,6 @@ public class UIComponents {
         return UIComponents.label(title,"LABEL LABEL-CENTER");
     }
 
-    public static Label smallHeader(String title) {
-        return UIComponents.label(title,"LABEL-SMALL-HEADER");
-    }
-
-    public static Label errorMessage(String errorMessage) {
-        Label label = smallHeader(errorMessage);
-        label.setStyleName("LABEL-ERROR");
-        return label;
-    }
 
     public static Label label(String value, String style) {
         Label label = UIComponents.label(style);
@@ -157,10 +148,6 @@ public class UIComponents {
         Label label = new Label("");
         label.addStyleName(style);
         return label;
-    }
-
-    public static Button addButton() {
-        return bigButton(VaadinIcons.PLUS);
     }
 
     public static Button printButton() {
@@ -178,27 +165,11 @@ public class UIComponents {
         return button;
     }
 
-    public static TextField textField(Boolean enabled, int w, int h) {
-        TextField textField = textField(String.valueOf(w),String.valueOf(h));
-        textField.setEnabled(enabled);
-        return textField;
-    }
-
 
     public static TextField textField(String w, String h) {
         TextField textField = new TextField();
         textField.setHeight(h);
         textField.setWidth(w);
-        return textField;
-    }
-
-    public static TextField textField(int h) {
-        return textField(String.valueOf(h));
-    }
-
-    private static TextField textField(String h) {
-        TextField textField = new TextField();
-        textField.setHeight(h);
         return textField;
     }
 

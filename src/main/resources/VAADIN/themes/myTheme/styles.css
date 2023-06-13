@@ -15135,7 +15135,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .myTheme .LABEL-ERROR {
 	color: red !important;
-	text-align: center !important;
+	text-align: right !important;
 	font-weight: bold;
 }
 

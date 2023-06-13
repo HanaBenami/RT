@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.app.uiComponents;
 
 import com.vaadin.ui.Label;
+
 import il.co.rtcohen.rt.app.LanguageSettings;
 
 import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.FORMS_FIELD_HEIGHT;
@@ -8,7 +9,8 @@ import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.FORMS_FIELD_HEIGHT
 public class CustomLabel extends Label {
     public enum LabelStyle {
         TITLE("LABEL-SMALL-HEADER"),
-        ERROR("LABEL-RIGHT-RED");
+        ERROR("LABEL-ERROR"),
+        SMALL_TEXT("SMALL-TEXT");
 
         public final String styleName;
 

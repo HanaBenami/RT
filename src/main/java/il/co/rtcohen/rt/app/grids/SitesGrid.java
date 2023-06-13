@@ -4,10 +4,7 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.uiComponents.CustomButton;
-import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
-import il.co.rtcohen.rt.app.uiComponents.CustomComboBox;
-import il.co.rtcohen.rt.app.uiComponents.CustomComboBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
@@ -73,7 +70,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     }
 
     private void addContactsColumn() {
-        Column<Site, Component> column = this.addComponentColumn(
+        CustomComponentColumn<Site, Component> column = CustomComponentColumn.addToGrid(
                 (ValueProvider<Site, Component>) site -> {
                     if (null == site.getId()) {
                         return null;
@@ -89,9 +86,10 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 },
                 85,
                 "contactsColumn",
-                "contacts"
+                "contacts",
+                this
         );
-        column.setHidden(true);
+        column.getColumn().setHidden(true);
     }
 
     private void addCallsColumn() {
@@ -102,12 +100,16 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     }
 
     private void addNotesColumn() {
-        this.addTextColumn(
+        CustomTextColumn<Site> column = CustomTextColumn.addToGrid(
                 Site::getNotes,
                 Site::setNotes,
                 230,
                 "notesColumn",
-                "notes"
+                "notes",
+                false,
+                true,
+                false,
+                this
         );
     }
 
@@ -125,12 +127,16 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     }
 
     private void addAddressColumn() {
-        this.addTextColumn(
+        CustomTextColumn<Site> column = CustomTextColumn.addToGrid(
                 Site::getAddress,
                 Site::setAddress,
                 230,
                 "addressColumn",
-                "address"
+                "address",
+                false,
+                true,
+                false,
+                this
         );
     }
 }

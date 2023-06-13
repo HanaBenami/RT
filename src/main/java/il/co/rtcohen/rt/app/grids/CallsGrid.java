@@ -84,13 +84,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         this.callTypeRepository = callTypeRepository;
         this.garageStatusRepository = garageStatusRepository;
         this.setEmptyLinesAllow(false);
-        this.initGrid();
     }
 
     public enum CallsFilterOptions {
         ALL_CALLS("allCalls"),
         ONLY_OPEN_CALLS("openCalls"),
-        ONLY_OPEN_CALLS_PENDING_GARAGE("pendingGarage"),
+        ONLY_OPEN_CALLS_PENDING_GARAGE("openCallsPendingGarage"),
         RECENTLY_CLOSED_CALLS("recentCloseCalls"),
         ALL_CLOSED_CALLS("closeCalls"),
         RECENTLY_DELETED_CALLS("recentDeleteCalls"),
@@ -207,6 +206,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
 
     @Override
     protected void setTitle() {
+        super.setTitleKey(this.selectedCallsFilterOption.getTitleKey());
         super.setTitle();
         if (null != this.selectedVehicle) {
             super.setTitleKey("callsOfVehicle");
@@ -224,8 +224,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     @Override
-    public void initGrid() {
-        super.initGrid();
+    public void initGrid(boolean fullSize) {
+        super.initGrid(fullSize);
         this.setDetailsGenerator((DetailsGenerator<Call>) this::getCallDetails);
         this.setStyleGenerator((StyleGenerator<Call>) StyleSettings::callStyle);
     }
@@ -279,7 +279,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 && null != call.getCurrentDriver()
                 && 0 != call.getCurrentScheduledOrder()
         );
-        Column<Call, Component> column = this.addComponentColumn(
+        CustomComponentColumn<Call, Component> column = CustomComponentColumn.addToGrid(
                 call -> new CustomButton(
                         (isScheduled.test(call) ? VaadinIcons.CLOSE_SMALL : VaadinIcons.CALENDAR_USER),
                         false,
@@ -304,14 +304,15 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 ),
                 60,
                 "setOrderColumn",
-                "setOrder"
+                "setOrder",
+                this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addEditColumn() {
-        Column<Call, Component> column = this.addComponentColumn(
+        CustomComponentColumn<Call, Component> column = CustomComponentColumn.addToGrid(
                 call -> new CustomButton(
                         VaadinIcons.EDIT,
                         false,
@@ -321,14 +322,15 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 ),
                 60,
                 "editColumn",
-                "edit"
+                "edit",
+                this
         );
-        column.setHidable(false);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addNotesColumn() {
-        this.addComponentColumn(
+        CustomComponentColumn<Call, Component> column = CustomComponentColumn.addToGrid(
                 call -> new CustomButton(
                         (call.getNotes().isEmpty() ? VaadinIcons.COMMENT_O : VaadinIcons.COMMENT),
                         false,
@@ -336,12 +338,13 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 ),
                 60,
                 "notesColumn",
-                "notes"
+                "notes",
+                this
         );
     }
 
     private void addDescriptionColumn() {
-         this.addComponentColumn(
+        CustomComponentColumn<Call, Component> column = CustomComponentColumn.addToGrid(
                 call -> new CustomButton(
                             (call.getDescription().isEmpty() ? VaadinIcons.COMMENT_O : VaadinIcons.COMMENT),
                             false,
@@ -349,7 +352,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 ),
                 60,
                 "descriptionColumn",
-                "description"
+                "description",
+                 this
         );
     }
 
@@ -513,7 +517,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(garageStatusRepository),
                 Call::getGarageStatus,
                 Call::setGarageStatus,
-                100,
+                120,
                 "garageStatusColumn",
                 "garageStatus",
                 this
@@ -528,7 +532,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(vehicleTypeRepository),
                 call -> call.getVehicle().getVehicleType(),
                 null,
-                100,
+                120,
                 "vehicleTypeColumn",
                 "vehicleType",
                 this
@@ -543,7 +547,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(callTypeRepository),
                 Call::getCallType,
                 Call::setCallType,
-                100,
+                120,
                 "callTypeColumn",
                 "callType",
                 this
@@ -553,15 +557,19 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     private void addAddressColumn() {
-        Column<Call, String> column = this.addTextColumn(
-                call -> NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getAddress(), ""),
-                null,
-                180,
-                "addressColumn",
-                "address"
-        );
-        column.setHidable(true);
-        column.setHidden(true);
+        CustomTextColumn<Call>  column = CustomTextColumn.addToGrid(
+            call -> NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getAddress(), ""),
+            null,
+            180,
+            "addressColumn",
+            "address",
+            false,
+            true,
+            false,
+            this
+            );
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 
     private void addAreaColumn() {
@@ -585,7 +593,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(siteRepository, this.selectedCustomer),
                 Call::getSite,
                 null,
-                120,
+                150,
                 "siteColumn",
                 "site",
                 this

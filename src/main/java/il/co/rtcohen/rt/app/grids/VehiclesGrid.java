@@ -30,7 +30,6 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         this.site = (null == site || site.isDraft() ? null : site);
         this.vehicleTypeRepository = vehicleTypeRepository;
         this.callRepository = callRepository;
-        this.initGrid();
     }
 
     @Override
@@ -80,7 +79,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     }
 
     private void addAddingCallColumn() {
-        Column<Vehicle, Component> column = this.addComponentColumn(
+        CustomComponentColumn<Vehicle, Component> column = CustomComponentColumn.addToGrid(
                 vehicle -> new CustomButton(
                         VaadinIcons.PLUS,
                         false,
@@ -90,11 +89,12 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 ),
                 60,
                 "addCallColumn",
-                "addCall"
+                "addCall",
+                this
         );
-        column.setStyleGenerator(vehicle -> "red");
-        column.setHidable(false);
-        column.setHidden(false);
+        column.getColumn().setStyleGenerator(vehicle -> "red");
+        column.getColumn().setHidable(false);
+        column.getColumn().setHidden(false);
     }
 
     private void addCallsColumn() {
@@ -158,22 +158,30 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     }
 
     private void addSeriesColumn() {
-        this.addTextColumn(
+        CustomTextColumn<Vehicle> column = CustomTextColumn.addToGrid(
                 Vehicle::getSeries,
                 Vehicle::setSeries,
                 140,
                 "seriesColumn",
-                "series"
+                "series",
+                false,
+                true,
+                false,
+                this
         );
     }
 
     private void addModelColumn() {
-        this.addTextColumn(
+        CustomTextColumn<Vehicle> column = CustomTextColumn.addToGrid(
                 Vehicle::getModel,
                 Vehicle::setModel,
                 140,
                 "modelColumn",
-                "model"
+                "model",
+                false,
+                true,
+                false,
+                this
         );
     }
 

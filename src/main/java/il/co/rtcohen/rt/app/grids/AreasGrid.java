@@ -14,7 +14,7 @@ public class AreasGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Area> {
                 "area",
                 null
         );
-        this.initGrid();
+        this.initGrid(true);
         this.setCustomSortColumnId(DISPLAY_ORDER_COLUMN_ID);
     }
 

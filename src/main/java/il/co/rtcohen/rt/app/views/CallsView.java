@@ -241,6 +241,7 @@ public class CallsView extends AbstractDataView<Call> {
                 vehicleRepository, vehicleTypeRepository, usersRepository, driverRepository, callTypeRepository,
                 garageStatusRepository
         );
+        callsGrid.initGrid(true);
         callsGrid.setWidth("100%");
         callsGrid.setNextScheduleDate(new Date(nextScheduleDateField.getValue()));
         addComponentsAndExpand(callsGrid.getVerticalLayout(true, true));

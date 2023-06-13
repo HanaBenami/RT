@@ -112,7 +112,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
                 .getNameById(area,"area"),"LABEL");
         areaLayout.addComponent(areaTitle,columns-1,0);
         Label dateTitle;
-        LocalDate nullDate = new Date(Date.nullDateString).getLocalDate();
+        LocalDate nullDate = Date.nullDate().getLocalDate();
         int x = columns-1;
         int y = 1;
         // TODO - Fix to avoid GridLayout$OutOfBoundsException, regardless the value of rowsPerColumn in the .yaml file

@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 public class Date {
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     final static public DateTimeFormatter dateFormatterForUrls = DateTimeFormatter.ofPattern("yyyyMMdd");
-    final static public String nullDateString = "1901-01-01"; // TODO: change to private
+    final static private String nullDateString = "1901-01-01";
 
     private final LocalDate localDate;
 

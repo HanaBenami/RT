@@ -5,6 +5,7 @@ import com.vaadin.server.Setter;
 import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
@@ -20,21 +21,24 @@ public class CustomTextColumn<T extends AbstractType> extends AbstractCustomColu
             String labelKey,
             Integer width
     ) {
-        super(grid, column, filterField, columnId, labelKey, width);
+        // TODO: Decide if to use the width attribute (currently it looks better without it) --> Change signature
+        super(grid, column, filterField, columnId, labelKey, null);
     }
 
     // Usage:
-    //        CustomNumericColumn.addToGrid(
-    //            T::getId,
+    //    CustomTextColumn<Call>  column = CustomTextColumn.addToGrid(
+    //            call -> NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getAddress(), ""),
     //            null,
-    //            70,
-    //            idFieldId,
-    //            "id",
+    //            180,
+    //            "addressColumn",
+    //            "address",
     //            false,
     //            true,
-    //            true,
+    //            false,
     //            this
-    //        );
+    //    );
+    //    column.getColumn().setHidable(true);
+    //    column.getColumn().setHidden(true);
     public static <T extends AbstractType> CustomTextColumn<T> addToGrid(
             ValueProvider<T, String> valueProvider,
             Setter<T, String> setter,

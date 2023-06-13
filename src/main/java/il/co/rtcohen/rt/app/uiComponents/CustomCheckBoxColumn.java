@@ -26,6 +26,7 @@ public class CustomCheckBoxColumn<T extends AbstractType> {
     //            Boolean.TRUE,
     //            this
     //    );
+    // TODO: extend AbstractCustomColumn
     public static <T extends AbstractType> FilterGrid.Column<T, Component> addToGrid(ValueProvider<T, Boolean> valueProvider,
                                                                                      Setter<T, Boolean> setter,
                                                                                      String id,

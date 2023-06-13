@@ -10,9 +10,12 @@ public class CustomNumericField extends NumberField {
             Integer currentValue,
             Integer minValue,
             Integer maxValue,
-            ValueChangeListener<String> valueChangeListener
+            ValueChangeListener<String> valueChangeListener,
+            String width
     ) {
         super(caption);
+        this.setDecimalPrecision(0);
+        this.setDecimalAllowed(false);
         if (null != currentValue) {
             this.setValue(currentValue.toString());
         }
@@ -26,5 +29,8 @@ public class CustomNumericField extends NumberField {
             this.addValueChangeListener(valueChangeListener);
         }
         this.setHeight(FORMS_FIELD_HEIGHT);
+        if (null != width) {
+            this.setWidth(width);
+        }
     }
 }
