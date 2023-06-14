@@ -83,10 +83,6 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
     public Call(Call other) {
         super(other);
-        this.update(other);
-    }
-
-    public void update(Call other) {
         this.customer = other.customer;
         this.site = other.site;
         this.vehicle = other.vehicle;

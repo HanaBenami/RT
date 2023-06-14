@@ -274,9 +274,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
 
     private void refreshGridData() {
         for (Call c : callsInGrid) {
-//            c.update(callRepository.getItem(c.getId()));
-            c = callRepository.getItem(c.getId());
-            this.getDataProvider().refreshItem(c);
+            c = callRepository.getItem(c.getId()); // Get the latest version of this call
+            this.getDataProvider().refreshItem(c); // Refresh its view in the grid
         }
     }
 
