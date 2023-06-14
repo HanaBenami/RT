@@ -1,11 +1,9 @@
 package il.co.rtcohen.rt.app.grids;
 
-import il.co.rtcohen.rt.app.uiComponents.CustomTextColumn;
-import il.co.rtcohen.rt.dal.dao.Call;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomTextColumn;
 import il.co.rtcohen.rt.dal.dao.Contact;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
-import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 
 public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contact> {
     private final Site site;
@@ -57,7 +55,7 @@ public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contac
         CustomTextColumn<Contact> column = CustomTextColumn.addToGrid(
                 Contact::getNotes,
                 Contact::setNotes,
-                230,
+                false, 230,
                 "notesColumn",
                 "notes",
                 false,
@@ -71,7 +69,7 @@ public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contac
         CustomTextColumn<Contact> column = CustomTextColumn.addToGrid(
                 Contact::getPhone,
                 Contact::setPhone,
-                230,
+                false, 230,
                 "phoneColumn",
                 "phone",
                 false,

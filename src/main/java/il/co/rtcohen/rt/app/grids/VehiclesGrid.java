@@ -4,7 +4,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.ui.UIPaths;
-import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.app.uiComponents.columns.*;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
@@ -161,7 +163,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomTextColumn<Vehicle> column = CustomTextColumn.addToGrid(
                 Vehicle::getSeries,
                 Vehicle::setSeries,
-                140,
+                false, 140,
                 "seriesColumn",
                 "series",
                 false,
@@ -175,7 +177,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomTextColumn<Vehicle> column = CustomTextColumn.addToGrid(
                 Vehicle::getModel,
                 Vehicle::setModel,
-                140,
+                false, 140,
                 "modelColumn",
                 "model",
                 false,
@@ -191,6 +193,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 CustomComboBox.getComboBox(vehicleTypeRepository),
                 Vehicle::getVehicleType,
                 Vehicle::setVehicleType,
+                true,
                 230,
                 "vehicleTypeColumn",
                 "vehicleType",

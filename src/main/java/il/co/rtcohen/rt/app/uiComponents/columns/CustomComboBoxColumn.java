@@ -1,10 +1,12 @@
-package il.co.rtcohen.rt.app.uiComponents;
+package il.co.rtcohen.rt.app.uiComponents.columns;
 
+import com.vaadin.data.Binder;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
@@ -25,6 +27,7 @@ public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T exte
             CustomComboBox<C> filterComboBox,
             ValueProvider<T, C> valueProvider,
             Setter<T, C> setter,
+            boolean required,
             int width,
             String id,
             String label,
@@ -39,7 +42,12 @@ public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T exte
         // Setter
         if (null != setter) {
             assert null != selectionComboBox && null != valueProvider;
-            column.setEditorBinding(abstractTypeFilterGrid.getEditor().getBinder().forField(selectionComboBox).bind(
+            Binder.BindingBuilder<T, C> binder = abstractTypeFilterGrid.getEditor().getBinder().forField(selectionComboBox);
+            if (required) {
+                binder = binder.asRequired();
+                selectionComboBox.setEmptySelectionAllowed(false);
+            }
+            column.setEditorBinding(binder.bind(
                     t -> NullPointerExceptionWrapper.getWrapper(t, valueProvider, null),
                     setter
             ));

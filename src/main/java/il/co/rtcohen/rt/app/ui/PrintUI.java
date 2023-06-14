@@ -12,7 +12,7 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.uiComponents.CustomDateField;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomDateField;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.dao.Contact;

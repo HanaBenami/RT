@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app.uiComponents;
+package il.co.rtcohen.rt.app.uiComponents.columns;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
@@ -8,6 +8,8 @@ import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomCheckBox;
+import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;

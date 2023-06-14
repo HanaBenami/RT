@@ -12,11 +12,11 @@ public class StyleSettings {
     public static final String COMBO_BOX_HEIGHT = FORMS_FIELD_HEIGHT;
     public static final String FILTER_FIELD_WIDTH = "95%";
 
-    static String getBoldStyle(String value) {
+    static public String getBoldStyle(String value) {
         return (null == value ? "null" : "bold");
     }
 
-    static String getBoldStyle(Integer value) {
+    static public String getBoldStyle(Integer value) {
         return getBoldStyle(0 == value ? null : value);
     }
 

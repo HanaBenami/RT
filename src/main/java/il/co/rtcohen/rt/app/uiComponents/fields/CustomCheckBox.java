@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app.uiComponents;
+package il.co.rtcohen.rt.app.uiComponents.fields;
 
 import com.vaadin.ui.CheckBox;
 import il.co.rtcohen.rt.app.LanguageSettings;

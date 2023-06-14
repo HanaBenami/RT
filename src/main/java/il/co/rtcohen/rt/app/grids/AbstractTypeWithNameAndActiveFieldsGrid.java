@@ -7,6 +7,10 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.*;
 
 import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomCheckBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomTextColumn;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomTextField;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
@@ -61,6 +65,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
         CustomTextColumn<T> column = CustomTextColumn.addToGrid(
                 T::getName,
                 T::setName,
+                true,
                 230,
                 NAME_COLUMN_ID,
                 "name",

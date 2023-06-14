@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app.uiComponents;
+package il.co.rtcohen.rt.app.uiComponents.columns;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.ui.Component;

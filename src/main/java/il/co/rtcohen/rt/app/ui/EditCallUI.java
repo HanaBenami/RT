@@ -8,6 +8,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
+import il.co.rtcohen.rt.app.uiComponents.fields.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

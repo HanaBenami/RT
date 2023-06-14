@@ -4,6 +4,10 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.DetailsGenerator;
+import il.co.rtcohen.rt.app.uiComponents.columns.*;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomTextArea;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import java.util.List;
 import java.util.function.Predicate;
@@ -411,7 +415,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                     call.setCurrentDriver(driver);
                     this.refreshGridData();
                 },
-                100,
+                false, 100,
                 "driverColumn",
                 "driver",
                 this
@@ -531,7 +535,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(garageStatusRepository),
                 Call::getGarageStatus,
                 Call::setGarageStatus,
-                120,
+                false, 120,
                 "garageStatusColumn",
                 "garageStatus",
                 this
@@ -546,7 +550,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(vehicleTypeRepository),
                 call -> call.getVehicle().getVehicleType(),
                 null,
-                120,
+                false, 120,
                 "vehicleTypeColumn",
                 "vehicleType",
                 this
@@ -561,7 +565,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(callTypeRepository),
                 Call::getCallType,
                 Call::setCallType,
-                120,
+                false, 120,
                 "callTypeColumn",
                 "callType",
                 this
@@ -574,7 +578,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         CustomTextColumn<Call>  column = CustomTextColumn.addToGrid(
             call -> NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getAddress(), ""),
             null,
-            180,
+                false, 180,
             "addressColumn",
             "address",
             false,
@@ -592,7 +596,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(areasRepository),
                 call -> call.getSite().getArea(),
                 null,
-                100,
+                false, 100,
                 "areaColumn",
                 "area",
                 this
@@ -607,7 +611,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(siteRepository, this.selectedCustomer),
                 Call::getSite,
                 null,
-                150,
+                false, 150,
                 "siteColumn",
                 "site",
                 this
@@ -622,7 +626,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 CustomComboBox.getComboBox(customerRepository),
                 Call::getCustomer,
                 null,
-                120,
+                false, 120,
                 "customerColumn",
                 "customer",
                 this

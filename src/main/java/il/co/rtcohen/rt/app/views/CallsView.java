@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.vaadin.icons.VaadinIcons;
-import il.co.rtcohen.rt.app.uiComponents.CustomButton;
-import il.co.rtcohen.rt.app.uiComponents.CustomComboBox;
-import il.co.rtcohen.rt.app.uiComponents.CustomDateField;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomDateField;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.utils.Date;
 import org.slf4j.Logger;

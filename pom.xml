@@ -28,13 +28,6 @@
 
 	<dependencies>
 
-		<!-- TODO: delete / comment out on RT Prod. -->
-<!--		<dependency>-->
-<!--			<groupId>com.microsoft.sqlserver</groupId>-->
-<!--			<artifactId>sqljdbc4</artifactId>-->
-<!--			<version>4.0</version>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
@@ -155,7 +148,6 @@
 				<dependency>
 					<groupId>com.microsoft.sqlserver</groupId>
 					<artifactId>mssql-jdbc</artifactId>
-<!--					<version>6.4.0.jre8</version>-->
 					<version>12.2.0.jre8</version>
 				</dependency>
 			</dependencies>

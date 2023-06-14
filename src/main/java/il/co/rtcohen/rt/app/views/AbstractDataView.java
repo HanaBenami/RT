@@ -8,7 +8,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.uiComponents.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 

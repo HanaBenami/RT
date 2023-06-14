@@ -4,7 +4,11 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomComboBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomNumericColumn;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
@@ -100,6 +104,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 CustomComboBox.getComboBox(customerTypeRepository),
                 Customer::getCustomerType,
                 Customer::setCustomerType,
+                true,
                 100,
                 "custTypeColumn",
                 "custType",

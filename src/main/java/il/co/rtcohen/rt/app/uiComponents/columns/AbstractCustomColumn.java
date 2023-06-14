@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app.uiComponents;
+package il.co.rtcohen.rt.app.uiComponents.columns;
 
 import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.LanguageSettings;

@@ -6,6 +6,10 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
 import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomNumericColumn;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomNumericField;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,20 +162,27 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
             T currentItem = listener.getBean();
             if (currentItem.isItemValid()) {
                 logger.info("Going to update item in the grid (" + this.titleKey + ", id=" + currentItem.getId() + ")");
+                Integer idBefore = currentItem.getId();
                 this.mainRepository.updateItem(currentItem);
-                this.getDataProvider().refreshItem(currentItem);
                 Notification.show(currentItem + " " + LanguageSettings.getLocaleString("wasEdited"));
+                if (null == idBefore || 0 == idBefore) { // The item won't be recognized, so we must refresh all
+                    this.populateGrid();
+                    this.setSelectedItem(currentItem.getId());
+                } else {
+                    this.getDataProvider().refreshItem(currentItem);
+                    this.setSelectedItem(currentItem);
+                }
+                this.fireEvent(new Grid.ItemClick<T>(this, this.getColumn(idColumnId), currentItem, null, 0));
             } else {
                 Notification.show(currentItem + " " + LanguageSettings.getLocaleString("invalidAndCannotBeSaved"),
                         Notification.Type.ERROR_MESSAGE);
             }
-            this.getDataProvider().refreshItem(currentItem);
-            this.setSelectedItem(currentItem);
-            this.fireEvent(new Grid.ItemClick<T>(this, this.getColumn(idColumnId), currentItem, null, 0));
         });
         editor.setSaveCaption(LanguageSettings.getLocaleString("save"));
         editor.setCancelCaption(LanguageSettings.getLocaleString("cancel"));
     }
+
+
 
     protected List<T> getItems() {
         return mainRepository.getItems();
@@ -282,7 +293,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                 null,
                 "50px");
         Button addButton = new CustomButton(VaadinIcons.PLUS, true, clickEvent -> addEmptyLines(numOfNewLinesFields));
-        addButton.setEnabled(false);
+        addButton.setEnabled(true);
         numOfNewLinesFields.addValueChangeListener(listener -> addButton.setEnabled(!numOfNewLinesFields.isEmpty()));
 
         newLinesLayout.addComponentsAndExpand(new Label());

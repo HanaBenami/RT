@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.app.uiComponents;
+package il.co.rtcohen.rt.app.uiComponents.fields;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import com.vaadin.ui.ComboBox;
 
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
-import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;

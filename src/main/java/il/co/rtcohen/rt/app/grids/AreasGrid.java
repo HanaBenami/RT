@@ -1,7 +1,7 @@
 package il.co.rtcohen.rt.app.grids;
 
-import il.co.rtcohen.rt.app.uiComponents.CustomCheckBoxColumn;
-import il.co.rtcohen.rt.app.uiComponents.CustomNumericColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomCheckBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomNumericColumn;
 import il.co.rtcohen.rt.dal.dao.Area;
 import il.co.rtcohen.rt.dal.repositories.AreasRepository;
 

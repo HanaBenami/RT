@@ -63,12 +63,13 @@ abstract public class AbstractType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractType that = (AbstractType) o;
-        return id.equals(that.id);
+        return (null != id) && (id.equals(that.id));
     }
 
     @Override
     public int hashCode() {
-        return this.getId();
+        Integer id = this.getId();
+        return (null == id ? 0 : id);
     }
 
     static Logger getLogger() {

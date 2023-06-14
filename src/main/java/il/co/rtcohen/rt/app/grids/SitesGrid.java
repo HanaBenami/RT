@@ -2,9 +2,12 @@ package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomComboBoxColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomTextColumn;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
@@ -103,7 +106,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
         CustomTextColumn<Site> column = CustomTextColumn.addToGrid(
                 Site::getNotes,
                 Site::setNotes,
-                230,
+                false, 230,
                 "notesColumn",
                 "notes",
                 false,
@@ -119,6 +122,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 CustomComboBox.getComboBox(areasRepository),
                 Site::getArea,
                 Site::setArea,
+                true,
                 130,
                 "areaColumn",
                 "area",
@@ -130,7 +134,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
         CustomTextColumn<Site> column = CustomTextColumn.addToGrid(
                 Site::getAddress,
                 Site::setAddress,
-                230,
+                false, 230,
                 "addressColumn",
                 "address",
                 false,

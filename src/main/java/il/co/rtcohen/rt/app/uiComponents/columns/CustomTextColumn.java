@@ -1,9 +1,12 @@
-package il.co.rtcohen.rt.app.uiComponents;
+package il.co.rtcohen.rt.app.uiComponents.columns;
 
+import com.vaadin.data.Binder;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.TextField;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomTextField;
+import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
@@ -14,6 +17,7 @@ import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.getBoldStyle;
 
 // T - Type of object represented by the grid
 public class CustomTextColumn<T extends AbstractType & Cloneable<T>> extends AbstractCustomColumn<T, String, TextField> {
+
     private CustomTextColumn(
             AbstractTypeFilterGrid<T> grid,
             FilterGrid.Column<T, String> column,
@@ -30,6 +34,7 @@ public class CustomTextColumn<T extends AbstractType & Cloneable<T>> extends Abs
     //    CustomTextColumn<Call>  column = CustomTextColumn.addToGrid(
     //            call -> NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getAddress(), ""),
     //            null,
+    //            false,
     //            180,
     //            "addressColumn",
     //            "address",
@@ -43,6 +48,7 @@ public class CustomTextColumn<T extends AbstractType & Cloneable<T>> extends Abs
     public static <T extends AbstractType & Cloneable<T>> CustomTextColumn<T> addToGrid(
             ValueProvider<T, String> valueProvider,
             Setter<T, String> setter,
+            boolean required,
             Integer width,
             String columnId,
             String labelKey,
@@ -58,8 +64,13 @@ public class CustomTextColumn<T extends AbstractType & Cloneable<T>> extends Abs
         }
 
         // Setter
+        CustomTextField inputField = new CustomTextField(null, null, null);
         if (null != setter) {
-            column.setEditorBinding(grid.getEditor().getBinder().forField(new TextField()).bind(
+            Binder.BindingBuilder<T, String> binder = grid.getEditor().getBinder().forField(inputField);
+            if (required) {
+                binder = binder.asRequired();
+            }
+            column.setEditorBinding(binder.bind(
                     T -> {
                         String value = valueProvider.apply(T);
                         return (null == value ? "0" : value);
