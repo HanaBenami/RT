@@ -174,9 +174,21 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         }
     }
 
-    // TODO
+
+
     @Override
-    void setTabIndexes() {
-        customerGrid.setTabIndex(1);
+    void setTabIndexesAndFocus() {
+        customerGrid.focus();
+        int tabIndex = 1;
+        customerGrid.setTabIndex(tabIndex);
+        ++tabIndex;
+        sitesGrid.setTabIndex(tabIndex);
+        ++tabIndex;
+        contactsGrid.setTabIndex(tabIndex);
+        ++tabIndex;
+        vehiclesGrid.setTabIndex(tabIndex);
+        ++tabIndex;
+        getRefreshButton().setTabIndex(tabIndex);
+        ++tabIndex;
     }
 }

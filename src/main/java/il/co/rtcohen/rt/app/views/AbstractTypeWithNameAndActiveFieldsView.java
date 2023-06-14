@@ -60,9 +60,10 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
         }
     }
 
-    // TODO
+
+
     @Override
-    void setTabIndexes() {
-        grid.setTabIndex(1);
+    void setTabIndexesAndFocus() {
+        grid.focus();
     }
 }

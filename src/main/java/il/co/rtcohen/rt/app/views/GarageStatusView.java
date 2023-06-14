@@ -47,9 +47,8 @@ public class GarageStatusView extends AbstractDataView<GarageStatus> {
         }
     }
 
-    // TODO
     @Override
-    void setTabIndexes() {
-        garageStatusGrid.setTabIndex(1);
+    void setTabIndexesAndFocus() {
+        garageStatusGrid.focus();
     }
 }

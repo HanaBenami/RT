@@ -46,9 +46,8 @@ public class AreasView extends AbstractDataView<Area> {
         }
     }
 
-    // TODO
     @Override
-    void setTabIndexes() {
-        areasGrid.setTabIndex(1);
+    void setTabIndexesAndFocus() {
+        areasGrid.focus();
     }
 }

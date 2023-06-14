@@ -39,7 +39,7 @@ abstract class AbstractDataView<T extends AbstractType> extends AbstractView imp
         setHeight(getUI().getHeight(), getUI().getHeightUnits());
         addTitle();
         addGrids();
-        setTabIndexes();
+        setTabIndexesAndFocus();
         getUI().setLocale(LanguageSettings.locale);
     }
 
@@ -64,12 +64,12 @@ abstract class AbstractDataView<T extends AbstractType> extends AbstractView imp
 
     abstract void removeGrids();
 
-    abstract void setTabIndexes();
+    abstract void setTabIndexesAndFocus();
 
     protected void refreshData() {
         removeGrids();
         addGrids();
-        setTabIndexes();
+        setTabIndexesAndFocus();
     }
 
     protected void setScrollable(boolean scrollable) {

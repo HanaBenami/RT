@@ -53,6 +53,7 @@ public class CallsView extends AbstractDataView<Call> {
     private final String COMBOBOX_WIDTH = "500";
     private ComboBox<CallsGrid.CallsFilterOptions> callsFilterComboBox;
     private ComboBox<Customer> customerFilterComboBox;
+    CustomButton addCallForCustomerButton;
     private Customer selectedCustomer;
     private Site selectedSite;
     private Vehicle selectedVehicle;
@@ -164,15 +165,15 @@ public class CallsView extends AbstractDataView<Call> {
 
     private void addCustomerFilter() {
         // Button
-        CustomButton addButton = this.getButton(VaadinIcons.PLUS, clickEvent -> addCall());
-        headerLayout.addComponent(addButton, 2, 1);
-        headerLayout.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
-        addButton.setEnabled(null != this.selectedCustomer);
+        addCallForCustomerButton = this.getButton(VaadinIcons.PLUS, clickEvent -> addCall());
+        headerLayout.addComponent(addCallForCustomerButton, 2, 1);
+        headerLayout.setComponentAlignment(addCallForCustomerButton, Alignment.MIDDLE_RIGHT);
+        addCallForCustomerButton.setEnabled(null != this.selectedCustomer);
         // ComboBox
         customerFilterComboBox = CustomComboBox.getComboBox(customerRepository);
         customerFilterComboBox.setEmptySelectionAllowed(true);
         customerFilterComboBox.setEnabled(true);
-        customerFilterComboBox.setHeight(addButton.getHeight(), addButton.getHeightUnits());
+        customerFilterComboBox.setHeight(addCallForCustomerButton.getHeight(), addCallForCustomerButton.getHeightUnits());
         customerFilterComboBox.setWidth(COMBOBOX_WIDTH);
         if (null != this.selectedCustomer) {
             this.customerFilterComboBox.setSelectedItem(selectedCustomer);
@@ -181,10 +182,10 @@ public class CallsView extends AbstractDataView<Call> {
             this.selectedCustomer = customerFilterComboBox.getValue();
             callsGrid.setSelectedCustomer(this.selectedCustomer);
             this.refreshData();
-            addButton.setEnabled(null != this.selectedCustomer);
+            addCallForCustomerButton.setEnabled(null != this.selectedCustomer);
         });
-        customerFilterComboBox.addFocusListener(focusEvent -> addButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
-        customerFilterComboBox.addBlurListener(event -> addButton.removeClickShortcut());
+        customerFilterComboBox.addFocusListener(focusEvent -> addCallForCustomerButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
+        customerFilterComboBox.addBlurListener(event -> addCallForCustomerButton.removeClickShortcut());
         headerLayout.addComponent(customerFilterComboBox, 3, 1);
         headerLayout.setComponentAlignment(customerFilterComboBox, Alignment.MIDDLE_LEFT);
     }
@@ -260,14 +261,25 @@ public class CallsView extends AbstractDataView<Call> {
     }
 
     @Override
-    void setTabIndexes() {
-        callsFilterComboBox.setTabIndex(1);
-        customerFilterComboBox.setTabIndex(2);
-        nextScheduleDateField.setTabIndex(3);
-        nextScheduleDriverComboBox.setTabIndex(4);
-        printButton.setTabIndex(5);
-        refreshButton.setTabIndex(6);
-        callsGrid.setTabIndex(7);
+    void setTabIndexesAndFocus() {
+        callsFilterComboBox.focus();
+        int tabIndex = 1;
+        callsFilterComboBox.setTabIndex(tabIndex);
+        ++tabIndex;
+        customerFilterComboBox.setTabIndex(tabIndex);
+        ++tabIndex;
+        addCallForCustomerButton.setTabIndex(tabIndex);
+        ++tabIndex;
+        printButton.setTabIndex(tabIndex);
+        ++tabIndex;
+        refreshButton.setTabIndex(tabIndex);
+        ++tabIndex;
+        nextScheduleDateField.setTabIndex(tabIndex);
+        ++tabIndex;
+        nextScheduleDriverComboBox.setTabIndex(tabIndex);
+        ++tabIndex;
+        callsGrid.setTabIndex(tabIndex);
+        ++tabIndex;
     }
 
     private void addCall() {
