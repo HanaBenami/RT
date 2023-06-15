@@ -28,12 +28,14 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
+// TODO: refactor
 @SpringUI()
 @SpringViewDisplay
 @Theme("myTheme")
 public class MainUI extends UI implements ViewDisplay {
     private final UsersRepository usersRepository;
 
+    VerticalLayout mainLayout;
     private Panel springViewDisplay;
     private MenuBar menu;
     private HorizontalLayout topLayout;
@@ -56,7 +58,7 @@ public class MainUI extends UI implements ViewDisplay {
 
     @Override
     protected void init(VaadinRequest request) {
-        final VerticalLayout mainLayout = new VerticalLayout();
+        mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
         setContent(mainLayout);
         topLayout = new HorizontalLayout();
@@ -70,6 +72,7 @@ public class MainUI extends UI implements ViewDisplay {
         mainLayout.addComponent(topLayout);
         springViewDisplay = new Panel();
         springViewDisplay.setSizeFull();
+        springViewDisplay.setEnabled(null != getSessionUsername());
         mainLayout.addComponent(springViewDisplay);
         mainLayout.setExpandRatio(springViewDisplay, 1.0f);
     }
@@ -242,7 +245,6 @@ public class MainUI extends UI implements ViewDisplay {
             addUsernameLabel();
         }
         topLayout.addComponents(loginLayout);
-        addOrRefreshNavigationLayout();
     }
 
     protected void addUsernameTextbox() {
@@ -293,7 +295,7 @@ public class MainUI extends UI implements ViewDisplay {
     void setSessionUsername(String username) {
         getSession().setAttribute("username", username);
         log.info("username: " + username);
-        int userid = usersRepository.getItemByName(username).getId();
+        int userid = (null == username ? 0 : usersRepository.getItemByName(username).getId());
         getSession().setAttribute("userid", userid);
         log.info("userid: " + userid);
     }
@@ -310,6 +312,8 @@ public class MainUI extends UI implements ViewDisplay {
                 } else {
                     setSessionUsername(newUsername);
                     addOrRefreshUsernameLayout();
+                    addOrRefreshNavigationLayout();
+                    springViewDisplay.setEnabled(true);
                 }
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
@@ -320,5 +324,7 @@ public class MainUI extends UI implements ViewDisplay {
     void logout() {
         setSessionUsername(null);
         addOrRefreshUsernameLayout();
+        addOrRefreshNavigationLayout();
+        springViewDisplay.setEnabled(false);
     }
 }
