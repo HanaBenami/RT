@@ -122,7 +122,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         } else {
             switch (selectedCallsFilterOption) {
                 case ALL_CALLS:
-                    callsInGrid = callRepository.getItems(null, false, null, null, null, null, null);
+                    callsInGrid = callRepository.getItems(null, null, null, null, null, null, null);
                     break;
                 case ONLY_OPEN_CALLS:
                     callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);

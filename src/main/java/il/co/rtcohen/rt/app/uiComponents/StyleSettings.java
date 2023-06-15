@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.app.uiComponents;
 
 import il.co.rtcohen.rt.dal.dao.Call;
+import il.co.rtcohen.rt.utils.Date;
 
 import java.time.LocalDate;
 
@@ -17,11 +18,15 @@ public class StyleSettings {
     }
 
     static public String getBoldStyle(Integer value) {
-        return getBoldStyle(0 == value ? null : value);
+        return (null == value || 0 == value ? "null" : "bold");
     }
 
     public static String callStyle(Call call) {
-        LocalDate scheduledDate = (null == call.getCurrentScheduledDate() ? null : call.getCurrentScheduledDate().getLocalDate());
+        LocalDate scheduledDate = (
+                (null == call.getCurrentScheduledDate() || Date.nullDate().equals(call.getCurrentScheduledDate()))
+                ? null
+                : call.getCurrentScheduledDate().getLocalDate()
+        );
         if (LocalDate.now().equals(scheduledDate)) {
             return "green";
         }
@@ -31,7 +36,7 @@ public class StyleSettings {
         if (null == scheduledDate && call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(6))) {
             return "darkred";
         }
-        if (null == call.getCurrentScheduledDate() && call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(2))) {
+        if (null == scheduledDate && call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(2))) {
             return "red";
         }
         return null;
