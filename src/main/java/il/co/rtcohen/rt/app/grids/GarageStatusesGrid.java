@@ -1,7 +1,7 @@
 package il.co.rtcohen.rt.app.grids;
 
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomCheckBoxColumn;
-import il.co.rtcohen.rt.app.uiComponents.columns.CustomNumericColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomIntegerColumn;
 import il.co.rtcohen.rt.dal.dao.GarageStatus;
 import il.co.rtcohen.rt.dal.repositories.GarageStatusRepository;
 
@@ -38,10 +38,10 @@ public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<
     }
 
     private void addDisplayOrderColumn() {
-        CustomNumericColumn.addToGrid(
+        CustomIntegerColumn.addToGrid(
                 GarageStatus::getDisplayOrder,
                 GarageStatus::setDisplayOrder,
-                80,
+                null, null, 80,
                 DISPLAY_ORDER_COLUMN_ID,
                 "order",
                 false,

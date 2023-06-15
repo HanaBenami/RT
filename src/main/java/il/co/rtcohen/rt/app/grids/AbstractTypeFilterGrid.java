@@ -2,19 +2,22 @@ package il.co.rtcohen.rt.app.grids;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.Page;
 import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
+import com.vaadin.ui.components.grid.HeaderRow;
 import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
-import il.co.rtcohen.rt.app.uiComponents.columns.CustomNumericColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomIntegerColumn;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
-import il.co.rtcohen.rt.app.uiComponents.fields.CustomNumericField;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomIntegerField;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addons.filteringgrid.FilterGrid;
-import org.vaadin.ui.NumberField;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -38,9 +41,10 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
     private int itemsCounter;
     private List<T> gridItems;
     private String customSortColumnId = null;
-    private final HashMap<String, TextField> filterFields = new HashMap<>();
     public final String idColumnId = "idColumn";
+    public CustomIntegerColumn<T> idColumn = null;
     private boolean emptyLinesAllow = true;
+    private int numOfNewLinesInGrid;
 
     public AbstractTypeFilterGrid(
             AbstractTypeRepository<T> mainRepository,
@@ -75,10 +79,6 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
 
     public void setEmptyLinesAllow(boolean emptyLinesAllow) {
         this.emptyLinesAllow = emptyLinesAllow;
-    }
-
-    public void setFilterField(String columnId, TextField filterField) {
-        this.filterFields.put(columnId, filterField);
     }
 
     public String getCustomSortColumnId() {
@@ -166,12 +166,12 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                 this.mainRepository.updateItem(currentItem);
                 Notification.show(currentItem + " " + LanguageSettings.getLocaleString("wasEdited"));
                 if (null == idBefore || 0 == idBefore) { // The item won't be recognized, so we must refresh all
-                    this.populateGrid();
-                    this.setSelectedItem(currentItem.getId());
+                    assert 0 < numOfNewLinesInGrid;
+                    this.populateGrid(numOfNewLinesInGrid - 1);
                 } else {
                     this.getDataProvider().refreshItem(currentItem);
-                    this.setSelectedItem(currentItem);
                 }
+                this.setSelectedItem(currentItem);
                 this.fireEvent(new Grid.ItemClick<T>(this, this.getColumn(idColumnId), currentItem, null, 0));
             } else {
                 Notification.show(currentItem + " " + LanguageSettings.getLocaleString("invalidAndCannotBeSaved"),
@@ -207,10 +207,11 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                 gridItems.add(0, this.getNewItem());
             }
         }
+        this.numOfNewLinesInGrid = numOfEmptyLines;
         this.setItems(gridItems);
     }
 
-    private void addEmptyLines(NumberField numOfEmptyLinesFields) {
+    private void addEmptyLines(CustomIntegerField numOfEmptyLinesFields) {
         if (numOfEmptyLinesFields.isEmpty()) {
             numOfEmptyLinesFields.focus();
         } else {
@@ -226,9 +227,11 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         return this.newItemSupplier.get();
     }
 
-    protected Column<T, Integer> addIdColumn() {
-        return CustomNumericColumn.addToGrid(
+    protected void addIdColumn() {
+        this.idColumn = CustomIntegerColumn.addToGrid(
                 T::getId,
+                null,
+                null,
                 null,
                 70,
                 idColumnId,
@@ -288,9 +291,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
 
         Label before = new CustomLabel("add", null, CustomLabel.LabelStyle.SMALL_TEXT);
         Label after = new CustomLabel("emptyLines", null, CustomLabel.LabelStyle.SMALL_TEXT);
-        CustomNumericField numOfNewLinesFields = new CustomNumericField(
+        CustomIntegerField numOfNewLinesFields = new CustomIntegerField(
                 null, 1, 1, 10,
-                null,
+                false, null,
                 "50px");
         Button addButton = new CustomButton(VaadinIcons.PLUS, true, clickEvent -> addEmptyLines(numOfNewLinesFields));
         addButton.setEnabled(true);
@@ -304,14 +307,15 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
 
     public void setFilterToSelectedItem(int selectedItemId) {
         if (0 != selectedItemId) {
-            if (null != filterFields.get(idColumnId)) {
-                filterFields.get(idColumnId).setValue(String.valueOf(selectedItemId));
+            if (null != this.idColumn && null != this.idColumn.getFilterField()) {
+                this.idColumn.getFilterField().setValue(String.valueOf(selectedItemId));
             }
         }
     }
 
     public void setSelectedItem(T selectedItem) {
             this.getSelectionModel().select(selectedItem);
+//          this.scrollTo(this.gridItems.indexOf(currentItem)); // TODO: not working during filter
     }
 
     public void setSelectedItem(Integer selectedItemId) {
@@ -324,11 +328,12 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         }
     }
 
+    public HeaderRow getFilterRow() {
+        return this.getHeaderRow(1);
+    }
+
     public void hideFilterRow() {
-        // Will work only in the first call
-        try {
-            this.removeHeaderRow(this.getHeaderRow(1));
-        } catch (Exception ignored) {}
+        this.removeHeaderRow(this.getFilterRow());
     }
 
     protected void addCallsColumn(ValueProvider<T, Integer> callsCounterProvider, String urlAddition) {
@@ -339,8 +344,16 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                     } else {
                         int openCallsCounter = callsCounterProvider.apply(t);
                         Button callsButton = CustomButton.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
-                        callsButton.addClickListener(clickEvent ->
-                                getUI().getNavigator().navigateTo(UIPaths.CALLS.getPath() + urlAddition + "=" + t.getId()));
+                        callsButton.addClickListener(clickEvent -> {
+                            String url = UIPaths.CALLS.getPath() + urlAddition + "=" + t.getId();
+                            Page.getCurrent().open(
+                                    url,
+                                    UIPaths.CALLS.getWindowName(),
+                                    UIPaths.CALLS.getWindowWidth(),
+                                    UIPaths.CALLS.getWindowHeight(),
+                                    BorderStyle.NONE
+                            );
+                        });
                         return callsButton;
                     }
                 },

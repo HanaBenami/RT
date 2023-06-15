@@ -127,12 +127,13 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
     }
 
     public Site getSite() {
-        return site;
+        return this.site;
     }
 
     public void setSite(Site site) {
         if (null == site || (null != this.getVehicle() && !this.getVehicle().getSite().equals(site))) {
             this.setVehicle(null);
+
         }
         this.site = site;
         if (null != this.site) {
@@ -300,7 +301,6 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.garageStatus = garageStatus;
     }
 
-    // TODO: Check carefully
     @Override
     public void postSave() {
         CallRepository callRepository = (CallRepository) this.getBindRepository();
@@ -323,7 +323,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
             // Remove from schedule according to previous parameters - Decrease the schedule order of all the calls that was scheduled afterwards
             if (0 != this.getPreviousScheduledOrder()) {
-                List<Call> list = callRepository.getItems(this.getPreviousScheduledDate(), this.getPreviousDriver());
+                List<Call> list = callRepository.getScheduledCalls(this.getPreviousScheduledDate(), this.getPreviousDriver());
                 list.removeIf(call -> call.equals(this));
                 logger.info(
                         loggerPrefix + "Going to update all the calls w/ the previous driver and date, where" +
@@ -346,7 +346,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
             // Put back in the schedule - Increase the schedule order
             if (0 != this.getCurrentScheduledOrder()) {
-                List<Call> list = callRepository.getItems(this.getCurrentScheduledDate(), this.getCurrentDriver());
+                List<Call> list = callRepository.getScheduledCalls(this.getCurrentScheduledDate(), this.getCurrentDriver());
                 list.removeIf(call -> call.equals(this));
                 logger.info(
                         loggerPrefix + "Going to update all the calls w/ the current driver and date, where" +
@@ -389,7 +389,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
             logger.info(loggerPrefix + "No driver / no date -> Removing its schedule order");
             this.setCurrentScheduledOrder(0);
         } else {
-            List<Call> list = callRepository.getItems(this.getCurrentScheduledDate(), this.getCurrentDriver());
+            List<Call> list = callRepository.getScheduledCalls(this.getCurrentScheduledDate(), this.getCurrentDriver());
             list.removeIf(call -> call.equals(this));
             Optional<Call> previouslyLastCallInTheSameSchedule = list.stream().max(Comparator.comparing(Call::getCurrentScheduledOrder));
             if (previouslyLastCallInTheSameSchedule.isPresent()) {

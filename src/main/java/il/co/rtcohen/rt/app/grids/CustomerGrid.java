@@ -4,9 +4,10 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomCheckBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComboBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
-import il.co.rtcohen.rt.app.uiComponents.columns.CustomNumericColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomIntegerColumn;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.*;
@@ -85,10 +86,10 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
     }
 
     private void addHashKeyColumn() {
-        CustomNumericColumn.addToGrid(
+        CustomIntegerColumn.addToGrid(
                 Customer::getHashavshevetId,
                 Customer::setHashavshevetId,
-                100,
+                null, null, 100,
                 "hashKeyColumn",
                 "hashKey",
             false,
@@ -113,16 +114,15 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
     }
 
     @Override
-    protected Column<Customer, Component> addActiveColumn() {
-        Column<Customer, Component> column = super.addActiveColumn();
-        column.setHidden(true);
+    protected CustomCheckBoxColumn<Customer> addActiveColumn() {
+        CustomCheckBoxColumn<Customer> column = super.addActiveColumn();
+        column.getColumn().setHidden(true);
         return column;
     }
 
     @Override
-    protected Column<Customer, Integer> addIdColumn() {
-        Column<Customer, Integer>  column = super.addIdColumn();
-        column.setHidden(true);
-        return column;
+    protected void addIdColumn() {
+        super.addIdColumn();
+        this.idColumn.getColumn().setHidden(true);
     }
 }

@@ -2,6 +2,7 @@ package il.co.rtcohen.rt.app.ui;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.Page;
 import com.vaadin.server.Setter;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.VaadinRequest;
@@ -148,7 +149,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshTitle() {
-        String title = ((null == call || null == call.getId() || 0 == call.getId())
+        String title = (
+                (null == call || null == call.getId() || 0 == call.getId())
                 ? LanguageSettings.getLocaleString("addingCall")
                 : LanguageSettings.getLocaleString("callDetails") + call.getId()
         );
@@ -236,7 +238,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         if (null != this.call.getSite()) {
             this.changeSiteButton.setEnabled(true);
             this.sitesGrid = new SitesGrid(
-                    this.call.getCustomer(), contactRepository, siteRepository, callRepository, areasRepository
+                    this.call.getCustomer(), customerRepository, contactRepository, siteRepository, callRepository, areasRepository
             );
             this.sitesGrid.initGrid(false);
             this.addGridToLayout(this.sitesGrid, this.call.getSite(), 1,column1, row1, column2, row2);
@@ -276,7 +278,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         if (null != this.call.getVehicle()) {
             this.changeVehicleButton.setEnabled(true);
             this.vehiclesGrid = new VehiclesGrid(
-                    this.call.getSite(), vehicleRepository, vehicleTypeRepository, callRepository
+                    this.call.getSite(), siteRepository, vehicleRepository, vehicleTypeRepository, callRepository
             );
             this.vehiclesGrid.initGrid(false);
             addGridToLayout(this.vehiclesGrid, this.call.getVehicle(), 1,column1, row1, column2, row2);
@@ -326,8 +328,11 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void saveData() {
-        Integer previousId = call.getId();
+        boolean wasDraft = call.isDraft();
         callRepository.updateItem(call);
+        if (wasDraft && !call.isDraft()) {
+            Page.getCurrent().open(UIPaths.EDITCALL.getEditCallPath(call), Page.getCurrent().getWindowName());
+        }
         addOrRefreshTitle();
         addOrRefreshCallData();
     }
@@ -403,7 +408,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshStartDateField() {
-        addDateFieldToLayout(Call::getStartDate, Call::setStartDate, "startDate", 10, 3);
+        addDateFieldToLayout(Call::getStartDate, null, "startDate", 10, 3);
     }
 
     private void addOrRefreshPlannedDateField() {
@@ -444,12 +449,12 @@ public class EditCallUI extends AbstractUI<GridLayout> {
 
     // TODO: Generic method ?
     private void addOrRefreshScheduledOrderField() {
-        CustomNumericField numericField = new CustomNumericField(
+        CustomIntegerField numericField = new CustomIntegerField(
             null,
                 call.getCurrentScheduledOrder(),
                 0,
                 99,
-                null,
+                false, null,
                 null);
         numericField.addValueChangeListener(listener -> {
                 call.setCurrentScheduledOrder(Integer.parseInt(numericField.getValue()));
@@ -500,6 +505,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
                         saveData();
                     }
             );
+        } else {
+            dateField.setReadOnly(true);
         }
         dateField.setWidth(FIELDS_WIDTH);
         dateField.setEnabled(!call.isDeleted());
@@ -537,7 +544,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             ValueProvider<Call, T> valueProvider,
             Setter<Call, T> setter,
             String captionKey,
-            int row, int column
+            int row,
+            int column
     ) {
         CustomComboBox<T> comboBox = CustomComboBox.getComboBox(repository);
         T selected = valueProvider.apply(call);

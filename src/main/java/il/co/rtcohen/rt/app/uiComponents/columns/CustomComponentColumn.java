@@ -19,6 +19,7 @@ public class CustomComponentColumn<T extends AbstractType & Cloneable<T>, F exte
             Integer width
     ) {
         super(grid, column, null, columnId, labelKey, width);
+        column.setSortable(false);
     }
 
     public static <T extends AbstractType & Cloneable<T>, F extends Component> CustomComponentColumn<T, F> addToGrid(
@@ -26,9 +27,9 @@ public class CustomComponentColumn<T extends AbstractType & Cloneable<T>, F exte
             int width,
             String columnId,
             String labelKey,
-            AbstractTypeFilterGrid<T> grid) {
+            AbstractTypeFilterGrid<T> grid
+    ) {
         FilterGrid.Column<T, Component> column = grid.addComponentColumn(componentProvider);
-        column.setSortable(false);
         return new CustomComponentColumn<>(grid, column, columnId, labelKey, width);
     }
 }

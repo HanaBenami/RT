@@ -63,6 +63,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     }
 
     // TODO: Move to an upper/separate generic class
+    // TODO: Save during session ?
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         Map<String, String> parametersMap = event.getParameterMap();
@@ -106,7 +107,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addSitesGrid(Customer customer) {
         removeSitesGrid();
-        this.sitesGrid = new SitesGrid(customer, contactRepository, siteRepository, callRepository, areasRepository);
+        this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository, areasRepository);
         this.sitesGrid.initGrid(true);
         this.sitesGrid.setSelectedItem(selectedSiteId);
         this.selectedSiteId = 0;
@@ -132,7 +133,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addVehicleGrid(Site site) {
         removeVehiclesGrid();
-        this.vehiclesGrid = new VehiclesGrid(site, vehicleRepository, vehicleTypeRepository, callRepository);
+        this.vehiclesGrid = new VehiclesGrid(site, siteRepository, vehicleRepository, vehicleTypeRepository, callRepository);
         this.vehiclesGrid.initGrid(true);
         this.vehiclesGrid.setSelectedItem(selectedVehicleId);
         this.selectedVehicleId = 0;
@@ -142,6 +143,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     void removeGrids() {
         removeSitesGrid();
         removeCustomerGrid();
+        this.removeComponent(this.gridLayout);
     }
 
     void removeVehiclesGrid() {
@@ -168,9 +170,9 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     }
 
     void removeCustomerGrid() {
-        if (null != customerGrid) {
-            this.removeComponent(customerGrid.getVerticalLayout());
-            customerGrid = null;
+        if (null != this.customerGrid) {
+            this.gridLayout.removeComponent(customerGrid.getVerticalLayout());
+            this.customerGrid = null;
         }
     }
 

@@ -73,7 +73,7 @@ public class CustomTextColumn<T extends AbstractType & Cloneable<T>> extends Abs
             column.setEditorBinding(binder.bind(
                     T -> {
                         String value = valueProvider.apply(T);
-                        return (null == value ? "0" : value);
+                        return (null == value ? "" : value);
                     },
                     (T, value) -> setter.accept(T, (null == value ? "" : value))
             ));
@@ -92,7 +92,6 @@ public class CustomTextColumn<T extends AbstractType & Cloneable<T>> extends Abs
                             : InMemoryFilter.StringComparator.containsIgnoreCase()
                     )
             );
-            grid.setFilterField(columnId, filterField);
         }
 
         return new CustomTextColumn<T>(grid, column, filterField, columnId, labelKey, width);

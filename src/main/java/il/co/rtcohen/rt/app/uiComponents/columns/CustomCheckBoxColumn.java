@@ -4,9 +4,7 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
-import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomCheckBox;
 import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
@@ -16,9 +14,16 @@ import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import java.util.logging.Logger;
 
-// T - Type of object represented by the grid
-public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> {
-    private CustomCheckBoxColumn() {}
+public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> extends AbstractCustomColumn<T, CustomCheckBox, CustomCheckBox> {
+    private CustomCheckBoxColumn(
+            AbstractTypeFilterGrid<T> grid,
+            FilterGrid.Column<T, CustomCheckBox> column,
+            String columnId,
+            String labelKey
+    ) {
+        super(grid, column, null, columnId, labelKey, 80);
+        this.column.setSortable(false);
+    }
 
     // Usage:
     //    FilterGrid.Column<Call, Component> column = CustomCheckBoxColumn.addToGrid((
@@ -29,23 +34,22 @@ public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> {
     //            Boolean.TRUE,
     //            this
     //    );
-    // TODO: extend AbstractCustomColumn
-    public static <T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, Component> addToGrid(ValueProvider<T, Boolean> valueProvider,
-                                                                                                    Setter<T, Boolean> setter,
-                                                                                                    String id,
-                                                                                                    String label,
-                                                                                                    Boolean defaultFilter,
-                                                                                                    AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
+    public static <T extends AbstractType & Cloneable<T>> CustomCheckBoxColumn<T> addToGrid(
+            ValueProvider<T, Boolean> valueProvider,
+            Setter<T, Boolean> setter,
+            String columnId,
+            String labelKey,
+            Boolean defaultFilter,
+            AbstractTypeFilterGrid<T> grid
+    ) {
         // Basic column
-        FilterGrid.Column<T, Component> column = abstractTypeFilterGrid.addComponentColumn(
+        FilterGrid.Column<T, CustomCheckBox> column = grid.addComponentColumn(
                 T -> new CustomCheckBox(null, valueProvider.apply(T), true)
         );
-        column.setId(id).setExpandRatio(1).setWidth(50).setResizable(true).setSortable(false).setHidable(true);
-        abstractTypeFilterGrid.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
 
         // Setter
         if (null != setter) {
-            column.setEditorBinding(abstractTypeFilterGrid.getEditor().getBinder().forField(new CheckBox()).bind(valueProvider, setter));
+            column.setEditorBinding(grid.getEditor().getBinder().forField(new CheckBox()).bind(valueProvider, setter));
         }
 
         // Filter
@@ -60,14 +64,14 @@ public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> {
         }
         filterComboBox.setHeight(StyleSettings.FILTER_FIELD_HEIGHT);
         filterComboBox.setWidth(StyleSettings.FILTER_FIELD_WIDTH);
-        column.setFilter(checkBox -> (
-                (CheckBox)checkBox).getValue(),
+        column.setFilter(
+                CheckBox::getValue,
                 filterComboBox,
                 (currentValue, filterValue) -> (null == filterValue || filterValue.equals(currentValue))
         );
-        column.setWidth(80);
 
-        return column;
+
+        return new CustomCheckBoxColumn<>(grid, column, columnId, labelKey);
     }
 
     private static Logger getLogger() {

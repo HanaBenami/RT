@@ -6,6 +6,7 @@ import com.vaadin.server.Setter;
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomCheckBox;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
@@ -18,31 +19,38 @@ import java.util.logging.Logger;
 
 // C - Type of object represented by the combobox
 // T - Type of object represented by the grid
-public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T extends AbstractType> {
-    private CustomComboBoxColumn() {}
+public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T extends AbstractType & Cloneable<T>>
+        extends AbstractCustomColumn<T, String, CustomComboBox<C>> {
 
-    // TODO: extend AbstractCustomColumn
-    public static <C extends Nameable & BindRepository<C>, T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, String> addToGrid(
+    private CustomComboBoxColumn(
+            AbstractTypeFilterGrid<T> grid,
+            FilterGrid.Column<T, String> column,
+            String columnId,
+            String labelKey,
+            int width
+    ) {
+        super(grid, column, null, columnId, labelKey, width);
+    }
+
+    public static <C extends Nameable & BindRepository<C>, T extends AbstractType & Cloneable<T>> CustomComboBoxColumn<C, T> addToGrid(
             CustomComboBox<C> selectionComboBox,
             CustomComboBox<C> filterComboBox,
             ValueProvider<T, C> valueProvider,
             Setter<T, C> setter,
             boolean required,
             int width,
-            String id,
-            String label,
-            AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
+            String columnId,
+            String labelKey,
+            AbstractTypeFilterGrid<T> grid) {
         // Basic column
-        FilterGrid.Column<T, String> column = abstractTypeFilterGrid.addColumn(
+        FilterGrid.Column<T, String> column = grid.addColumn(
                 T -> NullPointerExceptionWrapper.getWrapper(T, t -> valueProvider.apply(t).getName(), "")
         );
-        column.setId(id).setWidth(width).setExpandRatio(1).setResizable(true).setHidable(true);
-        abstractTypeFilterGrid.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
 
         // Setter
         if (null != setter) {
             assert null != selectionComboBox && null != valueProvider;
-            Binder.BindingBuilder<T, C> binder = abstractTypeFilterGrid.getEditor().getBinder().forField(selectionComboBox);
+            Binder.BindingBuilder<T, C> binder = grid.getEditor().getBinder().forField(selectionComboBox);
             if (required) {
                 binder = binder.asRequired();
                 selectionComboBox.setEmptySelectionAllowed(false);
@@ -61,7 +69,7 @@ public class CustomComboBoxColumn<C extends Nameable & BindRepository<C>, T exte
         column.setFilter((filterComboBox), (currentValueString, filterValueObject) ->
                 (null == filterValueObject || null == currentValueString || filterValueObject.getName().equals(currentValueString)));
 
-        return column;
+        return new CustomComboBoxColumn<>(grid, column, columnId, labelKey, width);
     }
 
     private static Logger getLogger() {

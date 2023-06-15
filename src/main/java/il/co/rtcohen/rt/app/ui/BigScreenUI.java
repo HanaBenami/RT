@@ -14,6 +14,7 @@ import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
 import il.co.rtcohen.rt.app.uiComponents.UIComponents;
 import il.co.rtcohen.rt.app.views.CustomerDataView;
+import il.co.rtcohen.rt.dal.dao.Area;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.repositories.UsersRepository;
 import il.co.rtcohen.rt.utils.Date;
@@ -31,6 +32,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+// TODO: Refactor!!!
 
 @SpringComponent
 @SpringUI(path="/bigScreen")
@@ -97,8 +100,13 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         }
     }
 
-    private GridLayout initAreaLayout(int area) throws SQLException {
-        List<Call> list = callRepository.getItems(false, false, null, null, areasRepository.getItem(area));
+    private GridLayout initAreaLayout(int areaId) throws SQLException {
+        Area area = areasRepository.getItem(areaId);
+        List<Call> list = (area.isHere()
+                        ? callRepository.getCallsCurrentlyInTheGarage()
+                        : callRepository.getOpenCallsInArea(area)
+        );
+
         int datesCounter = 1;
         for (Call call : list)
             if ((list.indexOf(call)>0)&&(!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call)-1).getCurrentScheduledDate()))))
@@ -109,7 +117,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         areaLayout.setWidth("100%");
         areaLayout.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
         Label areaTitle = UIComponents.label(generalRepository
-                .getNameById(area,"area"),"LABEL");
+                .getNameById(areaId,"area"),"LABEL");
         areaLayout.addComponent(areaTitle,columns-1,0);
         Label dateTitle;
         LocalDate nullDate = Date.nullDate().getLocalDate();

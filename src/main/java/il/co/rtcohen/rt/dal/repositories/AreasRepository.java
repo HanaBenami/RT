@@ -42,7 +42,7 @@ public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsReposito
     protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Area area) throws SQLException {
         int fieldsCounter = super.updateItemDetailsInStatement(preparedStatement, area);
         fieldsCounter++;
-        preparedStatement.setBoolean(fieldsCounter, area.getHere());
+        preparedStatement.setBoolean(fieldsCounter, area.isHere());
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter, area.getDisplayOrder());
         return fieldsCounter;
@@ -67,7 +67,7 @@ public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsReposito
     private List<Integer> getActiveId(Boolean here) throws SQLException {
         List<Area> areas = getItems();
         areas.removeIf(area -> !area.isActive());
-        areas.removeIf(area -> area.getHere() != here);
+        areas.removeIf(area -> area.isHere() != here);
         return areas.stream().map(Area::getId).collect(Collectors.toList());
     }
 }

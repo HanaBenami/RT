@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.dal.repositories;
 
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import il.co.rtcohen.rt.dal.dao.Driver;
@@ -75,7 +77,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                         DB_IS_DONE_COLUMN,
                         DB_IS_HERE_COLUMN,
                         DB_IS_DELETED_COLUMN,
-                        DB_USER_ID_COLUMN
+                        DB_USER_ID_COLUMN,
+                        DB_GARAGE_STATUS_ID_COLUMN
                 }
         );
         this.customerRepository = customerRepository;
@@ -114,7 +117,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     @Override
     protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Call call) throws SQLException {
         int fieldsCounter = 1;
-        preparedStatement.setInt(fieldsCounter, call.getId());
+        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getCustomer().getId(), 0));
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getId(), 0));
         fieldsCounter++;
@@ -147,6 +150,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         preparedStatement.setBoolean(fieldsCounter, call.isDeleted());
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getOpenedByUser().getId(), 0));
+        fieldsCounter++;
+        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getGarageStatus().getId(), 0));
         return fieldsCounter;
     }
 
@@ -168,7 +173,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
             }
             assert sqlQuery.contains("and");
             sqlQuery = sqlQuery.replaceFirst("and", "where");
-            logger.info(sqlQuery);
+            logger.debug(sqlQuery);
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             int fieldsCounter = 1;
             if (null != isDone) {
@@ -194,11 +199,11 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         return list;
     }
 
-    public List<Call> getItems(Date scheduledDate) {
-        return getItems(scheduledDate, null);
+    public List<Call> getScheduledCalls(Date scheduledDate) {
+        return getScheduledCalls(scheduledDate, null);
     }
 
-    public List<Call> getItems(@NotNull Date scheduledDate, Driver driver) {
+    public List<Call> getScheduledCalls(@NotNull Date scheduledDate, Driver driver) {
         List<Call> list = null;
         try (Connection connection = getConnection()) {
             String sqlQuery = "select * from " + DB_TABLE_NAME;
@@ -220,7 +225,22 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         return list;
     }
 
-    public List<Call> getItems(Boolean isDone, Boolean isDeleted, Boolean isHere, Date maximalEndDate, Area area) {
+    // TODO: move logic to appropriate place
+    public List<Call> getCallsCurrentlyInTheGarage() {
+        return getItems(false, false, true, null, Date.nullDate(), null, null);
+    }
+
+    // TODO: move logic to appropriate place
+    public List<Call> getOpenCallsInArea(Area area) {
+        List<Call> callsNotHere = getItems(false, false, false, null, null, null, area);
+        List<Call> callsHereReadyToLeave = getItems(false, false, true, null, null, Date.nullDate(), area);
+        List<Call> fullList = new ArrayList<>(callsNotHere);
+        fullList.addAll(callsHereReadyToLeave);
+        return fullList;
+    }
+
+    public List<Call> getItems(Boolean isDone, Boolean isDeleted, Boolean isHere,
+                               Date maximalEndDate, Date scheduledDateEqualTo, Date scheduleDateOtherThan, Area area) {
         List<Call> list = null;
         try (Connection connection = getConnection()) {
             String sqlQuery = "select * from " + DB_TABLE_NAME;
@@ -236,9 +256,15 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
             if (null != maximalEndDate) {
                 sqlQuery += " and ?<=" + DB_END_DATE_COLUMN + "";
             }
+            if (null != scheduledDateEqualTo) {
+                sqlQuery += " and " + DB_SCHEDULED_DATE_COLUMN + "=?";
+            }
+            if (null != scheduleDateOtherThan) {
+                sqlQuery += " and " + DB_SCHEDULED_DATE_COLUMN + "!=?";
+            }
             assert sqlQuery.contains("and");
             sqlQuery = sqlQuery.replaceFirst("and", "where");
-            logger.info(sqlQuery);
+            logger.debug(sqlQuery);
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             int fieldsCounter = 1;
             if (null != isDone) {
@@ -255,6 +281,14 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
             }
             if (null != maximalEndDate) {
                 preparedStatement.setString(fieldsCounter, maximalEndDate.toString());
+                fieldsCounter++;
+            }
+            if (null != scheduledDateEqualTo) {
+                preparedStatement.setString(fieldsCounter, scheduledDateEqualTo.toString());
+                fieldsCounter++;
+            }
+            if (null != scheduleDateOtherThan) {
+                preparedStatement.setString(fieldsCounter, scheduleDateOtherThan.toString());
                 fieldsCounter++;
             }
             list = getItems(preparedStatement);

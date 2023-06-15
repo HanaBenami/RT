@@ -2,7 +2,6 @@ package il.co.rtcohen.rt.app.uiComponents.columns;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
-import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomDateField;
 import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
@@ -16,33 +15,39 @@ import java.time.LocalDate;
 import java.util.function.Supplier;
 
 // T - Type of object represented by the grid
-public class CustomDateColumn<T extends AbstractType & Cloneable<T>> {
-    private CustomDateColumn() {};
+public class CustomDateColumn<T extends AbstractType & Cloneable<T>> extends AbstractCustomColumn<T, LocalDate, CustomDateField> {
+    private CustomDateColumn(
+                             AbstractTypeFilterGrid<T> grid,
+                             FilterGrid.Column<T, LocalDate> column,
+                             CustomDateField filterField,
+                             String columnId,
+                             String labelKey
+    ) {
+        super(grid, column, filterField, columnId, labelKey, 130);
+    }
 
-    public static <T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, LocalDate> addToGrid(
+    public static <T extends AbstractType & Cloneable<T>> CustomDateColumn<T> addToGrid(
             ValueProvider<T, Date> valueProvider,
             Setter<T, Date> setter,
             Supplier<LocalDate> dateSupplierToSetOnFocusEvent,
-            String id,
-            String label,
+            String columnId,
+            String labelKey,
             boolean isBoldText,
-            AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
+            AbstractTypeFilterGrid<T> grid) {
         // Basic column
-        FilterGrid.Column<T, LocalDate> column = abstractTypeFilterGrid.addColumn(
+        FilterGrid.Column<T, LocalDate> column = grid.addColumn(
                 T -> {
                     Date date = valueProvider.apply(T);
                     return (null == date ? null : date.getLocalDate());
                 },
                 CustomDateField.dateRenderer()
         );
-        column.setId(id).setExpandRatio(1).setWidth(130).setResizable(true).setSortable(true).setHidable(true);
         column.setStyleGenerator(T -> CustomDateField.getDateStyle(valueProvider.apply(T), isBoldText));
-        abstractTypeFilterGrid.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
 
         // Setter
         if (null != setter) {
             CustomDateField dateField = new CustomDateField();
-            column.setEditorBinding(abstractTypeFilterGrid.getEditor().getBinder().forField(dateField).bind(
+            column.setEditorBinding(grid.getEditor().getBinder().forField(dateField).bind(
                     T -> valueProvider.apply(T).getLocalDate(),
                     (T, value) -> setter.accept(T, new Date(value))
             ));
@@ -62,6 +67,6 @@ public class CustomDateColumn<T extends AbstractType & Cloneable<T>> {
                 (currentValue, filterValue) -> filterValue == null || currentValue.isEqual(filterValue)
         );
 
-        return column;
+        return new CustomDateColumn<T>(grid, column, filterField, columnId, labelKey);
     }
 }

@@ -5,7 +5,7 @@ import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 
 public class Area extends AbstractTypeWithNameAndActiveFields implements BindRepository<Area>, Cloneable<Area> {
-    private boolean here = false;
+    @Deprecated private boolean here = false; // Get rid the relevant area etc - call should be marked as "here" in its details
     private int displayOrder = 0;
 
     public Area() {
@@ -33,7 +33,7 @@ public class Area extends AbstractTypeWithNameAndActiveFields implements BindRep
         return "area";
     }
 
-    public boolean getHere() {
+    public boolean isHere() {
         return here;
     }
 

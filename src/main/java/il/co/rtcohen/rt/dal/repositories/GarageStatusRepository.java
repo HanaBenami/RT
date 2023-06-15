@@ -13,6 +13,8 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Comparator;
+import java.util.List;
 
 @Repository
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -47,6 +49,13 @@ public class GarageStatusRepository extends AbstractTypeWithNameAndActiveFieldsR
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter, garageStatus.getDisplayOrder());
         return fieldsCounter;
+    }
+
+    @Override
+    public List<GarageStatus> getItems() {
+        List<GarageStatus> list = super.getItems();
+        list.sort(Comparator.comparingInt(GarageStatus::getDisplayOrder)); // TODO: the order of the records in combo-boxes should be according to this - not working at the moment
+        return list;
     }
 }
 

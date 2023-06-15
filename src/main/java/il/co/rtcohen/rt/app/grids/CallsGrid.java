@@ -122,38 +122,38 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         } else {
             switch (selectedCallsFilterOption) {
                 case ALL_CALLS:
-                    callsInGrid = callRepository.getItems(null, false, null, null, null);
+                    callsInGrid = callRepository.getItems(null, false, null, null, null, null, null);
                     break;
                 case ONLY_OPEN_CALLS:
-                    callsInGrid = callRepository.getItems(false, false, null, null, null);
+                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);
                     break;
                 case ONLY_OPEN_CALLS_PENDING_GARAGE:
-                    callsInGrid = callRepository.getItems(false, false, null, null, null);
+                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);
                     callsInGrid.removeIf(call -> (null == call.getGarageStatus() || !call.getGarageStatus().isPendingGarage()));
                     break;
                 case RECENTLY_CLOSED_CALLS:
-                    callsInGrid = callRepository.getItems(true, false, null, new Date(LocalDate.now().minusMonths(6)), null);
+                    callsInGrid = callRepository.getItems(true, false, null, new Date(LocalDate.now().minusMonths(6)), null, null, null);
                     break;
                 case ALL_CLOSED_CALLS:
-                    callsInGrid = callRepository.getItems(true, false, null, null, null);
+                    callsInGrid = callRepository.getItems(true, false, null, null, null, null, null);
                     break;
                 case RECENTLY_DELETED_CALLS:
-                    callsInGrid = callRepository.getItems(null, true, null, new Date(LocalDate.now().minusMonths(6)), null);
+                    callsInGrid = callRepository.getItems(null, true, null, new Date(LocalDate.now().minusMonths(6)), null, null, null);
                     break;
                 case ALL_DELETED_CALLS:
-                    callsInGrid = callRepository.getItems(null, true, null, null, null);
+                    callsInGrid = callRepository.getItems(null, true, null, null, null, null, null);
                     break;
                 case CALLS_PLANNED_FOR_YESTERDAY:
-                    callsInGrid = callRepository.getItems(new Date(LocalDate.now().minusDays(1)));
+                    callsInGrid = callRepository.getScheduledCalls(new Date(LocalDate.now().minusDays(1)));
                     break;
                 case CALLS_PLANNED_FOR_TODAY:
-                    callsInGrid = callRepository.getItems(new Date(LocalDate.now()));
+                    callsInGrid = callRepository.getScheduledCalls(new Date(LocalDate.now()));
                     break;
                 case CALLS_PLANNED_FOR_TOMORROW:
-                    callsInGrid = callRepository.getItems(new Date(LocalDate.now().plusDays(1)));
+                    callsInGrid = callRepository.getScheduledCalls(new Date(LocalDate.now().plusDays(1)));
                     break;
                 case CALLS_PLANNED_FOR_THE_DAY_AFTER_TOMORROW:
-                    callsInGrid = callRepository.getItems(new Date(LocalDate.now().plusDays(2)));
+                    callsInGrid = callRepository.getScheduledCalls(new Date(LocalDate.now().plusDays(2)));
                     break;
             }
         }
@@ -327,8 +327,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                         false,
                         UIPaths.EDITCALL.getEditCallPath(call),
                         UIPaths.EDITCALL.getWindowHeight(),
-                        UIPaths.EDITCALL.getWindowWidth()
-                ),
+                        UIPaths.EDITCALL.getWindowWidth(),
+                        UIPaths.EDITCALL.getWindowName()),
                 60,
                 "editColumn",
                 "edit",
@@ -367,7 +367,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     private void addIsDeletedColumn() {
-        Column<Call, Component> column = CustomCheckBoxColumn.addToGrid(
+        CustomCheckBoxColumn<Call> column = CustomCheckBoxColumn.addToGrid(
                 Call::isDeleted,
                 null,
                 "deletedColumn",
@@ -375,12 +375,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 null,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(true);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 
     private void addIsDoneColumn() {
-        Column<Call, Component> column = CustomCheckBoxColumn.addToGrid(
+        CustomCheckBoxColumn<Call> column = CustomCheckBoxColumn.addToGrid(
                 Call::isDone,
                 null,
                 "doneColumn",
@@ -388,12 +388,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 null,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addEndDateColumn() {
-        Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
+        CustomDateColumn<Call> column = CustomDateColumn.addToGrid(
                 Call::getEndDate,
                 Call::setEndDate,
                 LocalDate::now,
@@ -402,12 +402,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addDriverColumn() {
-        Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+        CustomComboBoxColumn<Driver, Call> column = CustomComboBoxColumn.addToGrid(
                 CustomComboBox.getComboBox(driverRepository),
                 CustomComboBox.getComboBox(driverRepository),
                 Call::getCurrentDriver,
@@ -420,18 +420,18 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "driver",
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addScheduledOrderColumn() {
-        Column<Call, Integer> column = CustomNumericColumn.addToGrid(
+        CustomIntegerColumn<Call> column = CustomIntegerColumn.addToGrid(
                 Call::getCurrentScheduledOrder,
                 (call, order) -> {
                     call.setCurrentScheduledOrder(order);
                     this.refreshGridData();
                 },
-                60,
+                null, null, 60,
                 "orderColumn",
                 "order",
                 true,
@@ -439,12 +439,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addIsMeetingColumn() {
-        Column<Call, Component> column = CustomCheckBoxColumn.addToGrid(
+        CustomCheckBoxColumn<Call> column = CustomCheckBoxColumn.addToGrid(
                 Call::isMeeting,
                 Call::setMeeting,
                 "meetingColumn",
@@ -452,12 +452,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 null,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addCurrentScheduledDateColumn() {
-        Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
+        CustomDateColumn<Call> column = CustomDateColumn.addToGrid(
                 Call::getCurrentScheduledDate,
                 (call, date) -> {
                     call.setCurrentScheduledDate(date);
@@ -469,15 +469,15 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 true,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addDaysOpenColumn() {
-        Column<Call, Integer> column = CustomNumericColumn.addToGrid(
+        CustomIntegerColumn<Call> column = CustomIntegerColumn.addToGrid(
                 call -> (call.isDone() ? 0 : (int)DAYS.between(call.getStartDate().getLocalDate(), LocalDate.now())),
                 null,
-                80,
+                null, null, 80,
                 daysOpenColumnId,
                 "days",
                 false,
@@ -485,12 +485,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 true,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(true);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 
     private void addPlanningDateColumn() {
-        Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
+        CustomDateColumn<Call> column = CustomDateColumn.addToGrid(
                 Call::getPlanningDate,
                 Call::setPlanningDate,
                 LocalDate::now,
@@ -499,12 +499,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(true);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 
     private void addStartDateColumn() {
-        Column<Call, LocalDate> column = CustomDateColumn.addToGrid(
+        CustomDateColumn<Call> column = CustomDateColumn.addToGrid(
                 Call::getStartDate,
                 Call::setStartDate,
                 null, "startDateColumn",
@@ -512,12 +512,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addIsHereColumn() {
-        Column<Call, Component> column = CustomCheckBoxColumn.addToGrid(
+        CustomCheckBoxColumn<Call> column = CustomCheckBoxColumn.addToGrid(
                 Call::isHere,
                 Call::setHere,
                 "hereColumn",
@@ -525,12 +525,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 null,
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addGarageStatusColumn() {
-        Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+        CustomComboBoxColumn<GarageStatus, Call> column = CustomComboBoxColumn.addToGrid(
                 CustomComboBox.getComboBox(garageStatusRepository),
                 CustomComboBox.getComboBox(garageStatusRepository),
                 Call::getGarageStatus,
@@ -540,12 +540,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "garageStatus",
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addVehicleTypeColumn() {
-        Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+        CustomComboBoxColumn<VehicleType, Call> column = CustomComboBoxColumn.addToGrid(
                 CustomComboBox.getComboBox(vehicleTypeRepository),
                 CustomComboBox.getComboBox(vehicleTypeRepository),
                 call -> call.getVehicle().getVehicleType(),
@@ -555,12 +555,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "vehicleType",
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addCallTypeColumn() {
-        Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+        CustomComboBoxColumn<CallType, Call> column = CustomComboBoxColumn.addToGrid(
                 CustomComboBox.getComboBox(callTypeRepository),
                 CustomComboBox.getComboBox(callTypeRepository),
                 Call::getCallType,
@@ -570,8 +570,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "callType",
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addAddressColumn() {
@@ -591,7 +591,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     private void addAreaColumn() {
-        FilterGrid.Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+        CustomComboBoxColumn<Area, Call> column = CustomComboBoxColumn.addToGrid(
                 CustomComboBox.getComboBox(areasRepository),
                 CustomComboBox.getComboBox(areasRepository),
                 call -> call.getSite().getArea(),
@@ -601,12 +601,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "area",
                 this
         );
-        column.setHidable(true);
-        column.setHidden(true);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 
     private void addSiteColumn() {
-        FilterGrid.Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+        CustomComboBoxColumn<Site, Call> column = CustomComboBoxColumn.addToGrid(
                 CustomComboBox.getComboBox(siteRepository, this.selectedCustomer),
                 CustomComboBox.getComboBox(siteRepository, this.selectedCustomer),
                 Call::getSite,
@@ -616,12 +616,12 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "site",
                 this
         );
-        column.setHidable(true);
-        column.setHidden(false);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(false);
     }
 
     private void addCustomerColumn() {
-        FilterGrid.Column<Call, String> column = CustomComboBoxColumn.addToGrid(
+        CustomComboBoxColumn<Customer, Call> column = CustomComboBoxColumn.addToGrid(
                 CustomComboBox.getComboBox(customerRepository),
                 CustomComboBox.getComboBox(customerRepository),
                 Call::getCustomer,
@@ -631,8 +631,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "customer",
                 this
         );
-        column.setHidable(true);
-        column.setHidden(true);
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 
     @Override

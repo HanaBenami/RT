@@ -7,7 +7,9 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
-// TODO: Make all custom columns use this
+// T - Object
+// D - Data/field type (e.g. String)
+// F - Editing component (e.g. TextField)
 class AbstractCustomColumn<T extends AbstractType & Cloneable<T>, D, F extends Component> {
     AbstractTypeFilterGrid<T> grid;
     FilterGrid.Column<T, D> column;

@@ -3,6 +3,7 @@ package il.co.rtcohen.rt.app.grids;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Component;
+import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComboBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomTextColumn;
@@ -15,11 +16,13 @@ import java.sql.SQLException;
 
 public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     private final Customer selectedCustomer;
+    private final CustomerRepository customerRepository;
     private final ContactRepository contactRepository;
     private final CallRepository callRepository;
     private final AreasRepository areasRepository;
 
     public SitesGrid(Customer selectedCustomer,
+                     CustomerRepository customerRepository,
                      ContactRepository contactRepository,
                      SiteRepository siteRepository,
                      CallRepository callRepository,
@@ -34,6 +37,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 site -> null == selectedCustomer || null == site.getCustomer() || !site.getCustomer().getId().equals(selectedCustomer.getId())
         );
         this.selectedCustomer = (null == selectedCustomer || selectedCustomer.isDraft() ? null : selectedCustomer);
+        this.customerRepository = customerRepository;
         this.contactRepository = contactRepository;
         this.callRepository = callRepository;
         this.areasRepository = areasRepository;
@@ -63,12 +67,14 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     @Override
     protected void addColumns() {
         addActiveColumn();
+        addAddingCallColumn();
         addCallsColumn();
         addContactsColumn();
         addNotesColumn();
         addAreaColumn();
         addAddressColumn();
         addNameColumn();
+        addCustomerColumn();
         addIdColumn();
     }
 
@@ -93,6 +99,25 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 this
         );
         column.getColumn().setHidden(true);
+    }
+
+    private void addAddingCallColumn() {
+        CustomComponentColumn<Site, Component> column = CustomComponentColumn.addToGrid(
+                site -> new CustomButton(
+                        VaadinIcons.PLUS,
+                        false,
+                        UIPaths.EDITCALL.getEditCallPath(null, site, null),
+                        UIPaths.EDITCALL.getWindowHeight(),
+                        UIPaths.EDITCALL.getWindowWidth(),
+                        UIPaths.EDITCALL.getWindowName()),
+                60,
+                "addCallColumn",
+                "addCall",
+                this
+        );
+        column.getColumn().setStyleGenerator(vehicle -> "red");
+        column.getColumn().setHidable(false);
+        column.getColumn().setHidden(false);
     }
 
     private void addCallsColumn() {
@@ -142,5 +167,21 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 false,
                 this
         );
+    }
+
+    private void addCustomerColumn() {
+        CustomComboBoxColumn<Customer, Site> column = CustomComboBoxColumn.addToGrid(
+                CustomComboBox.getComboBox(customerRepository),
+                CustomComboBox.getComboBox(customerRepository),
+                Site::getCustomer,
+                null,
+                true,
+                130,
+                "customerColumn",
+                "customer",
+                this
+        );
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 }

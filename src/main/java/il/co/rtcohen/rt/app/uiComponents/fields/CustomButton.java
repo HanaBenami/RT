@@ -3,6 +3,8 @@ package il.co.rtcohen.rt.app.uiComponents.fields;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Page;
+import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.themes.ValoTheme;
 import il.co.rtcohen.rt.app.LanguageSettings;
@@ -17,15 +19,21 @@ public class CustomButton extends Button {
         }
     }
 
-    public CustomButton(VaadinIcons vaadinIcons, boolean withBorder, String sourceUrl, int windowHeight, int windowWidth) {
+    public CustomButton(VaadinIcons vaadinIcons, boolean withBorder, String sourceUrl, int windowHeight, int windowWidth, String windowName) {
         super();
         this.setIcon(vaadinIcons);
         if (!withBorder) {
             this.setStyleName("noBorderButton");
         }
-        final BrowserWindowOpener opener = new BrowserWindowOpener(new ExternalResource(sourceUrl));
-        opener.setFeatures("height=" + windowHeight + ",width=" + windowWidth + ",resizable");
-        opener.extend(this);
+        this.addClickListener(listener ->
+                Page.getCurrent().open(sourceUrl, windowName, windowWidth, windowHeight, BorderStyle.NONE)
+        );
+//        final BrowserWindowOpener opener = new BrowserWindowOpener(new ExternalResource(sourceUrl));
+//        opener.setFeatures("height=" + windowHeight + ",width=" + windowWidth + ",resizable");
+//        if (null != windowName) {
+//            opener.setWindowName(windowName);
+//        }
+//        opener.extend(this);
     }
 
     public static Button countingIcon(VaadinIcons zeroIcon, VaadinIcons oneIcon, VaadinIcons multipleIcon, int n) {

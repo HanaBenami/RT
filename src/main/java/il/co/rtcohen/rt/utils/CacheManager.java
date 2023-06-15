@@ -4,18 +4,23 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.vaadin.data.ValueProvider;
+import il.co.rtcohen.rt.app.views.CallsView;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class CacheManager<T extends Cloneable<T>> {
+    private static final Logger logger = LoggerFactory.getLogger(CallsView.class);
+
     LoadingCache<Integer, T> cache;
     ValueProvider<T, Integer> hashKeyProvider;
 
     public CacheManager(ValueProvider<T, Integer> hashKeyProvider) {
         this.hashKeyProvider = hashKeyProvider;
         this.cache = CacheBuilder.newBuilder()
-                .maximumSize(1000)
+                .maximumSize(3000)
                 .build(
                         new CacheLoader<Integer, T>() {
                             @Override

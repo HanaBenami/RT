@@ -58,39 +58,12 @@ public class UIComponents {
     }
 
     @Deprecated
-    public ComboBox<Integer> custTypeComboBox(GeneralRepository generalRepository, int w, int h) {
-        List<Integer> custTypeList = generalRepository.getActiveId("custType");
-        ItemCaptionGenerator<Integer> custTypeCaption =(ItemCaptionGenerator<Integer>) item -> {
-            if (item==0) return "";
-            return generalRepository.getNameById(item,"custType");
-        };
-        return UIComponents.comboBox(custTypeList,custTypeCaption,w,h);
-    }
-
-    @Deprecated
-    public ComboBox<Integer> siteComboBox(GeneralRepository generalRepository, int w, int h) {
-        ItemCaptionGenerator<Integer> siteCaption =(ItemCaptionGenerator<Integer>) item -> {
-            if (item==0) return "";
-            return generalRepository.getNameById(item,"site");
-        };
-        return comboBox(new ArrayList<>(),siteCaption,w,h);
-    }
-
-    @Deprecated
     public ComboBox<Integer> areaComboBox(GeneralRepository generalRepository, int w, int h) {
         List<Integer> areaList = generalRepository.getActiveId("area");
         ItemCaptionGenerator<Integer> areaCaption =(ItemCaptionGenerator<Integer>) item -> {
             if (item==0) return "";
             return generalRepository.getNameById(item,"area"); };
         return UIComponents.comboBox(areaList,areaCaption,w,h);
-    }
-
-    @Deprecated
-    public ComboBox<Integer> userComboBox(GeneralRepository generalRepository, int w, int h) {
-        ItemCaptionGenerator<Integer> usersCaption =(ItemCaptionGenerator<Integer>) item -> {
-            return(0 == item ? "" : generalRepository.getNameById(item,"users"));
-        };
-        return comboBox(new ArrayList<>(),usersCaption,w,h);
     }
 
     @Deprecated
@@ -103,21 +76,6 @@ public class UIComponents {
         comboBox.setHeight(String.valueOf(h));
         comboBox.setWidth(String.valueOf(w));
         return comboBox;
-    }
-
-    @Deprecated
-    public static CheckBox checkBox(Boolean value, String caption, Boolean isReadOnly){
-        CheckBox checkBox = checkBox(value);
-        checkBox.setReadOnly(isReadOnly);
-        checkBox.setCaption(caption);
-        return checkBox;
-    }
-
-    @Deprecated
-    public static CheckBox checkBox(Boolean value, String caption){
-        CheckBox checkBox = checkBox(value);
-        checkBox.setCaption(caption);
-        return checkBox;
     }
 
     @Deprecated
@@ -134,31 +92,37 @@ public class UIComponents {
         return checkBox;
     }
 
+    @Deprecated
     public static Label header(String title) {
         return UIComponents.label(title,"LABEL LABEL-CENTER");
     }
 
 
+    @Deprecated
     public static Label label(String value, String style) {
         Label label = UIComponents.label(style);
         label.setValue(value);
         return label;
     }
 
+    @Deprecated
     public static Label label(String style) {
         Label label = new Label("");
         label.addStyleName(style);
         return label;
     }
 
+    @Deprecated
     public static Button printButton() {
         return bigButton(VaadinIcons.PRINT);
     }
 
+    @Deprecated
     public static Button bigButton(VaadinIcons icon) {
         return button(icon,ValoTheme.BUTTON_PRIMARY);
     }
 
+    @Deprecated
     private static Button button(VaadinIcons icon,String style) {
         Button button = new Button("");
         button.addStyleName(style);
@@ -166,7 +130,7 @@ public class UIComponents {
         return button;
     }
 
-
+    @Deprecated
     public static TextField textField(String w, String h) {
         TextField textField = new TextField();
         textField.setHeight(h);
@@ -174,6 +138,7 @@ public class UIComponents {
         return textField;
     }
 
+    @Deprecated
     public static NumberField numberField(String w, String h) {
         NumberField numberField = new NumberField();
         numberField.setHeight(h);
@@ -181,16 +146,19 @@ public class UIComponents {
         return numberField;
     }
 
+    @Deprecated
     public static CustomDateField dateField() {
         CustomDateField dateField = new CustomDateField();
         dateField.setDateFormat("dd/MM/yy");
         return dateField;
     }
 
+    @Deprecated
     public static CustomDateField dateField(int w, int h) {
         return dateField(String.valueOf(w),String.valueOf(h));
     }
 
+    @Deprecated
     public static CustomDateField dateField(String w, String h) {
         CustomDateField dateField = dateField();
         dateField.setHeight(h);

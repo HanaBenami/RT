@@ -52,8 +52,6 @@ public class AbstractTypeWithNameAndActiveFields extends AbstractType implements
 
     @Override
     public String toString() {
-        return LanguageSettings.getLocaleString("the")
-                + LanguageSettings.getLocaleString(this.getObjectName())
-                + " \"" + getName() + "\"";
+        return super.toString() + " (" + getName() + ")";
     }
 }

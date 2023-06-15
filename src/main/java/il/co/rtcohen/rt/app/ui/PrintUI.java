@@ -62,15 +62,15 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         List<Call> list;
         switch (condition) {
             case "here": {
-                list = callRepository.getItems(false, false, true, null, null);
+                list = callRepository.getItems(false, false, true, null, null, null, null);
                 break;
             }
             case "open": {
-                list = callRepository.getItems(false, false, null, null, null);
+                list = callRepository.getItems(false, false, null, null, null, null, null);
                 break;
             }
             default:
-                list = callRepository.getItems(
+                list = callRepository.getScheduledCalls(
                         new Date(LocalDate.parse(condition, Date.dateFormatterForUrls)), 
                         driverRepository.getItem(driver)
                 );

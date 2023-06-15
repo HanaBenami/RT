@@ -10,26 +10,30 @@ import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
+import il.co.rtcohen.rt.dal.repositories.SiteRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
 
 public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     private final Site site;
+    private final SiteRepository siteRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
     private final CallRepository callRepository;
 
-    public VehiclesGrid(Site site,
+    public VehiclesGrid(Site selectedSite,
+                        SiteRepository siteRepository,
                         VehicleRepository vehicleRepository,
                         VehicleTypeRepository vehicleTypeRepository,
                         CallRepository callRepository) {
         super(vehicleRepository, () -> {
                     Vehicle vehicle = new Vehicle();
-                    vehicle.setSite(site);
+                    vehicle.setSite(selectedSite);
                     return vehicle;
                 },
                 "vehiclesOfSites",
-                vehicle -> null == site || null == vehicle.getSite() || !vehicle.getSite().equals(site));
-        this.site = (null == site || site.isDraft() ? null : site);
+                vehicle -> null == vehicle.getSite() || !vehicle.getSite().equals(selectedSite));
+        this.site = (null == selectedSite || selectedSite.isDraft() ? null : selectedSite);
+        this.siteRepository = siteRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;
         this.callRepository = callRepository;
     }
@@ -66,6 +70,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         addSeriesColumn();
         addModelColumn();
         addVehicleTypeColumn();
+        addSiteColumn();
         addIdColumn();
     }
 
@@ -87,8 +92,8 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                         false,
                         UIPaths.EDITCALL.getEditCallPath(null, null, vehicle),
                         UIPaths.EDITCALL.getWindowHeight(),
-                        UIPaths.EDITCALL.getWindowWidth()
-                ),
+                        UIPaths.EDITCALL.getWindowWidth(),
+                        UIPaths.EDITCALL.getWindowName()),
                 60,
                 "addCallColumn",
                 "addCall",
@@ -118,10 +123,10 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     }
 
     private void addEngineHoursColumn() {
-        CustomNumericColumn.addToGrid(
+        CustomIntegerColumn.addToGrid(
                 Vehicle::getEngineHours,
                 Vehicle::setEngineHours,
-                140,
+                null, null, 140,
                 "engineHoursColumn",
                 "engineHours",
                 false,
@@ -132,10 +137,10 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     }
 
     private void addLicenseColumn() {
-        CustomNumericColumn.addToGrid(
+        CustomIntegerColumn.addToGrid(
                 Vehicle::getLicense,
                 Vehicle::setLicense,
-                140,
+                null, null, 140,
                 "licenseColumn",
                 "license",
                 false,
@@ -146,10 +151,10 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     }
 
     private void addZamaColumn() {
-        CustomNumericColumn.addToGrid(
+        CustomIntegerColumn.addToGrid(
                 Vehicle::getZama,
                 Vehicle::setZama,
-                140,
+                null, null, 140,
                 "zamaColumn",
                 "zama",
                 false,
@@ -199,6 +204,22 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 "vehicleType",
                 this
         );
+    }
+
+    private void addSiteColumn() {
+        CustomComboBoxColumn<Site, Vehicle> column = CustomComboBoxColumn.addToGrid(
+                CustomComboBox.getComboBox(siteRepository),
+                CustomComboBox.getComboBox(siteRepository),
+                Vehicle::getSite,
+                null,
+                true,
+                230,
+                "siteColumn",
+                "site",
+                this
+        );
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
     }
 
     @Override

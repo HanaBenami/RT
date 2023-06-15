@@ -27,7 +27,6 @@ public class GeneralErrorHandler implements ErrorHandler {
                 component.setComponentError(errorMessage);
             }
             getLogger().log(Level.SEVERE, "", t);
-//            getLogger().log(Level.SEVERE, "", Arrays.copyOfRange(t.getStackTrace(), 0, 5)); // TODO: Make it works
         }
     }
 

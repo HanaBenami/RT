@@ -3,18 +3,26 @@ package il.co.rtcohen.rt.app.uiComponents.columns;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.TextField;
-import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 import il.co.rtcohen.rt.app.uiComponents.StyleSettings;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomIntegerField;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
 // T - Type of object represented by the grid
-// TODO: extend AbstractCustomColumn
-public class CustomNumericColumn<T extends AbstractType> {
-    private CustomNumericColumn() {};
+public class CustomIntegerColumn<T extends AbstractType & Cloneable<T>> extends AbstractCustomColumn<T, Integer, TextField> {
+    private CustomIntegerColumn(
+            AbstractTypeFilterGrid<T> grid,
+            FilterGrid.Column<T, Integer> column,
+            TextField filterField,
+            String columnId,
+            String labelKey,
+            Integer width
+    ) {
+        super(grid, column, filterField, columnId, labelKey, width);
+    }
 
     // Usage:
     //        CustomNumericColumn.addToGrid(
@@ -28,28 +36,30 @@ public class CustomNumericColumn<T extends AbstractType> {
     //            true,
     //            this
     //        );
-    public static <T extends AbstractType & Cloneable<T>> FilterGrid.Column<T, Integer> addToGrid(
+    public static <T extends AbstractType & Cloneable<T>> CustomIntegerColumn<T> addToGrid(
             ValueProvider<T, Integer> valueProvider,
             Setter<T, Integer> setter,
+            Integer minValue,
+            Integer maxValue,
             int width,
-            String id,
-            String label,
+            String columnId,
+            String labelKey,
             boolean isBoldText,
             boolean allowFilter,
             boolean filterByExactMatch,
-            AbstractTypeFilterGrid<T> abstractTypeFilterGrid) {
+            AbstractTypeFilterGrid<T> grid) {
         // Basic column
-        FilterGrid.Column<T, Integer> column = abstractTypeFilterGrid.addColumn(valueProvider);
-        column.setId(id).setExpandRatio(1).setResizable(true).setWidth(width).setHidable(true);
+        FilterGrid.Column<T, Integer> column = grid.addColumn(valueProvider);
         if (isBoldText) {
             column.setStyleGenerator(T -> getBoldNumberStyle(valueProvider.apply(T))
             );
         }
-        abstractTypeFilterGrid.getDefaultHeaderRow().getCell(id).setText(LanguageSettings.getLocaleString(label));
 
         // Setter
         if (null != setter) {
-            column.setEditorBinding(abstractTypeFilterGrid.getEditor().getBinder().forField(new TextField()).bind(
+            column.setEditorBinding(grid.getEditor().getBinder().forField(
+                    new CustomIntegerField(null, null, minValue, maxValue, false, null, null)
+            ).bind(
                     T -> {
                         Integer value = valueProvider.apply(T);
                         return (null == value ? "0" : value.toString());
@@ -59,8 +69,9 @@ public class CustomNumericColumn<T extends AbstractType> {
         }
 
         // Filter
+        TextField filterField = null;
         if (allowFilter) {
-            TextField filterField = new TextField();
+            filterField = new CustomIntegerField(null, null, minValue, maxValue, true, null, null);
             filterField.setWidth(StyleSettings.FILTER_FIELD_WIDTH);
             filterField.setHeight(StyleSettings.FILTER_FIELD_HEIGHT);
             column.setFilter(
@@ -73,10 +84,9 @@ public class CustomNumericColumn<T extends AbstractType> {
                             : InMemoryFilter.StringComparator.containsIgnoreCase()
                     )
             );
-            abstractTypeFilterGrid.setFilterField(id, filterField);
         }
 
-        return column;
+        return new CustomIntegerColumn<T>(grid, column, filterField, columnId, labelKey, width);
     }
 
     static private String getBoldNumberStyle(Integer value) {

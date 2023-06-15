@@ -99,7 +99,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         if (null != whereClause) {
             sqlQuery += " where " + whereClause;
         }
-        this.logger.info(sqlQuery);
+        this.logger.debug(sqlQuery);
         List<T> list;
         try (
             Connection connection = dataSource.getConnection();
@@ -123,7 +123,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
                 list.add(item);
             }
             cacheManager.addToCache(list);
-            logger.info(list.size() + " records have been retrieved");
+            logger.debug(list.size() + " records have been retrieved");
             return list;
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItems";
@@ -148,7 +148,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     public T getItem(String whereClause) {
         List<T> list = new ArrayList<>();
         String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME + " WHERE " + whereClause;
-        this.logger.info(sqlQuery);
+        this.logger.debug(sqlQuery);
         try (Connection con = dataSource.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sqlQuery)) {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -254,7 +254,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
 
     private void oneRecordOnlyValidation(int n, String verb) throws SQLException {
         if (n == 0) {
-            logger.warn(getMessagesPrefix() + "No record has been found (" + verb + ")");
+            logger.debug(getMessagesPrefix() + "No record has been found (" + verb + ")");
         }
         else if (n > 1) {
             throw new SQLException(getMessagesPrefix() + "More than one record has been " + verb);

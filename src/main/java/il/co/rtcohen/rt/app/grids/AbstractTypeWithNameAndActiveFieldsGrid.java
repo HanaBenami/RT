@@ -50,7 +50,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
         addIdColumn();
     }
 
-    protected Column<T, Component> addActiveColumn() {
+    protected CustomCheckBoxColumn<T> addActiveColumn() {
         return CustomCheckBoxColumn.addToGrid(
                 T::isActive,
                 T::setActive,

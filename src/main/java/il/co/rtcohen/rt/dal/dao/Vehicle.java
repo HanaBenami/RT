@@ -5,6 +5,7 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.utils.Date;
+import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 
 import java.time.LocalDate;
 
@@ -132,10 +133,10 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields implements Bind
 
     @Override
     public String getName() {
-        if (!isItemValid()) {
-            return super.toString();
-        } else {
-            return (getVehicleType().getName() + " (" + LanguageSettings.getLocaleString("site") + ": " + getSite().getName() + ")");
-        }
+        return (null == getVehicleType() ? "" : this.getVehicleType().getName())
+                + " ("
+                + LanguageSettings.getLocaleString("site")
+                + ": " + (null == getSite() ? "" : this.getSite().getName())
+                + ")";
     }
 }
