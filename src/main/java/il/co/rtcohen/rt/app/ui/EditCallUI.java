@@ -1,6 +1,7 @@
 package il.co.rtcohen.rt.app.ui;
 
 import com.vaadin.data.ValueProvider;
+import com.vaadin.event.FieldEvents;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
 import com.vaadin.server.Setter;

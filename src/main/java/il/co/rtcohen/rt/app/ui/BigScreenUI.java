@@ -26,11 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 // TODO: Refactor!!!
@@ -124,17 +126,19 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         int x = columns-1;
         int y = 1;
         // TODO - Fix to avoid GridLayout$OutOfBoundsException, regardless the value of rowsPerColumn in the .yaml file
+        list.sort(Comparator.comparing(Call::getStartDate));
+        list.sort(Comparator.comparing(Call::getCurrentScheduledDate));
         for (Call call : list){
             if ((list.indexOf(call)==0) || (y==1) || (y==rowsPerColumn) ||
                     (!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call)-1).getCurrentScheduledDate())))) {
                 dateTitle = UIComponents.label("LABEL-BIGSCREEN");
-                if (call.getCurrentScheduledDate() == null) {
+                if (call.getCurrentScheduledDate() == null || call.getCurrentScheduledDate().equals(Date.nullDate())) {
                     if ((areaTitle.getValue().equals(LanguageSettings.getLocaleString("garage"))))
                         dateTitle.setValue(LanguageSettings.getLocaleString("currentlyHere"));
                     else
                         dateTitle.setValue(LanguageSettings.getLocaleString("notInSchedule"));
                 } else {
-                    dateTitle.setValue(call.getCurrentScheduledDate().toString());
+                    dateTitle.setValue(call.getCurrentScheduledDate().toShortString());
                 }
                 if (y+2>rowsPerColumn) {
                     y=1;
@@ -182,7 +186,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
 
     private String getCallData(Call call){
             String dataString = "<div align=right dir=\"rtl\"><b>"
-                    + NullPointerExceptionWrapper.getWrapper(call, c -> c.getStartDate().toString(), "")
+                    + NullPointerExceptionWrapper.getWrapper(call, c -> c.getStartDate().toShortString(), "")
                     + "</b> <B>/</B> "
                     + NullPointerExceptionWrapper.getWrapper(call, c -> c.getCustomer().getName(), "")
                     + " <B>/</B> "

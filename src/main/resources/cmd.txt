@@ -4,7 +4,7 @@ java -jar target/RT-3.jar --spring.profiles.active=demo --spring.config.name=app
 
 sqlcmd -S localhost -U sa -P ******
 create database RT ON PRIMARY (NAME=N'RT_data', FILENAME=N'/home/hana/RT/RT.mdf') LOG ON (NAME=N'RT_log', FILENAME=N'/home/hana/RT/RT.ldf');
-restore database RT from disk=N'/home/hana/Desktop/RT/RT_prod_20230531.bak' WITH replace, MOVE 'RT_prod' TO '/home/hana/RT/RT.mdf', MOVE 'RT_prod_log' TO '/home/hana/RT/RT.ldf';
+restore database RT from disk=N'/home/hana/Desktop/RT/RT_prod_20230616_after_upgrade.bak' WITH replace, MOVE 'RT_prod' TO '/home/hana/RT/RT.mdf', MOVE 'RT_prod_log' TO '/home/hana/RT/RT.ldf';
 go
 use rt
 select * from cust where id=3
@@ -20,3 +20,4 @@ select * from cust where id=3
 go
 
 
+sudo netstat -plten | grep 8084

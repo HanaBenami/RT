@@ -1,5 +1,6 @@
 package il.co.rtcohen.rt.app.uiComponents.fields;
 
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.TextArea;
 import il.co.rtcohen.rt.app.LanguageSettings;
 
@@ -16,5 +17,6 @@ public class CustomTextArea extends TextArea {
         if (null != height) {
             this.setHeight(height);
         }
+        this.setValueChangeMode(ValueChangeMode.BLUR);
     }
 }

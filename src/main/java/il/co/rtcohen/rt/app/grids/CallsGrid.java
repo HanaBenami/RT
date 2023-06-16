@@ -94,14 +94,14 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         ALL_CALLS("allCalls"),
         ONLY_OPEN_CALLS("openCalls"),
         ONLY_OPEN_CALLS_PENDING_GARAGE("openCallsPendingGarage"),
-        RECENTLY_CLOSED_CALLS("recentCloseCalls"),
-        ALL_CLOSED_CALLS("closeCalls"),
-        RECENTLY_DELETED_CALLS("recentDeleteCalls"),
-        ALL_DELETED_CALLS("deleteCalls"),
         CALLS_PLANNED_FOR_YESTERDAY("yesterday"),
         CALLS_PLANNED_FOR_TODAY("today"),
         CALLS_PLANNED_FOR_TOMORROW("tomorrow"),
-        CALLS_PLANNED_FOR_THE_DAY_AFTER_TOMORROW("plus2days");
+        CALLS_PLANNED_FOR_THE_DAY_AFTER_TOMORROW("plus2days"),
+        RECENTLY_CLOSED_CALLS("recentCloseCalls"),
+        ALL_CLOSED_CALLS("closeCalls"),
+        RECENTLY_DELETED_CALLS("recentDeleteCalls"),
+        ALL_DELETED_CALLS("deleteCalls");
 
         private final String titleKey;
 
@@ -453,7 +453,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 this
         );
         column.getColumn().setHidable(true);
-        column.getColumn().setHidden(false);
+        column.getColumn().setHidden(true);
     }
 
     private void addCurrentScheduledDateColumn() {
@@ -632,7 +632,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 this
         );
         column.getColumn().setHidable(true);
-        column.getColumn().setHidden(true);
+        column.getColumn().setHidden(false);
     }
 
     @Override
@@ -658,5 +658,11 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
             sortColumn.setHidden(true);
             super.sort(sortColumn, SortDirection.ASCENDING);
         }
+    }
+
+    @Override
+    protected void addIdColumn() {
+        super.addIdColumn();
+        this.idColumn.getColumn().setHidden(true);
     }
 }

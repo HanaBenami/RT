@@ -74,6 +74,9 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                         new Date(LocalDate.parse(condition, Date.dateFormatterForUrls)), 
                         driverRepository.getItem(driver)
                 );
+                if (null == driver || 0 == driver) {
+                    list.removeIf(call -> (null != call.getCurrentDriver()));
+                }
         }
         return list;
     }
