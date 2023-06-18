@@ -146,24 +146,23 @@ public class MainUI extends UI implements ViewDisplay {
     private void addSetupMenu() {
         MenuBar.MenuItem setup = menu.addItem(LanguageSettings.getLocaleString("setupMenu"));
         setup.setIcon(VaadinIcons.COG_O);
-        MenuBar.MenuItem driver = setup.addItem(LanguageSettings.getLocaleString("drivers"));
-        driver.setCommand(generateMenuBarCommand("drivers"));
+
+        setup.addItem(LanguageSettings.getLocaleString("drivers")).setCommand(generateMenuBarCommand("drivers"));
         setup.addSeparator();
-        MenuBar.MenuItem area = setup.addItem(LanguageSettings.getLocaleString("areaMenu"));
-        area.setCommand(generateMenuBarCommand("areas"));
+
+        setup.addItem(LanguageSettings.getLocaleString("areaMenu")).setCommand(generateMenuBarCommand("areas"));
         setup.addSeparator();
-        MenuBar.MenuItem garageStatuses = setup.addItem(LanguageSettings.getLocaleString("garageStatus"));
-        garageStatuses.setCommand(generateMenuBarCommand("garageStatuses"));
+
+        setup.addItem(LanguageSettings.getLocaleString("warehouseStatus")).setCommand(generateMenuBarCommand("warehouseStatuses"));
+        setup.addItem(LanguageSettings.getLocaleString("garageStatus")).setCommand(generateMenuBarCommand("garageStatuses"));
         setup.addSeparator();
-        MenuBar.MenuItem custType = setup.addItem(LanguageSettings.getLocaleString("custtypeTitle"));
-        custType.setCommand(generateMenuBarCommand("customerType"));
-        MenuBar.MenuItem carType = setup.addItem(LanguageSettings.getLocaleString("cartypeTitle"));
-        carType.setCommand(generateMenuBarCommand("vehicleType"));
-        MenuBar.MenuItem callType = setup.addItem(LanguageSettings.getLocaleString("calltypeTitle"));
-        callType.setCommand(generateMenuBarCommand("callType"));
+
+        (setup.addItem(LanguageSettings.getLocaleString("custtypeTitle"))).setCommand(generateMenuBarCommand("customerType"));
+        (setup.addItem(LanguageSettings.getLocaleString("cartypeTitle"))).setCommand(generateMenuBarCommand("vehicleType"));
+        setup.addItem(LanguageSettings.getLocaleString("calltypeTitle")).setCommand(generateMenuBarCommand("callType"));
         setup.addSeparator();
-        MenuBar.MenuItem user = setup.addItem(LanguageSettings.getLocaleString("usersMenu"));
-        user.setCommand(generateMenuBarCommand("users"));
+
+        setup.addItem(LanguageSettings.getLocaleString("usersMenu")).setCommand(generateMenuBarCommand("users"));
     }
 
     private void addCustomerMenu() {

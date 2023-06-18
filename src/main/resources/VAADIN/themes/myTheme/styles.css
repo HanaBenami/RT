@@ -15287,12 +15287,6 @@ div.v-layout.v-horizontal.v-widget {
 	text-align: right !important;
 }
 
-.myTheme tr.red td.v-grid-cell {
-	background: #ffe6e6 !important;
-	color: black;
-	border-color: lightgray;
-}
-
 .myTheme .v-gridlayout-slot {
 	text-align: left;
 }
@@ -15311,22 +15305,48 @@ div.v-layout.v-horizontal.v-widget {
 	text-decoration: none;
 }
 
+.myTheme tr.red td.v-grid-cell {
+	background-color: #ffe6e6;
+	color: black;
+	border-color: lightgray;
+}
+
 .myTheme tr.darkred td.v-grid-cell {
-	background: #ffb3b3 !important;
+	background-color: #ffb3b3;
 	color: black;
 	border-color: lightgray;
 }
 
 .myTheme tr.green td.v-grid-cell {
-	background: #e6ffe6 !important;
+	background-color: #e6ffe6;
 	color: black;
 	border-color: lightgray;
 }
 
 .myTheme tr.yellow td.v-grid-cell {
-	background: #ffffe6 !important;
+	background-color: #ffffe6;
 	color: black;
 	border-color: lightgray;
+}
+
+.myTheme tr.red td.v-grid-cell-focused {
+	background-color: #197de1 !important;
+	color: white !important;
+}
+
+.myTheme tr.darkred td.v-grid-cell-focused {
+	background-color: #197de1 !important;
+	color: white !important;
+}
+
+.myTheme tr.green td.v-grid-cell-focused {
+	background-color: #197de1 !important;
+	color: white !important;
+}
+
+.myTheme tr.yellow td.v-grid-cell-focused {
+	background-color: #197de1 !important;
+	color: white !important;
 }
 
 .myTheme .print th {

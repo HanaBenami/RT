@@ -44,7 +44,7 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
                 this.newItemSupplier,
                 this.titleKey,
                 null);
-        grid.initGrid(true);
+        grid.initGrid(true, 0);
         addComponentsAndExpand(grid.getVerticalLayout(true, false));
     }
 

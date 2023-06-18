@@ -30,6 +30,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
     private boolean meeting, isDone, isHere, isDeleted;
     private User openedByUser;
     private GarageStatus garageStatus;
+    private WarehouseStatus warehouseStatus;
 
     public Call() {
         super(0);
@@ -55,8 +56,8 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
             boolean isHere,
             boolean isDeleted,
             User openedByUser,
-            GarageStatus garageStatus
-    ) {
+            GarageStatus garageStatus,
+            WarehouseStatus warehouseStatus) {
         super(id);
         this.customer = customer;
         this.site = site;
@@ -79,6 +80,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.isDeleted = isDeleted;
         this.openedByUser = openedByUser;
         this.garageStatus = garageStatus;
+        this.warehouseStatus = warehouseStatus;
     }
 
     public Call(Call other) {
@@ -104,6 +106,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.isDeleted = other.isDeleted;
         this.openedByUser = other.openedByUser;
         this.garageStatus = other.garageStatus;
+        this.warehouseStatus = other.warehouseStatus;
     }
 
     @Override
@@ -299,6 +302,14 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
     public void setGarageStatus(GarageStatus garageStatus) {
         this.garageStatus = garageStatus;
+    }
+
+    public WarehouseStatus getWarehouseStatus() {
+        return this.warehouseStatus;
+    }
+
+    public void setWarehouseStatus(WarehouseStatus warehouseStatus) {
+        this.warehouseStatus = warehouseStatus;
     }
 
     @Override

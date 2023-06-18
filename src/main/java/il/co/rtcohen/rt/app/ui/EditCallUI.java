@@ -1,7 +1,6 @@
 package il.co.rtcohen.rt.app.ui;
 
 import com.vaadin.data.ValueProvider;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
 import com.vaadin.server.Setter;
@@ -53,6 +52,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
     private final GarageStatusRepository garageStatusRepository;
+    private final WarehouseStatusRepository warehouseStatusRepository;
 
     // Inner grids
     private CustomerGrid customerGrid;
@@ -68,20 +68,21 @@ public class EditCallUI extends AbstractUI<GridLayout> {
 
     @Autowired
     private EditCallUI(
-           ErrorHandler errorHandler,
-           GeneralRepository generalRepository,
-           CustomerRepository customerRepository,
-           CustomerTypeRepository customerTypeRepository,
-           SiteRepository siteRepository,
-           VehicleRepository vehicleRepository,
-           VehicleTypeRepository vehicleTypeRepository,
-           CallRepository callRepository,
-           CallTypeRepository callTypeRepository,
-           ContactRepository contactRepository,
-           AreasRepository areasRepository,
-           UsersRepository usersRepository,
-           DriverRepository driverRepository,
-           GarageStatusRepository garageStatusRepository
+            ErrorHandler errorHandler,
+            GeneralRepository generalRepository,
+            CustomerRepository customerRepository,
+            CustomerTypeRepository customerTypeRepository,
+            SiteRepository siteRepository,
+            VehicleRepository vehicleRepository,
+            VehicleTypeRepository vehicleTypeRepository,
+            CallRepository callRepository,
+            CallTypeRepository callTypeRepository,
+            ContactRepository contactRepository,
+            AreasRepository areasRepository,
+            UsersRepository usersRepository,
+            DriverRepository driverRepository,
+            GarageStatusRepository garageStatusRepository,
+            WarehouseStatusRepository warehouseStatusRepository
     ) {
         super(errorHandler, callRepository, generalRepository, usersRepository);
         this.customerRepository = customerRepository;
@@ -96,6 +97,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
         this.garageStatusRepository = garageStatusRepository;
+        this.warehouseStatusRepository = warehouseStatusRepository;
     }
 
     public void getUrlParameters() {
@@ -169,7 +171,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshScheduleTitle() {
-        int row = 17;
+        int row = 14;
         int column = 4;
         layout.removeComponent(column, row);
         layout.addComponent(new CustomLabel("scheduleDetails", null, CustomLabel.LabelStyle.TITLE), column, row);
@@ -205,7 +207,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
                     siteRepository,
                     callRepository
             );
-            this.customerGrid.initGrid(false);
+            this.customerGrid.initGrid(false, 0);
             this.customerGrid.setEnabled(!call.isDeleted());
             this.addGridToLayout(this.customerGrid, call.getCustomer(), 1, column1, row1, column2, row2);
         } else {
@@ -243,7 +245,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.sitesGrid = new SitesGrid(
                     this.call.getCustomer(), customerRepository, contactRepository, siteRepository, callRepository, areasRepository
             );
-            this.sitesGrid.initGrid(false);
+            this.sitesGrid.initGrid(false, 0);
             this.sitesGrid.setEnabled(!call.isDeleted());
             this.addGridToLayout(this.sitesGrid, this.call.getSite(), 1,column1, row1, column2, row2);
         } else if (null != this.call.getCustomer()) {
@@ -267,7 +269,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addVehicleGrid() {
-        int column1 = 1;
+        int column1 = 0;
         int row1 = 4;
         int column2 = 4;
         int row2 = 4;
@@ -278,14 +280,14 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.changeVehicleButton = addButtonToLayout("changeVehicle", VaadinIcons.RECYCLE, clickEvent -> {
                     this.call.setVehicle(null);
                     addVehicleGrid();
-                }, 4, 0
+                }, 5, 0
         );
         if (null != this.call.getVehicle()) {
             this.changeVehicleButton.setEnabled(!call.isDeleted());
             this.vehiclesGrid = new VehiclesGrid(
                     this.call.getSite(), siteRepository, vehicleRepository, vehicleTypeRepository, callRepository
             );
-            this.vehiclesGrid.initGrid(false);
+            this.vehiclesGrid.initGrid(false, 0);
             this.vehiclesGrid.setEnabled(!call.isDeleted());
             addGridToLayout(this.vehiclesGrid, this.call.getVehicle(), 1,column1, row1, column2, row2);
         } else if (null != this.call.getSite()) {
@@ -312,7 +314,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.contactsGrid = new ContactsGrid(
                     this.call.getSite(), contactRepository
             );
-            this.contactsGrid.initGrid(false);
+            this.contactsGrid.initGrid(false, 1);
             this.addGridToLayout(this.contactsGrid, null, 3,1, 5, 4, 5);
         }
     }
@@ -398,6 +400,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         addOrRefreshNotesTextArea();
         addOrRefreshCallTypeComboBox();
         addOrRefreshGarageStatusComboBox();
+        addOrRefreshWarehouseStatusComboBox();
         addOrRefreshUserComboBox();
         addOrRefreshDriverComboBox();
         addOrRefreshScheduledOrderField();
@@ -405,55 +408,59 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshIsHereCheckBox() {
-        addCheckBoxFieldToLayout(Call::isHere, Call::setHere, "currentlyHere", 12, 1);
+        addCheckBoxFieldToLayout(Call::isHere, Call::setHere, "currentlyHere", 10, 1);
     }
 
     private void addOrRefreshIsMeetingCheckBox() {
-        addCheckBoxFieldToLayout(Call::isMeeting, Call::setMeeting, "meeting", 12, 3);
+        addCheckBoxFieldToLayout(Call::isMeeting, Call::setMeeting, "meeting", 10, 3);
     }
 
     private void addOrRefreshIsDoneCheckBox() {
-        addCheckBoxFieldToLayout(Call::isDone, null, "done", 20, 1);
+        addCheckBoxFieldToLayout(Call::isDone, null, "done", 17, 1);
     }
 
     private void addOrRefreshStartDateField() {
-        addDateFieldToLayout(Call::getStartDate, null, "startDate", 10, 3);
+        addDateFieldToLayout(Call::getStartDate, null, "startDate", 6, 3);
     }
 
     private void addOrRefreshPlannedDateField() {
-        addDateFieldToLayout(Call::getPlanningDate, Call::setPlanningDate, "date1", 11, 3);
+        addDateFieldToLayout(Call::getPlanningDate, Call::setPlanningDate, "date1", 9, 3);
     }
 
     private void addOrRefreshScheduledDateField() {
-        addDateFieldToLayout(Call::getCurrentScheduledDate, Call::setCurrentScheduledDate, "date2", 18, 3);
+        addDateFieldToLayout(Call::getCurrentScheduledDate, Call::setCurrentScheduledDate, "date2", 15, 3);
     }
 
     private void addOrRefreshEndDateField() {
-        addDateFieldToLayout(Call::getEndDate, Call::setEndDate, "endDate", 20, 3);
+        addDateFieldToLayout(Call::getEndDate, Call::setEndDate, "endDate", 17, 3);
     }
 
     private void addOrRefreshDescriptionTextArea() {
-        addTextAreaToLayout(Call::getDescription, Call::setDescription, "description", 13, 13, 1, 3);
+        addTextAreaToLayout(Call::getDescription, Call::setDescription, "description", 11, 11, 1, 3);
     }
 
     private void addOrRefreshNotesTextArea() {
-        addTextAreaToLayout(Call::getNotes, Call::setNotes, "notes", 14, 15, 1, 3);
+        addTextAreaToLayout(Call::getNotes, Call::setNotes, "notes", 12, 13, 1, 3);
     }
 
     private void addOrRefreshCallTypeComboBox() {
         addComboBoxToLayout(callTypeRepository, Call::getCallType, Call::setCallType, "callType", 0, 2);
     }
 
+    private void addOrRefreshWarehouseStatusComboBox() {
+        addComboBoxToLayout(warehouseStatusRepository, Call::getWarehouseStatus, Call::setWarehouseStatus, "warehouseStatus", 8, 1);
+    }
+
     private void addOrRefreshGarageStatusComboBox() {
-        addComboBoxToLayout(garageStatusRepository, Call::getGarageStatus, Call::setGarageStatus, "garageStatus", 11, 1);
+        addComboBoxToLayout(garageStatusRepository, Call::getGarageStatus, Call::setGarageStatus, "garageStatus", 9, 1);
     }
 
     private void addOrRefreshUserComboBox() {
-        addComboBoxToLayout(usersRepository, Call::getOpenedByUser, null, "openBy", 10, 1);
+        addComboBoxToLayout(usersRepository, Call::getOpenedByUser, null, "openBy", 6, 1);
     }
 
     private void addOrRefreshDriverComboBox() {
-        addComboBoxToLayout(driverRepository, Call::getCurrentDriver, Call::setCurrentDriver, "driver", 18, 1);
+        addComboBoxToLayout(driverRepository, Call::getCurrentDriver, Call::setCurrentDriver, "driver", 15, 1);
     }
 
     // TODO: Generic method ?
@@ -472,7 +479,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         numericField.setWidth(FIELDS_WIDTH);
         numericField.setEnabled(!call.isDeleted());
         int column = 1;
-        int row = 19;
+        int row = 16;
         this.layout.removeComponent(column, row);
         this.layout.addComponent(numericField, column, row);
         this.layout.removeComponent(column + 1, row);

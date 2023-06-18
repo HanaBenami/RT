@@ -21,3 +21,6 @@ go
 
 
 sudo netstat -plten | grep 8084
+
+create database RT_hash ON PRIMARY (NAME=N'RT_hash_data', FILENAME=N'/home/hana/RT/RT_hash.mdf') LOG ON (NAME=N'RT_hash_log', FILENAME=N'/home/hana/RT/RT_hash.ldf');
+restore database RT_hash from disk=N'/home/hana/Desktop/RT/HASH_20230616_.bak' WITH replace, MOVE 'RT2004' TO '/home/hana/RT/RT_hash.mdf', MOVE 'LOG_RT2004' TO '/home/hana/RT/RT_hash.ldf';

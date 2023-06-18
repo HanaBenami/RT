@@ -60,10 +60,10 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         this.setSaveAction();
     }
 
-    public void initGrid(boolean fullSize) {
+    public void initGrid(boolean fullSize, int numOfEmptyLines) {
         this.setTitle();
         this.addColumns();
-        this.populateGrid();
+        this.populateGrid(numOfEmptyLines);
         this.sort();
         this.setStyle();
         if (fullSize) {
@@ -186,10 +186,6 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
 
     protected List<T> getItems() {
         return mainRepository.getItems();
-    }
-
-    public void populateGrid() {
-        populateGrid(0);
     }
 
     private void populateGrid(int numOfEmptyLines) {

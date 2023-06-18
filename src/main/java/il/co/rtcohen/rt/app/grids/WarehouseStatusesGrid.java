@@ -2,15 +2,15 @@ package il.co.rtcohen.rt.app.grids;
 
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomCheckBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomIntegerColumn;
-import il.co.rtcohen.rt.dal.dao.GarageStatus;
-import il.co.rtcohen.rt.dal.repositories.GarageStatusRepository;
+import il.co.rtcohen.rt.dal.dao.WarehouseStatus;
+import il.co.rtcohen.rt.dal.repositories.WarehouseStatusRepository;
 
-public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<GarageStatus> {
+public class WarehouseStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<WarehouseStatus> {
     private final String DISPLAY_ORDER_COLUMN_ID = "displayOrderColumn";
 
-    public GarageStatusesGrid(GarageStatusRepository garageStatusRepository) {
-        super(garageStatusRepository,
-                GarageStatus::new,
+    public WarehouseStatusesGrid(WarehouseStatusRepository warehouseStatusRepository) {
+        super(warehouseStatusRepository,
+                WarehouseStatus::new,
                 "area",
                 null
         );
@@ -28,10 +28,10 @@ public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<
 
     private void addHereColumn() {
         CustomCheckBoxColumn.addToGrid(
-                GarageStatus::isPendingGarage,
-                GarageStatus::setPendingGarage,
-                "pendingGarageColumn",
-                "pendingGarage",
+                WarehouseStatus::isPendingWarehouse,
+                WarehouseStatus::setPendingWarehouse,
+                "pendingWarehouseColumn",
+                "pendingWarehouse",
                 null,
                 this
         );
@@ -39,8 +39,8 @@ public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<
 
     private void addDisplayOrderColumn() {
         CustomIntegerColumn.addToGrid(
-                GarageStatus::getDisplayOrder,
-                GarageStatus::setDisplayOrder,
+                WarehouseStatus::getDisplayOrder,
+                WarehouseStatus::setDisplayOrder,
                 null, null, 80,
                 DISPLAY_ORDER_COLUMN_ID,
                 "order",

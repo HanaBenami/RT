@@ -92,11 +92,12 @@ public class CustomerDataView extends AbstractDataView<Customer> {
                 (0 == selectedCustomerId ? null : customerRepository.getItem(selectedCustomerId)),
                 customerRepository, customerTypeRepository, siteRepository, callRepository
         );
-        this.customerGrid.initGrid(true);
+        this.customerGrid.initGrid(true, 0);
         this.customerGrid.setSelectedItem(selectedCustomerId);
         this.selectedCustomerId = 0;
         this.customerGrid.addItemClickListener(listener -> {
             Customer newSelectedCustomer = listener.getItem();
+            this.selectedSiteId = 0;
             if (null == newSelectedCustomer.getId() || 0 == newSelectedCustomer.getId() || newSelectedCustomer.getId() != selectedCustomerId) {
                 this.selectedCustomerId = (null == newSelectedCustomer.getId() ? 0 : newSelectedCustomer.getId());
                 addSitesGrid(newSelectedCustomer);
@@ -108,7 +109,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     void addSitesGrid(Customer customer) {
         removeSitesGrid();
         this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository, areasRepository);
-        this.sitesGrid.initGrid(true);
+        this.sitesGrid.initGrid(true, 0);
         this.sitesGrid.setSelectedItem(selectedSiteId);
         this.selectedSiteId = 0;
         this.sitesGrid.addItemClickListener(listener -> {
@@ -127,14 +128,14 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     void addContactsGrid(Site site) {
         removeContactsGrid();
         this.contactsGrid = new ContactsGrid(site, contactRepository);
-        this.contactsGrid.initGrid(true);
+        this.contactsGrid.initGrid(true, 0);
         this.gridLayout.addComponent(contactsGrid.getVerticalLayout(true, true), 0, 2, 3, 3);
     }
 
     void addVehicleGrid(Site site) {
         removeVehiclesGrid();
         this.vehiclesGrid = new VehiclesGrid(site, siteRepository, vehicleRepository, vehicleTypeRepository, callRepository);
-        this.vehiclesGrid.initGrid(true);
+        this.vehiclesGrid.initGrid(true, 0);
         this.vehiclesGrid.setSelectedItem(selectedVehicleId);
         this.selectedVehicleId = 0;
         this.gridLayout.addComponent(vehiclesGrid.getVerticalLayout(true, true), 0, 4, 5, 5);

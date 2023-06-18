@@ -126,7 +126,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomIntegerColumn.addToGrid(
                 Vehicle::getEngineHours,
                 Vehicle::setEngineHours,
-                null, null, 140,
+                null, null, 100,
                 "engineHoursColumn",
                 "engineHours",
                 false,
@@ -140,7 +140,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomIntegerColumn.addToGrid(
                 Vehicle::getLicense,
                 Vehicle::setLicense,
-                null, null, 140,
+                null, null, 100,
                 "licenseColumn",
                 "license",
                 false,
@@ -154,7 +154,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomIntegerColumn.addToGrid(
                 Vehicle::getZama,
                 Vehicle::setZama,
-                null, null, 140,
+                null, null, 100,
                 "zamaColumn",
                 "zama",
                 false,
@@ -168,7 +168,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomTextColumn<Vehicle> column = CustomTextColumn.addToGrid(
                 Vehicle::getSeries,
                 Vehicle::setSeries,
-                false, 140,
+                false, 100,
                 "seriesColumn",
                 "series",
                 false,
@@ -182,7 +182,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
         CustomTextColumn<Vehicle> column = CustomTextColumn.addToGrid(
                 Vehicle::getModel,
                 Vehicle::setModel,
-                false, 140,
+                false, 100,
                 "modelColumn",
                 "model",
                 false,
@@ -199,7 +199,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 Vehicle::getVehicleType,
                 Vehicle::setVehicleType,
                 true,
-                230,
+                150,
                 "vehicleTypeColumn",
                 "vehicleType",
                 this
@@ -213,7 +213,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 Vehicle::getSite,
                 null,
                 true,
-                230,
+                150,
                 "siteColumn",
                 "site",
                 this

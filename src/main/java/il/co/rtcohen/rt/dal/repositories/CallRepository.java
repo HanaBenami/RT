@@ -1,6 +1,5 @@
 package il.co.rtcohen.rt.dal.repositories;
 
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -39,6 +38,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     static protected final String DB_IS_DELETED_COLUMN = "deleted";
     static protected final String DB_USER_ID_COLUMN = "userid";
     static protected final String DB_GARAGE_STATUS_ID_COLUMN = "garageStatusID";
+    static protected final String DB_WAREHOUSE_STATUS_ID_COLUMN = "warehouseStatusID";
 
     private final CustomerRepository customerRepository;
     private final SiteRepository siteRepository;
@@ -47,6 +47,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     private final DriverRepository driverRepository;
     private final UsersRepository usersRepository;
     private final GarageStatusRepository garageStatusRepository;
+    private final WarehouseStatusRepository warehouseStatusRepository;
 
     @Autowired
     public CallRepository(DataSource dataSource,
@@ -56,8 +57,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                           CallTypeRepository callTypeRepository,
                           DriverRepository driverRepository,
                           UsersRepository usersRepository,
-                          GarageStatusRepository garageStatusRepository
-    ) {
+                          GarageStatusRepository garageStatusRepository,
+                          WarehouseStatusRepository warehouseStatusRepository) {
         super(
                 dataSource, "call", "Calls",
                 new String[]{
@@ -78,7 +79,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                         DB_IS_HERE_COLUMN,
                         DB_IS_DELETED_COLUMN,
                         DB_USER_ID_COLUMN,
-                        DB_GARAGE_STATUS_ID_COLUMN
+                        DB_GARAGE_STATUS_ID_COLUMN,
+                        DB_WAREHOUSE_STATUS_ID_COLUMN
                 }
         );
         this.customerRepository = customerRepository;
@@ -88,6 +90,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         this.driverRepository = driverRepository;
         this.usersRepository = usersRepository;
         this.garageStatusRepository = garageStatusRepository;
+        this.warehouseStatusRepository = warehouseStatusRepository;
     }
 
     protected Call getItemFromResultSet(ResultSet rs) throws SQLException {
@@ -110,8 +113,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 rs.getBoolean(DB_IS_HERE_COLUMN),
                 rs.getBoolean(DB_IS_DELETED_COLUMN),
                 usersRepository.getItem(rs.getInt(DB_USER_ID_COLUMN)),
-                garageStatusRepository.getItem(rs.getInt(DB_GARAGE_STATUS_ID_COLUMN))
-        );
+                garageStatusRepository.getItem(rs.getInt(DB_GARAGE_STATUS_ID_COLUMN)),
+                warehouseStatusRepository.getItem(rs.getInt(DB_WAREHOUSE_STATUS_ID_COLUMN)));
     }
 
     @Override
@@ -152,6 +155,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getOpenedByUser().getId(), 0));
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getGarageStatus().getId(), 0));
+        fieldsCounter++;
+        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getWarehouseStatus().getId(), 0));
         return fieldsCounter;
     }
 

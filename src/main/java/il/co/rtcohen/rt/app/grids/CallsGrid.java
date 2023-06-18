@@ -94,6 +94,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         ALL_CALLS("allCalls"),
         ONLY_OPEN_CALLS("openCalls"),
         ONLY_OPEN_CALLS_PENDING_GARAGE("openCallsPendingGarage"),
+        ONLY_OPEN_CALLS_PENDING_WAREHOUSE("openCallsPendingWarehouse"),
         CALLS_PLANNED_FOR_YESTERDAY("yesterday"),
         CALLS_PLANNED_FOR_TODAY("today"),
         CALLS_PLANNED_FOR_TOMORROW("tomorrow"),
@@ -130,6 +131,10 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 case ONLY_OPEN_CALLS_PENDING_GARAGE:
                     callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);
                     callsInGrid.removeIf(call -> (null == call.getGarageStatus() || !call.getGarageStatus().isPendingGarage()));
+                    break;
+                case ONLY_OPEN_CALLS_PENDING_WAREHOUSE:
+                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);
+                    callsInGrid.removeIf(call -> (null == call.getWarehouseStatus() || !call.getWarehouseStatus().isPendingWarehouse()));
                     break;
                 case RECENTLY_CLOSED_CALLS:
                     callsInGrid = callRepository.getItems(true, false, null, new Date(LocalDate.now().minusMonths(6)), null, null, null);
@@ -228,8 +233,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     @Override
-    public void initGrid(boolean fullSize) {
-        super.initGrid(fullSize);
+    public void initGrid(boolean fullSize, int numOfEmptyLines) {
+        super.initGrid(fullSize, numOfEmptyLines);
         this.setDetailsGenerator((DetailsGenerator<Call>) this::getCallDetails);
         this.setStyleGenerator((StyleGenerator<Call>) StyleSettings::callStyle);
     }
