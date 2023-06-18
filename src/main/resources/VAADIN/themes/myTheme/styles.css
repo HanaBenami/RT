@@ -15329,26 +15329,6 @@ div.v-layout.v-horizontal.v-widget {
 	border-color: lightgray;
 }
 
-.myTheme tr.red td.v-grid-cell-focused {
-	background-color: #197de1 !important;
-	color: white !important;
-}
-
-.myTheme tr.darkred td.v-grid-cell-focused {
-	background-color: #197de1 !important;
-	color: white !important;
-}
-
-.myTheme tr.green td.v-grid-cell-focused {
-	background-color: #197de1 !important;
-	color: white !important;
-}
-
-.myTheme tr.yellow td.v-grid-cell-focused {
-	background-color: #197de1 !important;
-	color: white !important;
-}
-
 .myTheme .print th {
 	background: transparent !important;
 	border-color: black !important;
