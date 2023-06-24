@@ -164,6 +164,8 @@ public class MainUI extends UI implements ViewDisplay {
         setup.addSeparator();
 
         setup.addItem(LanguageSettings.getLocaleString("usersMenu")).setCommand(generateMenuBarCommand("users"));
+        setup.addSeparator();
+        setup.addItem(LanguageSettings.getLocaleString("ExportImportMenu")).setCommand(generateMenuBarCommand("ExportImportView"));
     }
 
     private void addCustomerMenu() {
@@ -305,18 +307,14 @@ public class MainUI extends UI implements ViewDisplay {
         if (emptyToString(newUsername)) {
             usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("emptyUsername")));
         } else {
-            try {
-                if (!usersRepository.getItems(true).stream()
-                        .map(User::getName).collect(Collectors.toList()).contains(newUsername)) {
-                    usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("invalidUsername")));
-                } else {
-                    setSessionUsername(newUsername);
-                    addOrRefreshUsernameLayout();
-                    addOrRefreshNavigationLayout();
-                    springViewDisplay.setEnabled(true);
-                }
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            if (!usersRepository.getItems(true).stream()
+                    .map(User::getName).collect(Collectors.toList()).contains(newUsername)) {
+                usernameTextbox.setComponentError(new UserError(LanguageSettings.getLocaleString("invalidUsername")));
+            } else {
+                setSessionUsername(newUsername);
+                addOrRefreshUsernameLayout();
+                addOrRefreshNavigationLayout();
+                springViewDisplay.setEnabled(true);
             }
         }
     }

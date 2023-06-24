@@ -11,6 +11,7 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import il.co.rtcohen.rt.app.uiComponents.fields.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
+import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     private final DriverRepository driverRepository;
     private final GarageStatusRepository garageStatusRepository;
     private final WarehouseStatusRepository warehouseStatusRepository;
+    private final HashavshevetSync hashavshevetSync;
 
     // Inner grids
     private CustomerGrid customerGrid;
@@ -84,7 +86,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             UsersRepository usersRepository,
             DriverRepository driverRepository,
             GarageStatusRepository garageStatusRepository,
-            WarehouseStatusRepository warehouseStatusRepository
+            WarehouseStatusRepository warehouseStatusRepository,
+            HashavshevetSync hashavshevetSync
     ) {
         super(errorHandler, callRepository, generalRepository, usersRepository);
         this.customerRepository = customerRepository;
@@ -101,6 +104,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.driverRepository = driverRepository;
         this.garageStatusRepository = garageStatusRepository;
         this.warehouseStatusRepository = warehouseStatusRepository;
+        this.hashavshevetSync = hashavshevetSync;
     }
 
     public void getUrlParameters() {
@@ -208,8 +212,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
                     customerRepository,
                     customerTypeRepository,
                     siteRepository,
-                    callRepository
-            );
+                    callRepository,
+                    hashavshevetSync);
             this.customerGrid.initGrid(false, 0);
             this.customerGrid.setEnabled(!call.isDeleted());
             this.addGridToLayout(this.customerGrid, call.getCustomer(), 1, column1, row1, column2, row2);

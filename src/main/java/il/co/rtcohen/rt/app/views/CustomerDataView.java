@@ -8,7 +8,7 @@ import il.co.rtcohen.rt.app.grids.*;
 import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
-import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
+import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     private final AreaRepository areaRepository;
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
+    private final HashavshevetSync hashavshevetSync;
 
     // Grids
     GridLayout gridLayout;
@@ -54,7 +55,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
                              CityRepository cityRepository,
                              AreaRepository areaRepository,
                              VehicleRepository vehicleRepository,
-                             VehicleTypeRepository vehicleTypeRepository) {
+                             VehicleTypeRepository vehicleTypeRepository,
+                             HashavshevetSync hashavshevetSync) {
         super(errorHandler, "customersList");
         this.customerRepository = customerRepository;
         this.customerTypeRepository = customerTypeRepository;
@@ -65,6 +67,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         this.areaRepository = areaRepository;
         this.vehicleRepository = vehicleRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;
+        this.hashavshevetSync = hashavshevetSync;
     }
 
     // TODO: Move to an upper/separate generic class
@@ -95,8 +98,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         removeCustomerGrid();
         this.customerGrid = new CustomerGrid(
                 (0 == selectedCustomerId ? null : customerRepository.getItem(selectedCustomerId)),
-                customerRepository, customerTypeRepository, siteRepository, callRepository
-        );
+                customerRepository, customerTypeRepository, siteRepository, callRepository,
+                hashavshevetSync);
         this.customerGrid.initGrid(true, 0);
         this.customerGrid.setSelectedItem(selectedCustomerId);
         this.selectedCustomerId = 0;

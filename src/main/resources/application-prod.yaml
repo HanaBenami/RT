@@ -16,3 +16,11 @@ settings:
     rowsPerColumn: 20
     interval: 60000
   workOrderWidth: 1400
+  hashSync:
+    executeSync: true
+    createNewCustomers: false
+    syncOnlyDiff: true
+    syncOnlyListedCustomers: true
+    hashavshevetCustomerIds: 2716, 2326, 20637
+    fixedDelayMiliseconds: 3600000
+    initialDelayMiliseconds: 60000

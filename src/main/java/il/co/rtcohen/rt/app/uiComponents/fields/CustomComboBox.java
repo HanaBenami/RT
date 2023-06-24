@@ -46,31 +46,21 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
                         AbstractTypeWithNameAndActiveFieldsRepository<T> repository,
                         Supplier<T> newItemSupplier, Integer width, boolean allowNewItems
     ) {
-        try {
-            return new CustomComboBox<>(
-                    repository.getItems(true),
-                    newItemSupplier,
-                    width,
-                    allowNewItems
-            );
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                repository.getItems(true),
+                newItemSupplier,
+                width,
+                allowNewItems
+        );
     }
 
     public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T> & Cloneable<T>> CustomComboBox<T>
             getComboBox(AbstractTypeWithNameAndActiveFieldsRepository<T> repository) {
-        try {
-            return new CustomComboBox<>(
-                    repository.getItems(true),
-                    null,
-                    130,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                repository.getItems(true),
+                null,
+                130,
+                false);
     }
 
     public static CustomComboBox<Vehicle> getComboBox(VehicleRepository vehicleRepository, @NotNull Site site) {
@@ -82,20 +72,15 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static CustomComboBox<VehicleType> getComboBox(VehicleTypeRepository vehicleTypeRepository) {
-        try {
-            return new CustomComboBox<>(
-                    vehicleTypeRepository.getItems(true),
-                    () -> {
-                        VehicleType newItem = new VehicleType();
-                        newItem.setBindRepository(vehicleTypeRepository);
-                        return newItem;
-                    },
-                 300,
-                    true);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                vehicleTypeRepository.getItems(true),
+                () -> {
+                    VehicleType newItem = new VehicleType();
+                    newItem.setBindRepository(vehicleTypeRepository);
+                    return newItem;
+                },
+             300,
+                true);
     }
 
     public static CustomComboBox<Site> getComboBox(SiteRepository siteRepository, Customer customer) {
@@ -111,76 +96,51 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static CustomComboBox<CustomerType> getComboBox(CustomerTypeRepository customerTypeRepository) {
-        try {
-            return new CustomComboBox<>(
-                    customerTypeRepository.getItems(true),
-                    () -> {
-                        CustomerType newItem = new CustomerType();
-                        newItem.setBindRepository(customerTypeRepository);
-                        return newItem;
-                    },
-                    70,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                customerTypeRepository.getItems(true),
+                () -> {
+                    CustomerType newItem = new CustomerType();
+                    newItem.setBindRepository(customerTypeRepository);
+                    return newItem;
+                },
+                70,
+                false);
     }
 
     public static CustomComboBox<Area> getComboBox(AreaRepository areaRepository) {
-        try {
-            return new CustomComboBox<>(
-                    areaRepository.getItems(true),
-                    () -> {
-                        Area newItem = new Area();
-                        newItem.setBindRepository(areaRepository);
-                        return newItem;
-                    },
-                    70,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                areaRepository.getItems(true),
+                () -> {
+                    Area newItem = new Area();
+                    newItem.setBindRepository(areaRepository);
+                    return newItem;
+                },
+                70,
+                false);
     }
 
     public static CustomComboBox<Driver> getComboBox(DriverRepository driverRepository) {
-        try {
-            return new CustomComboBox<>(
-                    driverRepository.getItems(true),
-                    null,
-                    70,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                driverRepository.getItems(true),
+                null,
+                70,
+                false);
     }
 
     public static CustomComboBox<CallType> getComboBox(CallTypeRepository callTypeRepository) {
-        try {
-            return new CustomComboBox<>(
-                    callTypeRepository.getItems(true),
-                    null,
-                    70,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                callTypeRepository.getItems(true),
+                null,
+                70,
+                false);
     }
 
     public static CustomComboBox<GarageStatus> getComboBox(GarageStatusRepository garageStatusRepository) {
-        try {
-            return new CustomComboBox<>(
-                    garageStatusRepository.getItems(true),
-                    null,
-                    70,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                garageStatusRepository.getItems(true),
+                null,
+                70,
+                false);
     }
 
     private static Logger getLogger() {

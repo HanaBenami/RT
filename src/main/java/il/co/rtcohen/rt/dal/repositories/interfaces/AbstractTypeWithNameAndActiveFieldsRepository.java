@@ -28,7 +28,7 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
                 additionalDbColumns);
     }
 
-    public List<T> getItems(boolean onlyActiveItems) throws SQLException {
+    public List<T> getItems(boolean onlyActiveItems) {
         List<T> list = this.getItems();
         list.removeIf(t -> !t.isActive());
         return list;
@@ -38,14 +38,14 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
         if (null == name || name.isEmpty()) {
             return null;
         }
-        return super.getItem("CAST(name as varchar(100))='" + name + "'");
+        return super.getItem("CAST(name as varchar(100))='" + name.replaceAll("'", "") + "'");
     }
 
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
 
     protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, T t) throws SQLException {
         int fieldsCounter = 1;
-        preparedStatement.setString(fieldsCounter, t.getName());
+        preparedStatement.setString(fieldsCounter, t.getName().replaceAll("'", ""));
         fieldsCounter++;
         preparedStatement.setBoolean(fieldsCounter, t.isActive());
         return fieldsCounter;

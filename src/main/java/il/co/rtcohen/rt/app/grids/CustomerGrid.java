@@ -4,6 +4,8 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Notification;
+import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomCheckBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComboBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
@@ -12,19 +14,24 @@ import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
+import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 
 public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Customer> {
     private final Customer selectedCustomer;
     private final CustomerTypeRepository customerTypeRepository;
     private final SiteRepository siteRepository;
     private final CallRepository callRepository;
+    private final HashavshevetSync hashavshevetSync;
 
     public CustomerGrid(
             Customer selectedCustomer,
             CustomerRepository customerRepository,
             CustomerTypeRepository customerTypeRepository,
             SiteRepository siteRepository,
-            CallRepository callRepository
+            CallRepository callRepository,
+            HashavshevetSync hashavshevetSync
     ) {
         super(
                 customerRepository,
@@ -36,6 +43,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
         this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;
         this.callRepository = callRepository;
+        this.hashavshevetSync = hashavshevetSync;
         this.setShowNewNameField(true);
     }
 
@@ -44,6 +52,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
         addActiveColumn();
         addCallsColumn();
         addSitesColumn();
+        addHashSyncColumn();
         addHashKeyColumn();
         addCustomerTypeColumn();
         addNameColumn();
@@ -77,6 +86,31 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 this
         );
         column.getColumn().setHidden(true);
+    }
+
+    private void addHashSyncColumn() {
+        CustomComponentColumn<Customer, Component> column = CustomComponentColumn.addToGrid(
+                (ValueProvider<Customer, Component>) customer -> {
+                    if (null == customer.getId() || 0 == customer.getId() || 0 == customer.getHashavshevetCustomerId()) {
+                        return null;
+                    } else {
+                        return (Button) new CustomButton(VaadinIcons.RECYCLE, false, clickEvent -> {
+                            try {
+                                hashavshevetSync.syncData(true, customer.getHashavshevetCustomerId(), false);
+                                Notification.show(LanguageSettings.getLocaleString("syncDone"));
+                            } catch (CannotAcquireLockException ignored) {
+                                Notification.show(LanguageSettings.getLocaleString("syncLocked"), Notification.Type.ERROR_MESSAGE);
+                            }
+                        });
+                    }
+                },
+                30,
+                "hashSyncColumn",
+                "hashSyncColumn",
+                this
+        );
+        column.getColumn().setHidden(true);
+        column.getColumn().setHidable(true);
     }
 
     private void addHashKeyColumn() {

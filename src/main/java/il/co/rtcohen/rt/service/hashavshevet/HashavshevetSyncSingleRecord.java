@@ -1,4 +1,4 @@
-package il.co.rtcohen.rt.dal.bl.hashavshevet;
+package il.co.rtcohen.rt.service.hashavshevet;
 
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.hashavshevet.HashavshevetDataRecord;
@@ -42,32 +42,37 @@ public class HashavshevetSyncSingleRecord {
             CityRepository cityRepository,
             ContactRepository contactRepository,
             VehicleRepository vehicleRepository,
-            VehicleTypeRepository vehicleTypeRepository
-    ) {
+            VehicleTypeRepository vehicleTypeRepository,
+            boolean createNewCustomers) {
         String msg = "hashavshevetCustomerId=" + hashavshevetCustomerId + " -> ";
         log("Syncing data for " + msg);
-        Customer customer = createOrUpdateCustomer(customerRepository);
-        log(msg + "Generated/updated customer: " + customer);
-        Site mainSite = createOrUpdateMainSite(customer, siteRepository, cityRepository);
-        log(msg + "Generated/updated main site: " + mainSite);
-        List<Contact> mainSiteContacts = createOrUpdateMainSiteContacts(mainSite, contactRepository);
-        Site vehicleSite = createOrUpdateVehicleSite(customer, siteRepository, cityRepository);
-        log(msg + "Generated/updated vehicle site: " + vehicleSite);
-        if (null == vehicleSite) {
-            vehicleSite = mainSite;
+        Customer customer = createOrUpdateCustomer(customerRepository, createNewCustomers);
+        if (null != customer) {
+            log(msg + "Generated/updated customer: " + customer);
+            Site mainSite = createOrUpdateMainSite(customer, siteRepository, cityRepository);
+            log(msg + "Generated/updated main site: " + mainSite);
+            List<Contact> mainSiteContacts = createOrUpdateMainSiteContacts(mainSite, contactRepository);
+            Site vehicleSite = createOrUpdateVehicleSite(customer, siteRepository, cityRepository);
+            log(msg + "Generated/updated vehicle site: " + vehicleSite);
+            if (null == vehicleSite) {
+                vehicleSite = mainSite;
+            }
+            List<Contact> vehicleSiteContacts = createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
+            Vehicle vehicle = createOrUpdateVehicle(vehicleSite, vehicleRepository, vehicleTypeRepository);
+            log(msg + "Generated/updated vehicle: " + vehicle);
         }
-        List<Contact> vehicleSiteContacts = createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
-        Vehicle vehicle = createOrUpdateVehicle(vehicleSite, vehicleRepository, vehicleTypeRepository);
-        log(msg + "Generated/updated vehicle: " + vehicle);
     }
 
     // Looks for a customer with the same hashavshevet ID.
     // If there such customer, updates it. If not, creates a new one.
     private Customer createOrUpdateCustomer(
-            CustomerRepository customerRepository
-    ) {
+            CustomerRepository customerRepository,
+            boolean createNewCustomers) {
         Customer customer = customerRepository.getItemByHashKey(this.hashavshevetCustomerId);
         if (null == customer) {
+            if (!createNewCustomers) {
+                return null;
+            }
             customer = new Customer();
             customer.setHashavshevetCustomerId(this.hashavshevetCustomerId);
             customer.setHashavshevetFirstDocId(this.hashavshevetDataRecord.documentID);

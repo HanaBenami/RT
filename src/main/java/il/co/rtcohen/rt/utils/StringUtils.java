@@ -1,7 +1,5 @@
 package il.co.rtcohen.rt.utils;
 
-import il.co.rtcohen.rt.dal.bl.hashavshevet.HashavshevetSyncSingleRecord;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
