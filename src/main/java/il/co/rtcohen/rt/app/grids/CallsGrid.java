@@ -27,13 +27,14 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     private final CustomerRepository customerRepository;
     private final CustomerTypeRepository customerTypeRepository;
     private final SiteRepository siteRepository;
-    private final AreasRepository areasRepository;
+    private final AreaRepository areaRepository;
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
     private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
     private final CallTypeRepository callTypeRepository;
     private final GarageStatusRepository garageStatusRepository;
+    private final CityRepository cityRepository;
     private CallsFilterOptions selectedCallsFilterOption;
     private Customer selectedCustomer;
     private Site selectedSite;
@@ -53,13 +54,14 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
             CustomerRepository customerRepository,
             CustomerTypeRepository customerTypeRepository,
             SiteRepository siteRepository,
-            AreasRepository areasRepository,
+            AreaRepository areaRepository,
             VehicleRepository vehicleRepository,
             VehicleTypeRepository vehicleTypeRepository,
             UsersRepository usersRepository,
             DriverRepository driverRepository,
             CallTypeRepository callTypeRepository,
-            GarageStatusRepository garageStatusRepository
+            GarageStatusRepository garageStatusRepository,
+            CityRepository cityRepository
     ) {
         super(
                 callRepository,
@@ -80,13 +82,14 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         this.customerRepository = customerRepository;
         this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;
-        this.areasRepository = areasRepository;
+        this.areaRepository = areaRepository;
         this.vehicleRepository = vehicleRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;
         this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
         this.callTypeRepository = callTypeRepository;
         this.garageStatusRepository = garageStatusRepository;
+        this.cityRepository = cityRepository;
         this.setEmptyLinesAllow(false);
     }
 
@@ -275,6 +278,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         addVehicleTypeColumn();
         addCallTypeColumn();
         addAddressColumn();
+        addCityColumn();
         addAreaColumn();
         addSiteColumn();
         addCustomerColumn();
@@ -595,10 +599,25 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         column.getColumn().setHidden(true);
     }
 
+    private void addCityColumn() {
+        CustomComboBoxColumn<City, Call> column = CustomComboBoxColumn.addToGrid(
+                CustomComboBox.getComboBox(cityRepository),
+                CustomComboBox.getComboBox(cityRepository),
+                call -> call.getSite().getCity(),
+                null,
+                false, 100,
+                "cityColumn",
+                "city",
+                this
+        );
+        column.getColumn().setHidable(true);
+        column.getColumn().setHidden(true);
+    }
+
     private void addAreaColumn() {
         CustomComboBoxColumn<Area, Call> column = CustomComboBoxColumn.addToGrid(
-                CustomComboBox.getComboBox(areasRepository),
-                CustomComboBox.getComboBox(areasRepository),
+                CustomComboBox.getComboBox(areaRepository),
+                CustomComboBox.getComboBox(areaRepository),
                 call -> call.getSite().getArea(),
                 null,
                 false, 100,

@@ -13,8 +13,6 @@ import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
-import java.sql.SQLException;
-
 public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Customer> {
     private final Customer selectedCustomer;
     private final CustomerTypeRepository customerTypeRepository;
@@ -66,11 +64,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                         return null;
                     } else {
                         int n = 0;
-                        try {
-                            n = siteRepository.getItems(Customer).size();
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
+                        n = siteRepository.getItems(Customer).size();
                         Button sitesButton = CustomButton.countingIcon(VaadinIcons.FROWN_O, VaadinIcons.HOME_O, VaadinIcons.HOME, n);
                         sitesButton.addClickListener(clickEvent ->
                                 getUI().getNavigator().navigateTo("site/customer=" + Customer.getId()));
@@ -87,13 +81,13 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
 
     private void addHashKeyColumn() {
         CustomIntegerColumn.addToGrid(
-                Customer::getHashavshevetId,
-                Customer::setHashavshevetId,
+                Customer::getHashavshevetCustomerId,
+                Customer::setHashavshevetCustomerId,
                 null, null, 100,
                 "hashKeyColumn",
                 "hashKey",
             false,
-            true,
+                true,
             true,
             this
         );

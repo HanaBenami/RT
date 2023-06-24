@@ -127,6 +127,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         addPhoneColumn();
         addContactColumn();
         addAddressColumn();
+        addCityColumn();
         addAreaColumn();
         addSiteColumn();
         addHereColumn();
@@ -261,11 +262,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                 return "";
             } else {
                 List<Contact> contacts = null;
-                try {
-                    contacts = contactRepository.getItems(call.getSite());
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
+                contacts = contactRepository.getItems(call.getSite());
                 StringBuilder res = new StringBuilder();
                 for (Contact contact : contacts) {
                     if (contact.isActive())
@@ -287,11 +284,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
                 return "";
             } else {
                 List<Contact> contacts = null;
-                try {
-                    contacts = contactRepository.getItems(call.getSite());
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
+                contacts = contactRepository.getItems(call.getSite());
                 StringBuilder res = new StringBuilder();
                 for (Contact contact : contacts) {
                     if (contact.isActive())
@@ -317,6 +310,19 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         TextField filterAddress = UIComponents.textField("95%","30");
         addressColumn.setFilter(filterAddress, UIComponents.stringFilter());
         grid.getDefaultHeaderRow().getCell("addressColumn").setText(LanguageSettings.getLocaleString("address"));
+    }
+
+    private void addCityColumn() {
+        FilterGrid.Column<Call, String> cityColumn = grid.addColumn(call ->
+                NullPointerExceptionWrapper.getWrapper(call, c -> shorterString(c.getSite().getCity().getName(),15), ""));
+        cityColumn.setId("cityColumn").setWidth(100).setExpandRatio(1).setResizable(true);
+        cityColumn.setHidable(true);
+        cityColumn.setHidden(!condition.equals("open") && (!condition.equals("here")));
+        ComboBox<Integer> filterArea = new UIComponents().areaComboBox(generalRepository,120,30);
+        filterArea.setWidth("95%");
+        cityColumn.setFilter((filterArea),
+                (cValue, fValue) -> fValue == null || generalRepository.getNameById(fValue,"city").equals(cValue));
+        grid.getDefaultHeaderRow().getCell("cityColumn").setText(LanguageSettings.getLocaleString("city"));
     }
 
     private void addAreaColumn() {

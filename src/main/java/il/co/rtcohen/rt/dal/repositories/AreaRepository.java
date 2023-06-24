@@ -15,12 +15,12 @@ import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
 @Repository
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class AreasRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Area> implements RepositoryInterface<Area> {
+public class AreaRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Area> implements RepositoryInterface<Area> {
     static protected final String DB_HERE_COLUMN = "here";
     static protected final String DB_DISPLAY_ORDER_COLUMN = "displayOrder";
 
     @Autowired
-    public AreasRepository(DataSource dataSource) {
+    public AreaRepository(DataSource dataSource) {
         super(dataSource, "area", "Areas",
                 new String[]{
                         DB_HERE_COLUMN,

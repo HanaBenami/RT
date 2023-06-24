@@ -1,6 +1,6 @@
 java.exe -jar d:\rt\rt.jar --spring.profiles.active=rt_prod --spring.config.name=./RT_prod --spring.config.location=D:\RT\
-
 java -jar target/RT-3.jar --spring.profiles.active=demo --spring.config.name=application-demo --spring.config.location=./src/main/resources/
+java -jar target/RT-2023.06.jar --spring.profiles.active=prod --spring.config.name=application-prod --spring.config.location=./src/main/resources/
 
 sqlcmd -S localhost -U sa -P ******
 create database RT ON PRIMARY (NAME=N'RT_data', FILENAME=N'/home/hana/RT/RT.mdf') LOG ON (NAME=N'RT_log', FILENAME=N'/home/hana/RT/RT.ldf');

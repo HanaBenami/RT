@@ -1,7 +1,7 @@
 package il.co.rtcohen.rt.dal.repositories;
 
 import il.co.rtcohen.rt.dal.dao.Site;
-import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeSyncedWithHashavshevetRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.dal.dao.Vehicle;
@@ -16,10 +16,10 @@ import java.util.List;
 
 @Repository
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsRepository<Vehicle> implements RepositoryInterface<Vehicle> {
-    static private final String DB_SITE_ID_COLUMN ="siteId";
-    static private final String DB_VEHICLE_TYPE_ID_COLUMN ="typeId";
-    static private final String DB_MODEL_COLUMN ="model";
+public class VehicleRepository extends AbstractTypeSyncedWithHashavshevetRepository<Vehicle> implements RepositoryInterface<Vehicle> {
+    static private final String DB_SITE_ID_COLUMN = "siteId";
+    static private final String DB_VEHICLE_TYPE_ID_COLUMN = "typeId";
+    static private final String DB_MODEL_COLUMN = "model";
     static private final String DB_SERIES_COLUMN = "series";
     static private final String DB_ZAMA_COLUMN = "zama";
     static private final String DB_LICENSE_COLUMN = "license";
@@ -50,6 +50,7 @@ public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsReposi
                 rs.getInt(DB_ID_COLUMN),
                 rs.getString(DB_NAME_COLUMN),
                 rs.getBoolean(DB_ACTIVE_COLUMN),
+                rs.getInt(DB_HASH_FIRST_DOC_ID),
                 siteRepository.getItem(rs.getInt(DB_SITE_ID_COLUMN)),
                 this.vehicleTypeRepository.getItem(rs.getInt(DB_VEHICLE_TYPE_ID_COLUMN)),
                 rs.getString(DB_MODEL_COLUMN),
@@ -83,7 +84,7 @@ public class VehicleRepository extends AbstractTypeWithNameAndActiveFieldsReposi
         return fieldsCounter;
     }
 
-    public List<Vehicle> getItems(Site site) throws SQLException {
+    public List<Vehicle> getItems(Site site) {
         return this.getItems(DB_SITE_ID_COLUMN + "=" + site.getId() + " and " + DB_ACTIVE_COLUMN + "=1");
     }
 }

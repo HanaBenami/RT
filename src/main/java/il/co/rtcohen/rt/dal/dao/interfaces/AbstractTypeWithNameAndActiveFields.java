@@ -24,12 +24,6 @@ public class AbstractTypeWithNameAndActiveFields extends AbstractType implements
         this.active = other.active;
     }
 
-    // TODO: delete once generalRepository will be deprecated
-    @Override
-    public String getObjectName() {
-        return null;
-    }
-
     public Boolean isActive() {
         return active;
     }
@@ -48,6 +42,11 @@ public class AbstractTypeWithNameAndActiveFields extends AbstractType implements
 
     public boolean isItemValid() {
         return (null != this.getName()) && (!this.getName().isEmpty());
+    }
+
+    @Override
+    public String getObjectName() {
+        return this.getClass().getName();
     }
 
     @Override

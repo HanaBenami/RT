@@ -128,3 +128,30 @@ ALTER TABLE call ADD warehouseStatusID int DEFAULT 0;
 
 update call set deleted=1 where id in (select id from call where custid=0 and deleted=0 and done=0 and here=0)
 update call set done=1 where id in (select id from call where startdate<'20230501' and deleted=0 and done=0 and here=0)
+
+--19/06/23 - HASH
+CREATE TABLE city (ID int IDENTITY(1,1) NOT NULL, name text NOT NULL DEFAULT '', active bit NOT NULL DEFAULT 1, areaID int NULL DEFAULT 0);
+ALTER TABLE site ADD cityID int DEFAULT 0;
+
+ALTER TABLE site ADD hashDocID int default 0;
+ALTER TABLE cust ADD hashDocID int default 0;
+ALTER TABLE vehicle ADD hashDocID int default 0;
+ALTER TABLE contact ADD hashDocID int default 0;
+
+DROP VIEW IF EXISTS v_hash_current_data;
+DROP VIEW IF EXISTS v_hash_data_diff;
+DROP VIEW IF EXISTS v_hash_data_diff_new_records;
+DROP VIEW IF EXISTS v_hash_data_diff_modified_records;
+DROP VIEW IF EXISTS v_hash_data_diff_modified_records;
+drop table if exists hash_data_already_merged
+create view v_hash_current_data as select DISTINCT StockMoves.id as DocumentID, Accounts.AccountKey as CustomerKey, Accounts.FullName as CustomerName, Accounts.Address as CustomerAddress, Accounts.City as CustomerCity, CONCAT(Accounts.Phone, ' ', Accounts.SPhone) as CustomerPhones, Stock.Address as SiteAddress, Stock.City as SiteCity, Stock.Contact as contact, StockMoves.BurdInstance as VehicleSeriesOrLicense, StockMoves.BurdInstItemKey as VehicleModel, Items.ItemName as VehicleType from rt_hash.dbo.StockMoves join rt_hash.dbo.Items on StockMoves.BurdInstItemKey=Items.ItemKey join rt_hash.dbo.Stock on Stock.ID=StockMoves.StockID join rt_hash.dbo.Accounts on Accounts.AccountKey=Stock.AccountKey where StockMoves.DocumentID=67 order by DocumentID
+create table hash_data_already_merged (ID int identity(1,1) not null, DocumentID int not null, DateAdded datetime default current_timestamp, CustomerKey varchar(200) default '', CustomerName varchar(200) default '', CustomerAddress varchar(200) default '', CustomerCity varchar(200) default '', CustomerPhones varchar(200) default '', SiteAddress varchar(200) default '', SiteCity varchar(200) default '', contact varchar(200) default '', VehicleSeriesOrLicense varchar(200) default '', VehicleModel varchar(200) default '', VehicleType varchar(200) default '')
+create view v_hash_data_diff as select DocumentID, CustomerKey, CustomerName, CustomerAddress, CustomerCity, CustomerPhones, SiteAddress, SiteCity, contact, VehicleSeriesOrLicense, VehicleModel, VehicleType from v_hash_current_data except (select DocumentID, CustomerKey, CustomerName, CustomerAddress, CustomerCity, CustomerPhones, SiteAddress, SiteCity, contact, VehicleSeriesOrLicense, VehicleModel, VehicleType from hash_data_already_merged)
+--create view v_hash_data_diff_new_records as select * from v_hash_data_diff where DocumentID not in (select DocumentID from hash_data_already_merged)
+--create view v_hash_data_diff_modified_records as select * from v_hash_data_diff where DocumentID in (select DocumentID from hash_data_already_merged)
+
+delete from vehicle where siteid in (select id from site where id in (select id from cust where hashkey > 0))
+delete from contact where siteid in (select id from site where id in (select id from cust where hashkey > 0))
+delete from site where id in (select id from cust where hashkey > 0)
+delete from cust where hashkey > 0
+

@@ -1,10 +1,8 @@
 package il.co.rtcohen.rt.dal.dao.interfaces;
 
-import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
-import java.util.Objects;
 import java.util.logging.Logger;
 
 abstract public class AbstractType {
@@ -72,8 +70,8 @@ abstract public class AbstractType {
         return (null == id ? 0 : id);
     }
 
-    static Logger getLogger() {
-        return Logger.getLogger(GeneralErrorHandler.class.getName());
+    protected Logger getLogger() {
+        return Logger.getLogger(this.getClass().getName());
     }
 
     // Used post record update in the DB

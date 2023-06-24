@@ -37,7 +37,8 @@ public class CallsView extends AbstractDataView<Call> {
     private final CustomerRepository customerRepository;
     private final CustomerTypeRepository customerTypeRepository;
     private final SiteRepository siteRepository;
-    private final AreasRepository areasRepository;
+    private final CityRepository cityRepository;
+    private final AreaRepository areaRepository;
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
     private final UsersRepository usersRepository;
@@ -75,7 +76,8 @@ public class CallsView extends AbstractDataView<Call> {
                       CustomerRepository customerRepository,
                       CustomerTypeRepository customerTypeRepository,
                       SiteRepository siteRepository,
-                      AreasRepository areasRepository,
+                      CityRepository cityRepository,
+                      AreaRepository areaRepository,
                       VehicleRepository vehicleRepository,
                       VehicleTypeRepository vehicleTypeRepository,
                       UsersRepository usersRepository,
@@ -87,7 +89,8 @@ public class CallsView extends AbstractDataView<Call> {
         this.customerRepository = customerRepository;
         this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;
-        this.areasRepository = areasRepository;
+        this.cityRepository = cityRepository;
+        this.areaRepository = areaRepository;
         this.vehicleRepository = vehicleRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;
         this.usersRepository = usersRepository;
@@ -238,10 +241,9 @@ public class CallsView extends AbstractDataView<Call> {
                 this.selectedSite,
                 this.selectedVehicle,
                 null,
-                callRepository, customerRepository, customerTypeRepository, siteRepository, areasRepository,
+                callRepository, customerRepository, customerTypeRepository, siteRepository, areaRepository,
                 vehicleRepository, vehicleTypeRepository, usersRepository, driverRepository, callTypeRepository,
-                garageStatusRepository
-        );
+                garageStatusRepository, cityRepository);
         callsGrid.initGrid(true, 0);
         callsGrid.setWidth("100%");
         callsGrid.setNextScheduleDate(new Date(nextScheduleDateField.getValue()));

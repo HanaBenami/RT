@@ -150,6 +150,7 @@ public class MainUI extends UI implements ViewDisplay {
         setup.addItem(LanguageSettings.getLocaleString("drivers")).setCommand(generateMenuBarCommand("drivers"));
         setup.addSeparator();
 
+        setup.addItem(LanguageSettings.getLocaleString("cityMenu")).setCommand(generateMenuBarCommand("cities"));
         setup.addItem(LanguageSettings.getLocaleString("areaMenu")).setCommand(generateMenuBarCommand("areas"));
         setup.addSeparator();
 

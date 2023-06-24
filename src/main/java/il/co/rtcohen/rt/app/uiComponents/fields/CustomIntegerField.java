@@ -1,11 +1,11 @@
 package il.co.rtcohen.rt.app.uiComponents.fields;
 
-import com.vaadin.shared.Registration;
 import il.co.rtcohen.rt.app.grids.AbstractTypeFilterGrid;
 
-import com.vaadin.ui.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.vaadin.ui.TextField;
+import com.vaadin.shared.Registration;
 
 import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.FORMS_FIELD_HEIGHT;
 
@@ -24,8 +24,7 @@ public class CustomIntegerField extends TextField {
             Integer maxValue,
             boolean allowEmptyValue,
             ValueChangeListener<String> valueChangeListener,
-            String width
-    ) {
+            String width) {
         super(caption);
         if (null != currentValue) {
             this.setValue(currentValue.toString());

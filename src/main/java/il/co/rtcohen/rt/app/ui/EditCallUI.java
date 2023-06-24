@@ -48,7 +48,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     private final CallRepository callRepository;
     private final CallTypeRepository callTypeRepository;
     private final ContactRepository contactRepository;
-    private final AreasRepository areasRepository;
+    private final CityRepository cityRepository;
+    private final AreaRepository areaRepository;
     private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
     private final GarageStatusRepository garageStatusRepository;
@@ -78,7 +79,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             CallRepository callRepository,
             CallTypeRepository callTypeRepository,
             ContactRepository contactRepository,
-            AreasRepository areasRepository,
+            CityRepository cityRepository,
+            AreaRepository areaRepository,
             UsersRepository usersRepository,
             DriverRepository driverRepository,
             GarageStatusRepository garageStatusRepository,
@@ -93,7 +95,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.callRepository = callRepository;
         this.callTypeRepository = callTypeRepository;
         this.contactRepository = contactRepository;
-        this.areasRepository = areasRepository;
+        this.cityRepository = cityRepository;
+        this.areaRepository = areaRepository;
         this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
         this.garageStatusRepository = garageStatusRepository;
@@ -243,7 +246,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         if (null != this.call.getSite()) {
             this.changeSiteButton.setEnabled(!call.isDeleted());
             this.sitesGrid = new SitesGrid(
-                    this.call.getCustomer(), customerRepository, contactRepository, siteRepository, callRepository, areasRepository
+                    this.call.getCustomer(), customerRepository, contactRepository, siteRepository, callRepository, cityRepository, areaRepository
             );
             this.sitesGrid.initGrid(false, 0);
             this.sitesGrid.setEnabled(!call.isDeleted());

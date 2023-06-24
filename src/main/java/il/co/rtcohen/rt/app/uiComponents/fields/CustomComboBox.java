@@ -1,7 +1,6 @@
 package il.co.rtcohen.rt.app.uiComponents.fields;
 
 import java.sql.SQLException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -75,16 +74,11 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static CustomComboBox<Vehicle> getComboBox(VehicleRepository vehicleRepository, @NotNull Site site) {
-        try {
-            return new CustomComboBox<>(
-                    vehicleRepository.getItems(site),
-                    null,
-                    130,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                vehicleRepository.getItems(site),
+                null,
+                130,
+                false);
     }
 
     public static CustomComboBox<VehicleType> getComboBox(VehicleTypeRepository vehicleTypeRepository) {
@@ -96,7 +90,7 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
                         newItem.setBindRepository(vehicleTypeRepository);
                         return newItem;
                     },
-                 130,
+                 300,
                     true);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -105,16 +99,11 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static CustomComboBox<Site> getComboBox(SiteRepository siteRepository, Customer customer) {
-        try {
-            return new CustomComboBox<>(
-                    (null == customer ? siteRepository.getItems() : siteRepository.getItems(customer)),
-                    null,
-                    130,
-                    false);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
-        }
+        return new CustomComboBox<>(
+                (null == customer ? siteRepository.getItems() : siteRepository.getItems(customer)),
+                null,
+                130,
+                false);
     }
 
     public static CustomComboBox<Customer> getComboBox(CustomerRepository customerRepository) {
@@ -138,13 +127,13 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
         }
     }
 
-    public static CustomComboBox<Area> getComboBox(AreasRepository areasRepository) {
+    public static CustomComboBox<Area> getComboBox(AreaRepository areaRepository) {
         try {
             return new CustomComboBox<>(
-                    areasRepository.getItems(true),
+                    areaRepository.getItems(true),
                     () -> {
                         Area newItem = new Area();
-                        newItem.setBindRepository(areasRepository);
+                        newItem.setBindRepository(areaRepository);
                         return newItem;
                     },
                     70,

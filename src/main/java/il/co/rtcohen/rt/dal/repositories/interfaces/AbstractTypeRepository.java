@@ -30,10 +30,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     final private ArrayList<String> dbColumnsList;
 
     CacheManager<T> cacheManager;
+    boolean cacheable = true;
 
     public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName, String[]... additionalDbColumnsLists) {
         this.logger = LoggerFactory.getLogger(this.getClass());
-        this.logger.info(this.getRepositoryName() + " repository is being initiated");
+        this.logger.debug(this.getRepositoryName() + " repository is being initiated");
         this.dataSource = dataSource;
         this.DB_TABLE_NAME = dbTableName;
         this.REPOSITORY_NAME = repositoryName;
@@ -59,6 +60,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     // The connection must be closed later on
     protected Connection getConnection() throws SQLException {
         return dataSource.getConnection();
+    }
+
+    public void setCacheable(boolean cacheable) {
+        this.cacheable = cacheable;
+        this.cacheManager = (this.cacheable ? new CacheManager<>(AbstractType::getId) : null);
     }
 
     protected String getDbColumnsStringForInsertStatement() {
@@ -122,7 +128,9 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
                 T item = this.getItemFromResultSet(rs);
                 list.add(item);
             }
-            cacheManager.addToCache(list);
+            if (null != cacheManager) {
+                cacheManager.addToCache(list);
+            }
             logger.debug(list.size() + " records have been retrieved");
             return list;
         } catch (SQLException e) {
@@ -137,12 +145,15 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             return null;
         }
 
-        T fromCache = cacheManager.getFromCache(id);
-        if (null != fromCache) {
-            return fromCache;
-        } else {
-            return getItem(DB_ID_COLUMN + "=" + id);
+        if (null != cacheManager) {
+            T fromCache = cacheManager.getFromCache(id);
+            if (null != fromCache) {
+                return fromCache;
+            }
         }
+
+        return getItem(DB_ID_COLUMN + "=" + id);
+
     }
 
     public T getItem(String whereClause) {
@@ -159,7 +170,9 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
                 return null;
             } else {
                 T t = list.get(0);
-                cacheManager.addToCache(t);
+                if (null != cacheManager) {
+                    cacheManager.addToCache(t);
+                }
                 return t;
             }
         } catch (SQLException e) {
@@ -174,18 +187,21 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             Connection connection = this.dataSource.getConnection();
             PreparedStatement preparedStatement = generateInsertStatement(connection, t)
         ){
-            this.logger.info(preparedStatement.toString());
+            this.logger.debug(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "created");
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     long id = generatedKeys.getLong(1);
                     t.setId(id);
-                    this.logger.info(getMessagesPrefix()
-                            + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\" (id=" + id + ")");
+                    this.logger.debug(getMessagesPrefix()
+                            + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\""
+                            + " (id=" + t.getId() + ")");
                     t.setBindRepository(this);
                     t.postSave();
-                    cacheManager.addToCache(t);
+                    if (null != cacheManager) {
+                        cacheManager.addToCache(t);
+                    }
                     return id;
                 }
                 throw new SQLException("error getting the new key");
@@ -207,13 +223,15 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
                 Connection connection = this.dataSource.getConnection();
                 PreparedStatement preparedStatement = generateUpdateStatement(connection, t)
         ) {
-            this.logger.info(preparedStatement.toString());
+            this.logger.debug(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
-            this.logger.info(getMessagesPrefix() + "data was updated (" + t + ")");
+            this.logger.debug(getMessagesPrefix() + "data was updated (" + t + ")");
             t.setBindRepository(this);
             t.postSave();
-            cacheManager.addToCache(t);
+            if (null != cacheManager) {
+                cacheManager.addToCache(t);
+            }
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in updateItem";
@@ -229,8 +247,10 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         ) {
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
-            this.logger.info(getMessagesPrefix() + " data was deleted (" + t + ")");
-            cacheManager.deleteFromCache(t);
+            this.logger.debug(getMessagesPrefix() + " data was deleted (" + t + ")");
+            if (null != cacheManager) {
+                cacheManager.deleteFromCache(t);
+            }
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in deleteItem";

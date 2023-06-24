@@ -12,21 +12,21 @@ import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 
-import java.sql.SQLException;
-
 public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     private final Customer selectedCustomer;
     private final CustomerRepository customerRepository;
     private final ContactRepository contactRepository;
     private final CallRepository callRepository;
-    private final AreasRepository areasRepository;
+    private final AreaRepository areaRepository;
+    private final CityRepository cityRepository;
 
     public SitesGrid(Customer selectedCustomer,
                      CustomerRepository customerRepository,
                      ContactRepository contactRepository,
                      SiteRepository siteRepository,
                      CallRepository callRepository,
-                     AreasRepository areasRepository) {
+                     CityRepository cityRepository,
+                     AreaRepository areaRepository) {
         super(
                 siteRepository, () -> {
                     Site site = new Site();
@@ -40,7 +40,8 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
         this.customerRepository = customerRepository;
         this.contactRepository = contactRepository;
         this.callRepository = callRepository;
-        this.areasRepository = areasRepository;
+        this.cityRepository = cityRepository;
+        this.areaRepository = areaRepository;
     }
 
     @Override
@@ -72,6 +73,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
         addContactsColumn();
         addNotesColumn();
         addAreaColumn();
+        addCityColumn();
         addAddressColumn();
         addNameColumn();
         addCustomerColumn();
@@ -85,11 +87,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                         return null;
                     } else {
                         int activeContactsCounter = 0;
-                        try {
-                            activeContactsCounter = contactRepository.getItems(site).size();
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
+                        activeContactsCounter = contactRepository.getItems(site).size();
                         return CustomButton.countingIcon(VaadinIcons.ENVELOPE_OPEN_O, VaadinIcons.ENVELOPE_OPEN, VaadinIcons.ENVELOPE_OPEN, activeContactsCounter);
                     }
                 },
@@ -143,14 +141,28 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
 
     private void addAreaColumn() {
         CustomComboBoxColumn.addToGrid(
-                CustomComboBox.getComboBox(areasRepository),
-                CustomComboBox.getComboBox(areasRepository),
+                CustomComboBox.getComboBox(areaRepository),
+                CustomComboBox.getComboBox(areaRepository),
                 Site::getArea,
-                Site::setArea,
+                null,
                 true,
                 130,
                 "areaColumn",
                 "area",
+                this
+        );
+    }
+
+    private void addCityColumn() {
+        CustomComboBoxColumn.addToGrid(
+                CustomComboBox.getComboBox(cityRepository),
+                CustomComboBox.getComboBox(cityRepository),
+                Site::getCity,
+                Site::setCity,
+                true,
+                130,
+                "cityColumn",
+                "city",
                 this
         );
     }

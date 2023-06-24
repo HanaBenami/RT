@@ -1,30 +1,34 @@
 package il.co.rtcohen.rt.dal.dao;
 
-import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeSyncedWithHashavshevet;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 
-public class Site extends AbstractTypeWithNameAndActiveFields implements BindRepository<Site>, Cloneable<Site> {
+// TODO: Set cites for all the existing customers + areas for all the cities X
+public class Site extends AbstractTypeSyncedWithHashavshevet implements BindRepository<Site>, Cloneable<Site> {
     private Customer customer;
-    private Area area;
     private String address;
+    private City city;
+    @Deprecated private Area area; // TODO: delete
     private String notes;
 
     public Site() { }
 
-    public Site(Customer customer, Integer id, String name, Area area, String address, boolean active, String notes) {
-        super(id, name, active);
+    public Site(Customer customer, Integer id, String name, boolean active, int hashavshevetFirstDocId, String address, City city, Area area, String notes) {
+        super(id, name, active, hashavshevetFirstDocId);
         this.customer = customer;
-        this.area = area;
         this.address = address;
+        this.city = city;
+        this.area = area; // TODO: delete
         this.notes = notes;
     }
 
     public Site(Site other) {
         super(other);
         this.customer = other.customer;
-        this.area = other.area;
+        this.city = other.city;
         this.address = other.address;
+        this.area = other.area; // TODO: delete
         this.notes = other.notes;
     }
 
@@ -33,20 +37,24 @@ public class Site extends AbstractTypeWithNameAndActiveFields implements BindRep
         return new Site(this);
     }
 
-    public String getObjectName() {
-        return "site";
+    public String getAddress() {
+        return (null == this.address ? "" : this.address);
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
     }
 
     public Area getArea() {
-        return area;
-    }
-
-    public void setArea(Area area) {
-        this.area = area;
-    }
-
-    public String getAddress() {
-        return (null == this.address ? "" : this.address);
+        return (null == this.getCity() ? this.area : this.getCity().getArea()); // TODO: delete area
     }
 
     public String getNotes() {
@@ -55,10 +63,6 @@ public class Site extends AbstractTypeWithNameAndActiveFields implements BindRep
 
     public Customer getCustomer() {
         return this.customer;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public void setNotes(String notes) {
@@ -72,5 +76,6 @@ public class Site extends AbstractTypeWithNameAndActiveFields implements BindRep
     @Override
     public boolean isItemValid() {
         return super.isItemValid() && (null != this.getArea()) && (null != this.getCustomer());
+        // TODO: return super.isItemValid() && (null != this.getCity()) && (null != this.getCustomer());
     }
 }

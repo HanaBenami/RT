@@ -1,8 +1,5 @@
 package il.co.rtcohen.rt.app.grids;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.data.sort.SortDirection;
-import com.vaadin.ui.Component;
 import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.app.uiComponents.columns.*;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
@@ -13,6 +10,10 @@ import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.SiteRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleRepository;
 import il.co.rtcohen.rt.dal.repositories.VehicleTypeRepository;
+
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.ui.Component;
 
 public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     private final Site site;
@@ -137,8 +138,8 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     }
 
     private void addLicenseColumn() {
-        CustomIntegerColumn.addToGrid(
-                Vehicle::getLicense,
+        CustomIntegerColumnWithStringValue.addToGrid(
+                Vehicle::getFormattedLicense,
                 Vehicle::setLicense,
                 null, null, 100,
                 "licenseColumn",
@@ -199,7 +200,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 Vehicle::getVehicleType,
                 Vehicle::setVehicleType,
                 true,
-                150,
+                300,
                 "vehicleTypeColumn",
                 "vehicleType",
                 this

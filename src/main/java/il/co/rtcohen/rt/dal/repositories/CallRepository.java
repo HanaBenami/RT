@@ -132,13 +132,13 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         fieldsCounter++;
         preparedStatement.setString(fieldsCounter, call.getNotes());
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getStartDate().toString(), ""));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getStartDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getPlanningDate().toString(), ""));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getPlanningDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getCurrentScheduledDate().toString(), ""));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getCurrentScheduledDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getEndDate().toString(), ""));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getEndDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter, call.getCurrentScheduledOrder());
         fieldsCounter++;

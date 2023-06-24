@@ -182,10 +182,12 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         editor.setCancelCaption(LanguageSettings.getLocaleString("cancel"));
     }
 
-
-
     protected List<T> getItems() {
         return mainRepository.getItems();
+    }
+
+    public List<T> getGridItems() {
+        return gridItems;
     }
 
     private void populateGrid(int numOfEmptyLines) {

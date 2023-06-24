@@ -1,15 +1,14 @@
 package il.co.rtcohen.rt.dal.dao;
 
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeSyncedWithHashavshevet;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.utils.Date;
-import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 
 import java.time.LocalDate;
 
-public class Vehicle extends AbstractTypeWithNameAndActiveFields implements BindRepository<Vehicle>, Cloneable<Vehicle> {
+public class Vehicle extends AbstractTypeSyncedWithHashavshevet implements BindRepository<Vehicle>, Cloneable<Vehicle> {
     private Site site;
     private VehicleType vehicleType;
     private String model = "";
@@ -23,9 +22,9 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields implements Bind
         super();
     }
 
-    public Vehicle(Integer id, String name, boolean active, Site site, VehicleType vehicleType, String model,
+    public Vehicle(Integer id, String name, boolean active, int hashavshevetFirstDocId, Site site, VehicleType vehicleType, String model,
                    String series, Integer zama, Integer license, Integer engineHours, Date lastUpdate) {
-        super(id, name, active);
+        super(id, name, active, hashavshevetFirstDocId);
         this.site = site;
         this.vehicleType = vehicleType;
         this.model = model;
@@ -99,6 +98,16 @@ public class Vehicle extends AbstractTypeWithNameAndActiveFields implements Bind
     }
 
     public Integer getLicense() {
+        return license;
+    }
+
+    public String getFormattedLicense() {
+        String license = this.getLicense().toString();
+        if (8 == license.length()) {
+            license = license.substring(0, 3) + "-" + license.substring(3, 5) + "-" + license.substring(5, 8);
+        } else if (7 == license.length()) {
+            license = license.substring(0, 2) + "-" + license.substring(2, 5) + "-" + license.substring(5, 7);
+        }
         return license;
     }
 

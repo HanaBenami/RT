@@ -18,7 +18,7 @@ import il.co.rtcohen.rt.dal.dao.Area;
 import il.co.rtcohen.rt.dal.dao.Call;
 import il.co.rtcohen.rt.dal.repositories.UsersRepository;
 import il.co.rtcohen.rt.utils.Date;
-import il.co.rtcohen.rt.dal.repositories.AreasRepository;
+import il.co.rtcohen.rt.dal.repositories.AreaRepository;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.vaadin.addons.filteringgrid.filters.InMemoryFilter;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -45,18 +44,18 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM");
     private Integer intervalTime;
     private Integer rowHeight;
-    private AreasRepository areasRepository;
+    private AreaRepository areaRepository;
     private Integer rowsPerColumn;
 
     @Autowired
     private BigScreenUI(ErrorHandler errorHandler, CallRepository callRepository,
-                        GeneralRepository generalRepository, AreasRepository areasRepository,
+                        GeneralRepository generalRepository, AreaRepository areaRepository,
                         UsersRepository usersRepository,
                         @Value("${settings.bigScreen.interval}") Integer intervalTime,
                         @Value("${settings.bigScreen.rowHeight}") Integer rowHeight,
                         @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn) {
         super(errorHandler,callRepository,generalRepository, usersRepository);
-        this.areasRepository=areasRepository;
+        this.areaRepository = areaRepository;
         this.intervalTime=intervalTime;
         this.rowHeight=rowHeight;
         this.rowsPerColumn=rowsPerColumn;
@@ -80,16 +79,16 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         List <Integer> areas = new ArrayList<>();
         String condition = getPage().getUriFragment();
         if (!condition.equals("here"))
-            areas.addAll(areasRepository.getOutAreaId());
+            areas.addAll(areaRepository.getOutAreaId());
         if (!condition.equals("out"))
-            areas.addAll(areasRepository.getHereAreaId());
+            areas.addAll(areaRepository.getHereAreaId());
 
         //sort by display order
         areas.sort((o1, o2) -> {
-            if (areasRepository.getAreaById(o1).getDisplayOrder() >
-                    areasRepository.getAreaById(o2).getDisplayOrder())
+            if (areaRepository.getAreaById(o1).getDisplayOrder() >
+                    areaRepository.getAreaById(o2).getDisplayOrder())
                 return -1 ;
-            else if (areasRepository.getAreaById(o1).getDisplayOrder() == areasRepository.getAreaById(o2).getDisplayOrder())
+            else if (areaRepository.getAreaById(o1).getDisplayOrder() == areaRepository.getAreaById(o2).getDisplayOrder())
                 return 0 ;
             else
                 return 1;
@@ -103,7 +102,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     }
 
     private GridLayout initAreaLayout(int areaId) throws SQLException {
-        Area area = areasRepository.getItem(areaId);
+        Area area = areaRepository.getItem(areaId);
         List<Call> list = (area.isHere()
                         ? callRepository.getCallsCurrentlyInTheGarage()
                         : callRepository.getOpenCallsInArea(area)

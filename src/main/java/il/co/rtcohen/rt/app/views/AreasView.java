@@ -4,7 +4,7 @@ import com.vaadin.server.ErrorHandler;
 import com.vaadin.spring.annotation.SpringView;
 import il.co.rtcohen.rt.app.grids.AreasGrid;
 import il.co.rtcohen.rt.dal.dao.Area;
-import il.co.rtcohen.rt.dal.repositories.AreasRepository;
+import il.co.rtcohen.rt.dal.repositories.AreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringView(name = AreasView.VIEW_NAME)
@@ -12,15 +12,15 @@ public class AreasView extends AbstractDataView<Area> {
     static final String VIEW_NAME = "areas";
 
     // Repositories
-    private final AreasRepository areasRepository;
+    private final AreaRepository areaRepository;
 
     // Grids
     private AreasGrid areasGrid;
 
     @Autowired
-    private AreasView(ErrorHandler errorHandler, AreasRepository areasRepository) {
+    private AreasView(ErrorHandler errorHandler, AreaRepository areaRepository) {
         super(errorHandler, "areaTitle");
-        this.areasRepository = areasRepository;
+        this.areaRepository = areaRepository;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class AreasView extends AbstractDataView<Area> {
 
     void addGrid() {
         removeGrid();
-        areasGrid = new AreasGrid(areasRepository);
+        areasGrid = new AreasGrid(areaRepository);
         addComponentsAndExpand(areasGrid.getVerticalLayout(true, false));
     }
 

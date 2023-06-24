@@ -8,11 +8,13 @@ import il.co.rtcohen.rt.app.grids.*;
 import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.Site;
 import il.co.rtcohen.rt.dal.repositories.*;
+import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @SpringView(name = CustomerDataView.VIEW_NAME)
@@ -26,7 +28,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     private final SiteRepository siteRepository;
     private final ContactRepository contactRepository;
     private final CallRepository callRepository;
-    private final AreasRepository areasRepository;
+    private final CityRepository cityRepository;
+    private final AreaRepository areaRepository;
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
 
@@ -48,7 +51,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
                              SiteRepository siteRepository,
                              ContactRepository contactRepository,
                              CallRepository callRepository,
-                             AreasRepository areasRepository,
+                             CityRepository cityRepository,
+                             AreaRepository areaRepository,
                              VehicleRepository vehicleRepository,
                              VehicleTypeRepository vehicleTypeRepository) {
         super(errorHandler, "customersList");
@@ -57,7 +61,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         this.contactRepository = contactRepository;
         this.siteRepository = siteRepository;
         this.callRepository = callRepository;
-        this.areasRepository = areasRepository;
+        this.cityRepository = cityRepository;
+        this.areaRepository = areaRepository;
         this.vehicleRepository = vehicleRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;
     }
@@ -108,8 +113,14 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addSitesGrid(Customer customer) {
         removeSitesGrid();
-        this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository, areasRepository);
+        this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository, cityRepository, areaRepository);
         this.sitesGrid.initGrid(true, 0);
+        if (0 == selectedSiteId) {
+            List<Site> sites = this.sitesGrid.getGridItems();
+            if (!sites.isEmpty() && null != sites.get(0).getId()) {
+                this.selectedSiteId = sites.get(0).getId();
+            }
+        }
         this.sitesGrid.setSelectedItem(selectedSiteId);
         this.selectedSiteId = 0;
         this.sitesGrid.addItemClickListener(listener -> {

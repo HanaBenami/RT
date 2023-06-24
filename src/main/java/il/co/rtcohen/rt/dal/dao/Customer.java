@@ -1,27 +1,27 @@
 package il.co.rtcohen.rt.dal.dao;
 
-import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeSyncedWithHashavshevet;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 
-public class Customer extends AbstractTypeWithNameAndActiveFields implements BindRepository<Customer>, Cloneable<Customer> {
+public class Customer extends AbstractTypeSyncedWithHashavshevet implements BindRepository<Customer>, Cloneable<Customer> {
+    private Integer hashavshevetCustomerId;
     private CustomerType customerType;
-    private Integer hashavshevetId;
 
     public Customer() {
         super();
     }
 
-    public Customer(Integer id, String name, CustomerType customerType, Integer hashavshevetId, boolean active) {
-        super(id, name, active);
+    public Customer(Integer id, String name, boolean active, int hashavshevetFirstDocId, Integer hashavshevetCustomerId, CustomerType customerType) {
+        super(id, name, active, hashavshevetFirstDocId);
+        this.hashavshevetCustomerId = hashavshevetCustomerId;
         this.customerType = customerType;
-        this.hashavshevetId = hashavshevetId;
     }
 
     public Customer(Customer other) {
         super(other);
+        this.hashavshevetCustomerId = other.hashavshevetCustomerId;
         this.customerType = other.customerType;
-        this.hashavshevetId = other.hashavshevetId;
     }
 
     @Override
@@ -41,12 +41,12 @@ public class Customer extends AbstractTypeWithNameAndActiveFields implements Bin
         this.customerType = customerType;
     }
 
-    public Integer getHashavshevetId() {
-        return hashavshevetId;
+    public Integer getHashavshevetCustomerId() {
+        return hashavshevetCustomerId;
     }
 
-    public void setHashavshevetId(Integer hashavshevetId) {
-        this.hashavshevetId = hashavshevetId;
+    public void setHashavshevetCustomerId(Integer hashavshevetCustomerId) {
+        this.hashavshevetCustomerId = hashavshevetCustomerId;
     }
 
     @Override
