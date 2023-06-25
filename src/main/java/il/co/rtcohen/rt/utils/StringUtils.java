@@ -22,7 +22,7 @@ public class StringUtils {
     }
 
     public static String reduceSpaces(String str) {
-        return (null == str ? null : str.replaceAll("^\\s+|\\s+$", "").replaceAll("\\s+", " "));
+        return (null == str ? null : str.replaceAll("^\\s+|\\s+$|\\s\\s+", ""));
     }
 
     public static String removeNumbers(String str) {

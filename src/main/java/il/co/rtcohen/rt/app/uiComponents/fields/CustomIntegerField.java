@@ -10,8 +10,6 @@ import com.vaadin.shared.Registration;
 import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.FORMS_FIELD_HEIGHT;
 
 public class CustomIntegerField extends TextField {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractTypeFilterGrid.class);
-
     private final Integer minValue;
     private final Integer maxValue;
     private final boolean allowEmptyValue;

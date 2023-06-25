@@ -1,19 +1,17 @@
 package il.co.rtcohen.rt.app.views;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Map;
-
-import com.vaadin.icons.VaadinIcons;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.app.uiComponents.fields.CustomDateField;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.utils.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import il.co.rtcohen.rt.app.LanguageSettings;
+import il.co.rtcohen.rt.app.grids.CallsGrid;
+import il.co.rtcohen.rt.app.ui.UIPaths;
+import il.co.rtcohen.rt.dal.repositories.*;
+import il.co.rtcohen.rt.utils.Logger;
+
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.*;
@@ -21,16 +19,15 @@ import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 
-import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.grids.CallsGrid;
-import il.co.rtcohen.rt.app.ui.UIPaths;
-import il.co.rtcohen.rt.dal.repositories.*;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Map;
 
 @SpringView(name = CallsView.VIEW_NAME)
 public class CallsView extends AbstractDataView<Call> {
     static final String VIEW_NAME = "calls";
-    private static final Logger logger = LoggerFactory.getLogger(CallsView.class);
 
     // Repositories
     private final CallRepository callRepository;
@@ -102,7 +99,7 @@ public class CallsView extends AbstractDataView<Call> {
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         Map<String, String> parametersMap = event.getParameterMap();
-        logger.info("Parameters map " + Arrays.toString(parametersMap.entrySet().toArray()));
+        Logger.getLogger(this).info("Parameters map " + Arrays.toString(parametersMap.entrySet().toArray()));
         int selectedVehicleId = Integer.parseInt(parametersMap.getOrDefault("vehicle", "0"));
         int selectedCustomerId = Integer.parseInt(parametersMap.getOrDefault("customer", "0"));
         int selectedSiteId = Integer.parseInt(parametersMap.getOrDefault("site", "0"));

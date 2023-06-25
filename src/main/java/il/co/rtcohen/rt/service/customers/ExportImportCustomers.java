@@ -3,8 +3,9 @@ package il.co.rtcohen.rt.service.customers;
 import il.co.rtcohen.rt.dal.dao.Customer;
 import il.co.rtcohen.rt.dal.dao.hashavshevet.HashavshevetDataRecord;
 import il.co.rtcohen.rt.dal.repositories.*;
-
 import il.co.rtcohen.rt.dal.repositories.hashavshevet.HashavshevetRepositoryFullData;
+import il.co.rtcohen.rt.utils.Logger;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Service
 public class ExportImportCustomers {
@@ -28,7 +28,7 @@ public class ExportImportCustomers {
     private static final String[] headers = new String[]{internalIdHeader, hashavshetetIdHeader, nameHeader};
 
     public void exportRtCustomersToCSV(String filePath) {
-        getLogger().info("Starting to create customers file: " + filePath);
+        Logger.getLogger(this).info("Starting to create customers file: " + filePath);
         List<List<String>> customersData = new ArrayList<>();
         for (Customer customer : customerRepository.getItems()) {
             Integer internalId = customer.getId();
@@ -40,7 +40,7 @@ public class ExportImportCustomers {
     }
 
     public void exportHashavshevetCustomersToCSV(String filePath) {
-        getLogger().info("Starting to create customers file: " + filePath);
+        Logger.getLogger(this).info("Starting to create customers file: " + filePath);
         HashMap<Integer, List<String>> customersData = new HashMap<>();
         for (HashavshevetDataRecord hashavshevetDataRecord : hashavshevetRepositoryFullData.getItems()) {
             Integer hashavshetetID = Integer.parseInt(hashavshevetDataRecord.customerKey);
@@ -63,15 +63,15 @@ public class ExportImportCustomers {
             for (List<String> customerData : customersData) {
                 csvPrinter.printRecord(customerData);
             }
-            getLogger().info("Customers file was created: " + filePath);
+            Logger.getLogger(this).info("Customers file was created: " + filePath);
         } catch (IOException e) {
             e.printStackTrace();
-            getLogger().info("Failed to create customers file: " + filePath);
+            Logger.getLogger(this).info("Failed to create customers file: " + filePath);
         }
     }
 
     public void importCustomersCSV(String filePath) {
-        getLogger().info("Starting to import customers file: " + filePath);
+        Logger.getLogger(this).info("Starting to import customers file: " + filePath);
         try {
             Reader fileWriter = new FileReader(filePath);
             CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(headers).setSkipHeaderRecord(true).build();
@@ -88,24 +88,20 @@ public class ExportImportCustomers {
                         customer.setHashavshevetCustomerId(hashavshetetID);
                         customer.setName(name);
                         customerRepository.updateItem(customer);
-                        getLogger().info(customer + " was " + (newCustomer ? "created" : "updated"));
+                        Logger.getLogger(this).info(customer + " was " + (newCustomer ? "created" : "updated"));
                     }
                 } catch (Exception ignored) {
-                    getLogger().info("Failed to handel customer data: " + record);
+                    Logger.getLogger(this).info("Failed to handel customer data: " + record);
                     errors++;
                 }
             }
             if (0 < errors) {
                 throw new IOException("Failed to read " + errors + " records");
             }
-            getLogger().info("Customers file was imported: " + filePath);
+            Logger.getLogger(this).info("Customers file was imported: " + filePath);
         } catch (IOException e) {
             e.printStackTrace();
-            getLogger().info("Failed to import customers file: " + filePath);
+            Logger.getLogger(this).info("Failed to import customers file: " + filePath);
         }
-    }
-
-    private Logger getLogger() {
-        return Logger.getLogger(this.getClass().getName());
     }
 }

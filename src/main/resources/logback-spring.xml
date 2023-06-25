@@ -16,7 +16,7 @@
 
 <appender name="RollingFile"
           class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${LOGS}\rt-logger.log</file>
+    <file>${LOGS}\rt-Logger.getLogger(this).log</file>
     <encoder
             class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
         <Pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n</Pattern>

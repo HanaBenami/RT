@@ -1,21 +1,24 @@
 package il.co.rtcohen.rt.dal.repositories;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Repository;
-import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
+import il.co.rtcohen.rt.utils.Logger;
 import il.co.rtcohen.rt.dal.dao.Driver;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.utils.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Repository
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -178,7 +181,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
             }
             assert sqlQuery.contains("and");
             sqlQuery = sqlQuery.replaceFirst("and", "where");
-            logger.debug(sqlQuery);
+            Logger.getLogger(this).debug(sqlQuery);
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             int fieldsCounter = 1;
             if (null != isDone) {
@@ -269,7 +272,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
             }
             assert sqlQuery.contains("and");
             sqlQuery = sqlQuery.replaceFirst("and", "where");
-            logger.debug(sqlQuery);
+            Logger.getLogger(this).debug(sqlQuery);
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             int fieldsCounter = 1;
             if (null != isDone) {

@@ -5,12 +5,11 @@ import il.co.rtcohen.rt.dal.repositories.exceptions.InsertException;
 import il.co.rtcohen.rt.dal.repositories.exceptions.UpdateException;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.utils.CacheManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import il.co.rtcohen.rt.utils.Logger;
+
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
-
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<T>> implements RepositoryInterface<T> {
     final static protected String DB_ID_COLUMN = "id";
 
-    final protected Logger logger;
     final private DataSource dataSource;
 
     final protected String REPOSITORY_NAME;
@@ -33,8 +31,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     boolean cacheable = true;
 
     public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName, String[]... additionalDbColumnsLists) {
-        this.logger = LoggerFactory.getLogger(this.getClass());
-        this.logger.debug(this.getRepositoryName() + " repository is being initiated");
+        Logger.getLogger(this).trace(this.getRepositoryName() + " repository is being initiated");
         this.dataSource = dataSource;
         this.DB_TABLE_NAME = dbTableName;
         this.REPOSITORY_NAME = repositoryName;
@@ -105,7 +102,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         if (null != whereClause) {
             sqlQuery += " where " + whereClause;
         }
-        this.logger.debug(sqlQuery);
+        Logger.getLogger(this).trace(sqlQuery);
         List<T> list;
         try (
             Connection connection = dataSource.getConnection();
@@ -114,7 +111,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             list = getItems(preparedStatement);
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItems";
-            this.logger.error(error, e);
+            Logger.getLogger(this).error(error, e);
             throw new DataRetrievalFailureException(error, e);
         }
         return list;
@@ -131,11 +128,11 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             if (null != cacheManager) {
                 cacheManager.addToCache(list);
             }
-            logger.debug(list.size() + " records have been retrieved");
+            Logger.getLogger(this).trace(list.size() + " records have been retrieved");
             return list;
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItems";
-            this.logger.error(error, e);
+            Logger.getLogger(this).error(error, e);
             throw new DataRetrievalFailureException(error, e);
         }
     }
@@ -159,7 +156,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     public T getItem(String whereClause) {
         List<T> list = new ArrayList<>();
         String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME + " WHERE " + whereClause;
-        this.logger.debug(sqlQuery);
+        Logger.getLogger(this).trace(sqlQuery);
         try (Connection con = dataSource.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sqlQuery)) {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -177,7 +174,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             }
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItem (" + whereClause + ")";
-            this.logger.error(error, e);
+            Logger.getLogger(this).error(error, e);
             throw new DataRetrievalFailureException(error, e);
         }
     }
@@ -187,14 +184,14 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             Connection connection = this.dataSource.getConnection();
             PreparedStatement preparedStatement = generateInsertStatement(connection, t)
         ){
-            this.logger.debug(preparedStatement.toString());
+            Logger.getLogger(this).trace(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "created");
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     long id = generatedKeys.getLong(1);
                     t.setId(id);
-                    this.logger.debug(getMessagesPrefix()
+                    Logger.getLogger(this).trace(getMessagesPrefix()
                             + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\""
                             + " (id=" + t.getId() + ")");
                     t.setBindRepository(this);
@@ -209,7 +206,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in insertItem";
-            this.logger.error(error, e);
+            Logger.getLogger(this).error(error, e);
             throw new InsertException(error ,e);
         }
     }
@@ -219,14 +216,15 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             insertItem(t);
             return;
         }
+
         try (
                 Connection connection = this.dataSource.getConnection();
                 PreparedStatement preparedStatement = generateUpdateStatement(connection, t)
         ) {
-            this.logger.debug(preparedStatement.toString());
+            Logger.getLogger(this).trace(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
-            this.logger.debug(getMessagesPrefix() + "data was updated (" + t + ")");
+            Logger.getLogger(this).trace(getMessagesPrefix() + "data was updated (" + t + ")");
             t.setBindRepository(this);
             t.postSave();
             if (null != cacheManager) {
@@ -235,7 +233,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in updateItem";
-            this.logger.error(error, e);
+            Logger.getLogger(this).error(error, e);
             throw new UpdateException(error, e);
         }
     }
@@ -247,14 +245,14 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         ) {
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
-            this.logger.debug(getMessagesPrefix() + " data was deleted (" + t + ")");
+            Logger.getLogger(this).trace(getMessagesPrefix() + " data was deleted (" + t + ")");
             if (null != cacheManager) {
                 cacheManager.deleteFromCache(t);
             }
         }
         catch (SQLException e) {
             String error = getMessagesPrefix() + "error in deleteItem";
-            this.logger.error(error, e);
+            Logger.getLogger(this).error(error, e);
             throw new UpdateException(error, e);
         }
     }
@@ -274,7 +272,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
 
     private void oneRecordOnlyValidation(int n, String verb) throws SQLException {
         if (n == 0) {
-            logger.debug(getMessagesPrefix() + "No record has been found (" + verb + ")");
+            Logger.getLogger(this).trace(getMessagesPrefix() + "No record has been found (" + verb + ")");
         }
         else if (n > 1) {
             throw new SQLException(getMessagesPrefix() + "More than one record has been " + verb);

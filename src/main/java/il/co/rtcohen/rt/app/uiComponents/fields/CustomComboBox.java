@@ -1,12 +1,5 @@
 package il.co.rtcohen.rt.app.uiComponents.fields;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
-import com.vaadin.ui.ComboBox;
-
 import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
@@ -15,7 +8,13 @@ import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.dal.dao.interfaces.Nameable;
 import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
+import il.co.rtcohen.rt.utils.Logger;
 
+import com.vaadin.ui.ComboBox;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 import javax.validation.constraints.NotNull;
 
 import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.COMBO_BOX_HEIGHT;
@@ -28,7 +27,7 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
         this.setEmptySelectionAllowed(false);
         if (allowNewItems) {
             this.setNewItemProvider(inputString -> {
-                getLogger().info("inputString=" + inputString);
+                Logger.getLogger(this).info("inputString=" + inputString);
                 T newItem = newItemSupplier.get();
                 newItem.setName(inputString);
                 newItem.insertItem();
@@ -141,9 +140,5 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
                 null,
                 70,
                 false);
-    }
-
-    private static Logger getLogger() {
-        return Logger.getLogger(GeneralErrorHandler.class.getName());
     }
 }

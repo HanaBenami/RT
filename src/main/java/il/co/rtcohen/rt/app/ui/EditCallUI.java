@@ -1,24 +1,9 @@
 package il.co.rtcohen.rt.app.ui;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Page;
-import com.vaadin.server.Setter;
-import com.vaadin.server.ErrorHandler;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.ui.*;
+
 import il.co.rtcohen.rt.app.uiComponents.fields.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Arrays;
-import java.util.Map;
-
 import il.co.rtcohen.rt.app.grids.*;
 import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.*;
@@ -31,10 +16,25 @@ import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.views.CallsView;
 
+import com.vaadin.data.ValueProvider;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.Page;
+import com.vaadin.server.Setter;
+import com.vaadin.server.ErrorHandler;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.SpringUI;
+import com.vaadin.ui.*;
+
+import il.co.rtcohen.rt.utils.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Arrays;
+import java.util.Map;
+
+
 @SpringComponent
 @SpringUI(path="/editCall")
 public class EditCallUI extends AbstractUI<GridLayout> {
-    private static final Logger logger = LoggerFactory.getLogger(CallsView.class);
     private static final String BUTTON_WIDTH = "150px";
     private static final String FIELDS_WIDTH = "200px";
 
@@ -109,7 +109,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
 
     public void getUrlParameters() {
         Map<String, String> parametersMap = this.getParametersMap();
-        logger.info("Parameters map " + Arrays.toString(parametersMap.entrySet().toArray()));
+        Logger.getLogger(this).info("Parameters map " + Arrays.toString(parametersMap.entrySet().toArray()));
         int selectedCallId = Integer.parseInt(parametersMap.getOrDefault("call", "0"));
         int selectedCustomerId = Integer.parseInt(parametersMap.getOrDefault("customer", "0"));
         int selectedSiteId = Integer.parseInt(parametersMap.getOrDefault("site", "0"));

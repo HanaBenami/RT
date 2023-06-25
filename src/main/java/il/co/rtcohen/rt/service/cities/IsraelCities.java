@@ -1,5 +1,16 @@
 package il.co.rtcohen.rt.service.cities;
 
+import il.co.rtcohen.rt.dal.dao.City;
+import il.co.rtcohen.rt.dal.repositories.CityRepository;
+import il.co.rtcohen.rt.utils.Logger;
+import il.co.rtcohen.rt.utils.StringUtils;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,16 +18,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
-
-import il.co.rtcohen.rt.dal.dao.City;
-import il.co.rtcohen.rt.dal.repositories.CityRepository;
-import il.co.rtcohen.rt.utils.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class IsraelCities {
@@ -26,7 +27,7 @@ public class IsraelCities {
     private static final String cityListUrl = "https://data.gov.il/api/3/action/datastore_search?resource_id=5c78e9fa-c2e2-4771-93ff-7f400a12f7ba&limit=100000";
     private static List<String> citiesInIsrael = null;
 
-    public City findCityNameInAddress(String address) {
+    public City findCityNameInAddress(@NotNull String address) {
         City city = null;
         List<String> citiesFound = new ArrayList<>();
         for (String cityName : getCitiesList()) {
@@ -46,15 +47,17 @@ public class IsraelCities {
         return city;
     }
 
-    private static List<String> getCitiesList() {
+    private List<String> getCitiesList() {
         if (null == citiesInIsrael) {
             try {
+                Logger.getLogger(this).info("Trying to retrieve israel cities list from " + cityListUrl);
                 JSONObject json = new JSONObject(sendHttpRequest(cityListUrl));
                 JSONObject result = json.getJSONObject("result");
                 JSONArray array = result.getJSONArray("records");
                 citiesInIsrael = jsonArrayToList(array, "שם_ישוב");
+                Logger.getLogger(this).info("Israel cities list was retrieved");
             } catch (Exception e) {
-                getLogger().info("Couldn't retrieve israel cities list: " + e);
+                Logger.getLogger(this).info("Couldn't retrieve israel cities list: " + e);
             }
         }
         return citiesInIsrael;
@@ -90,9 +93,5 @@ public class IsraelCities {
             }
         }
         return list;
-    }
-
-    private static Logger getLogger() {
-        return Logger.getLogger(IsraelCities.class.getName());
     }
 }

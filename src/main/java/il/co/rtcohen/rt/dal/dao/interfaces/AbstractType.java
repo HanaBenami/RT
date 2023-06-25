@@ -3,14 +3,11 @@ package il.co.rtcohen.rt.dal.dao.interfaces;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.dal.repositories.interfaces.RepositoryInterface;
 
-import java.util.logging.Logger;
-
 abstract public class AbstractType {
     private Integer id;
     private RepositoryInterface<AbstractType> bindRepository;
 
     public AbstractType() {
-
     }
 
     public AbstractType(Integer id) {
@@ -68,10 +65,6 @@ abstract public class AbstractType {
     public int hashCode() {
         Integer id = this.getId();
         return (null == id ? 0 : id);
-    }
-
-    protected Logger getLogger() {
-        return Logger.getLogger(this.getClass().getName());
     }
 
     // Used post record update in the DB

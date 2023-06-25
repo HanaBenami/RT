@@ -3,12 +3,12 @@ package il.co.rtcohen.rt.service.hashavshevet;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.hashavshevet.HashavshevetDataRecord;
 import il.co.rtcohen.rt.dal.repositories.*;
+import il.co.rtcohen.rt.service.cities.IsraelCities;
+import il.co.rtcohen.rt.utils.Logger;
 import il.co.rtcohen.rt.utils.Pair;
 import il.co.rtcohen.rt.utils.StringUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class HashavshevetSyncSingleRecord {
     private final HashavshevetDataRecord hashavshevetDataRecord;
@@ -20,9 +20,11 @@ public class HashavshevetSyncSingleRecord {
     private final int hashavshevetCustomerId;
     private final String vehicleSeries;
     private final int vehicleLicense;
+    private final IsraelCities israelCities;
 
-    public HashavshevetSyncSingleRecord(HashavshevetDataRecord hashavshevetDataRecord) {
+    public HashavshevetSyncSingleRecord(HashavshevetDataRecord hashavshevetDataRecord, IsraelCities israelCities) {
         this.hashavshevetDataRecord = hashavshevetDataRecord;
+        this.israelCities = israelCities;
         this.hashavshevetCustomerId = Integer.parseInt(hashavshevetDataRecord.customerKey);
         this.customerCityName = StringUtils.removeNumbers(this.hashavshevetDataRecord.customerCityAndZip);
         Pair<String, List<String>> customerContactNameAndPhones = StringUtils.extractNumbersWithDashes(this.hashavshevetDataRecord.customerPhonesStr, null);
@@ -43,23 +45,23 @@ public class HashavshevetSyncSingleRecord {
             ContactRepository contactRepository,
             VehicleRepository vehicleRepository,
             VehicleTypeRepository vehicleTypeRepository,
-            boolean createNewCustomers) {
+            boolean syncNewCustomers) {
         String msg = "hashavshevetCustomerId=" + hashavshevetCustomerId + " -> ";
-        log("Syncing data for " + msg);
-        Customer customer = createOrUpdateCustomer(customerRepository, createNewCustomers);
+        Logger.getLogger(this).debug("Syncing data for " + msg);
+        Customer customer = createOrUpdateCustomer(customerRepository, syncNewCustomers);
         if (null != customer) {
-            log(msg + "Generated/updated customer: " + customer);
+            Logger.getLogger(this).debug(msg + "Generated/updated customer: " + customer);
             Site mainSite = createOrUpdateMainSite(customer, siteRepository, cityRepository);
-            log(msg + "Generated/updated main site: " + mainSite);
+            Logger.getLogger(this).debug(msg + "Generated/updated main site: " + mainSite);
             List<Contact> mainSiteContacts = createOrUpdateMainSiteContacts(mainSite, contactRepository);
             Site vehicleSite = createOrUpdateVehicleSite(customer, siteRepository, cityRepository);
-            log(msg + "Generated/updated vehicle site: " + vehicleSite);
+            Logger.getLogger(this).debug(msg + "Generated/updated vehicle site: " + vehicleSite);
             if (null == vehicleSite) {
                 vehicleSite = mainSite;
             }
             List<Contact> vehicleSiteContacts = createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
             Vehicle vehicle = createOrUpdateVehicle(vehicleSite, vehicleRepository, vehicleTypeRepository);
-            log(msg + "Generated/updated vehicle: " + vehicle);
+            Logger.getLogger(this).debug(msg + "Generated/updated vehicle: " + vehicle);
         }
     }
 
@@ -67,10 +69,10 @@ public class HashavshevetSyncSingleRecord {
     // If there such customer, updates it. If not, creates a new one.
     private Customer createOrUpdateCustomer(
             CustomerRepository customerRepository,
-            boolean createNewCustomers) {
+            boolean syncNewCustomers) {
         Customer customer = customerRepository.getItemByHashKey(this.hashavshevetCustomerId);
         if (null == customer) {
-            if (!createNewCustomers) {
+            if (!syncNewCustomers) {
                 return null;
             }
             customer = new Customer();
@@ -89,7 +91,7 @@ public class HashavshevetSyncSingleRecord {
     ) {
         return createOrUpdateSite(customer, siteRepository, cityRepository,
                 this.hashavshevetDataRecord.customerAddress,
-                this.customerCityName, this.hashavshevetDataRecord.documentID);
+                this.customerCityName, Integer.parseInt(this.hashavshevetDataRecord.documentID + "001"));
     }
 
     private Site createOrUpdateVehicleSite(
@@ -97,34 +99,47 @@ public class HashavshevetSyncSingleRecord {
     ) {
         return createOrUpdateSite(customer, siteRepository, cityRepository,
                 this.hashavshevetDataRecord.siteAddress,
-                this.siteCityName, this.hashavshevetDataRecord.documentID);
+                this.siteCityName, Integer.parseInt(this.hashavshevetDataRecord.documentID + "002"));
 
     }
 
     // Looks for a site that was created due to the same hashavshevet data record.
     // If there is no such site, look for a site with exactly the same address.
     // If there such site, updates it. If not, creates a new one.
-    private static Site createOrUpdateSite(
+    private Site createOrUpdateSite(
             Customer customer, SiteRepository siteRepository, CityRepository cityRepository,
             String address, String cityName, int hashavshevetDocumentID
     ) {
         assert null != customer;
-
-        if (StringUtils.isEmpty(address) && StringUtils.isEmpty(cityName)) {
+        if (null == cityName) {
+            cityName = "";
+        }
+        if (null == address) {
+            address = "";
+        }
+        if (address.isEmpty() && cityName.isEmpty()) {
             return null;
         }
+
+        City city = israelCities.findCityNameInAddress(cityName);
+        if (null == city) {
+            city = israelCities.findCityNameInAddress(address);
+        }
+        address += " " + cityName;
 
         Site site = siteRepository.getItemByHashDocId(hashavshevetDocumentID);
         if (null == site) {
             List<Site> customerSites = siteRepository.getItems(customer);
             for (Site customerSite : customerSites) {
-                String customerSiteCityName = (null == customerSite.getCity() ? null : customerSite.getCity().getName());
-                if (StringUtils.areEquals(customerSiteCityName, cityName)
-                        && StringUtils.areEquals(address, customerSite.getAddress())) {
+                boolean sameAddress = StringUtils.areEquals(customerSite.getAddress(), address);
+                boolean sameCity = (null == city && null == customerSite.getCity())
+                                        || (null != city && city.equals(customerSite.getCity()));
+                if (sameAddress && sameCity) {
                     site = customerSite;
                     break;
                 }
             }
+
             if (null == site) {
                 site = new Site();
                 site.setCustomer(customer);
@@ -132,28 +147,10 @@ public class HashavshevetSyncSingleRecord {
             }
         }
 
-        if (!StringUtils.isEmpty(cityName)) {
-            site.setCity(createOrUpdateCity(cityRepository, cityName));
-        }
+        site.setCity(city);
         site.setAddress(address);
         siteRepository.updateItem(site);
-        
         return site;
-    }
-
-    @NotNull
-    private static City createOrUpdateCity(CityRepository cityRepository, String cityName) {
-        if (null == cityName || cityName.replaceAll(" ", "").isEmpty()) {
-            return null;
-        }
-
-        City city = cityRepository.getItemByName(cityName);
-        if (null == city) {
-            city = new City();
-            city.setName(cityName);
-            cityRepository.insertItem(city);
-        }
-        return city;
     }
 
     private List<Contact> createOrUpdateMainSiteContacts(
@@ -252,13 +249,5 @@ public class HashavshevetSyncSingleRecord {
             vehicleTypeRepository.insertItem(vehicleType);
         }
         return vehicleType;
-    }
-
-    private static Logger getLogger() {
-        return Logger.getLogger(HashavshevetSyncSingleRecord.class.getName());
-    }
-
-    private static void log(String msg) {
-//        getLogger().info(msg);
     }
 }

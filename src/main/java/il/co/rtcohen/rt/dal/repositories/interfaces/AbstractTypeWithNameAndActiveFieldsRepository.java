@@ -38,14 +38,20 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
         if (null == name || name.isEmpty()) {
             return null;
         }
-        return super.getItem("CAST(name as varchar(100))='" + name.replaceAll("'", "") + "'");
+        String whereClause = "CAST(name as varchar(100))";
+        if (name.contains("'")) {
+            whereClause += " like '" + name.replaceAll("'", "_") + "'";
+        } else {
+            whereClause += "='" + name + "'";
+        }
+        return super.getItem(whereClause);
     }
 
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;
 
     protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, T t) throws SQLException {
         int fieldsCounter = 1;
-        preparedStatement.setString(fieldsCounter, t.getName().replaceAll("'", ""));
+        preparedStatement.setString(fieldsCounter, t.getName());
         fieldsCounter++;
         preparedStatement.setBoolean(fieldsCounter, t.isActive());
         return fieldsCounter;

@@ -18,7 +18,7 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@Scheduled(fixedDelayString="${settings.hashSync.fixedDelayMiliseconds}", initialDelayString="${settings.hashSync.initialDelayMiliseconds}")
+	@Scheduled(fixedDelayString="${settings.hashSync.scheduleSyncFixedDelayMiliseconds}", initialDelayString="${settings.hashSync.scheduleSyncInitialDelayMiliseconds}")
 	private void HashavshevetSync() {
 		hashavshevetSync.syncData();
 	}

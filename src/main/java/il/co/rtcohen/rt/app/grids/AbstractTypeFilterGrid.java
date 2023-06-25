@@ -1,5 +1,17 @@
 package il.co.rtcohen.rt.app.grids;
 
+import il.co.rtcohen.rt.app.uiComponents.*;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
+import il.co.rtcohen.rt.app.uiComponents.columns.CustomIntegerColumn;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomIntegerField;
+import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
+import il.co.rtcohen.rt.utils.Logger;
+import il.co.rtcohen.rt.app.LanguageSettings;
+import il.co.rtcohen.rt.app.ui.UIPaths;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
+
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
@@ -8,24 +20,12 @@ import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
 import com.vaadin.ui.components.grid.HeaderRow;
-import il.co.rtcohen.rt.app.uiComponents.*;
-import il.co.rtcohen.rt.app.uiComponents.columns.CustomComponentColumn;
-import il.co.rtcohen.rt.app.uiComponents.columns.CustomIntegerColumn;
-import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
-import il.co.rtcohen.rt.app.uiComponents.fields.CustomIntegerField;
-import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.ui.UIPaths;
-import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
-import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 
 abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<T>> extends FilterGrid<T> {
     private AbstractTypeRepository<T> mainRepository;
@@ -36,7 +36,6 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
     private String errorMessage;
     private String warningMessage;
     private Predicate<T> itemsFilterPredicate;
-    private static final Logger logger = LoggerFactory.getLogger(AbstractTypeFilterGrid.class);
 
     private int itemsCounter;
     private List<T> gridItems;
@@ -161,7 +160,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         editor.addSaveListener(listener -> {
             T currentItem = listener.getBean();
             if (currentItem.isItemValid()) {
-                logger.info("Going to update item in the grid (" + this.titleKey + ", id=" + currentItem.getId() + ")");
+                Logger.getLogger(this).info("Going to update item in the grid (" + this.titleKey + ", id=" + currentItem.getId() + ")");
                 Integer idBefore = currentItem.getId();
                 this.mainRepository.updateItem(currentItem);
                 Notification.show(currentItem + " " + LanguageSettings.getLocaleString("wasEdited"));
@@ -316,9 +315,11 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
 //          this.scrollTo(this.gridItems.indexOf(currentItem)); // TODO: not working during filter
     }
 
-    public void setSelectedItem(Integer selectedItemId) {
+    public void setSelectedItem(Integer selectedItemId, boolean filter) {
         if (null != selectedItemId && 0 != selectedItemId) {
-            setFilterToSelectedItem(selectedItemId);
+            if (filter) {
+                setFilterToSelectedItem(selectedItemId);
+            }
             T item = mainRepository.getItem(selectedItemId);
             if (null != item && gridItems.contains(item)) {
                 this.setSelectedItem(item);

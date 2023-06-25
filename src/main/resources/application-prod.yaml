@@ -17,10 +17,10 @@ settings:
     interval: 60000
   workOrderWidth: 1400
   hashSync:
-    executeSync: true
-    createNewCustomers: false
+    executeScheduleSync: false
+    scheduleSyncFixedDelayMiliseconds: 3600000
+    scheduleSyncInitialDelayMiliseconds: 60000
+    syncNewCustomers: true
     syncOnlyDiff: true
     syncOnlyListedCustomers: true
-    hashavshevetCustomerIds: 2716, 2326, 20637
-    fixedDelayMiliseconds: 3600000
-    initialDelayMiliseconds: 60000
+    hashavshevetCustomerIdsToSync: 2716, 2326, 20637

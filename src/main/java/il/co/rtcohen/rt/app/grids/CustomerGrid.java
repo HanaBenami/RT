@@ -15,7 +15,6 @@ import il.co.rtcohen.rt.app.uiComponents.fields.CustomComboBox;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
 
 public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Customer> {
@@ -96,7 +95,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                     } else {
                         return (Button) new CustomButton(VaadinIcons.RECYCLE, false, clickEvent -> {
                             try {
-                                hashavshevetSync.syncData(true, customer.getHashavshevetCustomerId(), false);
+                                hashavshevetSync.syncData(customer.getHashavshevetCustomerId(), false);
                                 Notification.show(LanguageSettings.getLocaleString("syncDone"));
                             } catch (CannotAcquireLockException ignored) {
                                 Notification.show(LanguageSettings.getLocaleString("syncLocked"), Notification.Type.ERROR_MESSAGE);
@@ -109,7 +108,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 "hashSyncColumn",
                 this
         );
-        column.getColumn().setHidden(true);
+        column.getColumn().setHidden(false);
         column.getColumn().setHidable(true);
     }
 
