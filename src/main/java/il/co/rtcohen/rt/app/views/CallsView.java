@@ -117,16 +117,12 @@ public class CallsView extends AbstractDataView<Call> {
     }
 
     @Override
-    protected void addTitle() {
-        addHeaderLayout();
-    }
-
-    @Override
     void addGrids() {
         addCallsGrid();
     }
 
-    private void addHeaderLayout() {
+    @Override
+    protected void addTitleLayout(Component... additionalComponents) {
         headerLayout = new GridLayout(4, 2);
         headerLayout.setWidth("95%");
         headerLayout.setSpacing(true);

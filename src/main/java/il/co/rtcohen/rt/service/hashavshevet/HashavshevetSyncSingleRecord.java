@@ -121,25 +121,12 @@ public class HashavshevetSyncSingleRecord {
             return null;
         }
 
-        City city = israelCities.findCityNameInAddress(cityName);
-        if (null == city) {
-            city = israelCities.findCityNameInAddress(address);
-        }
+        City city = findCity(cityRepository, address, cityName);
         address += " " + cityName;
 
         Site site = siteRepository.getItemByHashDocId(hashavshevetDocumentID);
         if (null == site) {
-            List<Site> customerSites = siteRepository.getItems(customer);
-            for (Site customerSite : customerSites) {
-                boolean sameAddress = StringUtils.areEquals(customerSite.getAddress(), address);
-                boolean sameCity = (null == city && null == customerSite.getCity())
-                                        || (null != city && city.equals(customerSite.getCity()));
-                if (sameAddress && sameCity) {
-                    site = customerSite;
-                    break;
-                }
-            }
-
+            site = findSiteWithTheSameAddress(customer, siteRepository, address, city);
             if (null == site) {
                 site = new Site();
                 site.setCustomer(customer);
@@ -151,6 +138,35 @@ public class HashavshevetSyncSingleRecord {
         site.setAddress(address);
         siteRepository.updateItem(site);
         return site;
+    }
+
+    private City findCity(CityRepository cityRepository,
+                          String address, String cityName) {
+        City city = israelCities.findCityNameInAddress(cityName);
+        if (null == city) {
+            city = israelCities.findCityNameInAddress(address);
+        }
+        if (null == city) {
+            city = cityRepository.getItemByName(StringUtils.reduceSpaces(cityName));
+        }
+        if (null == city) {
+            city = cityRepository.getItemByName(StringUtils.reduceSpaces(address));
+        }
+        return city;
+    }
+
+    private Site findSiteWithTheSameAddress(Customer customer, SiteRepository siteRepository,
+                                            String address, City city) {
+        List<Site> customerSites = siteRepository.getItems(customer);
+        for (Site customerSite : customerSites) {
+            boolean sameAddress = StringUtils.areEquals(customerSite.getAddress(), address);
+            boolean sameCity = (null == city && null == customerSite.getCity())
+                    || (null != city && city.equals(customerSite.getCity()));
+            if (sameAddress && sameCity) {
+                return customerSite;
+            }
+        }
+        return null;
     }
 
     private List<Contact> createOrUpdateMainSiteContacts(

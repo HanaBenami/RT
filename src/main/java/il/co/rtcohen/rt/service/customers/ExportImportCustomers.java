@@ -6,6 +6,7 @@ import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.dal.repositories.hashavshevet.HashavshevetRepositoryFullData;
 import il.co.rtcohen.rt.utils.Logger;
 
+import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
@@ -46,9 +47,11 @@ public class ExportImportCustomers {
             Integer hashavshetetID = Integer.parseInt(hashavshevetDataRecord.customerKey);
             String name = hashavshevetDataRecord.customerName;
             Customer customer = customerRepository.getItemByHashKey(hashavshetetID);
-            if (null == customer) {
-                customer = customerRepository.getItemByName(name);
-            }
+//            if (null == customer) {
+//                try {
+//                    customer = customerRepository.getItemByName(name);
+//                } catch (Exception ignored) {}
+//            }
             Integer internalId = (null == customer ? 0 : customer.getId());
             customersData.put(hashavshetetID, Arrays.asList(internalId.toString(), hashavshetetID.toString(), name));
         }
@@ -103,5 +106,25 @@ public class ExportImportCustomers {
             e.printStackTrace();
             Logger.getLogger(this).info("Failed to import customers file: " + filePath);
         }
+    }
+
+    public void updateCustomersMissingHashKey() {
+        int counter = 0;
+        Logger.getLogger(this).info("Starting to update customers missing hashavshevet IDs");
+        for (Customer customer : customerRepository.getItems()) {
+            if (customer.isActive() && (null == customer.getHashavshevetCustomerId() || 0 == customer.getHashavshevetCustomerId())) {
+                try {
+                    customer = customerRepository.getItemByName(customer.getName()); // in order to make sure there is only one active customer with this name
+                    List<HashavshevetDataRecord> hashavshevetDataRecords = hashavshevetRepositoryFullData.getItemsByCustomerName(customer.getName());
+                    if (!hashavshevetDataRecords.isEmpty()) {
+                        customer.setHashavshevetCustomerId(Integer.parseInt(hashavshevetDataRecords.get(0).customerKey));
+                        customerRepository.updateItem(customer);
+                        Logger.getLogger(this).debug("Found hashavshevet ID for " + customer);
+                        counter++;
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        Logger.getLogger(this).info("Done - Hashavshevet ID was updated in " + counter + " customers");
     }
 }

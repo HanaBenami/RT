@@ -112,4 +112,8 @@ abstract public class HashavshevetAbstractRepository
     public List<HashavshevetDataRecord> getItemsByHashKey(Integer hashKey) {
         return super.getItems(DB_COLUMN_CustomerKey + "='" + hashKey.toString() + "'");
     }
+
+    public List<HashavshevetDataRecord> getItemsByCustomerName(String customerName) {
+        return super.getItems(DB_COLUMN_CustomerName + " like '" + customerName.replaceAll("'", "_") + "'");
+    }
 }

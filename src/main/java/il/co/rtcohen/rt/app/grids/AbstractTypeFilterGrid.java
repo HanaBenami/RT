@@ -259,14 +259,14 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         this.verticalLayout.setWidth("100%");
         this.setWidth("100%");
         if (withTitle) {
-            this.verticalLayout.addComponent(new CustomLabel(this.title, null, CustomLabel.LabelStyle.TITLE));
+            this.verticalLayout.addComponent(new CustomLabel(this.title, null, true, CustomLabel.LabelStyle.SMALL_TITLE));
         }
         this.changeErrorMessage();
         if (null != errorMessage) {
-            this.verticalLayout.addComponent(new CustomLabel(this.errorMessage, null, CustomLabel.LabelStyle.ERROR));
+            this.verticalLayout.addComponent(new CustomLabel(this.errorMessage, null, true, CustomLabel.LabelStyle.ERROR));
         } else {
             if (null != warningMessage) {
-                this.verticalLayout.addComponent(new CustomLabel(this.warningMessage, null, CustomLabel.LabelStyle.ERROR));
+                this.verticalLayout.addComponent(new CustomLabel(this.warningMessage, null, true, CustomLabel.LabelStyle.ERROR));
             }
             RtlHorizontalLayout additionalLayout = customAdditionalLayout();
             if (null != additionalLayout) {
@@ -286,8 +286,8 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
     private RtlHorizontalLayout emptyLinesLayout() {
         RtlHorizontalLayout newLinesLayout = new RtlHorizontalLayout();
 
-        Label before = new CustomLabel("add", null, CustomLabel.LabelStyle.SMALL_TEXT);
-        Label after = new CustomLabel("emptyLines", null, CustomLabel.LabelStyle.SMALL_TEXT);
+        Label before = new CustomLabel("add", null, true, CustomLabel.LabelStyle.VERY_SMALL_TEXT);
+        Label after = new CustomLabel("emptyLines", null, true, CustomLabel.LabelStyle.VERY_SMALL_TEXT);
         CustomIntegerField numOfNewLinesFields = new CustomIntegerField(
                 null, 1, 1, 10,
                 false, null,

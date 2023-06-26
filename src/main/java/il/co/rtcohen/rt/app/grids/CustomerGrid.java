@@ -95,8 +95,8 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                     } else {
                         return (Button) new CustomButton(VaadinIcons.RECYCLE, false, clickEvent -> {
                             try {
-                                hashavshevetSync.syncData(customer.getHashavshevetCustomerId(), false);
-                                Notification.show(LanguageSettings.getLocaleString("syncDone"));
+                                boolean newData = hashavshevetSync.syncData(customer.getHashavshevetCustomerId(), false);
+                                Notification.show(LanguageSettings.getLocaleString(newData ? "syncDonePleaseRefresh" : "syncDoneNothingNew"));
                             } catch (CannotAcquireLockException ignored) {
                                 Notification.show(LanguageSettings.getLocaleString("syncLocked"), Notification.Type.ERROR_MESSAGE);
                             }

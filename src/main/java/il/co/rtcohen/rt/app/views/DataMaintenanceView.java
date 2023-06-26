@@ -1,26 +1,29 @@
 package il.co.rtcohen.rt.app.views;
 
+import il.co.rtcohen.rt.app.uiComponents.CustomLabel;
+import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
+import il.co.rtcohen.rt.service.cities.UpdateSitesCities;
+import il.co.rtcohen.rt.service.customers.ExportImportCustomers;
+import il.co.rtcohen.rt.utils.Date;
+
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.StreamResource;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
-import il.co.rtcohen.rt.app.uiComponents.CustomLabel;
-import il.co.rtcohen.rt.app.uiComponents.fields.CustomButton;
-import il.co.rtcohen.rt.service.cities.UpdateSitesCities;
-import il.co.rtcohen.rt.service.customers.ExportImportCustomers;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.io.*;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.function.Consumer;
 
-@SpringView(name = ExportImportView.VIEW_NAME)
-public class ExportImportView extends AbstractView {
+@SpringView(name = DataMaintenanceView.VIEW_NAME)
+public class DataMaintenanceView extends AbstractView {
 
-    static final String VIEW_NAME = "ExportImportView";
+    static final String VIEW_NAME = "dataMaintenance";
     GridLayout gridLayout;
     int gridRowsCounter;
 
@@ -31,12 +34,14 @@ public class ExportImportView extends AbstractView {
     UpdateSitesCities updateSitesCities;
 
     @Autowired
-    private ExportImportView(ErrorHandler errorHandler) {
-        super(errorHandler);
+    private DataMaintenanceView(ErrorHandler errorHandler) {
+        super(errorHandler, "DataMaintenance");
     }
 
-    @PostConstruct
-    protected void enter() {
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        super.enter(event);
+
         setDefaultComponentAlignment(Alignment.TOP_LEFT);
         setSizeFull();
 
@@ -45,13 +50,12 @@ public class ExportImportView extends AbstractView {
         gridLayout.setSpacing(true);
 
         addToGrid("Export existing customers list", getDownloadComponent(
-                "rt_customers.csv",
+                generateCsvFileName("rt-customers"),
                 fileName -> exportImportCustomers.exportRtCustomersToCSV(fileName)
         ));
 
-
         addToGrid("Export hashavshevet customers list", getDownloadComponent(
-        "hashavshevet_customers.csv",
+                generateCsvFileName("hashavshevet-customers"),
                 fileName -> exportImportCustomers.exportHashavshevetCustomersToCSV(fileName)
         ));
 
@@ -59,11 +63,19 @@ public class ExportImportView extends AbstractView {
                 fileName -> exportImportCustomers.importCustomersCSV(fileName)
         ));
 
+        addToGrid("Update missing hashavshevet customers IDs by name in all the customers",
+                getActionComponent(() -> exportImportCustomers.updateCustomersMissingHashKey())
+        );
+
         addToGrid("Update city according to address in all the sites",
                 getActionComponent(() -> updateSitesCities.updateCityInAllSites())
         );
 
         addComponent(gridLayout);
+    }
+
+    private String generateCsvFileName(String prefix) {
+        return prefix + "-" + Date.localDateToString(LocalDate.now()) + ".csv";
     }
 
     private void addToGrid(String labelStr, Component component) {

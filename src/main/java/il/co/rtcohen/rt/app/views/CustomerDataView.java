@@ -69,7 +69,6 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     }
 
     // TODO: Move to an upper/separate generic class
-    // TODO: Save during session ?
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         Map<String, String> parametersMap = event.getParameterMap();

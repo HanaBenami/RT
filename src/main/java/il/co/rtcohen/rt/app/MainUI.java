@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
@@ -49,6 +48,9 @@ public class MainUI extends UI implements ViewDisplay {
     @Value("${settings.workOrderWidth}")
     int workOrderWidth;
 
+    @Value("${settings.testEnvironment}")
+    boolean testEnvironment;
+
     final static private Logger log = LoggerFactory.getLogger(MainUI.class);
 
     @Autowired
@@ -58,6 +60,10 @@ public class MainUI extends UI implements ViewDisplay {
 
     @Override
     protected void init(VaadinRequest request) {
+        if (testEnvironment) {
+            this.addStyleName("test-environment");
+        }
+
         mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
         setContent(mainLayout);
@@ -165,7 +171,7 @@ public class MainUI extends UI implements ViewDisplay {
 
         setup.addItem(LanguageSettings.getLocaleString("usersMenu")).setCommand(generateMenuBarCommand("users"));
         setup.addSeparator();
-        setup.addItem(LanguageSettings.getLocaleString("ExportImportMenu")).setCommand(generateMenuBarCommand("ExportImportView"));
+        setup.addItem(LanguageSettings.getLocaleString("DataMaintenance")).setCommand(generateMenuBarCommand("dataMaintenance"));
     }
 
     private void addCustomerMenu() {

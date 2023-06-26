@@ -21,7 +21,7 @@
         box-shadow: none !important;
     }
 
-    .custom-margins{
+    .custom-margins {
         &.v-margin-left   {padding-left:   5px;}
         &.v-margin-right  {padding-right:  5px;}
         &.v-margin-top    {padding-top:    5px;}
@@ -35,11 +35,11 @@
         &.v-margin-bottom {padding-bottom: 20px;}
     }
 
-    .LABEL {
-        color: black;
-        float: center;
+    .LABEL-MEDIUM-HEADER {
         font-size: 30px;
         font-weight: bold;
+	    color: black;
+        float: center;
         line-height: 150%;
     }
     .LABEL-SMALL-HEADER {
@@ -48,20 +48,31 @@
         float: center;
         line-height: 100%;
     }
-    .LABEL-RIGHT {
+    .LABEL-BIG-TEXT {
+        font-size: 30px;
+        font-weight: bold;
         color: black;
         float: right;
         text-align: right !important;
-        font-size: 30px;
-        font-weight: bold;
         line-height: 150%;
     }
-    .LABEL-SMALL {
-        float: right;
-        font-size: 16px;
-        line-height: 100%;
+    .LABEL-MEDIUM-TEXT {
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+        float: center;
+        text-align: right !important;
+        line-height: 100% !important;
     }
-    .SMALL-TEXT {
+    .LABEL-SMALL-TEXT {
+        color: black;
+        float: right;
+        text-align: right !important;
+        font-size: 14px;
+        line-height: 120%;
+        word-wrap: break-word !important;
+    }
+    .VERY-SMALL-TEXT {
         font-size: 14px !important;
     }
     .LABEL-ERROR {
@@ -93,14 +104,6 @@
         font-weight: bold;
         line-height: 150%;
     }
-    .LABEL-BIGSCREEN {
-        color: black;
-        float: right;
-        text-align: right !important;
-        font-size: 18px;
-        font-weight: bold;
-        line-height: 100%;
-    }
     .LABEL-RIGHT-PRINT {
         color: black;
         float: right;
@@ -123,14 +126,6 @@
         text-align: center !important;
         font-size: 20px !important;
         line-height: 150% !important;
-        word-wrap: break-word !important;
-    }
-    .LABEL-SMALL {
-        color: black;
-        float: right;
-        text-align: right !important;
-        font-size: 14px;
-        line-height: 120%;
         word-wrap: break-word !important;
     }
 
@@ -337,5 +332,9 @@
 
     .scrollable {
         overflow: auto;
+    }
+
+    .test-environment {
+        background-color: #FFA590;
     }
 }

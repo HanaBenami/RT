@@ -93,7 +93,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
     private RtlHorizontalLayout newNameLayout() {
         RtlHorizontalLayout newNameLayout = new RtlHorizontalLayout();
 
-        Label before = new CustomLabel("add", null, CustomLabel.LabelStyle.SMALL_TEXT);
+        Label before = new CustomLabel("add", null, true, CustomLabel.LabelStyle.VERY_SMALL_TEXT);
 
         Button addButton = new CustomButton(VaadinIcons.PLUS, true, clickEvent -> addEmptyLines(1));
         addButton.setEnabled(false);

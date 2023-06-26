@@ -14,7 +14,6 @@ import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.app.LanguageSettings;
-import il.co.rtcohen.rt.app.views.CallsView;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
@@ -167,13 +166,13 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         int column = 4;
         int row = 0;
         layout.removeComponent(column, row);
-        layout.addComponent(new CustomLabel(title, null, CustomLabel.LabelStyle.TITLE), column, row);
+        layout.addComponent(new CustomLabel(title, null, true, CustomLabel.LabelStyle.SMALL_TITLE), column, row);
 
         if (call.isDeleted()) {
             column = 1;
             row = 0;
             layout.removeComponent(column, row);
-            layout.addComponent(new CustomLabel("callDeleted", null, CustomLabel.LabelStyle.ERROR), column, row);
+            layout.addComponent(new CustomLabel("callDeleted", null, true, CustomLabel.LabelStyle.ERROR), column, row);
         }
     }
 
@@ -181,7 +180,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         int row = 14;
         int column = 4;
         layout.removeComponent(column, row);
-        layout.addComponent(new CustomLabel("scheduleDetails", null, CustomLabel.LabelStyle.TITLE), column, row);
+        layout.addComponent(new CustomLabel("scheduleDetails", null, true, CustomLabel.LabelStyle.SMALL_TITLE), column, row);
     }
 
     private void addOrRefreshAllGrids() {

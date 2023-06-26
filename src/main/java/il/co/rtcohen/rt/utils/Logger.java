@@ -6,6 +6,7 @@ public class Logger {
     private Logger() {}
 
     public static org.slf4j.Logger getLogger(Object o) {
-        return LoggerFactory.getLogger(o.getClass());
+        org.slf4j.Logger logger = LoggerFactory.getLogger(o.getClass());
+        return logger;
     }
 }

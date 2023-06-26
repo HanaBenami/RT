@@ -2,6 +2,8 @@
 <configuration>
 
 <springProperty name="LOGS" source="log.path"/>
+<springProperty name="SQL_LOG_LEVEL" source="log.sql.level"/>
+<springProperty name="HASH_LOG_LEVEL" source="log.hash.level"/>
 
 <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
@@ -36,5 +38,11 @@
     <appender-ref ref="RollingFile" />
     <appender-ref ref="Console" />
 </root>
+
+<!-- Enable specific logs using the command line: java -jar ... -Dlog.sql.level=DEBUG -->
+<!--    TODO: The wildcard doesn't work -->
+<logger name="il.co.rtcohen.rt.dal.repositories.**" level="${SQL_LOG_LEVEL}/"/>
+<logger name="il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync" level="${HASH_LOG_LEVEL}"/>
+<logger name="il.co.rtcohen.rt.service.hashavshevet.HashavshevetSyncSingleRecord" level="${HASH_LOG_LEVEL}"/>
 
 </configuration>

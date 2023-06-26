@@ -57,7 +57,7 @@ public class HashavshevetSync {
         }
     }
 
-    public void syncData(Integer hashavshevetCustomerId, boolean waitForLock) throws CannotAcquireLockException {
+    public boolean syncData(Integer hashavshevetCustomerId, boolean waitForLock) throws CannotAcquireLockException {
         if (waitForLock) {
             lock.lock();
         } else {
@@ -69,22 +69,26 @@ public class HashavshevetSync {
             }
         }
 
+        int numberOfRecordsToSync;
         try {
-            Logger.getLogger(this).info("Going to start sync: syncOnlyDiff=" + syncOnlyDiff + ", hashavshevetCustomerId=" + hashavshevetCustomerId);
+            Logger.getLogger(this).info("Starting sync: syncOnlyDiff=" + syncOnlyDiff + ", hashavshevetCustomerId=" + hashavshevetCustomerId);
             HashavshevetAbstractRepository hashavshevetDataRepository = (syncOnlyDiff ? hashavshevetRepositoryDataDiff : hashavshevetRepositoryFullData);
             List<HashavshevetDataRecord> hashavshevetDataRecords = (
                     null == hashavshevetCustomerId
                             ? hashavshevetDataRepository.getItems()
                             : hashavshevetDataRepository.getItemsByHashKey(hashavshevetCustomerId)
             );
-            Logger.getLogger(this).info(hashavshevetDataRecords.size() + " records were found and going to be synced");
+            numberOfRecordsToSync = hashavshevetDataRecords.size();
+            Logger.getLogger(this).debug(numberOfRecordsToSync + " records were found and going to be synced");
             for (HashavshevetDataRecord hashavshevetDataRecord : hashavshevetDataRecords) {
                 HashavshevetSyncSingleRecord hashavshevetSyncSingleRecord = new HashavshevetSyncSingleRecord(hashavshevetDataRecord, israelCities);
                 hashavshevetSyncSingleRecord.syncData(customerRepository, siteRepository, cityRepository, contactRepository, vehicleRepository, vehicleTypeRepository, syncNewCustomers);
                 hashavshevetRepositoryDataAlreadyMerged.insertItem(hashavshevetDataRecord);
             }
+            Logger.getLogger(this).info("Sync done: syncOnlyDiff=" + syncOnlyDiff + ", hashavshevetCustomerId=" + hashavshevetCustomerId);
         } finally {
             lock.unlock();
         }
+        return (0 < numberOfRecordsToSync);
     }
 }

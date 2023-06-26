@@ -8,9 +8,12 @@ import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.FORMS_FIELD_HEIGHT
 
 public class CustomLabel extends Label {
     public enum LabelStyle {
-        TITLE("LABEL-SMALL-HEADER"),
-        ERROR("LABEL-ERROR"),
-        SMALL_TEXT("SMALL-TEXT");
+        MEDIUM_TITLE("LABEL-MEDIUM-HEADER"),
+        SMALL_TITLE("LABEL-SMALL-HEADER"),
+        MEDIUM_TEXT("LABEL-MEDIUM-TEXT"),
+        SMALL_TEXT("LABEL-SMALL-TEXT"),
+        VERY_SMALL_TEXT("VERY-SMALL-TEXT"),
+        ERROR("LABEL-ERROR");
 
         public final String styleName;
 
@@ -20,14 +23,16 @@ public class CustomLabel extends Label {
     }
 
     public CustomLabel(String textKey, String width) {
-        this(textKey, width, null);
+        this(textKey, width, true, null);
     }
 
-    public CustomLabel(String textKey, String width, LabelStyle labelStyle) {
-        super(LanguageSettings.containsLocaleString(textKey) ? LanguageSettings.getLocaleString(textKey) : textKey);
-        this.setHeight(FORMS_FIELD_HEIGHT);
+    public CustomLabel(String textKey, String width, boolean setStandardHeight, LabelStyle labelStyle) {
+        super((null != textKey && LanguageSettings.containsLocaleString(textKey)) ? LanguageSettings.getLocaleString(textKey) : textKey);
         if (null != width) {
             this.setWidth(width);
+        }
+        if (setStandardHeight) {
+            this.setHeight(FORMS_FIELD_HEIGHT);
         }
         if (null != labelStyle) {
             this.setStyleName(labelStyle.styleName);

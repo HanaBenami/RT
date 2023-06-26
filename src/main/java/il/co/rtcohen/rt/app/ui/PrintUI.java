@@ -563,7 +563,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
             x.focus();
         });
         Label days = new Label(LanguageSettings.getLocaleString("daysAgo"));
-        days.setStyleName("LABEL-RIGHT");
+        days.setStyleName("LABEL-BIG-TEXT");
         if(LanguageSettings.isHebrew())
             titleLayout.addComponents(days, x, title);
         else
@@ -612,7 +612,7 @@ public class PrintUI extends AbstractUI<VerticalLayout> {
         }
         getParameters();
         if(LanguageSettings.isHebrew())
-            title = UIComponents.label("LABEL-RIGHT");
+            title = UIComponents.label("LABEL-BIG-TEXT");
         else
             title = UIComponents.label("LABEL-LEFT");
         switch (condition) {

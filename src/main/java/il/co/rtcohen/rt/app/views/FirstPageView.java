@@ -15,7 +15,7 @@ public class FirstPageView extends AbstractView {
 
     @Autowired
     private FirstPageView(ErrorHandler errorHandler) {
-        super(errorHandler);
+        super(errorHandler, null);
     }
 
     @PostConstruct

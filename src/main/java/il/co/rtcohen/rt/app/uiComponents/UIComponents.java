@@ -12,7 +12,6 @@ import org.vaadin.ui.NumberField;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Deprecated
@@ -91,12 +90,6 @@ public class UIComponents {
         checkBox.setValue(value);
         return checkBox;
     }
-
-    @Deprecated
-    public static Label header(String title) {
-        return UIComponents.label(title,"LABEL LABEL-CENTER");
-    }
-
 
     @Deprecated
     public static Label label(String value, String style) {

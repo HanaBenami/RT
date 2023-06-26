@@ -8,9 +8,14 @@ sqlserver:
   url: jdbc:sqlserver://localhost:1433;databaseName=RT;user=RT_user;password=RTrt123!;trustServerCertificate=true
 log:
   path: /home/hana/RT/logs/
+  sql:
+    level: info
+  hash:
+    level: info
 
 settings:
   multiLanguage: false
+  testEnvironment: false
   bigScreen:
     rowHeight: 55
     rowsPerColumn: 20

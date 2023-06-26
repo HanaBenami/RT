@@ -244,6 +244,9 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         List<Call> callsHereReadyToLeave = getItems(false, false, true, null, null, Date.nullDate(), area);
         List<Call> fullList = new ArrayList<>(callsNotHere);
         fullList.addAll(callsHereReadyToLeave);
+        if (null == area) {
+            fullList.removeIf(call -> (null != call.getSite() && null != call.getSite().getArea()));
+        }
         return fullList;
     }
 

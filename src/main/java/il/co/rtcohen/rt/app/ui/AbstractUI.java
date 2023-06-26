@@ -14,13 +14,25 @@ import il.co.rtcohen.rt.dal.dao.User;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.GeneralRepository;
 import il.co.rtcohen.rt.dal.repositories.UsersRepository;
+import org.springframework.beans.factory.annotation.Value;
 
 @Theme("myTheme")
 public abstract class AbstractUI<T extends Layout> extends UI {
+    @Value("${settings.testEnvironment}")
+    boolean testEnvironment;
+
     T layout;
     CallRepository callRepository;
     GeneralRepository generalRepository;
     UsersRepository usersRepository;
+
+    AbstractUI(
+            ErrorHandler errorHandler,
+            UsersRepository usersRepository
+    ) {
+        setErrorHandler(errorHandler);
+        this.usersRepository = usersRepository;
+    }
 
     AbstractUI(
             ErrorHandler errorHandler,
@@ -38,6 +50,10 @@ public abstract class AbstractUI<T extends Layout> extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+        if (testEnvironment) {
+            this.addStyleName("test-environment");
+        }
+
         try {
             setupLayout();
             getUI().setLocale(LanguageSettings.locale);

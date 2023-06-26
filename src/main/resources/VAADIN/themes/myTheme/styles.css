@@ -15099,11 +15099,11 @@ div.v-layout.v-horizontal.v-widget {
 	padding-bottom: 20px;
 }
 
-.myTheme .LABEL {
-	color: black;
-	float: center;
+.myTheme .LABEL-MEDIUM-HEADER {
 	font-size: 30px;
 	font-weight: bold;
+	color: black;
+	float: center;
 	line-height: 150%;
 }
 
@@ -15114,22 +15114,34 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: 100%;
 }
 
-.myTheme .LABEL-RIGHT {
+.myTheme .LABEL-BIG-TEXT {
+	font-size: 30px;
+	font-weight: bold;
 	color: black;
 	float: right;
 	text-align: right !important;
-	font-size: 30px;
-	font-weight: bold;
 	line-height: 150%;
 }
 
-.myTheme .LABEL-SMALL {
-	float: right;
-	font-size: 16px;
-	line-height: 100%;
+.myTheme .LABEL-MEDIUM-TEXT {
+	font-size: 18px;
+	font-weight: bold;
+	color: black;
+	float: center;
+	text-align: right !important;
+	line-height: 100% !important;
 }
 
-.myTheme .SMALL-TEXT {
+.myTheme .LABEL-SMALL-TEXT {
+	color: black;
+	float: right;
+	text-align: right !important;
+	font-size: 14px;
+	line-height: 120%;
+	word-wrap: break-word !important;
+}
+
+.myTheme .VERY-SMALL-TEXT {
 	font-size: 14px !important;
 }
 
@@ -15166,15 +15178,6 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: 150%;
 }
 
-.myTheme .LABEL-BIGSCREEN {
-	color: black;
-	float: right;
-	text-align: right !important;
-	font-size: 18px;
-	font-weight: bold;
-	line-height: 100%;
-}
-
 .myTheme .LABEL-RIGHT-PRINT {
 	color: black;
 	float: right;
@@ -15199,15 +15202,6 @@ div.v-layout.v-horizontal.v-widget {
 	text-align: center !important;
 	font-size: 20px !important;
 	line-height: 150% !important;
-	word-wrap: break-word !important;
-}
-
-.myTheme .LABEL-SMALL {
-	color: black;
-	float: right;
-	text-align: right !important;
-	font-size: 14px;
-	line-height: 120%;
 	word-wrap: break-word !important;
 }
 
@@ -15427,4 +15421,8 @@ div.v-layout.v-horizontal.v-widget {
 
 .myTheme .scrollable {
 	overflow: auto;
+}
+
+.myTheme .test-environment {
+	background-color: #FFA590;
 }
