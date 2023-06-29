@@ -20,6 +20,7 @@ settings:
     rowHeight: 55
     rowsPerColumn: 20
     interval: 60000
+    showCallsWithoutArea: true
   workOrderWidth: 1400
   hashSync:
     executeScheduleSync: false

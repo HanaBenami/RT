@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class IsraelCities {
         connection.setRequestMethod("GET");
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             String inputLine;
             StringBuilder response = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
@@ -89,7 +90,8 @@ public class IsraelCities {
                 String value = jsonArray.getJSONObject(i).getString(column);
                 list.add(StringUtils.reduceSpaces(value));
             } catch (JSONException e) {
-                e.printStackTrace();
+                Logger.info(IsraelCities.class, "The following exception casued by the following json object: " + jsonArray.getJSONObject(i));
+                Logger.exception(IsraelCities.class, e);
             }
         }
         return list;

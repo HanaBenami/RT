@@ -24,8 +24,6 @@ import com.vaadin.ui.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
@@ -41,6 +39,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
     private final Integer rowHeight;
     private final AreaRepository areaRepository;
     private final Integer rowsPerColumn;
+    private final boolean showCallsWithoutArea;
 
     @Autowired
     private BigScreenUI(ErrorHandler errorHandler,
@@ -49,13 +48,15 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
                         CallRepository callRepository,
                         @Value("${settings.bigScreen.interval}") Integer intervalTime,
                         @Value("${settings.bigScreen.rowHeight}") Integer rowHeight,
-                        @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn) {
+                        @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn,
+                        @Value("${settings.bigScreen.showCallsWithoutArea}") boolean showCallsWithoutArea) {
         super(errorHandler, usersRepository);
         this.areaRepository = areaRepository;
         this.callRepository = callRepository;
         this.intervalTime = intervalTime;
         this.rowHeight = rowHeight;
         this.rowsPerColumn = rowsPerColumn;
+        this.showCallsWithoutArea = showCallsWithoutArea;
     }
 
     @Override
@@ -80,7 +81,9 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         if (condition.equals("here")) {
             areas.removeIf(area -> !area.isHere());
         } else {
-            areas.add(0, null);
+            if (showCallsWithoutArea) {
+                areas.add(0, null);
+            }
             if (condition.equals("out")) {
                 areas.removeIf(Area::isHere);
             }
@@ -90,7 +93,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
                     ? callRepository.getCallsCurrentlyInTheGarage()
                     : callRepository.getOpenCallsInArea(area)
             );
-            if (null != area || !list.isEmpty()) {
+            if (!list.isEmpty()) {
                 layout.addComponent(getCallsGrid(list, (null == area ? "?" : area.getName())));
             }
         }
