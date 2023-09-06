@@ -27,17 +27,19 @@ public class StyleSettings {
                 ? null
                 : call.getCurrentScheduledDate().getLocalDate()
         );
-        if (LocalDate.now().equals(scheduledDate)) {
-            return "green";
-        }
-        if (LocalDate.now().plusDays(1).equals(scheduledDate)) {
-            return "yellow";
-        }
-        if (null == scheduledDate && call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(6))) {
-            return "darkred";
-        }
-        if (null == scheduledDate && call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(2))) {
-            return "red";
+        if (null == scheduledDate) {
+            if (call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(6))) {
+                return "darkred";
+            }
+            else if (call.getStartDate().getLocalDate().isBefore(LocalDate.now().minusDays(2))) {
+                return "red";
+            }
+        } else {
+            if (LocalDate.now().equals(scheduledDate)) {
+                return "green";
+            } else if (LocalDate.now().isBefore(scheduledDate)) {
+                return "yellow";
+            }
         }
         return null;
     }
