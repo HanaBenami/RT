@@ -9,6 +9,7 @@ import il.co.rtcohen.rt.dal.repositories.AreaRepository;
 import il.co.rtcohen.rt.dal.repositories.CallRepository;
 import il.co.rtcohen.rt.dal.repositories.UsersRepository;
 import il.co.rtcohen.rt.utils.Date;
+import il.co.rtcohen.rt.utils.Logger;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 
 import com.vaadin.event.UIEvents;
@@ -30,7 +31,7 @@ import java.util.List;
 // TODO: Refactor!!!
 
 @SpringComponent
-@SpringUI(path="/bigScreen")
+@SpringUI(path = "/bigScreen")
 public class BigScreenUI extends AbstractUI<HorizontalLayout> {
 
     private final CallRepository callRepository;
@@ -43,13 +44,13 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
 
     @Autowired
     private BigScreenUI(ErrorHandler errorHandler,
-                        UsersRepository usersRepository,
-                        AreaRepository areaRepository,
-                        CallRepository callRepository,
-                        @Value("${settings.bigScreen.interval}") Integer intervalTime,
-                        @Value("${settings.bigScreen.rowHeight}") Integer rowHeight,
-                        @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn,
-                        @Value("${settings.bigScreen.showCallsWithoutArea}") boolean showCallsWithoutArea) {
+            UsersRepository usersRepository,
+            AreaRepository areaRepository,
+            CallRepository callRepository,
+            @Value("${settings.bigScreen.interval}") Integer intervalTime,
+            @Value("${settings.bigScreen.rowHeight}") Integer rowHeight,
+            @Value("${settings.bigScreen.rowsPerColumn}") Integer rowsPerColumn,
+            @Value("${settings.bigScreen.showCallsWithoutArea}") boolean showCallsWithoutArea) {
         super(errorHandler, usersRepository);
         this.areaRepository = areaRepository;
         this.callRepository = callRepository;
@@ -66,10 +67,10 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         layout.setWidth("100%");
         layout.setHeight("100%");
         layout.addStyleName("custom-margins");
-        layout.setMargin(new MarginInfo(false,true,true,true));
+        layout.setMargin(new MarginInfo(false, true, true, true));
         loadData();
         setContent(layout);
-        //auto refresh
+        // auto refresh
         UI.getCurrent().setPollInterval(intervalTime);
         addPollListener((UIEvents.PollListener) event -> Page.getCurrent().reload());
     }
@@ -91,8 +92,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         for (Area area : areas) {
             List<Call> list = ((null != area && area.isHere())
                     ? callRepository.getCallsCurrentlyInTheGarage()
-                    : callRepository.getOpenCallsInArea(area)
-            );
+                    : callRepository.getOpenCallsInArea(area));
             if (!list.isEmpty()) {
                 layout.addComponent(getCallsGrid(list, (null == area ? "?" : area.getName())));
             }
@@ -105,54 +105,62 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         list.sort(Comparator.comparing(Call::getCurrentScheduledDate));
         int datesCounter = 1;
         for (Call call : list) {
-            if ((0 < list.indexOf(call)) && call.getCurrentScheduledDate().equals(list.get(list.indexOf(call) - 1).getCurrentScheduledDate())) {
+            if ((0 < list.indexOf(call)) && call.getCurrentScheduledDate().equals(
+                    list.get(list.indexOf(call) - 1).getCurrentScheduledDate())) {
                 datesCounter++;
             }
         }
 
         // Calculate number of columns needed
-        int columns = Math.max(1,(int) Math.ceil( (float) (list.size() + datesCounter) / (rowsPerColumn - 1)));
+        int columns = Math.max(1, (int) Math.ceil(
+                ((float) (list.size() + datesCounter))
+                / (rowsPerColumn - 1)
+        ));
 
         // Init grid layout
-        GridLayout gridLayout = new GridLayout(columns, rowsPerColumn+1);
+        GridLayout gridLayout = new GridLayout(columns, rowsPerColumn + 1);
         gridLayout.setWidth("100%");
         gridLayout.addStyleName("custom-margins");
         gridLayout.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
         Label areaTitle = new CustomLabel(title, null, false, CustomLabel.LabelStyle.MEDIUM_TITLE);
-        gridLayout.addComponent(areaTitle,columns - 1,0);
+        gridLayout.addComponent(areaTitle, columns - 1, 0);
 
         // Populate the grid
         int x = columns - 1;
         int y = 1;
-        // TODO - Fix to avoid GridLayout$OutOfBoundsException, regardless the value of rowsPerColumn in the .yaml file
         Label dateTitle;
-        for (Call call : list) {
-            if ((list.indexOf(call)==0) || (y==1) || (y==rowsPerColumn) ||
-                    (!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call)-1).getCurrentScheduledDate())))) {
-                dateTitle = new CustomLabel(null, null, false, CustomLabel.LabelStyle.MEDIUM_TEXT);
-                if (call.getCurrentScheduledDate() == null || call.getCurrentScheduledDate().equals(Date.nullDate())) {
-                    if ((areaTitle.getValue().equals(LanguageSettings.getLocaleString("garage")))) {
-                        dateTitle.setValue(LanguageSettings.getLocaleString("currentlyHere"));
+        try {
+            for (Call call : list) {
+                if ((list.indexOf(call) == 0) || (y == 1) || (y == rowsPerColumn) ||
+                        (!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call) - 1).getCurrentScheduledDate())))) {
+                    dateTitle = new CustomLabel(null, null, false, CustomLabel.LabelStyle.MEDIUM_TEXT);
+                    if (call.getCurrentScheduledDate() == null || call.getCurrentScheduledDate().equals(Date.nullDate())) {
+                        if ((areaTitle.getValue().equals(LanguageSettings.getLocaleString("garage")))) {
+                            dateTitle.setValue(LanguageSettings.getLocaleString("currentlyHere"));
+                        } else {
+                            dateTitle.setValue(LanguageSettings.getLocaleString("notInSchedule"));
+                        }
                     } else {
-                        dateTitle.setValue(LanguageSettings.getLocaleString("notInSchedule"));
+                        dateTitle.setValue(call.getCurrentScheduledDate().toShortString());
                     }
-                } else {
-                    dateTitle.setValue(call.getCurrentScheduledDate().toShortString());
+                    if (y + 2 > rowsPerColumn) {
+                        y = 1;
+                        x--;
+                    }
+                    gridLayout.addComponent(dateTitle, x, y);
+                    gridLayout.setComponentAlignment(dateTitle, Alignment.BOTTOM_RIGHT);
+                    y = y + 1;
                 }
-                if (y+2>rowsPerColumn) {
-                    y=1;
+                if (y + 1 > rowsPerColumn) {
+                    y = 1;
                     x--;
                 }
-                gridLayout.addComponent(dateTitle, x, y);
-                gridLayout.setComponentAlignment(dateTitle, Alignment.BOTTOM_RIGHT);
+                gridLayout.addComponent(addCall(call), x, y);
                 y = y + 1;
             }
-            if (y+1>rowsPerColumn) {
-                y=1;
-                x--;
-            }
-            gridLayout.addComponent(addCall(call),x,y);
-            y = y + 1;
+        } catch (Exception e) {
+            Logger.info(BigScreenUI.class, "The following exception happen while trying to populate the big screen:");
+            Logger.exception(BigScreenUI.class, e);
         }
 
         return gridLayout;
@@ -167,10 +175,9 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         grid.setHeaderVisible(false);
         grid.addStyleName("bigscreen");
         grid.addComponentColumn(this::createCallLabel);
-        grid.addContextClickListener(clickEvent ->
-                Page.getCurrent().open(UIPaths.EDITCALL.getEditCallPath(call),
-                        UIPaths.EDITCALL.getWindowName(), UIPaths.EDITCALL.getWindowWidth(), UIPaths.EDITCALL.getWindowHeight(),
-                        BorderStyle.NONE));
+        grid.addContextClickListener(clickEvent -> Page.getCurrent().open(UIPaths.EDITCALL.getEditCallPath(call),
+                UIPaths.EDITCALL.getWindowName(), UIPaths.EDITCALL.getWindowWidth(), UIPaths.EDITCALL.getWindowHeight(),
+                BorderStyle.NONE));
         grid.addStyleName("custom-margins");
         grid.setStyleGenerator((StyleGenerator<Call>) StyleSettings::callStyle);
         return grid;
@@ -182,7 +189,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         return label;
     }
 
-    private String getCallData(Call call){
+    private String getCallData(Call call) {
         String dataString = "<div align=right dir=\"rtl\"><b>"
                 + NullPointerExceptionWrapper.getWrapper(call, c -> c.getStartDate().toShortString(), "")
                 + "</b> <B>/</B> "
