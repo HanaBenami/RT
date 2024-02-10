@@ -1,6 +1,5 @@
 package il.co.rtcohen.rt.app.ui;
 
-
 import il.co.rtcohen.rt.app.uiComponents.fields.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
@@ -30,9 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.Map;
 
-
 @SpringComponent
-@SpringUI(path="/editCall")
+@SpringUI(path = "/editCall")
 public class EditCallUI extends AbstractUI<GridLayout> {
     private static final String BUTTON_WIDTH = "150px";
     private static final String FIELDS_WIDTH = "200px";
@@ -86,8 +84,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             DriverRepository driverRepository,
             GarageStatusRepository garageStatusRepository,
             WarehouseStatusRepository warehouseStatusRepository,
-            HashavshevetSync hashavshevetSync
-    ) {
+            HashavshevetSync hashavshevetSync) {
         super(errorHandler, callRepository, generalRepository, usersRepository);
         this.customerRepository = customerRepository;
         this.customerTypeRepository = customerTypeRepository;
@@ -114,7 +111,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         int selectedSiteId = Integer.parseInt(parametersMap.getOrDefault("site", "0"));
         int selectedVehicleId = Integer.parseInt(parametersMap.getOrDefault("vehicle", "0"));
         // Only if this is a new call, use the above parameters to initiate its values
-        if (0 == selectedCallId)  {
+        if (0 == selectedCallId) {
             this.call = new Call();
             this.call.setOpenedByUser(getSessionUsername());
             if (0 != selectedVehicleId) {
@@ -158,11 +155,9 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshTitle() {
-        String title = (
-                (null == call || null == call.getId() || 0 == call.getId())
+        String title = ((null == call || null == call.getId() || 0 == call.getId())
                 ? LanguageSettings.getLocaleString("addingCall")
-                : LanguageSettings.getLocaleString("callDetails") + call.getId()
-        );
+                : LanguageSettings.getLocaleString("callDetails") + call.getId());
         int column = 4;
         int row = 0;
         layout.removeComponent(column, row);
@@ -180,7 +175,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         int row = 14;
         int column = 4;
         layout.removeComponent(column, row);
-        layout.addComponent(new CustomLabel("scheduleDetails", null, true, CustomLabel.LabelStyle.SMALL_TITLE), column, row);
+        layout.addComponent(new CustomLabel("scheduleDetails", null, true, CustomLabel.LabelStyle.SMALL_TITLE), column,
+                row);
     }
 
     private void addOrRefreshAllGrids() {
@@ -200,10 +196,9 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.removeComponent(this.changeCustomerButton);
         this.layout.removeComponent(column2, row1);
         this.changeCustomerButton = addButtonToLayout("changeCustomer", VaadinIcons.RECYCLE, clickEvent -> {
-                this.call.setCustomer(null);
-                addCustomerGrid();
-            }, 2, 0
-        );
+            this.call.setCustomer(null);
+            addCustomerGrid();
+        }, 2, 0);
         if (null != call.getCustomer()) {
             this.changeCustomerButton.setEnabled(!call.isDeleted());
             this.customerGrid = new CustomerGrid(
@@ -242,18 +237,17 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.removeComponent(this.changeSiteButton);
         this.layout.removeComponent(column2, row1);
         this.changeSiteButton = addButtonToLayout("changeSite", VaadinIcons.RECYCLE, clickEvent -> {
-                    this.call.setSite(null);
-                    addSiteGrid();
-                }, 3, 0
-        );
+            this.call.setSite(null);
+            addSiteGrid();
+        }, 3, 0);
         if (null != this.call.getSite()) {
             this.changeSiteButton.setEnabled(!call.isDeleted());
             this.sitesGrid = new SitesGrid(
-                    this.call.getCustomer(), customerRepository, contactRepository, siteRepository, callRepository, cityRepository, areaRepository
-            );
+                    this.call.getCustomer(), customerRepository, contactRepository, siteRepository, callRepository,
+                    cityRepository, areaRepository);
             this.sitesGrid.initGrid(false, 0);
             this.sitesGrid.setEnabled(!call.isDeleted());
-            this.addGridToLayout(this.sitesGrid, this.call.getSite(), 1,column1, row1, column2, row2);
+            this.addGridToLayout(this.sitesGrid, this.call.getSite(), 1, column1, row1, column2, row2);
         } else if (null != this.call.getCustomer()) {
             this.changeSiteButton.setEnabled(false);
             this.siteComboBox = CustomComboBox.getComboBox(siteRepository, this.call.getCustomer());
@@ -284,18 +278,16 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.removeComponent(this.changeVehicleButton);
         this.layout.removeComponent(column2, row1);
         this.changeVehicleButton = addButtonToLayout("changeVehicle", VaadinIcons.RECYCLE, clickEvent -> {
-                    this.call.setVehicle(null);
-                    addVehicleGrid();
-                }, 5, 0
-        );
+            this.call.setVehicle(null);
+            addVehicleGrid();
+        }, 5, 0);
         if (null != this.call.getVehicle()) {
             this.changeVehicleButton.setEnabled(!call.isDeleted());
             this.vehiclesGrid = new VehiclesGrid(
-                    this.call.getSite(), siteRepository, vehicleRepository, vehicleTypeRepository, callRepository
-            );
+                    this.call.getSite(), siteRepository, vehicleRepository, vehicleTypeRepository, callRepository);
             this.vehiclesGrid.initGrid(false, 0);
             this.vehiclesGrid.setEnabled(!call.isDeleted());
-            addGridToLayout(this.vehiclesGrid, this.call.getVehicle(), 1,column1, row1, column2, row2);
+            addGridToLayout(this.vehiclesGrid, this.call.getVehicle(), 1, column1, row1, column2, row2);
         } else if (null != this.call.getSite()) {
             this.changeVehicleButton.setEnabled(false);
             this.vehicleComboBox = CustomComboBox.getComboBox(vehicleRepository, this.call.getSite());
@@ -318,10 +310,9 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.removeComponent(this.contactsGrid);
         if (null != this.call.getSite()) {
             this.contactsGrid = new ContactsGrid(
-                    this.call.getSite(), contactRepository
-            );
+                    this.call.getSite(), contactRepository);
             this.contactsGrid.initGrid(false, 1);
-            this.addGridToLayout(this.contactsGrid, null, 3,1, 5, 4, 5);
+            this.addGridToLayout(this.contactsGrid, null, 3, 1, 5, 4, 5);
         }
     }
 
@@ -329,8 +320,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             AbstractTypeFilterGrid<T> abstractTypeFilterGrid,
             T selectedItem,
             Integer setHeightByRows,
-            int column1, int row1, int column2, int row2
-    ) {
+            int column1, int row1, int column2, int row2) {
         abstractTypeFilterGrid.setWidth("100%");
         abstractTypeFilterGrid.hideFilterRow();
         if (null != selectedItem) {
@@ -368,8 +358,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             Notification.show(LanguageSettings.getLocaleString(
                     "scheduledCallDeleteError"),
                     "",
-                    Notification.Type.ERROR_MESSAGE
-            );
+                    Notification.Type.ERROR_MESSAGE);
         } else {
             // TODO: warning before ?
             if (null != call) {
@@ -379,13 +368,13 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             Notification.show(
                     LanguageSettings.getLocaleString("callDeleted"),
                     "",
-                    Notification.Type.WARNING_MESSAGE
-            );
+                    Notification.Type.WARNING_MESSAGE);
             refreshWindow();
         }
     }
 
-    private CustomButton addButtonToLayout(String caption, VaadinIcons vaadinIcons, Button.ClickListener clickListener, int row, int column) {
+    private CustomButton addButtonToLayout(String caption, VaadinIcons vaadinIcons, Button.ClickListener clickListener,
+            int row, int column) {
         CustomButton button = new CustomButton(vaadinIcons, true, clickListener);
         button.setCaption(caption);
         button.setWidth(BUTTON_WIDTH);
@@ -411,6 +400,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         addOrRefreshDriverComboBox();
         addOrRefreshScheduledOrderField();
         addOrRefreshScheduleTitle();
+        addOrRefreshInvoiceNumField();
     }
 
     private void addOrRefreshIsHereCheckBox() {
@@ -422,7 +412,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshIsDoneCheckBox() {
-        addCheckBoxFieldToLayout(Call::isDone, null, "done", 17, 1);
+        addCheckBoxFieldToLayout(Call::isDone, null, "done", 18, 1);
     }
 
     private void addOrRefreshStartDateField() {
@@ -454,7 +444,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     }
 
     private void addOrRefreshWarehouseStatusComboBox() {
-        addComboBoxToLayout(warehouseStatusRepository, Call::getWarehouseStatus, Call::setWarehouseStatus, "warehouseStatus", 8, 1);
+        addComboBoxToLayout(warehouseStatusRepository, Call::getWarehouseStatus, Call::setWarehouseStatus,
+                "warehouseStatus", 8, 1);
     }
 
     private void addOrRefreshGarageStatusComboBox() {
@@ -469,42 +460,60 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         addComboBoxToLayout(driverRepository, Call::getCurrentDriver, Call::setCurrentDriver, "driver", 15, 1);
     }
 
-    // TODO: Generic method ?
     private void addOrRefreshScheduledOrderField() {
+        addNumericFieldToLayout(
+                Call::getCurrentScheduledOrder,
+                Call::setCurrentScheduledOrder,
+                "order",
+                16, 1);
+    }
+
+    private void addOrRefreshInvoiceNumField() {
+        addNumericFieldToLayout(
+                Call::getInvoiceNum,
+                Call::setInvoiceNum,
+                "invoice",
+                17, 1);
+    }
+
+    private void addNumericFieldToLayout(
+            ValueProvider<Call, Integer> valueProvider,
+            Setter<Call, Integer> setter,
+            String captionKey,
+            int row, int column) {
         CustomIntegerField numericField = new CustomIntegerField(
-            null,
-                call.getCurrentScheduledOrder(),
+                null,
+                valueProvider.apply(call),
                 0,
-                99,
-                false, null,
+                null,
+                false,
+                null,
                 null);
-        numericField.addValueChangeListener(listener -> {
-                call.setCurrentScheduledOrder(Integer.parseInt(numericField.getValue()));
+        if (null != setter) {
+            numericField.addValueChangeListener(listener -> {
+                setter.accept(call, Integer.parseInt(numericField.getValue()));
                 saveData();
-        });
+            });
+        }
         numericField.setWidth(FIELDS_WIDTH);
         numericField.setEnabled(!call.isDeleted());
-        int column = 1;
-        int row = 16;
         this.layout.removeComponent(column, row);
         this.layout.addComponent(numericField, column, row);
         this.layout.removeComponent(column + 1, row);
-        this.layout.addComponent(new CustomLabel("order", FIELDS_WIDTH), column + 1, row);
+        this.layout.addComponent(new CustomLabel(captionKey, FIELDS_WIDTH), column + 1, row);
     }
 
     private void addCheckBoxFieldToLayout(
             ValueProvider<Call, Boolean> valueProvider,
             Setter<Call, Boolean> setter,
             String captionKey,
-            int row, int column
-    ) {
+            int row, int column) {
         CustomCheckBox checkBox = new CustomCheckBox(null, valueProvider.apply(call), null == setter);
         if (null != setter) {
             checkBox.addValueChangeListener(listener -> {
-                        setter.accept(call, checkBox.getValue());
-                        saveData();
-                    }
-            );
+                setter.accept(call, checkBox.getValue());
+                saveData();
+            });
         }
         checkBox.setEnabled(!call.isDeleted());
         this.layout.removeComponent(column, row);
@@ -518,15 +527,13 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             ValueProvider<Call, Date> valueProvider,
             Setter<Call, Date> setter,
             String captionKey,
-            int row, int column
-    ) {
+            int row, int column) {
         CustomDateField dateField = new CustomDateField(valueProvider.apply(call));
         if (null != setter) {
             dateField.addValueChangeListener(listener -> {
-                        setter.accept(call, new Date(dateField.getValue()));
-                        saveData();
-                    }
-            );
+                setter.accept(call, new Date(dateField.getValue()));
+                saveData();
+            });
         } else {
             dateField.setReadOnly(true);
         }
@@ -542,15 +549,13 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             ValueProvider<Call, String> valueProvider,
             Setter<Call, String> setter,
             String captionKey,
-            int row1, int row2, int column1, int column2
-    ) {
+            int row1, int row2, int column1, int column2) {
         CustomTextArea textArea = new CustomTextArea(null, valueProvider.apply(call), null, null);
         if (null != setter) {
             textArea.addValueChangeListener(listener -> {
-                        setter.accept(call, textArea.getValue());
-                        saveData();
-                    }
-            );
+                setter.accept(call, textArea.getValue());
+                saveData();
+            });
         }
         textArea.setSizeFull();
         textArea.setEnabled(!call.isDeleted());
@@ -567,8 +572,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             Setter<Call, T> setter,
             String captionKey,
             int row,
-            int column
-    ) {
+            int column) {
         CustomComboBox<T> comboBox = CustomComboBox.getComboBox(repository);
         T selected = valueProvider.apply(call);
         if (null != selected) {
@@ -576,10 +580,9 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         }
         if (null != setter) {
             comboBox.addValueChangeListener(listener -> {
-                        setter.accept(call, comboBox.getValue());
-                        saveData();
-                    }
-            );
+                setter.accept(call, comboBox.getValue());
+                saveData();
+            });
         } else {
             comboBox.setReadOnly(true);
             comboBox.setEnabled(!call.isDeleted());

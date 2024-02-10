@@ -19,7 +19,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Repository
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class CallRepository extends AbstractTypeRepository<Call> implements RepositoryInterface<Call> {
@@ -42,6 +41,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     static protected final String DB_USER_ID_COLUMN = "userid";
     static protected final String DB_GARAGE_STATUS_ID_COLUMN = "garageStatusID";
     static protected final String DB_WAREHOUSE_STATUS_ID_COLUMN = "warehouseStatusID";
+    static protected final String DB_INVOICE_NUM_COLUMN = "invoiceNum";
 
     private final CustomerRepository customerRepository;
     private final SiteRepository siteRepository;
@@ -54,17 +54,17 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
 
     @Autowired
     public CallRepository(DataSource dataSource,
-                          CustomerRepository customerRepository,
-                          SiteRepository siteRepository,
-                          VehicleRepository vehicleRepository,
-                          CallTypeRepository callTypeRepository,
-                          DriverRepository driverRepository,
-                          UsersRepository usersRepository,
-                          GarageStatusRepository garageStatusRepository,
-                          WarehouseStatusRepository warehouseStatusRepository) {
+            CustomerRepository customerRepository,
+            SiteRepository siteRepository,
+            VehicleRepository vehicleRepository,
+            CallTypeRepository callTypeRepository,
+            DriverRepository driverRepository,
+            UsersRepository usersRepository,
+            GarageStatusRepository garageStatusRepository,
+            WarehouseStatusRepository warehouseStatusRepository) {
         super(
                 dataSource, "call", "Calls",
-                new String[]{
+                new String[] {
                         DB_CUSTOMER_ID_COLUMN,
                         DB_SITE_ID_COLUMN,
                         DB_VEHICLE_ID_COLUMN,
@@ -83,9 +83,9 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                         DB_IS_DELETED_COLUMN,
                         DB_USER_ID_COLUMN,
                         DB_GARAGE_STATUS_ID_COLUMN,
-                        DB_WAREHOUSE_STATUS_ID_COLUMN
-                }
-        );
+                        DB_WAREHOUSE_STATUS_ID_COLUMN,
+                        DB_INVOICE_NUM_COLUMN
+                });
         this.customerRepository = customerRepository;
         this.siteRepository = siteRepository;
         this.vehicleRepository = vehicleRepository;
@@ -117,35 +117,45 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 rs.getBoolean(DB_IS_DELETED_COLUMN),
                 usersRepository.getItem(rs.getInt(DB_USER_ID_COLUMN)),
                 garageStatusRepository.getItem(rs.getInt(DB_GARAGE_STATUS_ID_COLUMN)),
-                warehouseStatusRepository.getItem(rs.getInt(DB_WAREHOUSE_STATUS_ID_COLUMN)));
+                warehouseStatusRepository.getItem(rs.getInt(DB_WAREHOUSE_STATUS_ID_COLUMN)),
+                rs.getInt(DB_INVOICE_NUM_COLUMN));
     }
 
     @Override
     protected int updateItemDetailsInStatement(PreparedStatement preparedStatement, Call call) throws SQLException {
         int fieldsCounter = 1;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getCustomer().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getCustomer().getId(), 0));
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getId(), 0));
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getVehicle().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getVehicle().getId(), 0));
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getCallType().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getCallType().getId(), 0));
         fieldsCounter++;
         preparedStatement.setString(fieldsCounter, call.getDescription());
         fieldsCounter++;
         preparedStatement.setString(fieldsCounter, call.getNotes());
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getStartDate().toString(), Date.nullDate().toString()));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call,
+                c -> c.getStartDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getPlanningDate().toString(), Date.nullDate().toString()));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call,
+                c -> c.getPlanningDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getCurrentScheduledDate().toString(), Date.nullDate().toString()));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call,
+                c -> c.getCurrentScheduledDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
-        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getEndDate().toString(), Date.nullDate().toString()));
+        preparedStatement.setString(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call,
+                c -> c.getEndDate().toString(), Date.nullDate().toString()));
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter, call.getCurrentScheduledOrder());
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getCurrentDriver().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getCurrentDriver().getId(), 0));
         fieldsCounter++;
         preparedStatement.setBoolean(fieldsCounter, call.isMeeting());
         fieldsCounter++;
@@ -155,11 +165,17 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         fieldsCounter++;
         preparedStatement.setBoolean(fieldsCounter, call.isDeleted());
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getOpenedByUser().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getOpenedByUser().getId(), 0));
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getGarageStatus().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getGarageStatus().getId(), 0));
         fieldsCounter++;
-        preparedStatement.setInt(fieldsCounter, NullPointerExceptionWrapper.getWrapper(call, c -> c.getWarehouseStatus().getId(), 0));
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getWarehouseStatus().getId(), 0));
+        fieldsCounter++;
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getInvoiceNum(), 0));
         return fieldsCounter;
     }
 
@@ -235,13 +251,13 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
 
     // TODO: move logic to appropriate place
     public List<Call> getCallsCurrentlyInTheGarage() {
-        return getItems(false, false, true, null, Date.nullDate(), null, null);
+        return getItems(false, false, true, null, null, Date.nullDate(), null, null);
     }
 
     // TODO: move logic to appropriate place
     public List<Call> getOpenCallsInArea(Area area) {
-        List<Call> callsNotHere = getItems(false, false, false, null, null, null, area);
-        List<Call> callsHereReadyToLeave = getItems(false, false, true, null, null, Date.nullDate(), area);
+        List<Call> callsNotHere = getItems(false, false, false, null, null, null, null, area);
+        List<Call> callsHereReadyToLeave = getItems(false, false, true, null, null, null, Date.nullDate(), area);
         List<Call> fullList = new ArrayList<>(callsNotHere);
         fullList.addAll(callsHereReadyToLeave);
         if (null == area) {
@@ -251,7 +267,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     }
 
     public List<Call> getItems(Boolean isDone, Boolean isDeleted, Boolean isHere,
-                               Date maximalEndDate, Date scheduledDateEqualTo, Date scheduleDateOtherThan, Area area) {
+            Date maximalEndDate, Date maximalScheduleDate, Date scheduledDateEqualTo, Date scheduleDateOtherThan,
+            Area area) {
         List<Call> list = null;
         try (Connection connection = getConnection()) {
             String sqlQuery = "select * from " + DB_TABLE_NAME;
@@ -266,6 +283,9 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
             }
             if (null != maximalEndDate) {
                 sqlQuery += " and ?<=" + DB_END_DATE_COLUMN + "";
+            }
+            if (null != maximalScheduleDate) {
+                sqlQuery += " and ?>=" + DB_SCHEDULED_DATE_COLUMN + "";
             }
             if (null != scheduledDateEqualTo) {
                 sqlQuery += " and " + DB_SCHEDULED_DATE_COLUMN + "=?";
@@ -294,6 +314,10 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 preparedStatement.setString(fieldsCounter, maximalEndDate.toString());
                 fieldsCounter++;
             }
+            if (null != maximalScheduleDate) {
+                preparedStatement.setString(fieldsCounter, maximalScheduleDate.toString());
+                fieldsCounter++;
+            }
             if (null != scheduledDateEqualTo) {
                 preparedStatement.setString(fieldsCounter, scheduledDateEqualTo.toString());
                 fieldsCounter++;
@@ -304,7 +328,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
             }
             list = getItems(preparedStatement);
             if (null != area) {
-                list.removeIf(call -> (null == call.getSite() || null == call.getSite().getArea() || !call.getSite().getArea().equals(area)));
+                list.removeIf(call -> (null == call.getSite() || null == call.getSite().getArea()
+                        || !call.getSite().getArea().equals(area)));
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();

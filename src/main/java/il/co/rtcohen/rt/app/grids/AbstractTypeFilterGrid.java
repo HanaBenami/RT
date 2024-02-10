@@ -10,6 +10,7 @@ import il.co.rtcohen.rt.utils.Logger;
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.ui.UIPaths;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
+import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeSyncedWithHashavshevet;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeRepository;
 
 import com.vaadin.data.ValueProvider;
@@ -20,12 +21,13 @@ import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.Editor;
 import com.vaadin.ui.components.grid.HeaderRow;
+
+import org.apache.poi.ss.formula.functions.T;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
 
 abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<T>> extends FilterGrid<T> {
     private AbstractTypeRepository<T> mainRepository;
@@ -49,8 +51,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
             AbstractTypeRepository<T> mainRepository,
             Supplier<T> newItemSupplier,
             String titleKey,
-            Predicate<T> itemsFilterPredicate
-    ) {
+            Predicate<T> itemsFilterPredicate) {
         super();
         this.setGridRepository(mainRepository);
         this.setNewItemSupplier(newItemSupplier);
@@ -65,6 +66,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         this.populateGrid(numOfEmptyLines);
         this.sort();
         this.setStyle();
+        this.setDescriptions();
         if (fullSize) {
             this.setSizeFull();
         }
@@ -73,7 +75,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
     abstract protected void addColumns();
 
     protected void sort() {
-        this.sort((null == getCustomSortColumnId() ? idColumnId : getCustomSortColumnId()), SortDirection.ASCENDING);
+        String columnId = (null == getCustomSortColumnId() ? idColumnId : getCustomSortColumnId());
+        SortDirection direction = (columnId == idColumnId ? SortDirection.DESCENDING : SortDirection.ASCENDING);
+        this.sort(columnId, direction);
     }
 
     public void setEmptyLinesAllow(boolean emptyLinesAllow) {
@@ -93,6 +97,22 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         this.setStyleGenerator((StyleGenerator<T>) T -> {
             if (null == T.getId()) {
                 return "yellow";
+            } else if (AbstractTypeSyncedWithHashavshevet.class.isAssignableFrom(T.getClass())
+                    && !((AbstractTypeSyncedWithHashavshevet) T).wasSyncedWithHashavshevet()) {
+                return "red";
+            } else {
+                return null;
+            }
+        });
+    }
+
+    protected void setDescriptions() {
+        this.setDescriptionGenerator((DescriptionGenerator<T>) T -> {
+            if (null == T.getId()) {
+                return LanguageSettings.getLocaleString("newRecord");
+            } else if (AbstractTypeSyncedWithHashavshevet.class.isAssignableFrom(T.getClass())
+                    && !((AbstractTypeSyncedWithHashavshevet) T).wasSyncedWithHashavshevet()) {
+                return LanguageSettings.getLocaleString("neverSyncedWithHash");
             } else {
                 return null;
             }
@@ -127,9 +147,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
     protected void setWarningMessage(String errorMessageKey) {
         this.warningMessage = keyToText(errorMessageKey);
     }
-    
+
     private String keyToText(String key) {
-        return  (null == key ? null : LanguageSettings.getLocaleString(key));
+        return (null == key ? null : LanguageSettings.getLocaleString(key));
     }
 
     protected void changeErrorMessage() {
@@ -144,7 +164,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         Set<T> selected = this.getSelectedItems();
         if (1 == selected.size()) {
             for (T t : selected) {
-                return t;   // The first item will be returned
+                return t; // The first item will be returned
             }
         }
         return null;
@@ -160,7 +180,8 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         editor.addSaveListener(listener -> {
             T currentItem = listener.getBean();
             if (currentItem.isItemValid()) {
-                Logger.getLogger(this).info("Going to update item in the grid (" + this.titleKey + ", id=" + currentItem.getId() + ")");
+                Logger.getLogger(this).info(
+                        "Going to update item in the grid (" + this.titleKey + ", id=" + currentItem.getId() + ")");
                 Integer idBefore = currentItem.getId();
                 this.mainRepository.updateItem(currentItem);
                 Notification.show(currentItem + " " + LanguageSettings.getLocaleString("wasEdited"));
@@ -236,8 +257,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                 false,
                 true,
                 true,
-                this
-        );
+                this);
     }
 
     public VerticalLayout getVerticalLayout() {
@@ -259,14 +279,17 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
         this.verticalLayout.setWidth("100%");
         this.setWidth("100%");
         if (withTitle) {
-            this.verticalLayout.addComponent(new CustomLabel(this.title, null, true, CustomLabel.LabelStyle.SMALL_TITLE));
+            this.verticalLayout
+                    .addComponent(new CustomLabel(this.title, null, true, CustomLabel.LabelStyle.SMALL_TITLE));
         }
         this.changeErrorMessage();
         if (null != errorMessage) {
-            this.verticalLayout.addComponent(new CustomLabel(this.errorMessage, null, true, CustomLabel.LabelStyle.ERROR));
+            this.verticalLayout
+                    .addComponent(new CustomLabel(this.errorMessage, null, true, CustomLabel.LabelStyle.ERROR));
         } else {
             if (null != warningMessage) {
-                this.verticalLayout.addComponent(new CustomLabel(this.warningMessage, null, true, CustomLabel.LabelStyle.ERROR));
+                this.verticalLayout
+                        .addComponent(new CustomLabel(this.warningMessage, null, true, CustomLabel.LabelStyle.ERROR));
             }
             RtlHorizontalLayout additionalLayout = customAdditionalLayout();
             if (null != additionalLayout) {
@@ -311,8 +334,9 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
     }
 
     public void setSelectedItem(T selectedItem) {
-            this.getSelectionModel().select(selectedItem);
-//          this.scrollTo(this.gridItems.indexOf(currentItem)); // TODO: not working during filter
+        this.getSelectionModel().select(selectedItem);
+        // this.scrollTo(this.gridItems.indexOf(currentItem)); // TODO: not working
+        // during filter
     }
 
     public void setSelectedItem(Integer selectedItemId, boolean filter) {
@@ -342,7 +366,8 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                         return null;
                     } else {
                         int openCallsCounter = callsCounterProvider.apply(t);
-                        Button callsButton = CustomButton.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL, VaadinIcons.BELL, openCallsCounter);
+                        Button callsButton = CustomButton.countingIcon(VaadinIcons.BELL_O, VaadinIcons.BELL,
+                                VaadinIcons.BELL, openCallsCounter);
                         callsButton.addClickListener(clickEvent -> {
                             String url = UIPaths.CALLS.getPath() + urlAddition + "=" + t.getId();
                             Page.getCurrent().open(
@@ -350,8 +375,7 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                                     UIPaths.CALLS.getWindowName(),
                                     UIPaths.CALLS.getWindowWidth(),
                                     UIPaths.CALLS.getWindowHeight(),
-                                    BorderStyle.NONE
-                            );
+                                    BorderStyle.NONE);
                         });
                         return callsButton;
                     }
@@ -359,7 +383,6 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                 60,
                 "callsColumn",
                 "calls",
-                this
-        );
+                this);
     }
 }

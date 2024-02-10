@@ -17,9 +17,19 @@ log:
   path: c:\\rt\\logs\\demo
 
 settings:
+  testEnvironment: false
   multiLanguage: true
   workOrderWidth: 1400
   bigScreen:
     rowHeight: 70
     rowsPerColumn: 10
     interval: 60000
+  hashSync:
+    executeScheduleSync: false
+    scheduleSyncFixedDelayMiliseconds: 3600000
+    scheduleSyncInitialDelayMiliseconds: 60000
+    syncNewCustomers: true
+    syncOnlyDiff: true
+    syncOnlyListedCustomers: true
+    hashavshevetCustomerIdsToSync: 2716, 2326, 20637
+

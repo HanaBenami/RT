@@ -28,6 +28,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
     private User openedByUser;
     private GarageStatus garageStatus;
     private WarehouseStatus warehouseStatus;
+    private int invoiceNum = 0;
 
     public Call() {
         super(0);
@@ -54,7 +55,8 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
             boolean isDeleted,
             User openedByUser,
             GarageStatus garageStatus,
-            WarehouseStatus warehouseStatus) {
+            WarehouseStatus warehouseStatus,
+            int invoiceNum) {
         super(id);
         this.customer = customer;
         this.site = site;
@@ -78,6 +80,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.openedByUser = openedByUser;
         this.garageStatus = garageStatus;
         this.warehouseStatus = warehouseStatus;
+        this.invoiceNum = invoiceNum;
     }
 
     public Call(Call other) {
@@ -104,6 +107,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.openedByUser = other.openedByUser;
         this.garageStatus = other.garageStatus;
         this.warehouseStatus = other.warehouseStatus;
+        this.invoiceNum = other.invoiceNum;
     }
 
     @Override
@@ -309,13 +313,24 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.warehouseStatus = warehouseStatus;
     }
 
+    public int getInvoiceNum() {
+        return this.invoiceNum;
+    }
+
+    public void setInvoiceNum(int invoiceNum) {
+        this.invoiceNum = invoiceNum;
+    }
+
     @Override
     public void postSave() {
         CallRepository callRepository = (CallRepository) this.getBindRepository();
         String loggerPrefix = "Executing postSave for call #" + this.getId() + ": ";
-        Logger.getLogger(this).info(loggerPrefix + "Driver change: " + this.getPreviousDriver() + " -> " + this.getCurrentDriver());
-        Logger.getLogger(this).info(loggerPrefix + "Schedule date: " + this.getPreviousScheduledDate() + " -> " + this.getCurrentScheduledDate());
-        Logger.getLogger(this).info(loggerPrefix + "Schedule order: " + this.getPreviousScheduledOrder() + " -> " + this.getCurrentScheduledOrder());
+        Logger.getLogger(this)
+                .info(loggerPrefix + "Driver change: " + this.getPreviousDriver() + " -> " + this.getCurrentDriver());
+        Logger.getLogger(this).info(loggerPrefix + "Schedule date: " + this.getPreviousScheduledDate() + " -> "
+                + this.getCurrentScheduledDate());
+        Logger.getLogger(this).info(loggerPrefix + "Schedule order: " + this.getPreviousScheduledOrder() + " -> "
+                + this.getCurrentScheduledOrder());
 
         if ((this.currentScheduledDate == this.previousScheduledDate)
                 && (this.currentDriver == this.previousDriver)
@@ -329,23 +344,23 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
             fixScheduledOrder();
 
-            // Remove from schedule according to previous parameters - Decrease the schedule order of all the calls that was scheduled afterwards
+            // Remove from schedule according to previous parameters - Decrease the schedule
+            // order of all the calls that was scheduled afterwards
             if (0 != this.getPreviousScheduledOrder()) {
-                List<Call> list = callRepository.getScheduledCalls(this.getPreviousScheduledDate(), this.getPreviousDriver());
+                List<Call> list = callRepository.getScheduledCalls(this.getPreviousScheduledDate(),
+                        this.getPreviousDriver());
                 list.removeIf(call -> call.equals(this));
                 Logger.getLogger(this).info(
                         loggerPrefix + "Going to update all the calls w/ the previous driver and date, where" +
                                 " currentScheduledDate=" + this.getPreviousScheduledDate()
                                 + " and currentDriver=" + this.getPreviousDriver()
-                                + " (" +list.size() + " calls)"
-                );
+                                + " (" + list.size() + " calls)");
                 for (Call otherCall : list) {
                     if (this.getPreviousScheduledOrder() < otherCall.getCurrentScheduledOrder()) {
                         Logger.getLogger(this).info(
                                 loggerPrefix + "Reducing the schedule order of call #" + otherCall.getId()
-                                + " from " + otherCall.getCurrentScheduledOrder()
-                                + " to " + (otherCall.getCurrentScheduledOrder() - 1)
-                        );
+                                        + " from " + otherCall.getCurrentScheduledOrder()
+                                        + " to " + (otherCall.getCurrentScheduledOrder() - 1));
                         otherCall.setCurrentScheduledOrder(otherCall.getCurrentScheduledOrder() - 1);
                         callRepository.updateItem(otherCall);
                     }
@@ -354,21 +369,20 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
             // Put back in the schedule - Increase the schedule order
             if (0 != this.getCurrentScheduledOrder()) {
-                List<Call> list = callRepository.getScheduledCalls(this.getCurrentScheduledDate(), this.getCurrentDriver());
+                List<Call> list = callRepository.getScheduledCalls(this.getCurrentScheduledDate(),
+                        this.getCurrentDriver());
                 list.removeIf(call -> call.equals(this));
                 Logger.getLogger(this).info(
                         loggerPrefix + "Going to update all the calls w/ the current driver and date, where" +
                                 " currentScheduledDate=" + this.getCurrentScheduledDate()
                                 + " and currentDriver=" + this.getCurrentDriver()
-                                + " (" +list.size() + " calls)"
-                );
+                                + " (" + list.size() + " calls)");
                 for (Call otherCall : list) {
                     if (this.getCurrentScheduledOrder() <= otherCall.getCurrentScheduledOrder()) {
                         Logger.getLogger(this).info(
                                 loggerPrefix + "Increasing the schedule order of call #" + otherCall.getId()
                                         + " from " + otherCall.getCurrentScheduledOrder()
-                                        + " to " + (otherCall.getCurrentScheduledOrder() + 1)
-                        );
+                                        + " to " + (otherCall.getCurrentScheduledOrder() + 1));
                         otherCall.setCurrentScheduledOrder(otherCall.getCurrentScheduledOrder() + 1);
                         callRepository.updateItem(otherCall);
                     }
@@ -377,7 +391,8 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
             inTheMiddleOfBatchScheduleUpdate = false;
         } else {
-            Logger.getLogger(this).info(loggerPrefix + "inTheMiddleOfBatchScheduleUpdate=true -> Not going to update other calls");
+            Logger.getLogger(this)
+                    .info(loggerPrefix + "inTheMiddleOfBatchScheduleUpdate=true -> Not going to update other calls");
         }
 
         // Fixing the new scheduled order again in order to avoid "holes" in the queue
@@ -399,29 +414,32 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         } else {
             List<Call> list = callRepository.getScheduledCalls(this.getCurrentScheduledDate(), this.getCurrentDriver());
             list.removeIf(call -> call.equals(this));
-            Optional<Call> previouslyLastCallInTheSameSchedule = list.stream().max(Comparator.comparing(Call::getCurrentScheduledOrder));
+            Optional<Call> previouslyLastCallInTheSameSchedule = list.stream()
+                    .max(Comparator.comparing(Call::getCurrentScheduledOrder));
             if (previouslyLastCallInTheSameSchedule.isPresent()) {
-                int previouslyLastCallInTheSameScheduleOrder = previouslyLastCallInTheSameSchedule.get().getCurrentScheduledOrder();
-                Logger.getLogger(this).info(loggerPrefix + "previouslyLastCallInTheSameScheduleOrder=" + previouslyLastCallInTheSameScheduleOrder);
+                int previouslyLastCallInTheSameScheduleOrder = previouslyLastCallInTheSameSchedule.get()
+                        .getCurrentScheduledOrder();
+                Logger.getLogger(this).info(loggerPrefix + "previouslyLastCallInTheSameScheduleOrder="
+                        + previouslyLastCallInTheSameScheduleOrder);
                 if (previouslyLastCallInTheSameScheduleOrder + 1 < this.getCurrentScheduledOrder()
                         || 0 == this.getCurrentScheduledOrder()) {
                     Logger.getLogger(this).info(
                             loggerPrefix
-                                    + "previouslyLastCallInTheSameScheduleOrder=" + previouslyLastCallInTheSameScheduleOrder
+                                    + "previouslyLastCallInTheSameScheduleOrder="
+                                    + previouslyLastCallInTheSameScheduleOrder
                                     + ", but currentScheduledOrder=" + this.getCurrentScheduledOrder()
-                                    + " -> Reducing it to " + (previouslyLastCallInTheSameScheduleOrder + 1)
-                    );
+                                    + " -> Reducing it to " + (previouslyLastCallInTheSameScheduleOrder + 1));
                     this.setCurrentScheduledOrder(previouslyLastCallInTheSameScheduleOrder + 1);
                 }
             } else {
                 Logger.getLogger(this).info(
                         loggerPrefix
                                 + "previouslyLastCallInTheSameScheduleOrder=null (no other call w/ this driver and date)"
-                                + " -> Reducing currentScheduledOrder to 1"
-                );
+                                + " -> Reducing currentScheduledOrder to 1");
                 this.setCurrentScheduledOrder(1);
             }
         }
-        Logger.getLogger(this).info(loggerPrefix + "Schedule order: " + this.getPreviousScheduledOrder() + " -> " + this.getCurrentScheduledOrder());
+        Logger.getLogger(this).info(loggerPrefix + "Schedule order: " + this.getPreviousScheduledOrder() + " -> "
+                + this.getCurrentScheduledOrder());
     }
 }

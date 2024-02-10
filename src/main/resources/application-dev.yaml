@@ -16,4 +16,13 @@ vaadin:
     productionMode: false
 
 settings:
+  testEnvironment: false
   multiLanguage: true
+  hashSync:
+    executeScheduleSync: false
+    scheduleSyncFixedDelayMiliseconds: 3600000
+    scheduleSyncInitialDelayMiliseconds: 60000
+    syncNewCustomers: true
+    syncOnlyDiff: true
+    syncOnlyListedCustomers: true
+    hashavshevetCustomerIdsToSync: 2716, 2326, 20637

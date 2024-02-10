@@ -29,7 +29,7 @@ public class AbstractTypeWithNameAndActiveFields extends AbstractType implements
     }
 
     public void setActive(boolean active) {
-        this.active=active;
+        this.active = active;
     }
 
     public String getName() {

@@ -21,16 +21,12 @@ import il.co.rtcohen.rt.dal.repositories.*;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.utils.NullPointerExceptionWrapper;
 
-
 public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     private final CallRepository callRepository;
     private final CustomerRepository customerRepository;
-    private final CustomerTypeRepository customerTypeRepository;
     private final SiteRepository siteRepository;
     private final AreaRepository areaRepository;
-    private final VehicleRepository vehicleRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
-    private final UsersRepository usersRepository;
     private final DriverRepository driverRepository;
     private final CallTypeRepository callTypeRepository;
     private final GarageStatusRepository garageStatusRepository;
@@ -61,31 +57,24 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
             DriverRepository driverRepository,
             CallTypeRepository callTypeRepository,
             GarageStatusRepository garageStatusRepository,
-            CityRepository cityRepository
-    ) {
+            CityRepository cityRepository) {
         super(
                 callRepository,
                 null,
                 "calls",
-                call -> (
-                    (null != selectedVehicle && !selectedVehicle.equals(call.getVehicle()))
-                    || (null != selectedSite && !selectedSite.equals(call.getSite()))
-                    || (null != selectedCustomer && !selectedCustomer.equals(call.getCustomer())
-                    || (null != selectedDriver && !selectedDriver.equals(call.getCurrentDriver())))
-                )
-        );
+                call -> ((null != selectedVehicle && !selectedVehicle.equals(call.getVehicle()))
+                        || (null != selectedSite && !selectedSite.equals(call.getSite()))
+                        || (null != selectedCustomer && !selectedCustomer.equals(call.getCustomer())
+                                || (null != selectedDriver && !selectedDriver.equals(call.getCurrentDriver())))));
         this.selectedCallsFilterOption = selectedCallsFilterOption;
         this.selectedCustomer = selectedCustomer;
         this.selectedSite = selectedSite;
         this.selectedVehicle = selectedVehicle;
         this.callRepository = callRepository;
         this.customerRepository = customerRepository;
-        this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;
         this.areaRepository = areaRepository;
-        this.vehicleRepository = vehicleRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;
-        this.usersRepository = usersRepository;
         this.driverRepository = driverRepository;
         this.callTypeRepository = callTypeRepository;
         this.garageStatusRepository = garageStatusRepository;
@@ -98,6 +87,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         ONLY_OPEN_CALLS("openCalls"),
         ONLY_OPEN_CALLS_PENDING_GARAGE("openCallsPendingGarage"),
         ONLY_OPEN_CALLS_PENDING_WAREHOUSE("openCallsPendingWarehouse"),
+        PENDING_CALLS_SCHEDULE_DATE_PASSED("pendingCallScheduleDatePassed"),
         CALLS_PLANNED_FOR_YESTERDAY("yesterday"),
         CALLS_PLANNED_FOR_TODAY("today"),
         CALLS_PLANNED_FOR_TOMORROW("tomorrow"),
@@ -126,30 +116,40 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
         } else {
             switch (selectedCallsFilterOption) {
                 case ALL_CALLS:
-                    callsInGrid = callRepository.getItems(null, null, null, null, null, null, null);
+                    callsInGrid = callRepository.getItems(null, null, null, null, null, null, null, null);
                     break;
                 case ONLY_OPEN_CALLS:
-                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);
+                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null, null);
                     break;
                 case ONLY_OPEN_CALLS_PENDING_GARAGE:
-                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);
-                    callsInGrid.removeIf(call -> (null == call.getGarageStatus() || !call.getGarageStatus().isPendingGarage()));
+                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null, null);
+                    callsInGrid.removeIf(
+                            call -> (null == call.getGarageStatus() || !call.getGarageStatus().isPendingGarage()));
                     break;
                 case ONLY_OPEN_CALLS_PENDING_WAREHOUSE:
-                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null);
-                    callsInGrid.removeIf(call -> (null == call.getWarehouseStatus() || !call.getWarehouseStatus().isPendingWarehouse()));
+                    callsInGrid = callRepository.getItems(false, false, null, null, null, null, null, null);
+                    callsInGrid.removeIf(call -> (null == call.getWarehouseStatus()
+                            || !call.getWarehouseStatus().isPendingWarehouse()));
+                    break;
+                case PENDING_CALLS_SCHEDULE_DATE_PASSED:
+                    callsInGrid = callRepository.getItems(
+                            false, false, false,
+                            null, new Date(LocalDate.now().minusDays(1)), null,
+                            null, null);
                     break;
                 case RECENTLY_CLOSED_CALLS:
-                    callsInGrid = callRepository.getItems(true, false, null, new Date(LocalDate.now().minusMonths(6)), null, null, null);
+                    callsInGrid = callRepository.getItems(true, false, null, new Date(LocalDate.now().minusMonths(6)),
+                            null, null, null, null);
                     break;
                 case ALL_CLOSED_CALLS:
-                    callsInGrid = callRepository.getItems(true, false, null, null, null, null, null);
+                    callsInGrid = callRepository.getItems(true, false, null, null, null, null, null, null);
                     break;
                 case RECENTLY_DELETED_CALLS:
-                    callsInGrid = callRepository.getItems(null, true, null, new Date(LocalDate.now().minusMonths(6)), null, null, null);
+                    callsInGrid = callRepository.getItems(null, true, null, new Date(LocalDate.now().minusMonths(6)),
+                            null, null, null, null);
                     break;
                 case ALL_DELETED_CALLS:
-                    callsInGrid = callRepository.getItems(null, true, null, null, null, null, null);
+                    callsInGrid = callRepository.getItems(null, true, null, null, null, null, null, null);
                     break;
                 case CALLS_PLANNED_FOR_YESTERDAY:
                     callsInGrid = callRepository.getScheduledCalls(new Date(LocalDate.now().minusDays(1)));
@@ -243,15 +243,15 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     private VerticalLayout getCallDetails(Call call) {
-        TextArea description = new CustomTextArea("description", call.getDescription(), "100%","55");
+        TextArea description = new CustomTextArea("description", call.getDescription(), "100%", "55");
         description.addValueChangeListener(valueChangeEvent -> {
             call.setDescription(description.getValue());
         });
-        TextArea notes =  new CustomTextArea("notes", call.getNotes(), "100%","55");
+        TextArea notes = new CustomTextArea("notes", call.getNotes(), "100%", "55");
         notes.addValueChangeListener(valueChangeEvent -> {
             call.setNotes(notes.getValue());
         });
-        VerticalLayout layout = new VerticalLayout(description,notes);
+        VerticalLayout layout = new VerticalLayout(description, notes);
         layout.setComponentAlignment(notes, Alignment.MIDDLE_CENTER);
         layout.setSpacing(false);
         layout.setMargin(false);
@@ -293,18 +293,15 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
     }
 
     private void addSetScheduledOrderColumn() {
-        Predicate<Call> isScheduled = call -> (
-                null != call.getCurrentScheduledDate()
+        Predicate<Call> isScheduled = call -> (null != call.getCurrentScheduledDate()
                 && !call.getCurrentScheduledDate().equals(Date.nullDate())
                 && null != call.getCurrentDriver()
-                && 0 != call.getCurrentScheduledOrder()
-        );
+                && 0 != call.getCurrentScheduledOrder());
         CustomComponentColumn<Call, Component> column = CustomComponentColumn.addToGrid(
                 call -> new CustomButton(
                         (isScheduled.test(call) ? VaadinIcons.CLOSE_SMALL : VaadinIcons.CALENDAR_USER),
                         false,
-                        clickEvent ->
-                        {
+                        clickEvent -> {
                             if (isScheduled.test(call)) {
                                 call.setCurrentDriver(null);
                                 call.setCurrentScheduledDate(Date.nullDate());
@@ -318,13 +315,11 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                             }
                             callRepository.updateItem(call);
                             this.refreshGridData();
-                        }
-                ),
+                        }),
                 60,
                 "setOrderColumn",
                 "setOrder",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -341,8 +336,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 60,
                 "editColumn",
                 "edit",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -352,27 +346,23 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 call -> new CustomButton(
                         (call.getNotes().isEmpty() ? VaadinIcons.COMMENT_O : VaadinIcons.COMMENT),
                         false,
-                        clickEvent -> this.setDetailsVisible(call, !this.isDetailsVisible(call))
-                ),
+                        clickEvent -> this.setDetailsVisible(call, !this.isDetailsVisible(call))),
                 60,
                 "notesColumn",
                 "notes",
-                this
-        );
+                this);
     }
 
     private void addDescriptionColumn() {
         CustomComponentColumn<Call, Component> column = CustomComponentColumn.addToGrid(
                 call -> new CustomButton(
-                            (call.getDescription().isEmpty() ? VaadinIcons.COMMENT_O : VaadinIcons.COMMENT),
-                            false,
-                            clickEvent -> this.setDetailsVisible(call, !this.isDetailsVisible(call))
-                ),
+                        (call.getDescription().isEmpty() ? VaadinIcons.COMMENT_O : VaadinIcons.COMMENT),
+                        false,
+                        clickEvent -> this.setDetailsVisible(call, !this.isDetailsVisible(call))),
                 60,
                 "descriptionColumn",
                 "description",
-                 this
-        );
+                this);
     }
 
     private void addIsDeletedColumn() {
@@ -382,8 +372,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "deletedColumn",
                 "deleted",
                 null,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }
@@ -395,8 +384,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "doneColumn",
                 "done",
                 null,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -409,8 +397,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "endDateColumn",
                 "endDateShort",
                 false,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -427,8 +414,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 100,
                 "driverColumn",
                 "driver",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -446,8 +432,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 true,
                 false,
                 false,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -459,8 +444,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "meetingColumn",
                 "meetingShort",
                 null,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }
@@ -476,15 +460,14 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "date2Column",
                 "date2short",
                 true,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
 
     private void addDaysOpenColumn() {
         CustomIntegerColumn<Call> column = CustomIntegerColumn.addToGrid(
-                call -> (call.isDone() ? 0 : (int)DAYS.between(call.getStartDate().getLocalDate(), LocalDate.now())),
+                call -> (call.isDone() ? 0 : (int) DAYS.between(call.getStartDate().getLocalDate(), LocalDate.now())),
                 null,
                 null, null, 80,
                 daysOpenColumnId,
@@ -492,8 +475,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false,
                 true,
                 true,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }
@@ -506,8 +488,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "date1Column",
                 "date1short",
                 false,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }
@@ -519,8 +500,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 null, "startDateColumn",
                 "startDateShort",
                 false,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -532,8 +512,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 "hereColumn",
                 "here",
                 null,
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -547,8 +526,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 120,
                 "garageStatusColumn",
                 "garageStatus",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -562,8 +540,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 120,
                 "vehicleTypeColumn",
                 "vehicleType",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -577,24 +554,22 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 120,
                 "callTypeColumn",
                 "callType",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
 
     private void addAddressColumn() {
-        CustomTextColumn<Call>  column = CustomTextColumn.addToGrid(
-            call -> NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getAddress(), ""),
-            null,
+        CustomTextColumn<Call> column = CustomTextColumn.addToGrid(
+                call -> NullPointerExceptionWrapper.getWrapper(call, c -> c.getSite().getAddress(), ""),
+                null,
                 false, 180,
-            "addressColumn",
-            "address",
-            false,
-            true,
-            false,
-            this
-            );
+                "addressColumn",
+                "address",
+                false,
+                true,
+                false,
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }
@@ -608,8 +583,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 100,
                 "cityColumn",
                 "city",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }
@@ -623,8 +597,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 100,
                 "areaColumn",
                 "area",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }
@@ -638,8 +611,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 150,
                 "siteColumn",
                 "site",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -653,8 +625,7 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 false, 120,
                 "customerColumn",
                 "customer",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(false);
     }
@@ -665,7 +636,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
             super.sort(getCustomSortColumnId(), SortDirection.ASCENDING);
         } else {
             FilterGrid.Column<Call, String> sortColumn = this.addColumn(call -> {
-                String sortKey = ((null == call.getCurrentScheduledDate()) ? Date.nullDate() : call.getCurrentScheduledDate()).toString();
+                String sortKey = ((null == call.getCurrentScheduledDate()) ? Date.nullDate()
+                        : call.getCurrentScheduledDate()).toString();
                 if (null == call.getCurrentDriver() || call.getCurrentDriver().getId() < 10) {
                     sortKey += "0";
                 }

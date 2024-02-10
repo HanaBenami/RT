@@ -25,4 +25,8 @@ public class AbstractTypeSyncedWithHashavshevet extends AbstractTypeWithNameAndA
     public void setHashavshevetFirstDocId(int hashavshevetFirstDocId) {
         this.hashavshevetFirstDocId = hashavshevetFirstDocId;
     }
+
+    public boolean wasSyncedWithHashavshevet() {
+        return this.getHashavshevetFirstDocId() != 0;
+    }
 }
