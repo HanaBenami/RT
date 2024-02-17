@@ -12,8 +12,7 @@ public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<
         super(garageStatusRepository,
                 GarageStatus::new,
                 "area",
-                null
-        );
+                null);
         this.initGrid(true, 0);
         this.setCustomSortColumnId(DISPLAY_ORDER_COLUMN_ID);
     }
@@ -33,21 +32,18 @@ public class GarageStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<
                 "pendingGarageColumn",
                 "pendingGarage",
                 null,
-                this
-        );
+                this);
     }
 
     private void addDisplayOrderColumn() {
         CustomIntegerColumn.addToGrid(
                 GarageStatus::getDisplayOrder,
                 GarageStatus::setDisplayOrder,
-                null, null, 80,
+                null, null,
+                80,
                 DISPLAY_ORDER_COLUMN_ID,
                 "order",
                 false,
-                false,
-                true,
-                this
-        );
+                false, true, this);
     }
 }

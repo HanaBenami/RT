@@ -18,7 +18,7 @@ import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
 import org.springframework.dao.CannotAcquireLockException;
 
 public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Customer> {
-    private final Customer selectedCustomer;
+    private Customer selectedCustomer;
     private final CustomerTypeRepository customerTypeRepository;
     private final SiteRepository siteRepository;
     private final CallRepository callRepository;
@@ -30,14 +30,12 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
             CustomerTypeRepository customerTypeRepository,
             SiteRepository siteRepository,
             CallRepository callRepository,
-            HashavshevetSync hashavshevetSync
-    ) {
+            HashavshevetSync hashavshevetSync) {
         super(
                 customerRepository,
                 Customer::new,
                 "customers",
-                customer -> null != selectedCustomer && !selectedCustomer.getId().equals(customer.getId())
-        );
+                customer -> null != selectedCustomer && !selectedCustomer.getId().equals(customer.getId()));
         this.selectedCustomer = selectedCustomer;
         this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;
@@ -58,11 +56,18 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
         addIdColumn();
     }
 
+    public void setSelectedCutomer(Customer customer) {
+        this.selectedCustomer = customer;
+    }
+
+    public Customer getSelectedCustomer() {
+        return this.selectedCustomer;
+    }
+
     private void addCallsColumn() {
         addCallsColumn(
                 customer -> callRepository.getItems(customer, null, null, false).size(),
-                "customer"
-        );
+                "customer");
     }
 
     private void addSitesColumn() {
@@ -73,32 +78,36 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                     } else {
                         int n = 0;
                         n = siteRepository.getItems(Customer).size();
-                        Button sitesButton = CustomButton.countingIcon(VaadinIcons.FROWN_O, VaadinIcons.HOME_O, VaadinIcons.HOME, n);
-                        sitesButton.addClickListener(clickEvent ->
-                                getUI().getNavigator().navigateTo("site/customer=" + Customer.getId()));
+                        Button sitesButton = CustomButton.countingIcon(VaadinIcons.FROWN_O, VaadinIcons.HOME_O,
+                                VaadinIcons.HOME, n);
+                        sitesButton.addClickListener(
+                                clickEvent -> getUI().getNavigator().navigateTo("site/customer=" + Customer.getId()));
                         return sitesButton;
                     }
                 },
                 85,
                 "sitesColumn",
                 "sites",
-                this
-        );
+                this);
         column.getColumn().setHidden(true);
     }
 
     private void addHashSyncColumn() {
         CustomComponentColumn<Customer, Component> column = CustomComponentColumn.addToGrid(
                 (ValueProvider<Customer, Component>) customer -> {
-                    if (null == customer.getId() || 0 == customer.getId() || 0 == customer.getHashavshevetCustomerId()) {
+                    if (null == customer.getId() || 0 == customer.getId()
+                            || 0 == customer.getHashavshevetCustomerId()) {
                         return null;
                     } else {
                         return (Button) new CustomButton(VaadinIcons.RECYCLE, false, clickEvent -> {
                             try {
-                                boolean newData = hashavshevetSync.syncData(customer.getHashavshevetCustomerId(), false);
-                                Notification.show(LanguageSettings.getLocaleString(newData ? "syncDonePleaseRefresh" : "syncDoneNothingNew"));
+                                boolean newData = hashavshevetSync.syncData(customer.getHashavshevetCustomerId(),
+                                        false);
+                                Notification.show(LanguageSettings
+                                        .getLocaleString(newData ? "syncDonePleaseRefresh" : "syncDoneNothingNew"));
                             } catch (CannotAcquireLockException ignored) {
-                                Notification.show(LanguageSettings.getLocaleString("syncLocked"), Notification.Type.ERROR_MESSAGE);
+                                Notification.show(LanguageSettings.getLocaleString("syncLocked"),
+                                        Notification.Type.ERROR_MESSAGE);
                             }
                         });
                     }
@@ -106,8 +115,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 30,
                 "hashSyncColumn",
                 "hashSyncColumn",
-                this
-        );
+                this);
         column.getColumn().setHidden(false);
         column.getColumn().setHidable(true);
     }
@@ -116,14 +124,18 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
         CustomIntegerColumn.addToGrid(
                 Customer::getHashavshevetCustomerId,
                 Customer::setHashavshevetCustomerId,
-                null, null, 100,
+                null, null,
+                hashKey -> (0 == (Integer.parseInt(hashKey))
+                        || ((null != this.getSelectedCustomer()
+                                && this.getSelectedCustomer().getHashavshevetCustomerId() == Integer.parseInt(hashKey)))
+                        || ((CustomerRepository) this.getMainReopository())
+                                .getItemByHashKey(Integer.parseInt(hashKey)) == null),
+                LanguageSettings.getLocaleString("duplicateHashKey"),
+                100,
                 "hashKeyColumn",
                 "hashKey",
-            false,
-                true,
-            true,
-            this
-        );
+                false,
+                true, true, this);
     }
 
     private void addCustomerTypeColumn() {
@@ -136,8 +148,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 100,
                 "custTypeColumn",
                 "custType",
-                this
-        );
+                this);
     }
 
     @Override

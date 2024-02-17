@@ -156,3 +156,11 @@ drop table if exists hash_data_already_merged;
 --10/02/24 - Invoices
 
 ALTER TABLE call ADD invoiceNum int DEFAULT 0;
+
+-- TODO?
+-- Stock.ducnumber as InvoiceNum, Stock.ValueDate as InvoiceDate, StockMoves.quantity as Amount, CASE 
+--         WHEN DocumentID = 67 THEN 'WorkCard'
+--         WHEN DocumentID IN (1, 2) THEN 'Invoice'
+--         ELSE 'Unknown'
+--     END AS DocumentType
+-- VehicleType is also description here

@@ -12,8 +12,7 @@ public class WarehouseStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGr
         super(warehouseStatusRepository,
                 WarehouseStatus::new,
                 "area",
-                null
-        );
+                null);
         this.initGrid(true, 0);
         this.setCustomSortColumnId(DISPLAY_ORDER_COLUMN_ID);
     }
@@ -33,8 +32,7 @@ public class WarehouseStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGr
                 "pendingWarehouseColumn",
                 "pendingWarehouse",
                 null,
-                this
-        );
+                this);
     }
 
     private void addDisplayOrderColumn() {
@@ -47,7 +45,6 @@ public class WarehouseStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGr
                 false,
                 false,
                 true,
-                this
-        );
+                this);
     }
 }

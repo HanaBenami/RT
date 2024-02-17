@@ -12,8 +12,7 @@ public class AreasGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Area> {
         super(areaRepository,
                 Area::new,
                 "area",
-                null
-        );
+                null);
         this.initGrid(true, 0);
         this.setCustomSortColumnId(DISPLAY_ORDER_COLUMN_ID);
     }
@@ -33,8 +32,7 @@ public class AreasGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Area> {
                 "hereColumn",
                 "here",
                 null,
-                this
-        );
+                this);
     }
 
     private void addDisplayOrderColumn() {
@@ -47,7 +45,6 @@ public class AreasGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Area> {
                 false,
                 false,
                 true,
-                this
-        );
+                this);
     }
 }

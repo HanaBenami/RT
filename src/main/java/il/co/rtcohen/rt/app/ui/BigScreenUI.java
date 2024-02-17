@@ -82,11 +82,11 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         if (condition.equals("here")) {
             areas.removeIf(area -> !area.isHere());
         } else {
+            if (condition.equals("out")) {
+                areas.removeIf(area -> area.isHere());
+            }
             if (showCallsWithoutArea) {
                 areas.add(0, null);
-            }
-            if (condition.equals("out")) {
-                areas.removeIf(Area::isHere);
             }
         }
         for (Area area : areas) {
@@ -114,8 +114,7 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         // Calculate number of columns needed
         int columns = Math.max(1, (int) Math.ceil(
                 ((float) (list.size() + datesCounter))
-                / (rowsPerColumn - 1)
-        ));
+                        / (rowsPerColumn - 1)));
 
         // Init grid layout
         GridLayout gridLayout = new GridLayout(columns, rowsPerColumn + 1);
@@ -132,9 +131,11 @@ public class BigScreenUI extends AbstractUI<HorizontalLayout> {
         try {
             for (Call call : list) {
                 if ((list.indexOf(call) == 0) || (y == 1) || (y == rowsPerColumn) ||
-                        (!(call.getCurrentScheduledDate().equals(list.get(list.indexOf(call) - 1).getCurrentScheduledDate())))) {
+                        (!(call.getCurrentScheduledDate()
+                                .equals(list.get(list.indexOf(call) - 1).getCurrentScheduledDate())))) {
                     dateTitle = new CustomLabel(null, null, false, CustomLabel.LabelStyle.MEDIUM_TEXT);
-                    if (call.getCurrentScheduledDate() == null || call.getCurrentScheduledDate().equals(Date.nullDate())) {
+                    if (call.getCurrentScheduledDate() == null
+                            || call.getCurrentScheduledDate().equals(Date.nullDate())) {
                         if ((areaTitle.getValue().equals(LanguageSettings.getLocaleString("garage")))) {
                             dateTitle.setValue(LanguageSettings.getLocaleString("currentlyHere"));
                         } else {

@@ -19,16 +19,26 @@ import java.util.concurrent.locks.ReentrantLock;
 public class HashavshevetSync {
     static Lock lock = new ReentrantLock();
 
-    @Autowired private HashavshevetRepositoryFullData hashavshevetRepositoryFullData;
-    @Autowired private HashavshevetRepositoryDataAlreadyMerged hashavshevetRepositoryDataAlreadyMerged;
-    @Autowired private HashavshevetRepositoryDataDiff hashavshevetRepositoryDataDiff;
-    @Autowired private CustomerRepository customerRepository;
-    @Autowired private SiteRepository siteRepository;
-    @Autowired private CityRepository cityRepository;
-    @Autowired private ContactRepository contactRepository;
-    @Autowired private VehicleRepository vehicleRepository;
-    @Autowired private VehicleTypeRepository vehicleTypeRepository;
-    @Autowired private IsraelCities israelCities;
+    @Autowired
+    private HashavshevetRepositoryFullData hashavshevetRepositoryFullData;
+    @Autowired
+    private HashavshevetRepositoryDataAlreadyMerged hashavshevetRepositoryDataAlreadyMerged;
+    @Autowired
+    private HashavshevetRepositoryDataDiff hashavshevetRepositoryDataDiff;
+    @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
+    private SiteRepository siteRepository;
+    @Autowired
+    private CityRepository cityRepository;
+    @Autowired
+    private ContactRepository contactRepository;
+    @Autowired
+    private VehicleRepository vehicleRepository;
+    @Autowired
+    private VehicleTypeRepository vehicleTypeRepository;
+    @Autowired
+    private IsraelCities israelCities;
 
     @Value("${settings.hashSync.executeScheduleSync}")
     boolean executeScheduleSync;
@@ -71,21 +81,29 @@ public class HashavshevetSync {
 
         int numberOfRecordsToSync;
         try {
-            Logger.getLogger(this).info("Starting sync: syncOnlyDiff=" + syncOnlyDiff + ", hashavshevetCustomerId=" + hashavshevetCustomerId);
-            HashavshevetAbstractRepository hashavshevetDataRepository = (syncOnlyDiff ? hashavshevetRepositoryDataDiff : hashavshevetRepositoryFullData);
-            List<HashavshevetDataRecord> hashavshevetDataRecords = (
-                    null == hashavshevetCustomerId
-                            ? hashavshevetDataRepository.getItems()
-                            : hashavshevetDataRepository.getItemsByHashKey(hashavshevetCustomerId)
-            );
+            Logger.getLogger(this).info("Starting sync: syncOnlyDiff=" + syncOnlyDiff + ", hashavshevetCustomerId="
+                    + hashavshevetCustomerId);
+            HashavshevetAbstractRepository hashavshevetDataRepository = (syncOnlyDiff ? hashavshevetRepositoryDataDiff
+                    : hashavshevetRepositoryFullData);
+            List<HashavshevetDataRecord> hashavshevetDataRecords = (null == hashavshevetCustomerId
+                    ? hashavshevetDataRepository.getItems()
+                    : hashavshevetDataRepository.getItemsByHashKey(hashavshevetCustomerId));
             numberOfRecordsToSync = hashavshevetDataRecords.size();
             Logger.getLogger(this).debug(numberOfRecordsToSync + " records were found and going to be synced");
             for (HashavshevetDataRecord hashavshevetDataRecord : hashavshevetDataRecords) {
-                HashavshevetSyncSingleRecord hashavshevetSyncSingleRecord = new HashavshevetSyncSingleRecord(hashavshevetDataRecord, israelCities);
-                hashavshevetSyncSingleRecord.syncData(customerRepository, siteRepository, cityRepository, contactRepository, vehicleRepository, vehicleTypeRepository, syncNewCustomers);
-                hashavshevetRepositoryDataAlreadyMerged.insertItem(hashavshevetDataRecord);
+                try {
+                    HashavshevetSyncSingleRecord hashavshevetSyncSingleRecord = new HashavshevetSyncSingleRecord(
+                            hashavshevetDataRecord, israelCities);
+                    hashavshevetSyncSingleRecord.syncData(customerRepository, siteRepository, cityRepository,
+                            contactRepository, vehicleRepository, vehicleTypeRepository, syncNewCustomers);
+                    hashavshevetRepositoryDataAlreadyMerged.insertItem(hashavshevetDataRecord);
+                } catch (Exception e) {
+                    Logger.getLogger(this).error("Failed to sync hashavshevetDataRecord with documentID="
+                            + hashavshevetDataRecord.documentID, e);
+                }
             }
-            Logger.getLogger(this).info("Sync done: syncOnlyDiff=" + syncOnlyDiff + ", hashavshevetCustomerId=" + hashavshevetCustomerId);
+            Logger.getLogger(this).info(
+                    "Sync done: syncOnlyDiff=" + syncOnlyDiff + ", hashavshevetCustomerId=" + hashavshevetCustomerId);
         } finally {
             lock.unlock();
         }

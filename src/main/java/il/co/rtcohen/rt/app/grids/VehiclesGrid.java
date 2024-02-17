@@ -22,15 +22,15 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     private final CallRepository callRepository;
 
     public VehiclesGrid(Site selectedSite,
-                        SiteRepository siteRepository,
-                        VehicleRepository vehicleRepository,
-                        VehicleTypeRepository vehicleTypeRepository,
-                        CallRepository callRepository) {
+            SiteRepository siteRepository,
+            VehicleRepository vehicleRepository,
+            VehicleTypeRepository vehicleTypeRepository,
+            CallRepository callRepository) {
         super(vehicleRepository, () -> {
-                    Vehicle vehicle = new Vehicle();
-                    vehicle.setSite(selectedSite);
-                    return vehicle;
-                },
+            Vehicle vehicle = new Vehicle();
+            vehicle.setSite(selectedSite);
+            return vehicle;
+        },
                 "vehiclesOfSites",
                 vehicle -> null == vehicle.getSite() || !vehicle.getSite().equals(selectedSite));
         this.site = (null == selectedSite || selectedSite.isDraft() ? null : selectedSite);
@@ -82,8 +82,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 "activeColumn",
                 "active",
                 Boolean.TRUE,
-                this
-        );
+                this);
     }
 
     private void addAddingCallColumn() {
@@ -98,8 +97,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 60,
                 "addCallColumn",
                 "addCall",
-                this
-        );
+                this);
         column.getColumn().setStyleGenerator(vehicle -> "red");
         column.getColumn().setHidable(false);
         column.getColumn().setHidden(false);
@@ -108,8 +106,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
     private void addCallsColumn() {
         addCallsColumn(
                 vehicle -> callRepository.getItems(null, null, vehicle, false).size(),
-                "vehicle"
-        );
+                "vehicle");
     }
 
     private void addLastUpdateColumn() {
@@ -119,8 +116,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 null, "lastUpdateColumn",
                 "lastUpdate",
                 false,
-                this
-        );
+                this);
     }
 
     private void addEngineHoursColumn() {
@@ -133,8 +129,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 false,
                 false,
                 true,
-                this
-        );
+                this);
     }
 
     private void addLicenseColumn() {
@@ -147,8 +142,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 
     private void addZamaColumn() {
@@ -161,8 +155,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 
     private void addSeriesColumn() {
@@ -175,8 +168,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 
     private void addModelColumn() {
@@ -189,8 +181,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 
     private void addVehicleTypeColumn() {
@@ -203,8 +194,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 300,
                 "vehicleTypeColumn",
                 "vehicleType",
-                this
-        );
+                this);
     }
 
     private void addSiteColumn() {
@@ -217,8 +207,7 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
                 150,
                 "siteColumn",
                 "site",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }

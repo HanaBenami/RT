@@ -45,16 +45,16 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     @Autowired
     private CustomerDataView(ErrorHandler errorHandler,
-                             CustomerRepository customerRepository,
-                             CustomerTypeRepository customerTypeRepository,
-                             SiteRepository siteRepository,
-                             ContactRepository contactRepository,
-                             CallRepository callRepository,
-                             CityRepository cityRepository,
-                             AreaRepository areaRepository,
-                             VehicleRepository vehicleRepository,
-                             VehicleTypeRepository vehicleTypeRepository,
-                             HashavshevetSync hashavshevetSync) {
+            CustomerRepository customerRepository,
+            CustomerTypeRepository customerTypeRepository,
+            SiteRepository siteRepository,
+            ContactRepository contactRepository,
+            CallRepository callRepository,
+            CityRepository cityRepository,
+            AreaRepository areaRepository,
+            VehicleRepository vehicleRepository,
+            VehicleTypeRepository vehicleTypeRepository,
+            HashavshevetSync hashavshevetSync) {
         super(errorHandler, "customersList");
         this.customerRepository = customerRepository;
         this.customerTypeRepository = customerTypeRepository;
@@ -102,8 +102,10 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         this.selectedCustomerId = 0;
         this.customerGrid.addItemClickListener(listener -> {
             Customer newSelectedCustomer = listener.getItem();
+            this.customerGrid.setSelectedCutomer(newSelectedCustomer);
             this.selectedSiteId = 0;
-            if (null == newSelectedCustomer.getId() || 0 == newSelectedCustomer.getId() || newSelectedCustomer.getId() != selectedCustomerId) {
+            if (null == newSelectedCustomer.getId() || 0 == newSelectedCustomer.getId()
+                    || newSelectedCustomer.getId() != selectedCustomerId) {
                 this.selectedCustomerId = (null == newSelectedCustomer.getId() ? 0 : newSelectedCustomer.getId());
                 addSitesGrid(newSelectedCustomer);
             }
@@ -113,7 +115,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addSitesGrid(Customer customer) {
         removeSitesGrid();
-        this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository, cityRepository, areaRepository);
+        this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository,
+                cityRepository, areaRepository);
         this.sitesGrid.initGrid(true, 0);
         if (0 == selectedSiteId) {
             List<Site> sites = this.sitesGrid.getGridItems();
@@ -125,7 +128,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         this.selectedSiteId = 0;
         this.sitesGrid.addItemClickListener(listener -> {
             Site newSelectedSite = listener.getItem();
-            if (null == newSelectedSite.getId() || 0 == newSelectedSite.getId() || newSelectedSite.getId() != selectedSiteId) {
+            if (null == newSelectedSite.getId() || 0 == newSelectedSite.getId()
+                    || newSelectedSite.getId() != selectedSiteId) {
                 this.selectedSiteId = (null == newSelectedSite.getId() ? 0 : newSelectedSite.getId());
                 addContactsGrid(newSelectedSite);
                 addVehicleGrid(newSelectedSite);
@@ -145,7 +149,8 @@ public class CustomerDataView extends AbstractDataView<Customer> {
 
     void addVehicleGrid(Site site) {
         removeVehiclesGrid();
-        this.vehiclesGrid = new VehiclesGrid(site, siteRepository, vehicleRepository, vehicleTypeRepository, callRepository);
+        this.vehiclesGrid = new VehiclesGrid(site, siteRepository, vehicleRepository, vehicleTypeRepository,
+                callRepository);
         this.vehiclesGrid.initGrid(true, 0);
         this.vehiclesGrid.setSelectedItem(selectedVehicleId, true);
         this.selectedVehicleId = 0;
@@ -187,8 +192,6 @@ public class CustomerDataView extends AbstractDataView<Customer> {
             this.customerGrid = null;
         }
     }
-
-
 
     @Override
     void setTabIndexesAndFocus() {
