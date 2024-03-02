@@ -15099,6 +15099,11 @@ div.v-layout.v-horizontal.v-widget {
 	padding-bottom: 20px;
 }
 
+.myTheme .v-captiontext {
+	text-align: right !important;
+	direction: rtl !important;
+}
+
 .myTheme .LABEL-MEDIUM-HEADER {
 	font-size: 30px;
 	font-weight: bold;

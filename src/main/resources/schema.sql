@@ -209,3 +209,13 @@ ALTER TABLE hash_data_already_merged ADD InvoiceDate datetime DEFAULT null;
 -- from hash_data_already_merged)
 -- GO
 
+CREATE view [dbo].[v_hash_invoices_data] as 
+SELECT [DocumentID]
+      ,[DocumentRowId]
+      ,[InvoiceNum]
+      ,[InvoiceDate]
+      ,[Amount]
+      ,[ItemName]
+  FROM [dbo].[hash_data_already_merged] as a 
+  where a.DocumentType = 'Invoice' and a.id in (select max(b.id) from hash_data_already_merged as b where a.DocumentRowId = b.DocumentRowId) 
+GO

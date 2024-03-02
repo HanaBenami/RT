@@ -5,7 +5,7 @@ server:
   port: 8083
 
 sqlserver:
-  url: jdbc:sqlserver://localhost;databaseName=RT_prod;user=SA;password=Hana1989
+  url: jdbc:sqlserver://DESKTOP-2009HHP.local;databaseName=RT_prod;user=SA;password=xxx;encrypt=true;trustServerCertificate=true
 
 log:
   path: c:\\rt\\logs\\dev
@@ -15,13 +15,19 @@ vaadin:
     productionMode: false
 
 settings:
-  testEnvironment: false
   multiLanguage: true
+  testEnvironment: false
+  bigScreen:
+    rowHeight: 55
+    rowsPerColumn: 20
+    interval: 60000
+    showCallsWithoutArea: true
+  workOrderWidth: 1400
   hashSync:
     executeScheduleSync: false
     scheduleSyncFixedDelayMiliseconds: 3600000
     scheduleSyncInitialDelayMiliseconds: 60000
     syncNewCustomers: true
     syncOnlyDiff: true
-    syncOnlyListedCustomers: true
+    syncOnlyListedCustomers: false
     hashavshevetCustomerIdsToSync: 2716, 2326, 20637

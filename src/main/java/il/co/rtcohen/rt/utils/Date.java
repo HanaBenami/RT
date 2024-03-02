@@ -7,6 +7,7 @@ public class Date implements Comparable<Date> {
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     final static public DateTimeFormatter dateFormatterForUrls = DateTimeFormatter.ofPattern("yyyyMMdd");
     final static public DateTimeFormatter shortDateFormatter = DateTimeFormatter.ofPattern("dd/MM");
+    final static public DateTimeFormatter longDateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     final static private String nullDateString = "1901-01-01";
 
     private final LocalDate localDate;
@@ -31,6 +32,11 @@ public class Date implements Comparable<Date> {
     public String toShortString() {
         LocalDate localDate = this.getLocalDate();
         return (null == localDate ? "" : localDate.format(shortDateFormatter));
+    }
+
+    public String toLongString() {
+        LocalDate localDate = this.getLocalDate();
+        return (null == localDate ? "" : localDate.format(longDateFormatter));
     }
 
     static public String localDateToString(LocalDate localDate) {

@@ -107,6 +107,10 @@ public class HashavshevetDataRecord extends AbstractType implements Cloneable<Ha
         return documentID;
     }
 
+    public int getDocumentRowID() {
+        return documentRowID;
+    }
+
     public int getCustomerKey() {
         return Integer.parseInt(customerKey);
     }

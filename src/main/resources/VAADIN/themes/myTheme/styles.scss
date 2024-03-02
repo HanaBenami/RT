@@ -35,6 +35,11 @@
         &.v-margin-bottom {padding-bottom: 20px;}
     }
 
+    .v-captiontext {
+        text-align: right !important;
+        direction: rtl !important;
+    }
+
     .LABEL-MEDIUM-HEADER {
         font-size: 30px;
         font-weight: bold;

@@ -6,14 +6,17 @@ import il.co.rtcohen.rt.service.hashavshevet.HashavshevetSync;
 import il.co.rtcohen.rt.app.grids.*;
 import il.co.rtcohen.rt.app.uiComponents.*;
 import il.co.rtcohen.rt.dal.dao.*;
+import il.co.rtcohen.rt.dal.dao.hashavshevet.HashavshevetInvoiceRecord;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractType;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
 import il.co.rtcohen.rt.dal.repositories.*;
+import il.co.rtcohen.rt.dal.repositories.hashavshevet.HashavshevetInvoiceRepository;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.app.LanguageSettings;
 
+import com.google.gwt.user.cellview.client.DataGrid;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
@@ -26,7 +29,11 @@ import com.vaadin.ui.*;
 
 import il.co.rtcohen.rt.utils.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.addons.filteringgrid.FilterGrid;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @SpringComponent
@@ -53,6 +60,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     private final GarageStatusRepository garageStatusRepository;
     private final WarehouseStatusRepository warehouseStatusRepository;
     private final HashavshevetSync hashavshevetSync;
+    private final HashavshevetInvoiceRepository hashavshevetInvoiceRepository;
 
     // Inner grids
     private CustomerGrid customerGrid;
@@ -65,6 +73,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
     private VehiclesGrid vehiclesGrid;
     CustomComboBox<Vehicle> vehicleComboBox;
     private CustomButton changeVehicleButton;
+    private CustomButton invoiceDetailsButton;
 
     @Autowired
     private EditCallUI(
@@ -84,7 +93,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             DriverRepository driverRepository,
             GarageStatusRepository garageStatusRepository,
             WarehouseStatusRepository warehouseStatusRepository,
-            HashavshevetSync hashavshevetSync) {
+            HashavshevetSync hashavshevetSync,
+            HashavshevetInvoiceRepository hashavshevetInvoiceRepository) {
         super(errorHandler, callRepository, generalRepository, usersRepository);
         this.customerRepository = customerRepository;
         this.customerTypeRepository = customerTypeRepository;
@@ -101,6 +111,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.garageStatusRepository = garageStatusRepository;
         this.warehouseStatusRepository = warehouseStatusRepository;
         this.hashavshevetSync = hashavshevetSync;
+        this.hashavshevetInvoiceRepository = hashavshevetInvoiceRepository;
     }
 
     public void getUrlParameters() {
@@ -139,6 +150,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         addOrRefreshAllGrids();
         addPrintButton();
         addDeleteButton();
+        addInvoiceDetailsButton();
         addOrRefreshCallData();
         setContent(layout);
 
@@ -473,10 +485,47 @@ public class EditCallUI extends AbstractUI<GridLayout> {
                 Call::getInvoiceNum,
                 Call::setInvoiceNum,
                 "invoice",
-                17, 1);
+                17, 1).addValueChangeListener(
+                        valueChangeEvent -> invoiceDetailsButton.setEnabled(0 < call.getInvoiceNum()));
     }
 
-    private void addNumericFieldToLayout(
+    private void addInvoiceDetailsButton() {
+        invoiceDetailsButton = addButtonToLayout(LanguageSettings.getLocaleString("invoiceDetails"),
+                VaadinIcons.QUESTION_CIRCLE, clickEvent -> {
+                    displayInvoiceDetailsWindow();
+                }, 17, 0);
+        invoiceDetailsButton.setEnabled(0 != call.getInvoiceNum());
+    }
+
+    private void displayInvoiceDetailsWindow() {
+        List<HashavshevetInvoiceRecord> invoiceRecords = hashavshevetInvoiceRepository
+                .getItemsByInvoiceNum(call.getInvoiceNum());
+        Label invoiceNumLabel = new Label();
+        invoiceNumLabel.setCaption(LanguageSettings.getLocaleString("invoiceNum") + ": " +
+                call.getInvoiceNum());
+        Label invoiceDateLabel = new Label();
+        invoiceDateLabel.setCaption(LanguageSettings.getLocaleString("invoiceDate") + ": " +
+                (0 < invoiceRecords.size() ? invoiceRecords.get(0).invoiceDate.toLongString() : ""));
+        FilterGrid<HashavshevetInvoiceRecord> invoiceDetails = new FilterGrid<>();
+        invoiceDetails.addColumn(HashavshevetInvoiceRecord::getAmount)
+                .setCaption(LanguageSettings.getLocaleString("amount"));
+        invoiceDetails.addColumn(HashavshevetInvoiceRecord::getItemName)
+                .setCaption(LanguageSettings.getLocaleString("itemName"));
+        invoiceDetails.setItems(invoiceRecords);
+        invoiceDetails.setWidth("90%");
+        invoiceDetails.setHeightByRows(0 < invoiceRecords.size() ? invoiceRecords.size() : 5);
+        VerticalLayout invoiceDetailsContent = new VerticalLayout();
+        invoiceDetailsContent.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
+        invoiceDetailsContent.addComponents(invoiceNumLabel, invoiceDateLabel, invoiceDetails);
+        Window invoiceDetailsWindow = new Window(LanguageSettings.getLocaleString("invoiceDetails"));
+        invoiceDetailsWindow.setContent(invoiceDetailsContent);
+        invoiceDetailsWindow.setWidth("70%");
+        invoiceDetailsWindow.setHeight("35%");
+        invoiceDetailsWindow.center();
+        addWindow(invoiceDetailsWindow);
+    }
+
+    private CustomIntegerField addNumericFieldToLayout(
             ValueProvider<Call, Integer> valueProvider,
             Setter<Call, Integer> setter,
             String captionKey,
@@ -501,6 +550,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         this.layout.addComponent(numericField, column, row);
         this.layout.removeComponent(column + 1, row);
         this.layout.addComponent(new CustomLabel(captionKey, FIELDS_WIDTH), column + 1, row);
+        return numericField;
     }
 
     private void addCheckBoxFieldToLayout(
