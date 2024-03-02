@@ -38,6 +38,8 @@ public class HashavshevetSync {
     @Autowired
     private VehicleTypeRepository vehicleTypeRepository;
     @Autowired
+    private CallRepository callRepository;
+    @Autowired
     private IsraelCities israelCities;
 
     @Value("${settings.hashSync.executeScheduleSync}")
@@ -90,16 +92,22 @@ public class HashavshevetSync {
                     : hashavshevetDataRepository.getItemsByHashKey(hashavshevetCustomerId));
             numberOfRecordsToSync = hashavshevetDataRecords.size();
             Logger.getLogger(this).debug(numberOfRecordsToSync + " records were found and going to be synced");
+            hashavshevetDataRecords.sort((a, b) -> a.documentRowID - b.documentRowID);
             for (HashavshevetDataRecord hashavshevetDataRecord : hashavshevetDataRecords) {
+                String msg = "hashavshevetDataRecord.documentRowID=" + hashavshevetDataRecord.documentRowID;
+                Logger.getLogger(this).debug("Going to sync " + msg);
                 try {
                     HashavshevetSyncSingleRecord hashavshevetSyncSingleRecord = new HashavshevetSyncSingleRecord(
                             hashavshevetDataRecord, israelCities);
-                    hashavshevetSyncSingleRecord.syncData(customerRepository, siteRepository, cityRepository,
-                            contactRepository, vehicleRepository, vehicleTypeRepository, syncNewCustomers);
-                    hashavshevetRepositoryDataAlreadyMerged.insertItem(hashavshevetDataRecord);
+                    boolean synced = hashavshevetSyncSingleRecord.syncData(customerRepository, siteRepository,
+                            cityRepository, contactRepository, vehicleRepository, vehicleTypeRepository,
+                            callRepository,
+                            syncNewCustomers);
+                    if (synced) {
+                        hashavshevetRepositoryDataAlreadyMerged.insertItem(hashavshevetDataRecord);
+                    }
                 } catch (Exception e) {
-                    Logger.getLogger(this).error("Failed to sync hashavshevetDataRecord with documentID="
-                            + hashavshevetDataRecord.documentID, e);
+                    Logger.getLogger(this).error("Failed to sync" + msg, e);
                 }
             }
             Logger.getLogger(this).info(

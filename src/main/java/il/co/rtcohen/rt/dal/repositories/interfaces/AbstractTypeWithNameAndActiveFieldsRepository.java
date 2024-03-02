@@ -18,10 +18,11 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
     static protected final String DB_ACTIVE_COLUMN = "active";
 
     @Autowired
-    public AbstractTypeWithNameAndActiveFieldsRepository(DataSource dataSource, String dbTableName, String repositoryName,
-                                                         String[] additionalDbColumns) {
+    public AbstractTypeWithNameAndActiveFieldsRepository(DataSource dataSource, String dbTableName,
+            String repositoryName,
+            String[] additionalDbColumns) {
         super(dataSource, dbTableName, repositoryName,
-                new String[]{
+                new String[] {
                         DB_NAME_COLUMN,
                         DB_ACTIVE_COLUMN
                 },
@@ -35,6 +36,10 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
     }
 
     public T getItemByName(String name) {
+        return getItemByName(name, true);
+    }
+
+    public T getItemByName(String name, boolean doOneRecordOnlyValidation) {
         if (null == name || name.isEmpty()) {
             return null;
         }
@@ -44,7 +49,7 @@ public abstract class AbstractTypeWithNameAndActiveFieldsRepository<T extends Ab
         } else {
             whereClause += "='" + name + "'";
         }
-        return super.getItem(whereClause);
+        return super.getItem(whereClause, doOneRecordOnlyValidation);
     }
 
     abstract protected T getItemFromResultSet(ResultSet rs) throws SQLException;

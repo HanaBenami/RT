@@ -29,6 +29,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
     private GarageStatus garageStatus;
     private WarehouseStatus warehouseStatus;
     private int invoiceNum = 0;
+    private int invoiceDocumentId = 0;
 
     public Call() {
         super(0);
@@ -56,7 +57,8 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
             User openedByUser,
             GarageStatus garageStatus,
             WarehouseStatus warehouseStatus,
-            int invoiceNum) {
+            int invoiceNum,
+            int invoiceDocumentId) {
         super(id);
         this.customer = customer;
         this.site = site;
@@ -81,6 +83,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.garageStatus = garageStatus;
         this.warehouseStatus = warehouseStatus;
         this.invoiceNum = invoiceNum;
+        this.invoiceDocumentId = invoiceDocumentId;
     }
 
     public Call(Call other) {
@@ -108,6 +111,7 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.garageStatus = other.garageStatus;
         this.warehouseStatus = other.warehouseStatus;
         this.invoiceNum = other.invoiceNum;
+        this.invoiceDocumentId = other.invoiceDocumentId;
     }
 
     @Override
@@ -218,7 +222,6 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
-        this.isDone = (null != this.endDate) && !this.endDate.equals(Date.nullDate());
     }
 
     public int getCurrentScheduledOrder() {
@@ -261,12 +264,20 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.meeting = meeting;
     }
 
+    public boolean isDoneEligibe() {
+        return (null != this.endDate) && !this.endDate.equals(Date.nullDate()) && (0 != this.invoiceNum);
+    }
+
     public boolean isDone() {
         return isDone;
     }
 
     public void setDone(boolean done) {
-        this.isDone = done;
+        if (done && !isDoneEligibe()) {
+            return;
+        } else {
+            this.isDone = done;
+        }
     }
 
     public boolean isHere() {
@@ -321,17 +332,34 @@ public class Call extends AbstractType implements BindRepository<Call>, Cloneabl
         this.invoiceNum = invoiceNum;
     }
 
+    public int getInvoiceDocumentId() {
+        return this.invoiceDocumentId;
+    }
+
+    public void setInvoiceDocumentId(int invoiceDocumentId) {
+        this.invoiceDocumentId = invoiceDocumentId;
+    }
+
     @Override
     public void postSave() {
         CallRepository callRepository = (CallRepository) this.getBindRepository();
         String loggerPrefix = "Executing postSave for call #" + this.getId() + ": ";
+
+        if (this.isDone() != this.isDoneEligibe()) {
+            Logger.getLogger(this).info(loggerPrefix
+                    + (this.isDone() ? "Opening" : "Closing")
+                    + " the call - "
+                    + (this.isDone() ? "data is missing" : "the data is now completed"));
+            this.setDone(!this.isDone());
+            callRepository.updateItem(this);
+        }
+
         Logger.getLogger(this)
                 .info(loggerPrefix + "Driver change: " + this.getPreviousDriver() + " -> " + this.getCurrentDriver());
         Logger.getLogger(this).info(loggerPrefix + "Schedule date: " + this.getPreviousScheduledDate() + " -> "
                 + this.getCurrentScheduledDate());
         Logger.getLogger(this).info(loggerPrefix + "Schedule order: " + this.getPreviousScheduledOrder() + " -> "
                 + this.getCurrentScheduledOrder());
-
         if ((this.currentScheduledDate == this.previousScheduledDate)
                 && (this.currentDriver == this.previousDriver)
                 && (this.currentScheduledOrder == this.previousScheduledOrder)) {

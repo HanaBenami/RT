@@ -30,7 +30,8 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     CacheManager<T> cacheManager;
     boolean cacheable = true;
 
-    public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName, String[]... additionalDbColumnsLists) {
+    public AbstractTypeRepository(DataSource dataSource, String dbTableName, String repositoryName,
+            String[]... additionalDbColumnsLists) {
         this.dataSource = dataSource;
         this.DB_TABLE_NAME = dbTableName;
         this.REPOSITORY_NAME = repositoryName;
@@ -76,18 +77,17 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     private PreparedStatement generateInsertStatement(Connection connection, T t) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "insert into " + this.DB_TABLE_NAME + getDbColumnsStringForInsertStatement(),
-                Statement.RETURN_GENERATED_KEYS
-        );
+                Statement.RETURN_GENERATED_KEYS);
         updateItemDetailsInStatement(preparedStatement, t);
         return preparedStatement;
     }
 
     private PreparedStatement generateUpdateStatement(Connection connection, T t) throws SQLException {
-        String query = "update " + this.DB_TABLE_NAME + " set " + getDbColumnsStringForUpdateStatement() + " where " + DB_ID_COLUMN + "=?";
+        String query = "update " + this.DB_TABLE_NAME + " set " + getDbColumnsStringForUpdateStatement() + " where "
+                + DB_ID_COLUMN + "=?";
         PreparedStatement preparedStatement = connection.prepareStatement(
                 query,
-                Statement.RETURN_GENERATED_KEYS
-        );
+                Statement.RETURN_GENERATED_KEYS);
         updateItemDetailsInStatement(preparedStatement, t);
         preparedStatement.setInt(StringUtils.countOccurrencesOf(query, "?"), t.getId());
         return preparedStatement;
@@ -97,7 +97,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         return getItems((String) null);
     }
 
-    public List<T> getItems(String whereClause)  {
+    public List<T> getItems(String whereClause) {
         String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME;
         if (null != whereClause) {
             sqlQuery += " where " + whereClause;
@@ -105,9 +105,8 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
         Logger.getLogger(this).debug(sqlQuery);
         List<T> list;
         try (
-            Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)
-        ) {
+                Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
             list = getItems(preparedStatement);
         } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in getItems";
@@ -154,15 +153,22 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     }
 
     public T getItem(String whereClause) {
+        return getItem(whereClause, true);
+    }
+
+    public T getItem(String whereClause, boolean doOneRecordOnlyValidation) {
         List<T> list = new ArrayList<>();
         String sqlQuery = "SELECT * FROM " + this.DB_TABLE_NAME + " WHERE " + whereClause;
         Logger.getLogger(this).debug(sqlQuery);
-        try (Connection con = dataSource.getConnection(); PreparedStatement preparedStatement = con.prepareStatement(sqlQuery)) {
+        try (Connection con = dataSource.getConnection();
+                PreparedStatement preparedStatement = con.prepareStatement(sqlQuery)) {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 list.add(this.getItemFromResultSet(rs));
             }
-            oneRecordOnlyValidation(list.size(), "getItem");
+            if (doOneRecordOnlyValidation) {
+                oneRecordOnlyValidation(list.size(), "getItem");
+            }
             if (list.isEmpty()) {
                 return null;
             } else {
@@ -181,9 +187,8 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
 
     public long insertItem(T t) {
         try (
-            Connection connection = this.dataSource.getConnection();
-            PreparedStatement preparedStatement = generateInsertStatement(connection, t)
-        ){
+                Connection connection = this.dataSource.getConnection();
+                PreparedStatement preparedStatement = generateInsertStatement(connection, t)) {
             Logger.getLogger(this).debug(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "created");
@@ -192,7 +197,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
                     long id = generatedKeys.getLong(1);
                     t.setId(id);
                     Logger.getLogger(this).debug(getMessagesPrefix()
-                            + "New record has been inserted to the table \"" + this.DB_TABLE_NAME +"\""
+                            + "New record has been inserted to the table \"" + this.DB_TABLE_NAME + "\""
                             + " (id=" + t.getId() + ")");
                     t.setBindRepository(this);
                     t.postSave();
@@ -203,11 +208,10 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
                 }
                 throw new SQLException("error getting the new key");
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in insertItem";
             Logger.getLogger(this).error(error, e);
-            throw new InsertException(error ,e);
+            throw new InsertException(error, e);
         }
     }
 
@@ -219,8 +223,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
 
         try (
                 Connection connection = this.dataSource.getConnection();
-                PreparedStatement preparedStatement = generateUpdateStatement(connection, t)
-        ) {
+                PreparedStatement preparedStatement = generateUpdateStatement(connection, t)) {
             Logger.getLogger(this).debug(preparedStatement.toString());
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
@@ -230,8 +233,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
             if (null != cacheManager) {
                 cacheManager.addToCache(t);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in updateItem";
             Logger.getLogger(this).error(error, e);
             throw new UpdateException(error, e);
@@ -240,17 +242,15 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
 
     public void deleteItem(T t) {
         try (
-            Connection connection = this.dataSource.getConnection();
-            PreparedStatement preparedStatement = generateDeleteStatement(connection, t)
-        ) {
+                Connection connection = this.dataSource.getConnection();
+                PreparedStatement preparedStatement = generateDeleteStatement(connection, t)) {
             int n = preparedStatement.executeUpdate();
             oneRecordOnlyValidation(n, "updated");
             Logger.getLogger(this).debug(getMessagesPrefix() + " data was deleted (" + t + ")");
             if (null != cacheManager) {
                 cacheManager.deleteFromCache(t);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             String error = getMessagesPrefix() + "error in deleteItem";
             Logger.getLogger(this).error(error, e);
             throw new UpdateException(error, e);
@@ -260,8 +260,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     private PreparedStatement generateDeleteStatement(Connection connection, T t) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "delete from " + this.DB_TABLE_NAME + " where " + DB_ID_COLUMN + "=?",
-                Statement.RETURN_GENERATED_KEYS
-        );
+                Statement.RETURN_GENERATED_KEYS);
         preparedStatement.setInt(1, t.getId());
         return preparedStatement;
     }
@@ -273,8 +272,7 @@ public abstract class AbstractTypeRepository<T extends AbstractType & Cloneable<
     private void oneRecordOnlyValidation(int n, String verb) throws SQLException {
         if (n == 0) {
             Logger.getLogger(this).debug(getMessagesPrefix() + "No record has been found (" + verb + ")");
-        }
-        else if (n > 1) {
+        } else if (n > 1) {
             throw new SQLException(getMessagesPrefix() + "More than one record has been " + verb);
         }
     }

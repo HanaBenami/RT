@@ -1,6 +1,5 @@
 package il.co.rtcohen.rt.app.uiComponents.fields;
 
-import il.co.rtcohen.rt.app.GeneralErrorHandler;
 import il.co.rtcohen.rt.dal.dao.*;
 import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.BindRepository;
@@ -15,6 +14,8 @@ import com.vaadin.ui.ComboBox;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import javax.validation.constraints.NotNull;
 
 import static il.co.rtcohen.rt.app.uiComponents.StyleSettings.COMBO_BOX_HEIGHT;
@@ -42,19 +43,17 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T> & Cloneable<T>> CustomComboBox<T> getComboBox(
-                        AbstractTypeWithNameAndActiveFieldsRepository<T> repository,
-                        Supplier<T> newItemSupplier, Integer width, boolean allowNewItems
-    ) {
+            AbstractTypeWithNameAndActiveFieldsRepository<T> repository,
+            Supplier<T> newItemSupplier, Integer width, boolean allowNewItems) {
         return new CustomComboBox<>(
                 repository.getItems(true),
                 newItemSupplier,
                 width,
-                allowNewItems
-        );
+                allowNewItems);
     }
 
-    public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T> & Cloneable<T>> CustomComboBox<T>
-            getComboBox(AbstractTypeWithNameAndActiveFieldsRepository<T> repository) {
+    public static <T extends AbstractTypeWithNameAndActiveFields & BindRepository<T> & Cloneable<T>> CustomComboBox<T> getComboBox(
+            AbstractTypeWithNameAndActiveFieldsRepository<T> repository) {
         return new CustomComboBox<>(
                 repository.getItems(true),
                 null,
@@ -64,7 +63,8 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
 
     public static CustomComboBox<Vehicle> getComboBox(VehicleRepository vehicleRepository, @NotNull Site site) {
         return new CustomComboBox<>(
-                vehicleRepository.getItems(site),
+                vehicleRepository.getItems(site)
+                        .stream().filter(vehicle -> vehicle.wasSyncedWithHashavshevet()).collect(Collectors.toList()),
                 null,
                 130,
                 false);
@@ -78,13 +78,14 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
                     newItem.setBindRepository(vehicleTypeRepository);
                     return newItem;
                 },
-             300,
+                300,
                 true);
     }
 
     public static CustomComboBox<Site> getComboBox(SiteRepository siteRepository, Customer customer) {
         return new CustomComboBox<>(
-                (null == customer ? siteRepository.getItems() : siteRepository.getItems(customer)),
+                (null == customer ? siteRepository.getItems() : siteRepository.getItems(customer))
+                        .stream().filter(site -> site.wasSyncedWithHashavshevet()).collect(Collectors.toList()),
                 null,
                 130,
                 false);

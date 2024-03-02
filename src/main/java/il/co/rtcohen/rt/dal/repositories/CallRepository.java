@@ -42,6 +42,7 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
     static protected final String DB_GARAGE_STATUS_ID_COLUMN = "garageStatusID";
     static protected final String DB_WAREHOUSE_STATUS_ID_COLUMN = "warehouseStatusID";
     static protected final String DB_INVOICE_NUM_COLUMN = "invoiceNum";
+    static protected final String DB_INVOICE_DOC_ID_COLUMN = "invoiceDocumentId";
 
     private final CustomerRepository customerRepository;
     private final SiteRepository siteRepository;
@@ -84,7 +85,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                         DB_USER_ID_COLUMN,
                         DB_GARAGE_STATUS_ID_COLUMN,
                         DB_WAREHOUSE_STATUS_ID_COLUMN,
-                        DB_INVOICE_NUM_COLUMN
+                        DB_INVOICE_NUM_COLUMN,
+                        DB_INVOICE_DOC_ID_COLUMN
                 });
         this.customerRepository = customerRepository;
         this.siteRepository = siteRepository;
@@ -118,7 +120,8 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 usersRepository.getItem(rs.getInt(DB_USER_ID_COLUMN)),
                 garageStatusRepository.getItem(rs.getInt(DB_GARAGE_STATUS_ID_COLUMN)),
                 warehouseStatusRepository.getItem(rs.getInt(DB_WAREHOUSE_STATUS_ID_COLUMN)),
-                rs.getInt(DB_INVOICE_NUM_COLUMN));
+                rs.getInt(DB_INVOICE_NUM_COLUMN),
+                rs.getInt(DB_INVOICE_DOC_ID_COLUMN));
     }
 
     @Override
@@ -176,6 +179,9 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
         fieldsCounter++;
         preparedStatement.setInt(fieldsCounter,
                 NullPointerExceptionWrapper.getWrapper(call, c -> c.getInvoiceNum(), 0));
+        fieldsCounter++;
+        preparedStatement.setInt(fieldsCounter,
+                NullPointerExceptionWrapper.getWrapper(call, c -> c.getInvoiceDocumentId(), 0));
         return fieldsCounter;
     }
 
@@ -331,6 +337,37 @@ public class CallRepository extends AbstractTypeRepository<Call> implements Repo
                 list.removeIf(call -> (null == call.getSite() || null == call.getSite().getArea()
                         || !call.getSite().getArea().equals(area)));
             }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Call> getItems(Integer invoiceNum, Integer invoiceDocumentId) {
+        List<Call> list = null;
+        try (Connection connection = getConnection()) {
+            String sqlQuery = "select * from " + DB_TABLE_NAME;
+            if (null != invoiceNum) {
+                sqlQuery += " and " + DB_INVOICE_NUM_COLUMN + "=?";
+            }
+            if (null != invoiceDocumentId) {
+                sqlQuery += " and " + DB_INVOICE_DOC_ID_COLUMN + "=?";
+            }
+            if (sqlQuery.contains("and")) {
+                sqlQuery = sqlQuery.replaceFirst("and", "where");
+            }
+            Logger.getLogger(this).debug(sqlQuery);
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            int fieldsCounter = 1;
+            if (null != invoiceNum) {
+                preparedStatement.setInt(fieldsCounter, invoiceNum);
+                fieldsCounter++;
+            }
+            if (null != invoiceDocumentId) {
+                preparedStatement.setInt(fieldsCounter, invoiceDocumentId);
+                fieldsCounter++;
+            }
+            list = getItems(preparedStatement);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

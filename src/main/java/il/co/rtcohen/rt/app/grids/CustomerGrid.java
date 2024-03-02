@@ -5,6 +5,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.PopupView;
+import com.vaadin.ui.VerticalLayout;
+
 import il.co.rtcohen.rt.app.LanguageSettings;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomCheckBoxColumn;
 import il.co.rtcohen.rt.app.uiComponents.columns.CustomComboBoxColumn;

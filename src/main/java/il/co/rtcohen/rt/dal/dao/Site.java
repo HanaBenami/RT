@@ -9,12 +9,15 @@ public class Site extends AbstractTypeSyncedWithHashavshevet implements BindRepo
     private Customer customer;
     private String address;
     private City city;
-    @Deprecated private Area area; // TODO: delete
+    @Deprecated
+    private Area area; // TODO: delete
     private String notes;
 
-    public Site() { }
+    public Site() {
+    }
 
-    public Site(Customer customer, Integer id, String name, boolean active, int hashavshevetFirstDocId, String address, City city, Area area, String notes) {
+    public Site(Customer customer, Integer id, String name, boolean active, int hashavshevetFirstDocId, String address,
+            City city, Area area, String notes) {
         super(id, name, active, hashavshevetFirstDocId);
         this.customer = customer;
         this.address = address;
@@ -35,6 +38,15 @@ public class Site extends AbstractTypeSyncedWithHashavshevet implements BindRepo
     @Override
     public Site cloneObject() {
         return new Site(this);
+    }
+
+    @Override
+    public String getName() {
+        String name = super.getName();
+        if (null == name || name.isBlank()) {
+            name = this.address;
+        }
+        return name;
     }
 
     public String getAddress() {
@@ -76,6 +88,7 @@ public class Site extends AbstractTypeSyncedWithHashavshevet implements BindRepo
     @Override
     public boolean isItemValid() {
         return super.isItemValid() && (null != this.getArea()) && (null != this.getCustomer());
-        // TODO: return super.isItemValid() && (null != this.getCity()) && (null != this.getCustomer());
+        // TODO: return super.isItemValid() && (null != this.getCity()) && (null !=
+        // this.getCustomer());
     }
 }

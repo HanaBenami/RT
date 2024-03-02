@@ -8,6 +8,7 @@ import il.co.rtcohen.rt.utils.Logger;
 import il.co.rtcohen.rt.utils.Pair;
 import il.co.rtcohen.rt.utils.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 public class HashavshevetSyncSingleRecord {
@@ -42,17 +43,21 @@ public class HashavshevetSyncSingleRecord {
                 : Integer.parseInt(vehicleSeriesOrLicense.getSecond().get(0).replaceAll("-", "")));
     }
 
-    public void syncData(
+    public boolean syncData(
             CustomerRepository customerRepository,
             SiteRepository siteRepository,
             CityRepository cityRepository,
             ContactRepository contactRepository,
             VehicleRepository vehicleRepository,
             VehicleTypeRepository vehicleTypeRepository,
+            CallRepository callRepository,
             boolean syncNewCustomers) {
-        String msg = "hashavshevetCustomerId=" + hashavshevetCustomerId + " -> ";
+        String msg = "hashavshevetCustomerId=" + hashavshevetCustomerId
+                + ", hashavshevetDataRecord.documentRowID=" + this.hashavshevetDataRecord.documentRowID
+                + " -> ";
         Logger.getLogger(this).debug("Syncing data for " + msg);
         Customer customer = createOrUpdateCustomer(customerRepository, syncNewCustomers);
+
         if (null != customer) {
             Logger.getLogger(this).debug(msg + "Generated/updated customer: " + customer);
             Site mainSite = createOrUpdateMainSite(customer, siteRepository, cityRepository);
@@ -65,7 +70,22 @@ public class HashavshevetSyncSingleRecord {
             }
             List<Contact> vehicleSiteContacts = createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
             Vehicle vehicle = createOrUpdateVehicle(vehicleSite, vehicleRepository, vehicleTypeRepository);
-            Logger.getLogger(this).debug(msg + "Generated/updated vehicle: " + vehicle);
+            if (null != vehicle) {
+                Logger.getLogger(this).debug(msg + "Generated/updated vehicle: " + vehicle);
+                if (this.hashavshevetDataRecord.documentType == HashavshevetDataRecord.DocumentType.Invoice) {
+                    List<Call> calls = updateInvoice(customer, vehicle, callRepository);
+                    if (calls == null || calls.size() == 0) {
+                        return false;
+                    } else {
+                        Logger.getLogger(this).debug(msg + "Updated invoice #" + this.hashavshevetDataRecord.invoiceNum
+                                + " for calls " + calls);
+                    }
+                }
+            }
+
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -225,6 +245,12 @@ public class HashavshevetSyncSingleRecord {
     // If there such vehicle, updates it. If not, creates a new one.
     private Vehicle createOrUpdateVehicle(
             Site site, VehicleRepository vehicleRepository, VehicleTypeRepository vehicleTypeRepository) {
+        if (null == this.vehicleSeries
+                || null == this.hashavshevetDataRecord.vehicleModel
+                || null == this.hashavshevetDataRecord.vehicleType) {
+            return null;
+        }
+
         assert null != site;
 
         VehicleType vehicleType = createOrUpdateVehicleType(vehicleTypeRepository,
@@ -234,6 +260,9 @@ public class HashavshevetSyncSingleRecord {
         if (null == currentVehicle) {
             List<Vehicle> siteVehicles = vehicleRepository.getItems(site);
             for (Vehicle siteVehicle : siteVehicles) {
+                Logger.getLogger(this).debug("this.vehicleSeries: " + this.vehicleSeries);
+                Logger.getLogger(this).debug("siteVehicle: " + siteVehicle);
+                Logger.getLogger(this).debug("siteVehicle.getSeries(): " + siteVehicle.getSeries());
                 if (this.vehicleSeries.equals(siteVehicle.getSeries())
                         && this.hashavshevetDataRecord.vehicleModel.equals(siteVehicle.getModel())
                         && this.vehicleLicense == siteVehicle.getLicense()
@@ -260,12 +289,43 @@ public class HashavshevetSyncSingleRecord {
 
     private static VehicleType createOrUpdateVehicleType(VehicleTypeRepository vehicleTypeRepository,
             String vehicleTypeName) {
-        VehicleType vehicleType = vehicleTypeRepository.getItemByName(vehicleTypeName);
+        VehicleType vehicleType = vehicleTypeRepository.getItemByName(vehicleTypeName, false);
         if (null == vehicleType) {
             vehicleType = new VehicleType();
             vehicleType.setName(vehicleTypeName);
             vehicleTypeRepository.insertItem(vehicleType);
         }
         return vehicleType;
+    }
+
+    private List<Call> updateInvoice(Customer customer, Vehicle vehicle, CallRepository callRepository) {
+        List<Call> callsWithThisInvoice = callRepository.getItems(this.hashavshevetDataRecord.invoiceNum,
+                this.hashavshevetDataRecord.documentID);
+        if (0 < callsWithThisInvoice.size()) {
+            for (Call call : callsWithThisInvoice) {
+                assert call.getVehicle() == vehicle;
+                if (call.getInvoiceDocumentId() == 0) {
+                    call.setInvoiceDocumentId(this.hashavshevetDataRecord.documentID);
+                } else {
+                    assert call.getInvoiceDocumentId() == this.hashavshevetDataRecord.documentID;
+                }
+            }
+            return callsWithThisInvoice;
+        } else {
+            List<Call> relevantCalls = callRepository.getItems(customer, null, vehicle, false);
+            relevantCalls.removeIf(call -> call.getInvoiceNum() != 0);
+            relevantCalls.removeIf(call -> call.getStartDate().getLocalDate()
+                    .isAfter(this.hashavshevetDataRecord.invoiceDate.getLocalDate()));
+            if (0 < relevantCalls.size()) {
+                relevantCalls.sort((call1, call2) -> call1.getCurrentScheduledDate().getLocalDate().compareTo(
+                        call2.getCurrentScheduledDate().getLocalDate()));
+                Call call = relevantCalls.get(0);
+                call.setInvoiceNum(this.hashavshevetDataRecord.invoiceNum);
+                call.setInvoiceDocumentId(this.hashavshevetDataRecord.documentID);
+                callRepository.updateItem(call);
+                return Collections.singletonList(call);
+            }
+        }
+        return null;
     }
 }

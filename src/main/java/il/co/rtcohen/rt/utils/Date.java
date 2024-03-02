@@ -3,7 +3,7 @@ package il.co.rtcohen.rt.utils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Date  implements Comparable<Date> {
+public class Date implements Comparable<Date> {
     final static public DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     final static public DateTimeFormatter dateFormatterForUrls = DateTimeFormatter.ofPattern("yyyyMMdd");
     final static public DateTimeFormatter shortDateFormatter = DateTimeFormatter.ofPattern("dd/MM");
@@ -16,7 +16,7 @@ public class Date  implements Comparable<Date> {
     }
 
     public Date(String s) {
-        this.localDate = LocalDate.parse(s, dateFormatter);
+        this.localDate = LocalDate.parse(s.substring(0, nullDateString.length()), dateFormatter);
     }
 
     public LocalDate getLocalDate() {
