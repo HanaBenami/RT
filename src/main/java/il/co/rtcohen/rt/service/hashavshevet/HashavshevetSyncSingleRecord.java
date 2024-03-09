@@ -67,49 +67,53 @@ public class HashavshevetSyncSingleRecord {
                 + ", hashavshevetDataRecord.documentRowID=" + this.hashavshevetDataRecord.documentRowID
                 + " -> ";
         Logger.getLogger(this).debug("Syncing data for " + msg);
+
+        // customer
         Customer customer = createOrUpdateCustomer(customerRepository, syncNewCustomers);
-
-        if (null != customer) {
-            Logger.getLogger(this).debug(msg + "Generated/updated customer: " + customer);
-
-            // main site
-            Site mainSite = createOrUpdateMainSite(customer, siteRepository, cityRepository);
-            Logger.getLogger(this).debug(msg + "Generated/updated main site: " + mainSite);
-            if (null != mainSite) {
-                createOrUpdateMainSiteContacts(mainSite, contactRepository);
-            }
-
-            // vehicle site
-            Site vehicleSite = createOrUpdateVehicleSite(customer, siteRepository, cityRepository);
-            Logger.getLogger(this).debug(msg + "Generated/updated vehicle site: " + vehicleSite);
-            if (null == vehicleSite) {
-                if (null == mainSite) {
-                    return false;
-                } else {
-                    vehicleSite = mainSite;
-                }
-            }
-            createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
-
-            // vehicle
-            Vehicle vehicle = createOrUpdateVehicle(vehicleSite, vehicleRepository, vehicleTypeRepository);
-            if (null != vehicle) {
-                Logger.getLogger(this).debug(msg + "Generated/updated vehicle: " + vehicle);
-                if (this.hashavshevetDataRecord.documentType == HashavshevetDataRecord.DocumentType.Invoice) {
-                    List<Call> calls = updateInvoice(customer, vehicle, callRepository);
-                    if (calls == null || calls.size() == 0) {
-                        return false;
-                    } else {
-                        Logger.getLogger(this).debug(msg + "Updated invoice #" + this.hashavshevetDataRecord.invoiceNum
-                                + " for calls " + calls);
-                    }
-                }
-            }
-
-            return true;
-        } else {
+        if (null == customer) {
+            Logger.getLogger(this).debug(msg + "Customer doesn't exists and syncNewCustomers=" + syncNewCustomers);
             return false;
         }
+        Logger.getLogger(this).debug(msg + "Generated/updated customer: " + customer);
+
+        // main site
+        Site mainSite = createOrUpdateMainSite(customer, siteRepository, cityRepository);
+        Logger.getLogger(this).debug(msg + "Generated/updated main site: " + mainSite);
+        if (null != mainSite) {
+            createOrUpdateMainSiteContacts(mainSite, contactRepository);
+        }
+
+        // vehicle site
+        Site vehicleSite = createOrUpdateVehicleSite(customer, siteRepository, cityRepository);
+        Logger.getLogger(this).debug(msg + "Generated/updated vehicle site: " + vehicleSite);
+        if (null == vehicleSite) {
+            if (null == mainSite) {
+                Logger.getLogger(this).debug(msg + "Site details aren't available - skipping this record vehicle");
+                return false;
+            } else {
+                vehicleSite = mainSite;
+            }
+        }
+        createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
+
+        // vehicle
+        Vehicle vehicle = createOrUpdateVehicle(vehicleSite, vehicleRepository, vehicleTypeRepository);
+        if (null != vehicle) {
+            Logger.getLogger(this).debug(msg + "Generated/updated vehicle: " + vehicle);
+            if (this.hashavshevetDataRecord.documentType == HashavshevetDataRecord.DocumentType.Invoice) {
+                List<Call> calls = updateInvoice(customer, vehicle, callRepository);
+                if (calls == null || calls.size() == 0) {
+                    Logger.getLogger(this)
+                            .debug(msg + "No relevant calls were found - skipping this record invoice");
+                    return false;
+                } else {
+                    Logger.getLogger(this).debug(msg + "Updated invoice #" + this.hashavshevetDataRecord.invoiceNum
+                            + " for calls " + calls);
+                }
+            }
+        }
+
+        return true;
     }
 
     // Looks for a customer with the same hashavshevet ID.
