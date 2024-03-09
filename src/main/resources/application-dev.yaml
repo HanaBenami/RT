@@ -5,7 +5,7 @@ server:
   port: 8083
 
 sqlserver:
-  url: jdbc:sqlserver://DESKTOP-2009HHP.local;databaseName=RT_prod;user=SA;password=xxx;encrypt=true;trustServerCertificate=true
+  url: jdbc:sqlserver://DESKTOP-2009HHP.local;databaseName=RT_prod;user=SA;password=Hana1989;encrypt=true;trustServerCertificate=true
 
 log:
   path: c:\\rt\\logs\\dev

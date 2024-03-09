@@ -43,7 +43,7 @@ public class Site extends AbstractTypeSyncedWithHashavshevet implements BindRepo
     @Override
     public String getName() {
         String name = super.getName();
-        if (null == name || name.isBlank()) {
+        if (null == name || name.isEmpty()) {
             name = this.address;
         }
         return name;

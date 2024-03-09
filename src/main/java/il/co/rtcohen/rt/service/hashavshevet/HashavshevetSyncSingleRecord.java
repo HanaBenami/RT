@@ -28,19 +28,30 @@ public class HashavshevetSyncSingleRecord {
         this.israelCities = israelCities;
         this.hashavshevetCustomerId = Integer.parseInt(hashavshevetDataRecord.customerKey);
         this.customerCityName = StringUtils.removeNumbers(this.hashavshevetDataRecord.customerCityAndZip);
+
         Pair<String, List<String>> customerContactNameAndPhones = StringUtils
                 .extractNumbersWithDashes(this.hashavshevetDataRecord.customerPhonesStr, null);
         this.customerPhones = customerContactNameAndPhones.getSecond();
         this.siteCityName = StringUtils.removeNumbers(this.hashavshevetDataRecord.siteCityAndZip);
+
         Pair<String, List<String>> siteContactNameAndPhones = StringUtils
                 .extractNumbersWithDashes(this.hashavshevetDataRecord.siteContactNameAndPhones, null);
         this.siteContactName = siteContactNameAndPhones.getFirst();
         this.siteContactPhones = siteContactNameAndPhones.getSecond();
+
         Pair<String, List<String>> vehicleSeriesOrLicense = StringUtils
                 .extractNumbersWithDashes(this.hashavshevetDataRecord.vehicleSeriesOrLicense, 1);
-        this.vehicleSeries = vehicleSeriesOrLicense.getFirst();
-        this.vehicleLicense = (vehicleSeriesOrLicense.getSecond().isEmpty() ? 0
-                : Integer.parseInt(vehicleSeriesOrLicense.getSecond().get(0).replaceAll("-", "")));
+        String vehicleSeriesCandidate = vehicleSeriesOrLicense.getFirst();
+        String vehicleLicenseCandidate = (vehicleSeriesOrLicense.getSecond().isEmpty() ? "0"
+                : (vehicleSeriesOrLicense.getSecond().get(0)));
+        int vehicleLicense = 0;
+        try {
+            vehicleLicense = Integer.parseInt(vehicleLicenseCandidate.replaceAll("-", ""));
+            vehicleLicenseCandidate = "";
+        } catch (NumberFormatException ignored) {
+        }
+        this.vehicleLicense = vehicleLicense;
+        this.vehicleSeries = vehicleSeriesCandidate + vehicleLicenseCandidate;
     }
 
     public boolean syncData(
@@ -60,15 +71,27 @@ public class HashavshevetSyncSingleRecord {
 
         if (null != customer) {
             Logger.getLogger(this).debug(msg + "Generated/updated customer: " + customer);
+
+            // main site
             Site mainSite = createOrUpdateMainSite(customer, siteRepository, cityRepository);
             Logger.getLogger(this).debug(msg + "Generated/updated main site: " + mainSite);
-            List<Contact> mainSiteContacts = createOrUpdateMainSiteContacts(mainSite, contactRepository);
+            if (null != mainSite) {
+                createOrUpdateMainSiteContacts(mainSite, contactRepository);
+            }
+
+            // vehicle site
             Site vehicleSite = createOrUpdateVehicleSite(customer, siteRepository, cityRepository);
             Logger.getLogger(this).debug(msg + "Generated/updated vehicle site: " + vehicleSite);
             if (null == vehicleSite) {
-                vehicleSite = mainSite;
+                if (null == mainSite) {
+                    return false;
+                } else {
+                    vehicleSite = mainSite;
+                }
             }
-            List<Contact> vehicleSiteContacts = createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
+            createOrUpdateVehicleSiteContacts(vehicleSite, contactRepository);
+
+            // vehicle
             Vehicle vehicle = createOrUpdateVehicle(vehicleSite, vehicleRepository, vehicleTypeRepository);
             if (null != vehicle) {
                 Logger.getLogger(this).debug(msg + "Generated/updated vehicle: " + vehicle);
