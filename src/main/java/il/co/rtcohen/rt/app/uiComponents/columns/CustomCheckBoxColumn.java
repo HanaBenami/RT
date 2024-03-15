@@ -56,9 +56,7 @@ public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>>
         filterComboBox.setItemCaptionGenerator(
                 bool -> (null == bool ? "" : (Boolean.TRUE == bool ? "V" : "X")));
         filterComboBox.setEmptySelectionAllowed(true);
-        if (grid.applyDefaultFilters && null != defaultFilter) {
-            filterComboBox.setValue(defaultFilter);
-        }
+        filterComboBox.setValue(grid.applyDefaultFilters ? defaultFilter : null);
         filterComboBox.setHeight(StyleSettings.FILTER_FIELD_HEIGHT);
         filterComboBox.setWidth(StyleSettings.FILTER_FIELD_WIDTH);
         column.setFilter(
