@@ -16,7 +16,6 @@ import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiv
 import il.co.rtcohen.rt.utils.Date;
 import il.co.rtcohen.rt.app.LanguageSettings;
 
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
@@ -31,7 +30,6 @@ import il.co.rtcohen.rt.utils.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.addons.filteringgrid.FilterGrid;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -256,7 +254,7 @@ public class EditCallUI extends AbstractUI<GridLayout> {
             this.changeSiteButton.setEnabled(!call.isDeleted());
             this.sitesGrid = new SitesGrid(
                     this.call.getCustomer(), customerRepository, contactRepository, siteRepository, callRepository,
-                    cityRepository, areaRepository);
+                    cityRepository, areaRepository, false);
             this.sitesGrid.initGrid(false, 0);
             this.sitesGrid.setEnabled(!call.isDeleted());
             this.addGridToLayout(this.sitesGrid, this.call.getSite(), 1, column1, row1, column2, row2);
@@ -296,7 +294,8 @@ public class EditCallUI extends AbstractUI<GridLayout> {
         if (null != this.call.getVehicle()) {
             this.changeVehicleButton.setEnabled(!call.isDeleted());
             this.vehiclesGrid = new VehiclesGrid(
-                    this.call.getSite(), siteRepository, vehicleRepository, vehicleTypeRepository, callRepository);
+                    this.call.getSite(), siteRepository, vehicleRepository, vehicleTypeRepository, callRepository,
+                    false);
             this.vehiclesGrid.initGrid(false, 0);
             this.vehiclesGrid.setEnabled(!call.isDeleted());
             addGridToLayout(this.vehiclesGrid, this.call.getVehicle(), 1, column1, row1, column2, row2);

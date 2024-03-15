@@ -65,7 +65,8 @@ public class CallsGrid extends AbstractTypeFilterGrid<Call> {
                 call -> ((null != selectedVehicle && !selectedVehicle.equals(call.getVehicle()))
                         || (null != selectedSite && !selectedSite.equals(call.getSite()))
                         || (null != selectedCustomer && !selectedCustomer.equals(call.getCustomer())
-                                || (null != selectedDriver && !selectedDriver.equals(call.getCurrentDriver())))));
+                                || (null != selectedDriver && !selectedDriver.equals(call.getCurrentDriver())))),
+                true);
         this.selectedCallsFilterOption = selectedCallsFilterOption;
         this.selectedCustomer = selectedCustomer;
         this.selectedSite = selectedSite;

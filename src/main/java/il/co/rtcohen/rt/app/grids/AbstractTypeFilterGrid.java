@@ -46,13 +46,16 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
     public CustomIntegerColumn<T> idColumn = null;
     private boolean emptyLinesAllow = true;
     private int numOfNewLinesInGrid;
+    public final boolean applyDefaultFilters;
 
     public AbstractTypeFilterGrid(
             AbstractTypeRepository<T> mainRepository,
             Supplier<T> newItemSupplier,
             String titleKey,
-            Predicate<T> itemsFilterPredicate) {
+            Predicate<T> itemsFilterPredicate,
+            boolean applyDefaultFilters) {
         super();
+        this.applyDefaultFilters = applyDefaultFilters;
         this.setGridRepository(mainRepository);
         this.setNewItemSupplier(newItemSupplier);
         this.setTitleKey(titleKey);
@@ -117,11 +120,6 @@ abstract public class AbstractTypeFilterGrid<T extends AbstractType & Cloneable<
                 return null;
             }
         });
-    }
-
-    @Deprecated
-    public AbstractTypeFilterGrid() {
-        super();
     }
 
     private void setGridRepository(AbstractTypeRepository<T> repository) {

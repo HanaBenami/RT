@@ -21,12 +21,13 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     private final CityRepository cityRepository;
 
     public SitesGrid(Customer selectedCustomer,
-                     CustomerRepository customerRepository,
-                     ContactRepository contactRepository,
-                     SiteRepository siteRepository,
-                     CallRepository callRepository,
-                     CityRepository cityRepository,
-                     AreaRepository areaRepository) {
+            CustomerRepository customerRepository,
+            ContactRepository contactRepository,
+            SiteRepository siteRepository,
+            CallRepository callRepository,
+            CityRepository cityRepository,
+            AreaRepository areaRepository,
+            boolean applyDefaultFilters) {
         super(
                 siteRepository, () -> {
                     Site site = new Site();
@@ -34,8 +35,9 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                     return site;
                 },
                 "sitesOfCustomers",
-                site -> null == selectedCustomer || null == site.getCustomer() || !site.getCustomer().getId().equals(selectedCustomer.getId())
-        );
+                site -> null == selectedCustomer || null == site.getCustomer()
+                        || !site.getCustomer().getId().equals(selectedCustomer.getId()),
+                applyDefaultFilters);
         this.selectedCustomer = (null == selectedCustomer || selectedCustomer.isDraft() ? null : selectedCustomer);
         this.customerRepository = customerRepository;
         this.contactRepository = contactRepository;
@@ -88,14 +90,14 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                     } else {
                         int activeContactsCounter = 0;
                         activeContactsCounter = contactRepository.getItems(site).size();
-                        return CustomButton.countingIcon(VaadinIcons.ENVELOPE_OPEN_O, VaadinIcons.ENVELOPE_OPEN, VaadinIcons.ENVELOPE_OPEN, activeContactsCounter);
+                        return CustomButton.countingIcon(VaadinIcons.ENVELOPE_OPEN_O, VaadinIcons.ENVELOPE_OPEN,
+                                VaadinIcons.ENVELOPE_OPEN, activeContactsCounter);
                     }
                 },
                 85,
                 "contactsColumn",
                 "contacts",
-                this
-        );
+                this);
         column.getColumn().setHidden(true);
     }
 
@@ -111,8 +113,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 60,
                 "addCallColumn",
                 "addCall",
-                this
-        );
+                this);
         column.getColumn().setStyleGenerator(vehicle -> "red");
         column.getColumn().setHidable(false);
         column.getColumn().setHidden(false);
@@ -121,8 +122,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
     private void addCallsColumn() {
         addCallsColumn(
                 site -> callRepository.getItems(null, site, null, false).size(),
-                "site"
-        );
+                "site");
     }
 
     private void addNotesColumn() {
@@ -135,8 +135,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 
     private void addAreaColumn() {
@@ -149,8 +148,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 130,
                 "areaColumn",
                 "area",
-                this
-        );
+                this);
     }
 
     private void addCityColumn() {
@@ -163,8 +161,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 130,
                 "cityColumn",
                 "city",
-                this
-        );
+                this);
     }
 
     private void addAddressColumn() {
@@ -177,8 +174,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 
     private void addCustomerColumn() {
@@ -191,8 +187,7 @@ public class SitesGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Site> {
                 130,
                 "customerColumn",
                 "customer",
-                this
-        );
+                this);
         column.getColumn().setHidable(true);
         column.getColumn().setHidden(true);
     }

@@ -25,14 +25,15 @@ public class VehiclesGrid extends AbstractTypeFilterGrid<Vehicle> {
             SiteRepository siteRepository,
             VehicleRepository vehicleRepository,
             VehicleTypeRepository vehicleTypeRepository,
-            CallRepository callRepository) {
+            CallRepository callRepository,
+            boolean applyDefaultFilters) {
         super(vehicleRepository, () -> {
             Vehicle vehicle = new Vehicle();
             vehicle.setSite(selectedSite);
             return vehicle;
         },
                 "vehiclesOfSites",
-                vehicle -> null == vehicle.getSite() || !vehicle.getSite().equals(selectedSite));
+                vehicle -> null == vehicle.getSite() || !vehicle.getSite().equals(selectedSite), applyDefaultFilters);
         this.site = (null == selectedSite || selectedSite.isDraft() ? null : selectedSite);
         this.siteRepository = siteRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;

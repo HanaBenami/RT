@@ -14,38 +14,36 @@ import org.vaadin.addons.filteringgrid.FilterGrid;
 
 import java.util.logging.Logger;
 
-public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> extends AbstractCustomColumn<T, CustomCheckBox, CustomCheckBox> {
+public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>>
+        extends AbstractCustomColumn<T, CustomCheckBox, CustomCheckBox> {
     private CustomCheckBoxColumn(
             AbstractTypeFilterGrid<T> grid,
             FilterGrid.Column<T, CustomCheckBox> column,
             String columnId,
-            String labelKey
-    ) {
+            String labelKey) {
         super(grid, column, null, columnId, labelKey, 80);
         this.column.setSortable(false);
     }
 
     // Usage:
-    //    FilterGrid.Column<Call, Component> column = CustomCheckBoxColumn.addToGrid((
-    //                    Call::isHere,
-    //            (Setter<Call, Boolean>) Call::setHere,
-    //            "activeColumn",
-    //            "active",
-    //            Boolean.TRUE,
-    //            this
-    //    );
+    // FilterGrid.Column<Call, Component> column = CustomCheckBoxColumn.addToGrid((
+    // Call::isHere,
+    // (Setter<Call, Boolean>) Call::setHere,
+    // "activeColumn",
+    // "active",
+    // Boolean.TRUE,
+    // this
+    // );
     public static <T extends AbstractType & Cloneable<T>> CustomCheckBoxColumn<T> addToGrid(
             ValueProvider<T, Boolean> valueProvider,
             Setter<T, Boolean> setter,
             String columnId,
             String labelKey,
             Boolean defaultFilter,
-            AbstractTypeFilterGrid<T> grid
-    ) {
+            AbstractTypeFilterGrid<T> grid) {
         // Basic column
         FilterGrid.Column<T, CustomCheckBox> column = grid.addComponentColumn(
-                T -> new CustomCheckBox(null, valueProvider.apply(T), true)
-        );
+                T -> new CustomCheckBox(null, valueProvider.apply(T), true));
 
         // Setter
         if (null != setter) {
@@ -56,10 +54,9 @@ public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> extends
         ComboBox<Boolean> filterComboBox = new ComboBox<>();
         filterComboBox.setItems(Boolean.TRUE, Boolean.FALSE);
         filterComboBox.setItemCaptionGenerator(
-                bool -> (null == bool ? "" : (Boolean.TRUE == bool ? "V" : "X"))
-        );
+                bool -> (null == bool ? "" : (Boolean.TRUE == bool ? "V" : "X")));
         filterComboBox.setEmptySelectionAllowed(true);
-        if (null != defaultFilter) {
+        if (grid.applyDefaultFilters && null != defaultFilter) {
             filterComboBox.setValue(defaultFilter);
         }
         filterComboBox.setHeight(StyleSettings.FILTER_FIELD_HEIGHT);
@@ -67,9 +64,7 @@ public class CustomCheckBoxColumn<T extends AbstractType & Cloneable<T>> extends
         column.setFilter(
                 CheckBox::getValue,
                 filterComboBox,
-                (currentValue, filterValue) -> (null == filterValue || filterValue.equals(currentValue))
-        );
-
+                (currentValue, filterValue) -> (null == filterValue || filterValue.equals(currentValue)));
 
         return new CustomCheckBoxColumn<>(grid, column, columnId, labelKey);
     }

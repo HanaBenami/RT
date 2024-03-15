@@ -12,7 +12,7 @@ public class WarehouseStatusesGrid extends AbstractTypeWithNameAndActiveFieldsGr
         super(warehouseStatusRepository,
                 WarehouseStatus::new,
                 "area",
-                null);
+                null, true);
         this.initGrid(true, 0);
         this.setCustomSortColumnId(DISPLAY_ORDER_COLUMN_ID);
     }

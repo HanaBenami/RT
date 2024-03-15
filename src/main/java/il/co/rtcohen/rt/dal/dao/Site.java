@@ -46,9 +46,6 @@ public class Site extends AbstractTypeSyncedWithHashavshevet implements BindRepo
         if (null == name || name.isEmpty()) {
             name = this.address;
         }
-        if (!wasSyncedWithHashavshevet()) {
-            name += " (לא מסונכרן)";
-        }
         return name;
     }
 

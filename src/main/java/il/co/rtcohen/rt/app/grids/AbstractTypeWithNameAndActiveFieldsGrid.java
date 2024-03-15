@@ -15,7 +15,8 @@ import il.co.rtcohen.rt.dal.dao.interfaces.AbstractTypeWithNameAndActiveFields;
 import il.co.rtcohen.rt.dal.dao.interfaces.Cloneable;
 import il.co.rtcohen.rt.dal.repositories.interfaces.AbstractTypeWithNameAndActiveFieldsRepository;
 
-public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields & Cloneable<T>> extends AbstractTypeFilterGrid<T> {
+public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithNameAndActiveFields & Cloneable<T>>
+        extends AbstractTypeFilterGrid<T> {
     private final String NAME_COLUMN_ID = "nameColumn";
     private TextField nameFilterTextField;
     private boolean showNewNameField = false;
@@ -24,14 +25,14 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
             AbstractTypeWithNameAndActiveFieldsRepository<T> abstractTypeWithNameAndActiveFieldsRepository,
             Supplier<T> newItemSupplier,
             String titleKey,
-            Predicate<T> itemsFilterPredicate
-    ) {
+            Predicate<T> itemsFilterPredicate,
+            boolean applyDefaultFilters) {
         super(
                 abstractTypeWithNameAndActiveFieldsRepository,
                 newItemSupplier,
                 titleKey,
-                itemsFilterPredicate
-        );
+                itemsFilterPredicate,
+                applyDefaultFilters);
         this.setCustomSortColumnId(NAME_COLUMN_ID);
     }
 
@@ -57,8 +58,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
                 "activeColumn",
                 "active",
                 Boolean.TRUE,
-                this
-        );
+                this);
     }
 
     protected void addNameColumn() {
@@ -72,8 +72,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
                 false,
                 true,
                 false,
-                this
-        );
+                this);
         nameFilterTextField = column.getFilterField();
     }
 
@@ -104,8 +103,7 @@ public class AbstractTypeWithNameAndActiveFieldsGrid<T extends AbstractTypeWithN
                 event -> {
                     nameFilterTextField.setValue(event.getValue());
                     addButton.setEnabled(!event.getValue().isEmpty());
-                }
-        );
+                });
         newNameField.setWidth("100%");
 
         newNameLayout.addComponents(before);

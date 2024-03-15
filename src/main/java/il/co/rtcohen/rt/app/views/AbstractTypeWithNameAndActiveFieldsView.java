@@ -23,9 +23,9 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
 
     @Autowired
     protected AbstractTypeWithNameAndActiveFieldsView(ErrorHandler errorHandler,
-                                                    AbstractTypeWithNameAndActiveFieldsRepository<T> abstractTypeWithNameAndActiveFieldsRepository,
-                                                    Supplier<T> newItemSupplier,
-                                                    String titleKey) {
+            AbstractTypeWithNameAndActiveFieldsRepository<T> abstractTypeWithNameAndActiveFieldsRepository,
+            Supplier<T> newItemSupplier,
+            String titleKey) {
         super(errorHandler, titleKey);
         this.abstractTypeWithNameAndActiveFieldsRepository = abstractTypeWithNameAndActiveFieldsRepository;
         this.newItemSupplier = newItemSupplier;
@@ -43,7 +43,7 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
                 this.abstractTypeWithNameAndActiveFieldsRepository,
                 this.newItemSupplier,
                 this.titleKey,
-                null);
+                null, true);
         grid.initGrid(true, 0);
         addComponentsAndExpand(grid.getVerticalLayout(true, false));
     }
@@ -59,8 +59,6 @@ abstract class AbstractTypeWithNameAndActiveFieldsView<T extends AbstractTypeWit
             grid = null;
         }
     }
-
-
 
     @Override
     void setTabIndexesAndFocus() {

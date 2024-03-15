@@ -116,7 +116,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     void addSitesGrid(Customer customer) {
         removeSitesGrid();
         this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository,
-                cityRepository, areaRepository);
+                cityRepository, areaRepository, true);
         this.sitesGrid.initGrid(true, 0);
         if (0 == selectedSiteId) {
             List<Site> sites = this.sitesGrid.getGridItems();
@@ -149,7 +149,7 @@ public class CustomerDataView extends AbstractDataView<Customer> {
     void addVehicleGrid(Site site) {
         removeVehiclesGrid();
         this.vehiclesGrid = new VehiclesGrid(site, siteRepository, vehicleRepository, vehicleTypeRepository,
-                callRepository);
+                callRepository, true);
         this.vehiclesGrid.initGrid(true, 0);
         this.vehiclesGrid.setSelectedItem(selectedVehicleId, true);
         this.selectedVehicleId = 0;

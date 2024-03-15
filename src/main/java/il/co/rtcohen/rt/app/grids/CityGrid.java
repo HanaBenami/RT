@@ -11,11 +11,10 @@ public class CityGrid extends AbstractTypeWithNameAndActiveFieldsGrid<City> {
 
     public CityGrid(CityRepository cityRepository, AreaRepository areaRepository) {
         super(
-            cityRepository,
-            City::new,
-            "cities",
-            null
-        );
+                cityRepository,
+                City::new,
+                "cities",
+                null, true);
         this.areaRepository = areaRepository;
         this.initGrid(true, 0);
     }
@@ -37,7 +36,6 @@ public class CityGrid extends AbstractTypeWithNameAndActiveFieldsGrid<City> {
                 250,
                 "areaColumn",
                 "area",
-                this
-        );
+                this);
     }
 }

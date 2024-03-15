@@ -38,7 +38,7 @@ public class CustomerGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Custom
                 customerRepository,
                 Customer::new,
                 "customers",
-                customer -> null != selectedCustomer && !selectedCustomer.getId().equals(customer.getId()));
+                customer -> null != selectedCustomer && !selectedCustomer.getId().equals(customer.getId()), true);
         this.selectedCustomer = selectedCustomer;
         this.customerTypeRepository = customerTypeRepository;
         this.siteRepository = siteRepository;

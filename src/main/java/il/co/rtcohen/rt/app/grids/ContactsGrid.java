@@ -9,7 +9,7 @@ public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contac
     private final Site site;
 
     public ContactsGrid(Site site,
-                        ContactRepository contactRepository) {
+            ContactRepository contactRepository) {
         super(
                 contactRepository, () -> {
                     Contact contact = new Contact();
@@ -17,8 +17,7 @@ public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contac
                     return contact;
                 },
                 "contactsOfSites",
-                contact -> null == site || !contact.getSite().getId().equals(site.getId())
-        );
+                contact -> null == site || !contact.getSite().getId().equals(site.getId()), true);
         this.site = (null == site || site.isDraft() ? null : site);
     }
 
@@ -61,8 +60,7 @@ public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contac
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 
     private void addPhoneColumn() {
@@ -75,7 +73,6 @@ public class ContactsGrid extends AbstractTypeWithNameAndActiveFieldsGrid<Contac
                 false,
                 true,
                 false,
-                this
-        );
+                this);
     }
 }

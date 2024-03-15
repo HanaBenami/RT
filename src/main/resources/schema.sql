@@ -232,7 +232,7 @@ ALTER view [dbo].[v_hash_current_data] as
 		join RAT2005.dbo.Stock on Stock.ID=StockMoves.StockID 
 		join RAT2005.dbo.Accounts on Accounts.AccountKey=Stock.AccountKey 
 		left outer join RAT2005.dbo.Items on StockMoves.BurdInstItemKey=Items.ItemKey 
-	where StockMoves.DocumentID in (79, 67, 1) -- and Stock.ValueDate >= '2023-01-01'
+	where StockMoves.DocumentID in (79, 67, 1) and ISNUMERIC(Accounts.AccountKey) = 1 -- and Stock.ValueDate >= '2023-01-01'
 GO
 
 ALTER TABLE hash_data_already_merged ADD DocumentRowId int DEFAULT 0;
