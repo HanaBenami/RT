@@ -11,6 +11,7 @@ import il.co.rtcohen.rt.utils.Logger;
 
 import com.vaadin.ui.ComboBox;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -62,9 +63,12 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static CustomComboBox<Vehicle> getComboBox(VehicleRepository vehicleRepository, @NotNull Site site) {
+        List<Vehicle> list = vehicleRepository.getItems(site);
+        // .stream().filter(vehicle ->
+        // vehicle.wasSyncedWithHashavshevet()).collect(Collectors.toList())
+        list.sort(Comparator.comparing(vehicle -> !vehicle.wasSyncedWithHashavshevet()));
         return new CustomComboBox<>(
-                vehicleRepository.getItems(site)
-                        .stream().filter(vehicle -> vehicle.wasSyncedWithHashavshevet()).collect(Collectors.toList()),
+                list,
                 null,
                 130,
                 false);
@@ -83,9 +87,12 @@ public class CustomComboBox<T extends Nameable & BindRepository<T>> extends Comb
     }
 
     public static CustomComboBox<Site> getComboBox(SiteRepository siteRepository, Customer customer) {
+        List<Site> list = (null == customer ? siteRepository.getItems() : siteRepository.getItems(customer));
+        // .stream().filter(site ->
+        // site.wasSyncedWithHashavshevet()).collect(Collectors.toList())
+        list.sort(Comparator.comparing(site -> !site.wasSyncedWithHashavshevet()));
         return new CustomComboBox<>(
-                (null == customer ? siteRepository.getItems() : siteRepository.getItems(customer))
-                        .stream().filter(site -> site.wasSyncedWithHashavshevet()).collect(Collectors.toList()),
+                list,
                 null,
                 130,
                 false);

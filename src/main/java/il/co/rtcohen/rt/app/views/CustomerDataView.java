@@ -118,14 +118,14 @@ public class CustomerDataView extends AbstractDataView<Customer> {
         this.sitesGrid = new SitesGrid(customer, customerRepository, contactRepository, siteRepository, callRepository,
                 cityRepository, areaRepository);
         this.sitesGrid.initGrid(true, 0);
-        if (0 == selectedSiteId) {
-            List<Site> sites = this.sitesGrid.getGridItems();
-            if (!sites.isEmpty() && null != sites.get(0).getId()) {
-                this.selectedSiteId = sites.get(0).getId();
-            }
-        }
+        // if (0 == selectedSiteId) {
+        // List<Site> sites = this.sitesGrid.getGridItems();
+        // if (!sites.isEmpty() && null != sites.get(0).getId()) {
+        // this.selectedSiteId = sites.get(0).getId();
+        // }
+        // }
         this.sitesGrid.setSelectedItem(selectedSiteId, false);
-        this.selectedSiteId = 0;
+        // this.selectedSiteId = 0;
         this.sitesGrid.addItemClickListener(listener -> {
             Site newSelectedSite = listener.getItem();
             if (null == newSelectedSite.getId() || 0 == newSelectedSite.getId()

@@ -184,7 +184,11 @@ create table hash_data_already_merged (
 	VehicleType varchar(200) default ''
 );
 
---create view v_hash_data_diff as select DocumentID, CustomerKey, CustomerName, CustomerAddress, CustomerCity, CustomerPhones, SiteAddress, SiteCity, contact, VehicleSeriesOrLicense, VehicleModel, VehicleType from v_hash_current_data except (select DocumentID, CustomerKey, CustomerName, CustomerAddress, CustomerCity, CustomerPhones, SiteAddress, SiteCity, contact, VehicleSeriesOrLicense, VehicleModel, VehicleType from hash_data_already_merged);
+-- create view v_hash_data_diff as select DocumentID, CustomerKey, CustomerName, CustomerAddress, CustomerCity, CustomerPhones, 
+-- SiteAddress, SiteCity, contact, VehicleSeriesOrLicense, VehicleModel, VehicleType 
+-- from v_hash_current_data except 
+-- (select DocumentID, CustomerKey, CustomerName, CustomerAddress, CustomerCity, CustomerPhones, SiteAddress, SiteCity, 
+-- contact, VehicleSeriesOrLicense, VehicleModel, VehicleType from hash_data_already_merged);
 
 
 --10/02/24 - 02/03/24 - Invoices
@@ -192,37 +196,44 @@ create table hash_data_already_merged (
 ALTER TABLE call ADD invoiceNum int DEFAULT 0;
 ALTER TABLE call ADD invoiceDocumentId int DEFAULT 0;
 
--- ALTER view [dbo].[v_hash_current_data] as 
--- 	select DISTINCT 
--- 		StockMoves.id as DocumentRowId, 
--- 		StockMoves.StockID as DocumentID, 
--- 		CASE 
--- 			WHEN Stock.DocumentID = 67 THEN 'WorkCard'
--- 			WHEN Stock.DocumentID = 79 THEN 'Invoice'
--- 			ELSE 'Unknown'
--- 		END AS DocumentType,
--- 		Accounts.AccountKey as CustomerKey, Accounts.FullName as CustomerName, 
--- 		Accounts.Address as CustomerAddress, 
--- 		Accounts.City as CustomerCity, 
--- 		CONCAT(Accounts.Phone, ' ', Accounts.SPhone) as CustomerPhones, 
--- 		Stock.Address as SiteAddress, 
--- 		Stock.City as SiteCity, 
--- 		Stock.Contact as contact, 
--- 		-- Work card
--- 		StockMoves.BurdInstance as VehicleSeriesOrLicense, 
--- 		StockMoves.BurdInstItemKey as VehicleModel, 
--- 		Items.ItemName as VehicleType, 
--- 		-- Invoice
--- 		StockMoves.quantity as Amount,
--- 		StockMoves.ItemName as ItemName,
--- 		Stock.DocNumber as InvoiceNum, 
--- 		Stock.ValueDate as InvoiceDate
--- 	from RAT2005.dbo.StockMoves 
--- 		join RAT2005.dbo.Stock on Stock.ID=StockMoves.StockID 
--- 		join RAT2005.dbo.Accounts on Accounts.AccountKey=Stock.AccountKey 
--- 		left outer join RAT2005.dbo.Items on StockMoves.BurdInstItemKey=Items.ItemKey 
--- 	where StockMoves.DocumentID in (79, 67)
--- GO
+ALTER view [dbo].[v_hash_current_data] as 
+	select DISTINCT 
+		StockMoves.id as DocumentRowId, 
+		StockMoves.StockID as DocumentID, 
+		CASE 
+			WHEN Stock.DocumentID = 67 THEN 'WorkCard'
+			WHEN Stock.DocumentID = 1 THEN 'Invoice'
+			WHEN Stock.DocumentID = 79 THEN 'Invoice'
+			ELSE 'Unknown'
+		END AS DocumentType,
+		Accounts.AccountKey as CustomerKey, Accounts.FullName as CustomerName, 
+		Accounts.Address as CustomerAddress, 
+		Accounts.City as CustomerCity, 
+		CONCAT(Accounts.Phone, ' ', Accounts.SPhone) as CustomerPhones, 
+		CASE
+			WHEN Stock.ExtraText2 IS NULL THEN Stock.Address
+			ELSE NULL
+		END AS SiteAddress,
+		CASE
+			WHEN Stock.ExtraText2 IS NULL THEN Stock.City
+			ELSE Stock.ExtraText2
+		END AS SiteCity,
+		Stock.Contact as contact, 
+		-- Work card
+		StockMoves.BurdInstance as VehicleSeriesOrLicense, 
+		StockMoves.BurdInstItemKey as VehicleModel, 
+		Items.ItemName as VehicleType, 
+		-- Invoice
+		StockMoves.quantity as Amount,
+		StockMoves.ItemName as ItemName,
+		Stock.DocNumber as InvoiceNum, 
+		Stock.ValueDate as InvoiceDate
+	from RAT2005.dbo.StockMoves 
+		join RAT2005.dbo.Stock on Stock.ID=StockMoves.StockID 
+		join RAT2005.dbo.Accounts on Accounts.AccountKey=Stock.AccountKey 
+		left outer join RAT2005.dbo.Items on StockMoves.BurdInstItemKey=Items.ItemKey 
+	where StockMoves.DocumentID in (79, 67, 1) -- and Stock.ValueDate >= '2023-01-01'
+GO
 
 ALTER TABLE hash_data_already_merged ADD DocumentRowId int DEFAULT 0;
 ALTER TABLE hash_data_already_merged ADD DocumentType varchar(200) DEFAULT null;
